@@ -5,26 +5,22 @@
 
 namespace emilpro
 {
-	class IFunction;
+	class ISymbol;
 
 	class IElf
 	{
 	public:
-		typedef std::list<IFunction *> FunctionList_t;
+		typedef std::list<ISymbol *> FunctionList_t;
 
-		class IFunctionListener
+		class ISymbolListener
 		{
 		public:
-			virtual void onFunction(IFunction &fn) = 0;
+			virtual void onFunction(ISymbol &fn) = 0;
 		};
 
 		static IElf *open(const char *filename);
 
 
-		virtual bool parse(IFunctionListener *listener) = 0;
-
-		virtual FunctionList_t functionByName(const char *name) = 0;
-
-		virtual IFunction *functionByAddress(void *addr) = 0;
+		virtual bool parse(ISymbolListener *listener) = 0;
 	};
 }

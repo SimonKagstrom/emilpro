@@ -7,10 +7,10 @@ namespace emilpro
 {
 	class IInstruction;
 
-	class IFunction
+	class ISymbol
 	{
 	public:
-		enum FunctionType
+		enum SymbolType
 		{
 			SYM_NORMAL,
 			SYM_DYNAMIC,
@@ -18,7 +18,7 @@ namespace emilpro
 
 		typedef std::list<IInstruction *> InstructionList_t;
 
-		virtual enum FunctionType getType() = 0;
+		virtual enum SymbolType getType() = 0;
 
 		virtual const char *getName() = 0;
 

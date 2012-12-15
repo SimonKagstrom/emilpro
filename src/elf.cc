@@ -1,5 +1,5 @@
 #include <elf.hh>
-#include <function.hh>
+#include <symbol.hh>
 #include <instruction.hh>
 #include <disassembly.hh>
 #include <utils.hh>
@@ -42,11 +42,11 @@ private:
 	std::string m_disassembled;
 };
 
-class Function : public IFunction, IDisassembly::IInstructionListener
+class Function : public ISymbol, IDisassembly::IInstructionListener
 {
 public:
 	Function(const char *name, uint8_t *data, void *addr, size_t size,
-			IFunction::FunctionType type)
+			ISymbol::SymbolType type)
 	{
 		m_name = xstrdup(name);
 		m_size = size;
@@ -66,7 +66,7 @@ public:
 		free((void *)m_name);
 	}
 
-	enum IFunction::FunctionType getType()
+	enum ISymbol::SymbolType getType()
 	{
 		return m_type;
 	}
@@ -122,7 +122,7 @@ private:
 	size_t m_size;
 	void *m_entry;
 	uint8_t *m_data;
-	enum IFunction::FunctionType m_type;
+	enum ISymbol::SymbolType m_type;
 
 	InstructionList_t m_instructions;
 };
@@ -176,7 +176,7 @@ out_open:
 		return out;
 	}
 
-	bool parse(IFunctionListener *listener)
+	bool parse(ISymbolListener *listener)
 	{
 		m_functionsByAddress.clear();
 		m_functionsByName.clear();
@@ -184,7 +184,7 @@ out_open:
 		return parseOne(listener);
 	}
 
-	bool parseOne(IFunctionListener *listener)
+	bool parseOne(ISymbolListener *listener)
 	{
 		Elf_Scn *scn = NULL;
 		Elf32_Ehdr *ehdr;
@@ -271,7 +271,7 @@ out_open:
 		return ret;
 	}
 
-	IFunction *functionByAddress(void *addr)
+	ISymbol *functionByAddress(void *addr)
 	{
 		return m_functionsByAddress[addr];
 	}
@@ -360,15 +360,15 @@ private:
 
 	void handleDynsym(Elf_Scn *scn)
 	{
-		handleSymtabGeneric(scn, IFunction::SYM_DYNAMIC);
+		handleSymtabGeneric(scn, ISymbol::SYM_DYNAMIC);
 	}
 
 	void handleSymtab(Elf_Scn *scn)
 	{
-		handleSymtabGeneric(scn, IFunction::SYM_NORMAL);
+		handleSymtabGeneric(scn, ISymbol::SYM_NORMAL);
 	}
 
-	void handleSymtabGeneric(Elf_Scn *scn, enum IFunction::FunctionType symType)
+	void handleSymtabGeneric(Elf_Scn *scn, enum ISymbol::SymbolType symType)
 	{
 		Elf32_Shdr *shdr = elf32_getshdr(scn);
 		Elf_Data *data = elf_getdata(scn, NULL);
@@ -424,7 +424,7 @@ private:
 
 	Elf *m_elf;
 	uint8_t *m_elfMemory;
-	IFunctionListener *m_listener;
+	ISymbolListener *m_listener;
 	const char *m_filename;
 };
 
