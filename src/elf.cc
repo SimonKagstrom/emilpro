@@ -46,7 +46,7 @@ class Function : public ISymbol, IDisassembly::IInstructionListener
 {
 public:
 	Function(const char *name, uint8_t *data, void *addr, size_t size,
-			ISymbol::SymbolType type)
+			ISymbol::LinkageType type)
 	{
 		m_name = xstrdup(name);
 		m_size = size;
@@ -66,7 +66,7 @@ public:
 		free((void *)m_name);
 	}
 
-	enum ISymbol::SymbolType getType()
+	enum ISymbol::LinkageType getType()
 	{
 		return m_type;
 	}
@@ -122,7 +122,7 @@ private:
 	size_t m_size;
 	void *m_entry;
 	uint8_t *m_data;
-	enum ISymbol::SymbolType m_type;
+	enum ISymbol::LinkageType m_type;
 
 	InstructionList_t m_instructions;
 };
@@ -360,15 +360,15 @@ private:
 
 	void handleDynsym(Elf_Scn *scn)
 	{
-		handleSymtabGeneric(scn, ISymbol::SYM_DYNAMIC);
+		handleSymtabGeneric(scn, ISymbol::LINK_DYNAMIC);
 	}
 
 	void handleSymtab(Elf_Scn *scn)
 	{
-		handleSymtabGeneric(scn, ISymbol::SYM_NORMAL);
+		handleSymtabGeneric(scn, ISymbol::LINK_NORMAL);
 	}
 
-	void handleSymtabGeneric(Elf_Scn *scn, enum ISymbol::SymbolType symType)
+	void handleSymtabGeneric(Elf_Scn *scn, enum ISymbol::LinkageType symType)
 	{
 		Elf32_Shdr *shdr = elf32_getshdr(scn);
 		Elf_Data *data = elf_getdata(scn, NULL);

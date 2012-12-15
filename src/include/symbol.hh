@@ -10,15 +10,15 @@ namespace emilpro
 	class ISymbol
 	{
 	public:
-		enum SymbolType
+		enum LinkageType
 		{
-			SYM_NORMAL,
-			SYM_DYNAMIC,
+			LINK_NORMAL,
+			LINK_DYNAMIC,
 		};
 
 		typedef std::list<IInstruction *> InstructionList_t;
 
-		virtual enum SymbolType getType() = 0;
+		virtual enum LinkageType getType() = 0;
 
 		virtual const char *getName() = 0;
 
