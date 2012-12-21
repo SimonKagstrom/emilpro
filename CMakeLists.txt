@@ -4,6 +4,17 @@ cmake_minimum_required (VERSION 2.6)
 # project name and version
 # ====================================
 project (emilpro)
+
+
+set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
+                        ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+# Dependencies
+find_package (LibElf REQUIRED)
+find_package (LibDwarf REQUIRED)
+find_package (LibBfd REQUIRED)
+find_package (LibOpdis REQUIRED)
+
 set (PROJECT_VERSION_MAJOR  1)
 set (PROJECT_VERSION_MINOR  0)
 set (PROJECT_VERSION_PATCH  0)
@@ -27,20 +38,17 @@ set (${TGT}_SRCS
 
 include_directories(
 	src/include/
-	/home/ska/local/include
+	${LIBELF_INCLUDE_DIRS}
+	${LIBDWARF_INCLUDE_DIRS}
+	${LIBOPDIS_INCLUDE_DIRS}
+	${LIBBFD_INCLUDE_DIRS}
 	)
-
-link_directories (
-	/home/ska/local/lib
-)
-
 
 add_executable (${TGT} ${${TGT}_SRCS})
 target_link_libraries(${TGT}
-	elf
-	opdis
-	bfd
-	opcodes
-	iberty
+	${LIBELF_LIBRARIES}
+	${LIBDWARF_LIBRARIES}
+	${LIBOPDIS_LIBRARIES}
+	${LIBBFD_LIBRARIES}
 	z
 	)
