@@ -18,5 +18,9 @@ TESTSUITE(symbol_provider)
 		char notElf[] = "\177ElF-ngt-annat";
 		res = factory.parseBestProvider(&notElf, sizeof(notElf));
 		ASSERT_TRUE(res != ISymbolProvider::PERFECT_MATCH);
+
+		char unparseableElf[] = "\177ELFjunk";
+		res = factory.parseBestProvider(&unparseableElf, sizeof(unparseableElf));
+		ASSERT_TRUE(res != ISymbolProvider::PERFECT_MATCH);
 	};
 }
