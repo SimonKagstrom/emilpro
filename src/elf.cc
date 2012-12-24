@@ -2,7 +2,6 @@
 #include <symbolfactory.hh>
 #include <isymbol.hh>
 #include <instruction.hh>
-#include <disassembly.hh>
 #include <utils.hh>
 
 #include <sys/types.h>

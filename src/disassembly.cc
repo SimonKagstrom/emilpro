@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <opdis/opdis.h>
 
-#include <disassembly.hh>
+#include <idisassembly.hh>
 #include <utils.hh>
 
 using namespace emilpro;
