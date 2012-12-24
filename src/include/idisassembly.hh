@@ -23,6 +23,6 @@ namespace emilpro
 
 
 		virtual bool execute(IInstructionListener *listener,
-				uint8_t *data, size_t size) = 0;
+				void *data, size_t size) = 0;
 	};
 }

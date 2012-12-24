@@ -23,8 +23,10 @@ public:
 	}
 
 	bool execute(IDisassembly::IInstructionListener *listener,
-			uint8_t *data, size_t size)
+			void *p, size_t size)
 	{
+		uint8_t *data = (uint8_t *)p;
+
 		if (!listener)
 			return false;
 
