@@ -36,7 +36,7 @@ public:
 
 		int v = opdis_buf_fill(buf, 0, data, size);
 
-		if (v == size) {
+		if (v == (int)size) {
 			m_listener = listener;
 			opdis_disasm_linear(m_opdis, buf, 0, size);
 		}

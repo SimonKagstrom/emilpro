@@ -23,19 +23,16 @@ using namespace emilpro;
 class Elf : public ISymbolProvider
 {
 public:
-	Elf(const char *filename)
+	Elf() :
+		m_elf(NULL),
+		m_listener(NULL),
+		m_elfMemory(NULL),
+		m_elfIs32Bit(true)
 	{
-		m_elf = NULL;
-		m_listener = NULL;
-		m_elfMemory = NULL;
-		m_filename = strdup(filename);
-		m_elfIs32Bit = true;
 	}
 
 	~Elf()
 	{
-		free(m_elfMemory);
-		free((void *)m_filename);
 	}
 
 	unsigned match(void *data, size_t dataSize)
@@ -52,7 +49,7 @@ public:
 	bool parse(void *data, size_t dataSize, ISymbolListener *listener)
 	{
 		if (!(m_elf = elf_memory((char *)data, dataSize)) ) {
-				error("elf_begin failed on %s\n", m_filename);
+				error("elf_begin failed\n");
 				return false;
 		}
 
@@ -72,13 +69,11 @@ public:
 	{
 		Elf_Scn *scn = NULL;
 		size_t shstrndx;
-		bool ret = false;
-		int fd;
 
 		m_listener = listener;
 
 		if (elf_getshdrstrndx(m_elf, &shstrndx) < 0) {
-				error("elf_getshstrndx failed on %s\n", m_filename);
+				error("elf_getshstrndx failed\n");
 				return false;
 		}
 
@@ -102,8 +97,8 @@ public:
 
 			data = elf_getdata(scn, NULL);
 			if(!data) {
-					error("elf_getdata failed on section %s in %s\n",
-							name, m_filename);
+					error("elf_getdata failed on section %s\n",
+							name);
 					return false;
 			}
 
@@ -214,6 +209,7 @@ private:
 	Elf *m_elf;
 	ISymbolListener *m_listener;
 	uint8_t *m_elfMemory;
-	const char *m_filename;
 	bool m_elfIs32Bit;
 };
+
+
