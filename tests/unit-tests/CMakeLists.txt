@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 2.6)
 # ====================================
 # project name and version
 # ====================================
-project (ut)
+project (emilpro-ut)
 set (PROJECT_VERSION "1.0.0")
 
 # Dependencies
@@ -16,7 +16,7 @@ find_package (LibBfd REQUIRED)
 find_package (LibOpdis REQUIRED)
 find_package (LibCRPCUT REQUIRED)
 
-set (TGT emilpro-ut)
+set (TGT ut)
 
 set (CMAKE_CXX_FLAGS "-std=c++0x -Wall -D_GLIBCXX_USE_NANOSLEEP")
 set (CMAKE_BUILD_TYPE debug)
