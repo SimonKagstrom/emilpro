@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <list>
 
 namespace emilpro
@@ -16,15 +17,33 @@ namespace emilpro
 			LINK_DYNAMIC,
 		};
 
+		enum SymbolType
+		{
+			SYM_TEXT,
+			SYM_DATA,
+			SYM_FILE,
+			SYM_SECTION,
+		};
+
 		typedef std::list<IInstruction *> InstructionList_t;
 
-		virtual enum LinkageType getType() = 0;
+
+		virtual ~ISymbol()
+		{
+		}
+
+		virtual enum LinkageType getLinkage() = 0;
+
+		virtual enum SymbolType getType() = 0;
 
 		virtual const char *getName() = 0;
 
-		virtual void *getEntry() = 0;
+		virtual void *getDataPtr() = 0;
 
-		virtual size_t getSize() = 0;
+		virtual uint64_t getAddress() = 0;
+
+		virtual uint64_t getSize() = 0;
+
 
 		virtual InstructionList_t &getInstructions() = 0;
 	};
