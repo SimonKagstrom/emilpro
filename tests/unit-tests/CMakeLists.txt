@@ -24,6 +24,7 @@ set (CMAKE_BUILD_TYPE debug)
 set (${TGT}_SRCS
 	../../src/disassembly.cc
 	../../src/elf.cc
+	../../src/symbolfactory.cc
 	../../src/utils.cc
 	main.cc
 	tests/tests-symbol-provider.cc

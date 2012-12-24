@@ -6,8 +6,6 @@
 
 namespace emilpro
 {
-	class IInstruction;
-
 	class ISymbol
 	{
 	public:
@@ -25,8 +23,6 @@ namespace emilpro
 			SYM_SECTION,
 		};
 
-		typedef std::list<IInstruction *> InstructionList_t;
-
 
 		virtual ~ISymbol()
 		{
@@ -43,8 +39,5 @@ namespace emilpro
 		virtual uint64_t getAddress() = 0;
 
 		virtual uint64_t getSize() = 0;
-
-
-		virtual InstructionList_t &getInstructions() = 0;
 	};
 }
