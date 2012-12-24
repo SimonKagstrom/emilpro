@@ -100,6 +100,7 @@ unsigned SymbolFactory::parseBestProvider(void *data, size_t size)
 		unsigned cur = p->match(data, size);
 
 		if (cur > highest) {
+			highest = cur;
 			best = p;
 			break;
 		}
