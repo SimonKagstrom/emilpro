@@ -28,12 +28,12 @@ public:
 
 	void onSymbol(ISymbol &sym)
 	{
-		m_symbolNames[sym.getName()] = true;
-		m_symbolAddrs[sym.getAddress()] = true;
+		m_symbolNames[sym.getName()] = &sym;
+		m_symbolAddrs[sym.getAddress()] = &sym;
 	}
 
-	std::unordered_map<std::string, bool> m_symbolNames;
-	std::unordered_map<uint64_t, bool> m_symbolAddrs;
+	std::unordered_map<std::string, ISymbol *> m_symbolNames;
+	std::unordered_map<uint64_t, ISymbol *> m_symbolAddrs;
 };
 
 TESTSUITE(symbol_provider)
