@@ -35,7 +35,6 @@ public:
 
 	void onInstruction(off_t offset, const char *ascii)
 	{
-		printf("%03x: %s\n", offset, ascii);
 		m_instructions[offset] = std::string(ascii);
 	}
 
