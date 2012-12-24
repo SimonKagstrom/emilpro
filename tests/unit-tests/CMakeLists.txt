@@ -26,6 +26,7 @@ set (${TGT}_SRCS
 	../../src/elf.cc
 	../../src/utils.cc
 	main.cc
+	tests/tests-symbol-provider.cc
 	)
 
 include_directories(
@@ -44,5 +45,6 @@ target_link_libraries(${TGT}
 	${LIBOPDIS_LIBRARIES}
 	${LIBBFD_LIBRARIES}
 	${LIBCRPCUT_LIBRARIES}
+	gtest
 	z
 	)
