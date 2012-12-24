@@ -19,7 +19,8 @@ public:
 				m_linkage(linkage),
 				m_data(data),
 				m_address(address),
-				m_size(size)
+				m_size(size),
+				m_name(name)
 	{
 	}
 
@@ -59,7 +60,6 @@ private:
 	void *m_data;
 	uint64_t m_address;
 	uint64_t m_size;
-
 	std::string m_name;
 };
 
