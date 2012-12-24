@@ -1,6 +1,6 @@
 #include <isymbolprovider.hh>
 #include <symbolfactory.hh>
-#include <symbol.hh>
+#include <isymbol.hh>
 #include <instruction.hh>
 #include <disassembly.hh>
 #include <utils.hh>
@@ -20,10 +20,10 @@
 
 using namespace emilpro;
 
-class Elf : public ISymbolProvider
+class ElfProvider : public ISymbolProvider
 {
 public:
-	Elf() :
+	ElfProvider() :
 		m_elf(NULL),
 		m_listener(NULL),
 		m_elfMemory(NULL),
@@ -31,7 +31,7 @@ public:
 	{
 	}
 
-	~Elf()
+	~ElfProvider()
 	{
 	}
 
@@ -213,3 +213,15 @@ private:
 };
 
 
+class Registrer
+{
+public:
+	Registrer()
+	{
+		ElfProvider *elf = new ElfProvider();
+
+		SymbolFactory::instance().registerProvider(elf);
+	}
+};
+
+static Registrer registrer;

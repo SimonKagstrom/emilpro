@@ -2,7 +2,7 @@
 
 #include <list>
 
-#include "symbol.hh"
+#include "isymbol.hh"
 
 namespace emilpro
 {
