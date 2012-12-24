@@ -124,8 +124,6 @@ private:
 		size_t m_size;
 	};
 
-	typedef std::list<Segment> SegmentList_t;
-
 	void handleSymtab(Elf_Scn *scn)
 	{
 		handleSymtabGeneric(scn, ISymbol::LINK_NORMAL);
@@ -167,23 +165,39 @@ private:
 			Elf_Scn *symScn;
 			uint64_t addr;
 			uint64_t size;
+			uint64_t offset = 0;
 
 			if (m_elfIs32Bit) {
 				Elf32_Sym *s = (Elf32_Sym *)p;
 
+				symScn = elf_getscn(m_elf, s->st_shndx);
 				sym_name = elf_strptr(m_elf, sh_link, s->st_name);
 				st_type = ELF32_ST_TYPE(s->st_info);
-				symScn = elf_getscn(m_elf, s->st_shndx);
 				addr = s->st_value;
 				size = s->st_size;
+
+				if (symScn) {
+					Elf32_Shdr *shdr = elf32_getshdr(symScn);
+
+					if (addr >= shdr->sh_addr)
+						offset = addr - shdr->sh_addr + shdr->sh_offset;
+				}
 			} else {
 				Elf64_Sym *s = (Elf64_Sym *)p;
 
+				symScn = elf_getscn(m_elf, s->st_shndx);
 				sym_name = elf_strptr(m_elf, sh_link, s->st_name);
 				st_type = ELF64_ST_TYPE(s->st_info);
-				symScn = elf_getscn(m_elf, s->st_shndx);
 				addr = s->st_value;
 				size = s->st_size;
+
+				// File offset
+				if (symScn) {
+					Elf64_Shdr *shdr = elf64_getshdr(symScn);
+
+					if (addr >= shdr->sh_addr)
+						offset = addr - shdr->sh_addr + shdr->sh_offset;
+				}
 			}
 
 			if (st_type == STT_FILE ||
@@ -197,13 +211,12 @@ private:
 					ISymbol::LINK_NORMAL,
 					ISymbol::SYM_TEXT,
 					sym_name,
-					(void *)addr,  // FIXME!
+					(void *)(m_elfMemory + offset),
 					addr,
 					size));
 			p += sizeOfSymbol;
 		}
 	}
-	SegmentList_t m_curSegments;
 
 	Elf *m_elf;
 	ISymbolListener *m_listener;
