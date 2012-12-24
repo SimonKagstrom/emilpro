@@ -181,7 +181,7 @@ private:
 				Elf64_Sym *s = (Elf64_Sym *)p;
 
 				sym_name = elf_strptr(m_elf, sh_link, s->st_name);
-				st_type = ELF32_ST_TYPE(s->st_info);
+				st_type = ELF64_ST_TYPE(s->st_info);
 				symScn = elf_getscn(m_elf, s->st_shndx);
 				addr = s->st_value;
 				size = s->st_size;
