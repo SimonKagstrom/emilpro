@@ -7,9 +7,20 @@
 
 using namespace emilpro;
 
+class FactoryFixture
+{
+public:
+	~FactoryFixture()
+	{
+		SymbolFactory &factory = SymbolFactory::instance();
+
+		factory.destroy();
+	}
+};
+
 TESTSUITE(symbol_provider)
 {
-	TEST(nonPerfectMatches)
+	TEST(nonPerfectMatches, FactoryFixture)
 	{
 		SymbolFactory &factory = SymbolFactory::instance();
 		unsigned res;
@@ -26,7 +37,7 @@ TESTSUITE(symbol_provider)
 		ASSERT_TRUE(res != ISymbolProvider::PERFECT_MATCH);
 	};
 
-	TEST(validElf)
+	TEST(validElf, FactoryFixture)
 	{
 		SymbolFactory &factory = SymbolFactory::instance();
 		unsigned res;
