@@ -5,17 +5,35 @@
 
 #include <utils.hh>
 
+#include <unordered_map>
+
 using namespace emilpro;
 
-class FactoryFixture
+class FactoryFixture : public ISymbolListener
 {
 public:
+	FactoryFixture()
+	{
+		SymbolFactory &factory = SymbolFactory::instance();
+
+		factory.registerListener(this);
+	}
+
 	~FactoryFixture()
 	{
 		SymbolFactory &factory = SymbolFactory::instance();
 
 		factory.destroy();
 	}
+
+	void onSymbol(ISymbol &sym)
+	{
+		m_symbolNames[sym.getName()] = true;
+		m_symbolAddrs[sym.getAddress()] = true;
+	}
+
+	std::unordered_map<std::string, bool> m_symbolNames;
+	std::unordered_map<uint64_t, bool> m_symbolAddrs;
 };
 
 TESTSUITE(symbol_provider)
@@ -48,5 +66,8 @@ TESTSUITE(symbol_provider)
 
 		res = factory.parseBestProvider(data, sz);
 		ASSERT_TRUE(res > ISymbolProvider::NO_MATCH);
+
+		ASSERT_TRUE(m_symbolNames.find("main") != m_symbolNames.end());
+		ASSERT_TRUE(m_symbolNames.find("global_data") != m_symbolNames.end());
 	}
 }
