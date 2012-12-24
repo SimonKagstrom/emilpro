@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 2.6)
 # ====================================
 # project name and version
 # ====================================
-project (emilpro-ut)
+project (ut)
 set (PROJECT_VERSION "1.0.0")
 
 # Dependencies
