@@ -10,7 +10,7 @@
 
 using namespace emilpro;
 
-class FactoryFixture : public ISymbolListener, public IDisassembly::IInstructionListener
+class FactoryFixture : public ISymbolListener
 {
 public:
 	FactoryFixture()
@@ -33,15 +33,8 @@ public:
 		m_symbolAddrs[sym.getAddress()] = &sym;
 	}
 
-	void onInstruction(off_t offset, const char *ascii)
-	{
-		m_instructions[offset] = std::string(ascii);
-	}
-
 	std::unordered_map<std::string, ISymbol *> m_symbolNames;
 	std::unordered_map<uint64_t, ISymbol *> m_symbolAddrs;
-
-	std::unordered_map<uint64_t, std::string> m_instructions;
 };
 
 TESTSUITE(symbol_provider)
@@ -85,10 +78,8 @@ TESTSUITE(symbol_provider)
 		ASSERT_TRUE(sym->getDataPtr() != (void *)NULL);
 		IDisassembly &dis = IDisassembly::getInstance();
 
-		ASSERT_TRUE(m_instructions.size() == 0U);
 		// Disassemble main()
-		dis.execute(this, sym->getDataPtr(), sym->getSize());
-
-		ASSERT_TRUE(m_instructions.size() > 0U);
+		IDisassembly::InstructionList_t insns = dis.execute(sym->getDataPtr(), sym->getSize());
+		ASSERT_TRUE(insns.size() > 0U);
 	}
 }

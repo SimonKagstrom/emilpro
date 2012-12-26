@@ -2,27 +2,23 @@
 
 #include <sys/types.h>
 #include <stdint.h>
+#include <list>
 
 namespace emilpro
 {
+	class IInstruction;
+
 	class IDisassembly
 	{
 	public:
-		class IInstructionListener
-		{
-		public:
-			virtual void onInstruction(off_t offset, const char *ascii) = 0;
-		};
+		typedef std::list<IInstruction *> InstructionList_t;
 
 		virtual ~IDisassembly()
 		{
 		}
 
-
 		static IDisassembly &getInstance();
 
-
-		virtual bool execute(IInstructionListener *listener,
-				void *data, size_t size) = 0;
+		virtual InstructionList_t execute(void *data, size_t size) = 0;
 	};
 }

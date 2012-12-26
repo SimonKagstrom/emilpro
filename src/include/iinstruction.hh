@@ -11,8 +11,6 @@ namespace emilpro
 		{
 		}
 
-		virtual void *getAddress() = 0;
-
-		virtual std::string &disassemble() = 0;
+		virtual uint64_t getAddress() = 0;
 	};
 }

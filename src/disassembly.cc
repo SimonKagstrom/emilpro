@@ -3,9 +3,23 @@
 #include <opdis/opdis.h>
 
 #include <idisassembly.hh>
+#include <iinstruction.hh>
 #include <utils.hh>
 
 using namespace emilpro;
+
+class Instruction : public IInstruction
+{
+public:
+	Instruction()
+	{
+	}
+
+	uint64_t getAddress()
+	{
+		return 0;
+	}
+};
 
 class Disassembly : public IDisassembly
 {
@@ -13,6 +27,7 @@ public:
 	Disassembly()
 	{
 	    m_opdis = opdis_init();
+	    m_list = NULL;
 
 	    opdis_set_display(m_opdis, opdisDisplayStatic, (void *)this);
 	}
@@ -22,31 +37,25 @@ public:
 	    opdis_term(m_opdis);
 	}
 
-	bool execute(IDisassembly::IInstructionListener *listener,
-			void *p, size_t size)
+	InstructionList_t execute(void *p, size_t size)
 	{
+		InstructionList_t out;
 		uint8_t *data = (uint8_t *)p;
 
-		if (!listener)
-			return false;
-
 		if (!data || size == 0)
-			return false;
+			return out;
 
-		bool out = true;
 		opdis_buf_t buf = opdis_buf_alloc(size, 0);
 
 		int v = opdis_buf_fill(buf, 0, data, size);
 
 		if (v == (int)size) {
-			m_listener = listener;
+			m_list = &out;
 			opdis_disasm_linear(m_opdis, buf, 0, size);
-		}
-		else {
-			out = false;
 		}
 
 		opdis_buf_free(buf);
+		m_list = NULL;
 
 		return out;
 	}
@@ -54,10 +63,12 @@ public:
 private:
 	void opdisDisplay(const opdis_insn_t *insn)
 	{
-	    panic_if(!m_listener,
-	             "No listener when displaying!");
+	    panic_if(!m_list,
+	             "No list when displaying!");
 
-	    m_listener->onInstruction(insn->offset, insn->ascii);
+	    Instruction *cur = new Instruction();
+
+	    m_list->push_back(cur);
 	}
 
 	static void opdisDisplayStatic(const opdis_insn_t *insn, void *arg)
@@ -68,7 +79,7 @@ private:
 	}
 
 	opdis_t m_opdis;
-	IInstructionListener *m_listener;
+	InstructionList_t *m_list;
 };
 
 
