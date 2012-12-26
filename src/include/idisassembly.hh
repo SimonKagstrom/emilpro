@@ -19,6 +19,6 @@ namespace emilpro
 
 		static IDisassembly &getInstance();
 
-		virtual InstructionList_t execute(void *data, size_t size) = 0;
+		virtual InstructionList_t execute(void *data, size_t size, uint64_t address) = 0;
 	};
 }
