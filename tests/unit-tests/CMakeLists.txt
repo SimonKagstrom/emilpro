@@ -27,6 +27,7 @@ set (${TGT}_SRCS
 	../../src/symbolfactory.cc
 	../../src/utils.cc
 	main.cc
+	tests/tests-disassembly.cc
 	tests/tests-symbol-provider.cc
 	)
 
