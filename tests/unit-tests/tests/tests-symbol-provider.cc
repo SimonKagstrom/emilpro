@@ -74,7 +74,7 @@ TESTSUITE(symbol_provider)
 		ISymbol *sym = m_symbolNames["main"];
 		ASSERT_TRUE(sym != (void *)NULL);
 
-		ASSERT_TRUE(sym->getSize() > 1);
+		ASSERT_TRUE(sym->getSize() > 1U);
 		ASSERT_TRUE(sym->getDataPtr() != (void *)NULL);
 		IDisassembly &dis = IDisassembly::getInstance();
 
