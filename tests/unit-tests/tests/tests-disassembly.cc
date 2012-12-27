@@ -60,7 +60,7 @@ TESTSUITE(disassembly)
 		p = m[0x1000 +  0]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getEncoding().find("jbe") != std::string::npos);
 		ASSERT_TRUE(p->getType() == IInstruction::IT_CFLOW);
-		ASSERT_TRUE(p->getTargetAddress() == 0x1000 + 5U);
+		ASSERT_TRUE(p->getBranchTargetAddress() == 0x1000 + 5U);
 
 		p = m[0x1000 +  2]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getEncoding().find("mov") != std::string::npos);
@@ -74,7 +74,7 @@ TESTSUITE(disassembly)
 		ASSERT_TRUE(p->getEncoding().find("call") != std::string::npos);
 		ASSERT_TRUE(p->getType() == IInstruction::IT_CFLOW);
 		ASSERT_TRUE(p->isPrivileged() == IInstruction::T_false);
-		ASSERT_TRUE(p->getTargetAddress() == 0x1000 + 28U);
+		ASSERT_TRUE(p->getBranchTargetAddress() == 0x1000 + 28U);
 
 		p = m[0x1000 + 27]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getEncoding().find("hlt") != std::string::npos);

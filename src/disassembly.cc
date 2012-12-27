@@ -50,7 +50,7 @@ public:
 		return m_address;
 	}
 
-	uint64_t getTargetAddress()
+	uint64_t getBranchTargetAddress()
 	{
 		return m_targetAddress;
 	}
