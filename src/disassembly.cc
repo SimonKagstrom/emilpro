@@ -28,8 +28,9 @@ private:
 class Instruction : public IInstruction
 {
 public:
-	Instruction(uint64_t address, InstructionType_t type, const char *encoding, Ternary_t privileged) :
+	Instruction(uint64_t address, uint64_t targetAddress, InstructionType_t type, const char *encoding, Ternary_t privileged) :
 		m_address(address),
+		m_targetAddress(targetAddress),
 		m_type(type),
 		m_encoding(encoding),
 		m_privileged(privileged)
@@ -47,6 +48,11 @@ public:
 	uint64_t getAddress()
 	{
 		return m_address;
+	}
+
+	uint64_t getTargetAddress()
+	{
+		return m_targetAddress;
 	}
 
 	Ternary_t isPrivileged()
@@ -71,6 +77,7 @@ public:
 
 private:
 	uint64_t m_address;
+	uint64_t m_targetAddress;
 	InstructionType_t m_type;
 	std::string m_encoding;
 	Ternary_t m_privileged;
@@ -127,6 +134,7 @@ private:
 				"No list when displaying!");
 
 		uint64_t address = m_startAddress + insn->offset;
+		uint64_t targetAddress = address;
 		IInstruction::InstructionType_t type = IInstruction::IT_UNKNOWN;
 		const char *encoding = insn->ascii;
 		IInstruction::Ternary_t privileged = IInstruction::T_unknown;
@@ -158,7 +166,12 @@ private:
 			}
 		}
 
-		Instruction *cur = new Instruction(address, type, encoding, privileged);
+		if ((insn->status & opdis_decode_ops) && insn->target) {
+			if (insn->target->category == opdis_op_cat_immediate)
+				targetAddress = m_startAddress + (uint64_t)insn->target->value.immediate.vma;
+		}
+
+		Instruction *cur = new Instruction(address, targetAddress, type, encoding, privileged);
 
 		m_list->push_back(cur);
 	}

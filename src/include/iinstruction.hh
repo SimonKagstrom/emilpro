@@ -44,6 +44,11 @@ namespace emilpro
 
 		virtual uint64_t getAddress() = 0;
 
+		/**
+		 * Return the target address for branches/calls.
+		 */
+		virtual uint64_t getTargetAddress() = 0;
+
 		virtual Ternary_t isPrivileged() = 0;
 
 		virtual InstructionType_t getType() = 0;
