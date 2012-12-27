@@ -50,4 +50,6 @@ target_link_libraries(${TGT}
 	${LIBCRPCUT_LIBRARIES}
 	gtest
 	z
+	pthread
+	dl
 	)
