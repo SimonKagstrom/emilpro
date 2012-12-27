@@ -167,8 +167,13 @@ private:
 		}
 
 		if ((insn->status & opdis_decode_ops) && insn->target) {
+
 			if (insn->target->category == opdis_op_cat_immediate)
 				targetAddress = m_startAddress + (uint64_t)insn->target->value.immediate.vma;
+
+			// Assume a flat address space model
+			else if (insn->target->category == opdis_op_cat_absolute)
+				targetAddress = (uint64_t)insn->target->value.abs.offset;
 		}
 
 		Instruction *cur = new Instruction(address, targetAddress, type, encoding, privileged);
