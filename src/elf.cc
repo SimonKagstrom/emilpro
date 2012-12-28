@@ -29,7 +29,7 @@ public:
 	{
 	}
 
-	~ElfProvider()
+	virtual ~ElfProvider()
 	{
 	}
 
