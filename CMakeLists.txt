@@ -30,6 +30,7 @@ set (TGT emilpro)
 set (CMAKE_BUILD_TYPE debug)
 
 set (${TGT}_SRCS
+	src/architecturefactory.cc
 	src/disassembly.cc
 	src/elf.cc
 	src/symbolfactory.cc

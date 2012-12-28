@@ -2,6 +2,11 @@
 #include <stdint.h>
 #include <opdis/opdis.h>
 
+#include <map>
+
+#include <bfd.h>
+
+#include <architecturefactory.hh>
 #include <idisassembly.hh>
 #include <iinstruction.hh>
 #include <utils.hh>
@@ -109,22 +114,50 @@ private:
 	IInstruction::OperandList_t m_operands;
 };
 
-class Disassembly : public IDisassembly
+class Disassembly : public IDisassembly, ArchitectureFactory::IArchitectureListener
 {
 public:
 	Disassembly()
 	{
-	    m_opdis = opdis_init();
+	    m_opdis = NULL;
 	    m_list = NULL;
 	    m_startAddress = 0;
 
+	    m_arch[ArchitectureFactory::ARCH_386] = (BfdArch_t){bfd_arch_i386, print_insn_i386};
+	    m_arch[ArchitectureFactory::ARCH_X86_64] = (BfdArch_t){bfd_arch_i386, print_insn_i386};
+	    m_arch[ArchitectureFactory::ARCH_PPC] = (BfdArch_t){bfd_arch_powerpc, print_insn_big_powerpc};
+	    m_arch[ArchitectureFactory::ARCH_PPC64] = (BfdArch_t){bfd_arch_powerpc, print_insn_big_powerpc};
+	    m_arch[ArchitectureFactory::ARCH_ARM] = (BfdArch_t){bfd_arch_arm, print_insn_little_arm};
+	    m_arch[ArchitectureFactory::ARCH_MIPS] = (BfdArch_t){bfd_arch_mips, print_insn_big_mips};
+	    m_arch[ArchitectureFactory::ARCH_MIPS_RS3_LE] = (BfdArch_t){bfd_arch_mips, print_insn_little_mips};
+	}
+
+	void init()
+	{
+	    m_opdis = opdis_init();
+
 	    opdis_set_display(m_opdis, opdisDisplayStatic, (void *)this);
 	    opdis_set_x86_syntax(m_opdis, opdis_x86_syntax_att); // TMP!
+
+	    ArchitectureFactory::instance().registerListener(this);
 	}
 
 	virtual ~Disassembly()
 	{
-	    opdis_term(m_opdis);
+		if (m_opdis)
+			opdis_term(m_opdis);
+	}
+
+	virtual void onArchitectureDetected(ArchitectureFactory::Architecture_t arch)
+	{
+		ArchitectureBfdMap_t::iterator it = m_arch.find(arch);
+
+		if (it != m_arch.end())
+		{
+			BfdArch_t cur = it->second;
+
+			opdis_set_arch(m_opdis, cur.bfd_arch, 0, cur.callback);
+		}
 	}
 
 	InstructionList_t execute(void *p, size_t size, uint64_t address)
@@ -247,6 +280,16 @@ private:
 	opdis_t m_opdis;
 	InstructionList_t *m_list;
 	uint64_t m_startAddress;
+
+	typedef struct bfdArch
+	{
+		enum bfd_architecture bfd_arch;
+		disassembler_ftype callback;
+	} BfdArch_t;
+
+	typedef std::map<ArchitectureFactory::Architecture_t, struct bfdArch> ArchitectureBfdMap_t;
+
+	ArchitectureBfdMap_t m_arch;
 };
 
 
@@ -254,8 +297,11 @@ IDisassembly &IDisassembly::getInstance()
 {
 	static Disassembly *instance;
 
-	if (!instance)
+	if (!instance) {
 		instance = new Disassembly();
+
+		instance->init();
+	}
 
 	return *instance;
 }

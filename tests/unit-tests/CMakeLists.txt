@@ -22,6 +22,7 @@ set (CMAKE_CXX_FLAGS "-std=c++0x -Wall -D_GLIBCXX_USE_NANOSLEEP")
 set (CMAKE_BUILD_TYPE debug)
 
 set (${TGT}_SRCS
+	../../src/architecturefactory.cc
 	../../src/disassembly.cc
 	../../src/elf.cc
 	../../src/symbolfactory.cc

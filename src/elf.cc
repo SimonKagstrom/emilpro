@@ -1,6 +1,7 @@
 #include <isymbolprovider.hh>
 #include <symbolfactory.hh>
 #include <isymbol.hh>
+#include <architecturefactory.hh>
 #include <utils.hh>
 
 #include <sys/types.h>
@@ -56,6 +57,22 @@ public:
 
 		if (raw && sz > EI_CLASS)
 			m_elfIs32Bit = raw[EI_CLASS] == ELFCLASS32;
+
+		// Already coincides with e_machine
+		unsigned int arch = ArchitectureFactory::ARCH_UNKNOWN;
+		if (m_elfIs32Bit) {
+			Elf32_Ehdr *ehdr = elf32_getehdr(m_elf);
+
+			if (ehdr)
+				arch = ehdr->e_machine;
+		} else {
+			Elf64_Ehdr *ehdr = elf64_getehdr(m_elf);
+
+			if (ehdr)
+				arch = ehdr->e_machine;
+		}
+
+		ArchitectureFactory::instance().provideArchitecture((ArchitectureFactory::Architecture_t)arch);
 
 		m_elfMemory = (uint8_t *)data;
 		m_listener = listener;
