@@ -6,14 +6,36 @@
 
 namespace emilpro
 {
+	typedef enum
+	{
+		T_false = false,
+		T_true = true,
+		T_unknown,
+	} Ternary_t;
+
+
 	class IOperand
 	{
 	public:
+		typedef enum
+		{
+			OP_UNKNOWN,
+			OP_REGISTER,
+			OP_ADDRESS,
+			OP_IMMEDIATE
+		} OperandType_t;
+
 		virtual ~IOperand()
 		{
 		}
 
-		virtual std::string &getEncoding() = 0;
+		virtual Ternary_t isTarget() const = 0;
+
+		virtual OperandType_t getType() const = 0;
+
+		virtual uint64_t getValue() const = 0;
+
+		virtual const std::string &getEncoding() const = 0;
 	};
 
 	class IInstruction
@@ -28,14 +50,7 @@ namespace emilpro
 			IT_OTHER,
 		} InstructionType_t;
 
-		typedef enum
-		{
-			T_false = false,
-			T_true = true,
-			T_unknown,
-		} Ternary_t;
-
-		typedef std::list<const IOperand *> OperandList_t;
+		typedef std::list<IOperand *> OperandList_t;
 
 
 		virtual ~IInstruction()

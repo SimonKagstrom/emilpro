@@ -11,18 +11,36 @@ using namespace emilpro;
 class Operand : public IOperand
 {
 public:
-	Operand(const char *encoding) :
-		m_encoding(encoding)
+	Operand(const char *encoding, Ternary_t isTarget, OperandType_t type, uint64_t value) :
+		m_encoding(encoding), m_isTarget(isTarget), m_type(type), m_value(value)
 	{
 	}
 
-	virtual std::string &getEncoding()
+	Ternary_t isTarget() const
+	{
+		return m_isTarget;
+	}
+
+	OperandType_t getType() const
+	{
+		return m_type;
+	}
+
+	const std::string &getEncoding() const
 	{
 		return m_encoding;
 	}
 
+	uint64_t getValue() const
+	{
+		return m_value;
+	}
+
 private:
 	std::string m_encoding;
+	Ternary_t m_isTarget;
+	OperandType_t m_type;
+	uint64_t m_value;
 };
 
 class Instruction : public IInstruction
@@ -45,6 +63,12 @@ public:
 			delete *it;
 	}
 
+	void addOperand(Operand *op)
+	{
+		m_operands.push_back(op);
+	}
+
+	// From IInstruction
 	uint64_t getAddress()
 	{
 		return m_address;
@@ -95,6 +119,7 @@ public:
 	    m_startAddress = 0;
 
 	    opdis_set_display(m_opdis, opdisDisplayStatic, (void *)this);
+	    opdis_set_x86_syntax(m_opdis, opdis_x86_syntax_att); // TMP!
 	}
 
 	virtual ~Disassembly()
@@ -128,6 +153,7 @@ public:
 	}
 
 private:
+
 	void opdisDisplay(const opdis_insn_t *insn)
 	{
 		panic_if(!m_list,
@@ -137,10 +163,10 @@ private:
 		uint64_t targetAddress = address;
 		IInstruction::InstructionType_t type = IInstruction::IT_UNKNOWN;
 		const char *encoding = insn->ascii;
-		IInstruction::Ternary_t privileged = IInstruction::T_unknown;
+		Ternary_t privileged = T_unknown;
 
 		if (insn->status & opdis_decode_mnem_flags) {
-			privileged = IInstruction::T_false;
+			privileged = T_false;
 
 			switch (insn->category)
 			{
@@ -158,7 +184,7 @@ private:
 				break;
 			case opdis_insn_cat_priv:
 				type = IInstruction::IT_OTHER;
-				privileged = IInstruction::T_true;
+				privileged = T_true;
 				break;
 			default:
 				type = IInstruction::IT_OTHER;
@@ -177,6 +203,36 @@ private:
 		}
 
 		Instruction *cur = new Instruction(address, targetAddress, type, encoding, privileged);
+
+		if (insn->status & opdis_decode_ops) {
+
+			for (unsigned i = 0; i < insn->num_operands; i++) {
+				opdis_op_t *op = insn->operands[i];
+
+				Ternary_t isTarget = T_false;
+				IOperand::OperandType_t type = IOperand::OP_UNKNOWN;
+				uint64_t value = 0;
+
+				if (op->flags == opdis_op_flag_none)
+					isTarget = T_unknown;
+				if (op->flags & opdis_op_flag_w)
+					isTarget = T_true;
+
+				if (op->category == opdis_op_cat_register) {
+					type = IOperand::OP_REGISTER;
+				} else if (op->category == opdis_op_cat_immediate) {
+					type = IOperand::OP_IMMEDIATE;
+					value = op->value.immediate.u;
+				} else if (op->category == opdis_op_cat_absolute) {
+					type = IOperand::OP_ADDRESS;
+					value = op->value.abs.offset;
+				}
+
+				Operand *p = new Operand(op->ascii, isTarget, type, value);
+
+				cur->addOperand(p);
+			}
+		}
 
 		m_list->push_back(cur);
 	}
