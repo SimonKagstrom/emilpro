@@ -183,6 +183,8 @@ private:
 			uint64_t size;
 			uint64_t offset = 0;
 
+			enum ISymbol::SymbolType symType = ISymbol::SYM_TEXT;
+
 			if (m_elfIs32Bit) {
 				Elf32_Sym *s = (Elf32_Sym *)p;
 
@@ -223,9 +225,12 @@ private:
 				continue;
 			}
 
+			if (st_type == STT_OBJECT)
+				symType = ISymbol::SYM_DATA;
+
 			m_listener->onSymbol(SymbolFactory::instance().createSymbol(
 					ISymbol::LINK_NORMAL,
-					ISymbol::SYM_TEXT,
+					symType,
 					sym_name,
 					(void *)(m_elfMemory + offset),
 					addr,
