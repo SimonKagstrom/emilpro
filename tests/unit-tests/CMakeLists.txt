@@ -18,7 +18,7 @@ find_package (LibCRPCUT REQUIRED)
 
 set (TGT ut)
 
-set (CMAKE_CXX_FLAGS "-std=c++0x -Wall -D_GLIBCXX_USE_NANOSLEEP")
+set (CMAKE_CXX_FLAGS "-std=c++0x -Wall -D_GLIBCXX_USE_NANOSLEEP -DPACKAGE=emilpro -DPACKAGE_VERSION=1")
 set (CMAKE_BUILD_TYPE debug)
 
 set (${TGT}_SRCS
