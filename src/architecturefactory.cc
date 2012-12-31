@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <architecturefactory.hh>
 
 using namespace emilpro;
