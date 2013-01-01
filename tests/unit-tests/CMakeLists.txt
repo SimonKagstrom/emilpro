@@ -6,6 +6,8 @@ cmake_minimum_required (VERSION 2.6)
 project (emilpro-ut)
 set (PROJECT_VERSION "1.0.0")
 
+enable_language(ASM)
+
 # Dependencies
 set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake)
@@ -42,6 +44,7 @@ include_directories(
 	)
 
 add_executable (test-binary
+	elf-assembly.S
 	elf-example-source.cc)
 
 add_executable (${TGT} ${${TGT}_SRCS})

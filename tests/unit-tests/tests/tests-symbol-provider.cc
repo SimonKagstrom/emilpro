@@ -89,4 +89,29 @@ TESTSUITE(symbol_provider)
 		ASSERT_TRUE(sym->getSize() > 1U);
 		ASSERT_TRUE(sym->getType() == ISymbol::SYM_DATA);
 	}
+
+	TEST(deduceSymbolSize, FactoryFixture)
+	{
+		SymbolFactory &factory = SymbolFactory::instance();
+		unsigned res;
+
+		size_t sz;
+		void *data = read_file(&sz, "%s/test-binary", crpcut::get_start_dir());
+		ASSERT_TRUE(data != (void *)NULL);
+
+		res = factory.parseBestProvider(data, sz);
+		ASSERT_TRUE(res > ISymbolProvider::NO_MATCH);
+
+		ISymbol *sym;
+
+		sym = m_symbolNames["asm_sym1"];
+		ASSERT_TRUE(sym != (void *)NULL);
+		ASSERT_TRUE(sym->getSize() == 128U);
+		ASSERT_TRUE(sym->getType() == ISymbol::SYM_DATA);
+
+		sym = m_symbolNames["asm_sym2"];
+		ASSERT_TRUE(sym != (void *)NULL);
+		ASSERT_TRUE(sym->getSize() == 4U);
+		ASSERT_TRUE(sym->getType() == ISymbol::SYM_DATA);
+	}
 }
