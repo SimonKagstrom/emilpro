@@ -41,7 +41,8 @@ include_directories(
 	${LIBCRPCUT_INCLUDE_DIRS}
 	)
 
-add_executable (test-binary test-elf.cc)
+add_executable (test-binary
+	elf-example-source.cc)
 
 add_executable (${TGT} ${${TGT}_SRCS})
 target_link_libraries(${TGT}
