@@ -74,6 +74,7 @@ TESTSUITE(symbol_provider)
 		ISymbol *sym = m_symbolNames["main"];
 		ASSERT_TRUE(sym != (void *)NULL);
 
+		ASSERT_TRUE(sym->getType() == ISymbol::SYM_TEXT);
 		ASSERT_TRUE(sym->getSize() > 1U);
 		ASSERT_TRUE(sym->getDataPtr() != (void *)NULL);
 		IDisassembly &dis = IDisassembly::getInstance();
@@ -81,5 +82,11 @@ TESTSUITE(symbol_provider)
 		// Disassemble main()
 		IDisassembly::InstructionList_t insns = dis.execute(sym->getDataPtr(), sym->getSize(), sym->getAddress());
 		ASSERT_TRUE(insns.size() > 0U);
+
+
+		sym = m_symbolNames["global_data"];
+		ASSERT_TRUE(sym != (void *)NULL);
+		ASSERT_TRUE(sym->getSize() > 1U);
+		ASSERT_TRUE(sym->getType() == ISymbol::SYM_DATA);
 	}
 }
