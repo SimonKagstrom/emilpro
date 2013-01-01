@@ -125,11 +125,13 @@ public:
 
 	    m_arch[ArchitectureFactory::ARCH_386] = (BfdArch_t){bfd_arch_i386, print_insn_i386};
 	    m_arch[ArchitectureFactory::ARCH_X86_64] = (BfdArch_t){bfd_arch_i386, print_insn_i386};
+#if defined(HAVE_BFD_MULTIARCH)
 	    m_arch[ArchitectureFactory::ARCH_PPC] = (BfdArch_t){bfd_arch_powerpc, print_insn_big_powerpc};
 	    m_arch[ArchitectureFactory::ARCH_PPC64] = (BfdArch_t){bfd_arch_powerpc, print_insn_big_powerpc};
 	    m_arch[ArchitectureFactory::ARCH_ARM] = (BfdArch_t){bfd_arch_arm, print_insn_little_arm};
 	    m_arch[ArchitectureFactory::ARCH_MIPS] = (BfdArch_t){bfd_arch_mips, print_insn_big_mips};
 	    m_arch[ArchitectureFactory::ARCH_MIPS_RS3_LE] = (BfdArch_t){bfd_arch_mips, print_insn_little_mips};
+#endif
 	}
 
 	void init()

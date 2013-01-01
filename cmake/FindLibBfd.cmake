@@ -7,6 +7,8 @@
 #  LIBBFD_DEFINITIONS - Compiler switches required for using libbfd
 #
 
+include (CheckLibraryExists)
+
 find_path (LIBBFD_INCLUDE_DIRS
     NAMES
       bfd.h
@@ -46,12 +48,12 @@ include (FindPackageHandleStandardArgs)
 set(LIBBFD_LIBRARIES
     ${BFD_LIB} ${OPCODES_LIB} ${IBERTY_LIB})
 
-
 # handle the QUIETLY and REQUIRED arguments and set LIBBFD_FOUND to TRUE
 # if all listed variables are TRUE
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(LibBfd DEFAULT_MSG
     LIBBFD_LIBRARIES
     LIBBFD_INCLUDE_DIRS)
 
-mark_as_advanced(LIBDW_INCLUDE_DIR BFD_INCLUDE_DIR)
 mark_as_advanced(LIBBFD_INCLUDE_DIRS LIBBFD_LIBRARIES)
+
+check_library_exists (${OPCODES_LIB} print_insn_z80 "" HAVE_BFD_MULTIARCH)
