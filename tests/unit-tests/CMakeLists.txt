@@ -64,3 +64,8 @@ target_link_libraries(${TGT}
 	pthread
 	dl
 	)
+
+
+add_executable (test-binary-asm-only
+	elf-assembly-start.S
+	)
