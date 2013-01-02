@@ -152,8 +152,10 @@ private:
 		uint8_t *p; // Pointer to the current entry
 		uint64_t sh_link;
 		size_t sizeOfSymbol;
+		typedef std::map<ISymbol *, uint64_t> SectionAddressBySymbol_t;
 		typedef std::map<uint64_t, ISymbol *> SymbolsByAddress_t;
 		typedef std::list<ISymbol *> SymbolList_t;
+		SectionAddressBySymbol_t sectionEndAddresses;
 		SymbolsByAddress_t symbolsByAddress;
 		SymbolList_t fixupSyms;
 		int n;
@@ -184,6 +186,7 @@ private:
 			const char *sym_name;
 			unsigned char st_type;
 			uint64_t sh_flags = 0;
+			uint64_t sh_end_addr = 0;
 			Elf_Scn *symScn;
 			uint64_t addr;
 			uint64_t size;
@@ -207,6 +210,7 @@ private:
 						offset = addr - shdr->sh_addr + shdr->sh_offset;
 
 					sh_flags = shdr->sh_flags;
+					sh_end_addr = shdr->sh_addr + shdr->sh_size;
 				}
 			} else {
 				Elf64_Sym *s = (Elf64_Sym *)p;
@@ -225,6 +229,7 @@ private:
 						offset = addr - shdr->sh_addr + shdr->sh_offset;
 
 					sh_flags = shdr->sh_flags;
+					sh_end_addr = shdr->sh_addr + shdr->sh_size;
 				}
 			}
 
@@ -252,6 +257,8 @@ private:
 					addr,
 					size);
 			symbolsByAddress[addr] = &sym;
+			sectionEndAddresses[&sym] = sh_end_addr;
+
 			if (size == 0)
 				fixupSyms.push_back(&sym);
 
@@ -269,11 +276,15 @@ private:
 
 			SymbolsByAddress_t::iterator nextIt = std::next(myIt);
 
-			if (nextIt == symbolsByAddress.end())
-				continue;
+			// Last symbol, fixup via the section size
+			if (nextIt == symbolsByAddress.end()) {
+				uint64_t lastSectionAddr = sectionEndAddresses[cur];
 
-			ISymbol *other = nextIt->second;
-			cur->setSize(other->getAddress() - cur->getAddress());
+				cur->setSize(lastSectionAddr - cur->getAddress());
+			} else {
+				ISymbol *other = nextIt->second;
+				cur->setSize(other->getAddress() - cur->getAddress());
+			}
 		}
 
 		for (SymbolsByAddress_t::iterator it = symbolsByAddress.begin();
