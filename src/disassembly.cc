@@ -295,7 +295,7 @@ private:
 };
 
 
-IDisassembly &IDisassembly::getInstance()
+IDisassembly &IDisassembly::instance()
 {
 	static Disassembly *instance;
 

@@ -102,7 +102,7 @@ TESTSUITE(disassembly)
 {
 	TEST(ia32, DisassemblyFixture)
 	{
-		IDisassembly &dis = IDisassembly::getInstance();
+		IDisassembly &dis = IDisassembly::instance();
 
 		InstructionList_t lst = dis.execute((void *)ia32_dump, sizeof(ia32_dump), 0x1000);
 		ASSERT_TRUE(lst.size() == 11U);
@@ -159,7 +159,7 @@ TESTSUITE(disassembly)
 
 	TEST(otherArchs, DisassemblyFixture)
 	{
-		IDisassembly &dis = IDisassembly::getInstance();
+		IDisassembly &dis = IDisassembly::instance();
 		ArchitectureFactory::instance().provideArchitecture(ArchitectureFactory::ARCH_PPC);
 
 		InstructionList_t lst = dis.execute((void *)ppc32_dump, sizeof(ppc32_dump), 0x1000);

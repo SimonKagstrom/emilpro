@@ -77,7 +77,7 @@ TESTSUITE(symbol_provider)
 		ASSERT_TRUE(sym->getType() == ISymbol::SYM_TEXT);
 		ASSERT_TRUE(sym->getSize() > 1U);
 		ASSERT_TRUE(sym->getDataPtr() != (void *)NULL);
-		IDisassembly &dis = IDisassembly::getInstance();
+		IDisassembly &dis = IDisassembly::instance();
 
 		// Disassemble main()
 		InstructionList_t insns = dis.execute(sym->getDataPtr(), sym->getSize(), sym->getAddress());
