@@ -10,17 +10,17 @@
 
 using namespace emilpro;
 
-class FactoryFixture : public ISymbolListener
+class SymbolFixture : public ISymbolListener
 {
 public:
-	FactoryFixture()
+	SymbolFixture()
 	{
 		SymbolFactory &factory = SymbolFactory::instance();
 
 		factory.registerListener(this);
 	}
 
-	~FactoryFixture()
+	virtual ~SymbolFixture()
 	{
 		SymbolFactory &factory = SymbolFactory::instance();
 
@@ -39,7 +39,7 @@ public:
 
 TESTSUITE(symbol_provider)
 {
-	TEST(nonPerfectMatches, FactoryFixture)
+	TEST(nonPerfectMatches, SymbolFixture)
 	{
 		SymbolFactory &factory = SymbolFactory::instance();
 		unsigned res;
@@ -56,7 +56,7 @@ TESTSUITE(symbol_provider)
 		ASSERT_TRUE(res != ISymbolProvider::PERFECT_MATCH);
 	};
 
-	TEST(validElf, FactoryFixture)
+	TEST(validElf, SymbolFixture)
 	{
 		SymbolFactory &factory = SymbolFactory::instance();
 		unsigned res;
@@ -90,7 +90,7 @@ TESTSUITE(symbol_provider)
 		ASSERT_TRUE(sym->getType() == ISymbol::SYM_DATA);
 	}
 
-	TEST(deduceSymbolSize, FactoryFixture)
+	TEST(deduceSymbolSize, SymbolFixture)
 	{
 		SymbolFactory &factory = SymbolFactory::instance();
 		unsigned res;
@@ -115,7 +115,7 @@ TESTSUITE(symbol_provider)
 		ASSERT_TRUE(sym->getType() == ISymbol::SYM_DATA);
 	}
 
-	TEST(deduceLastSymbolSize, FactoryFixture)
+	TEST(deduceLastSymbolSize, SymbolFixture)
 	{
 		SymbolFactory &factory = SymbolFactory::instance();
 		unsigned res;
