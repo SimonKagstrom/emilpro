@@ -183,6 +183,7 @@ private:
 		{
 			const char *sym_name;
 			unsigned char st_type;
+			uint64_t sh_flags = 0;
 			Elf_Scn *symScn;
 			uint64_t addr;
 			uint64_t size;
@@ -204,6 +205,8 @@ private:
 
 					if (addr >= shdr->sh_addr)
 						offset = addr - shdr->sh_addr + shdr->sh_offset;
+
+					sh_flags = shdr->sh_flags;
 				}
 			} else {
 				Elf64_Sym *s = (Elf64_Sym *)p;
@@ -220,6 +223,8 @@ private:
 
 					if (addr >= shdr->sh_addr)
 						offset = addr - shdr->sh_addr + shdr->sh_offset;
+
+					sh_flags = shdr->sh_flags;
 				}
 			}
 
@@ -230,8 +235,14 @@ private:
 				continue;
 			}
 
-			if (st_type == STT_OBJECT)
+			if (st_type == STT_NOTYPE) {
+				if ((sh_flags & SHF_EXECINSTR) != 0)
+					symType = ISymbol::SYM_TEXT;
+				else if ((sh_flags & SHF_ALLOC) != 0)
+					symType = ISymbol::SYM_DATA;
+			} else if (st_type == STT_OBJECT) {
 				symType = ISymbol::SYM_DATA;
+			}
 
 			ISymbol &sym = SymbolFactory::instance().createSymbol(
 					ISymbol::LINK_NORMAL,
