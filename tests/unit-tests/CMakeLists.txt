@@ -65,7 +65,6 @@ target_link_libraries(${TGT}
 	dl
 	)
 
-
-add_executable (test-binary-asm-only
-	elf-assembly-start.S
-	)
+add_custom_target (test-binary-asm-only ALL
+  COMMAND ${CMAKE_C_COMPILER} -nostdlib ${CMAKE_CURRENT_SOURCE_DIR}/elf-assembly-start.S -o ${CMAKE_BINARY_DIR}/test-binary-asm-only
+)
