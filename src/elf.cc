@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <libelf.h>
 #include <map>
+#include <list>
 #include <string>
 
 #ifndef _GNU_SOURCE
@@ -151,6 +152,10 @@ private:
 		uint8_t *p; // Pointer to the current entry
 		uint64_t sh_link;
 		size_t sizeOfSymbol;
+		typedef std::map<uint64_t, ISymbol *> SymbolsByAddress_t;
+		typedef std::list<ISymbol *> SymbolList_t;
+		SymbolsByAddress_t symbolsByAddress;
+		SymbolList_t fixupSyms;
 		int n;
 
 		if (m_elfIs32Bit) {
@@ -228,14 +233,44 @@ private:
 			if (st_type == STT_OBJECT)
 				symType = ISymbol::SYM_DATA;
 
-			m_listener->onSymbol(SymbolFactory::instance().createSymbol(
+			ISymbol &sym = SymbolFactory::instance().createSymbol(
 					ISymbol::LINK_NORMAL,
 					symType,
 					sym_name,
 					(void *)(m_elfMemory + offset),
 					addr,
-					size));
+					size);
+			symbolsByAddress[addr] = &sym;
+			if (size == 0)
+				fixupSyms.push_back(&sym);
+
 			p += sizeOfSymbol;
+		}
+
+		for (SymbolList_t::iterator it = fixupSyms.begin();
+				it != fixupSyms.end();
+				++it) {
+			ISymbol *cur = *it;
+			SymbolsByAddress_t::iterator myIt = symbolsByAddress.find(cur->getAddress());
+
+			if (myIt == symbolsByAddress.end())
+				continue;
+
+			SymbolsByAddress_t::iterator nextIt = std::next(myIt);
+
+			if (nextIt == symbolsByAddress.end())
+				continue;
+
+			ISymbol *other = nextIt->second;
+			cur->setSize(other->getAddress() - cur->getAddress());
+		}
+
+		for (SymbolsByAddress_t::iterator it = symbolsByAddress.begin();
+				it != symbolsByAddress.end();
+				++it) {
+			ISymbol *cur = it->second;
+
+			m_listener->onSymbol(*cur);
 		}
 	}
 

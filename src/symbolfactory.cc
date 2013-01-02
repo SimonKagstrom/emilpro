@@ -54,6 +54,11 @@ public:
 		return m_size;
 	}
 
+	void setSize(uint64_t size)
+	{
+		m_size = size;
+	}
+
 private:
 	enum ISymbol::SymbolType m_type;
 	enum ISymbol::LinkageType m_linkage;

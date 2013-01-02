@@ -39,5 +39,8 @@ namespace emilpro
 		virtual uint64_t getAddress() = 0;
 
 		virtual uint64_t getSize() = 0;
+
+
+		virtual void setSize(uint64_t size) = 0;
 	};
 }
