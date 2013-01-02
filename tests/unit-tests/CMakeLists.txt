@@ -32,10 +32,12 @@ set (${TGT}_SRCS
 	../../src/architecturefactory.cc
 	../../src/disassembly.cc
 	../../src/elf.cc
+	../../src/model.cc
 	../../src/symbolfactory.cc
 	../../src/utils.cc
 	main.cc
 	tests/tests-disassembly.cc
+	tests/tests-model.cc
 	tests/tests-symbol-provider.cc
 	)
 
