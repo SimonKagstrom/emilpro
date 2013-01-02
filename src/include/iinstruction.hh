@@ -72,4 +72,6 @@ namespace emilpro
 
 		virtual const OperandList_t &getOperands() = 0;
 	};
+
+	typedef std::list<IInstruction *> InstructionList_t;
 }

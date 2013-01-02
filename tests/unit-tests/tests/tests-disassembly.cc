@@ -82,11 +82,11 @@ class DisassemblyFixture
 public:
 	typedef std::unordered_map<uint64_t, IInstruction *> AddressMap_t;
 
-	AddressMap_t listToAddressMap(IDisassembly::InstructionList_t &lst)
+	AddressMap_t listToAddressMap(InstructionList_t &lst)
 	{
 		AddressMap_t out;
 
-		for (IDisassembly::InstructionList_t::iterator it = lst.begin();
+		for (InstructionList_t::iterator it = lst.begin();
 				it != lst.end();
 				++it) {
 			IInstruction *cur = *it;
@@ -104,7 +104,7 @@ TESTSUITE(disassembly)
 	{
 		IDisassembly &dis = IDisassembly::getInstance();
 
-		IDisassembly::InstructionList_t lst = dis.execute((void *)ia32_dump, sizeof(ia32_dump), 0x1000);
+		InstructionList_t lst = dis.execute((void *)ia32_dump, sizeof(ia32_dump), 0x1000);
 		ASSERT_TRUE(lst.size() == 11U);
 
 		AddressMap_t m = listToAddressMap(lst);
@@ -162,7 +162,7 @@ TESTSUITE(disassembly)
 		IDisassembly &dis = IDisassembly::getInstance();
 		ArchitectureFactory::instance().provideArchitecture(ArchitectureFactory::ARCH_PPC);
 
-		IDisassembly::InstructionList_t lst = dis.execute((void *)ppc32_dump, sizeof(ppc32_dump), 0x1000);
+		InstructionList_t lst = dis.execute((void *)ppc32_dump, sizeof(ppc32_dump), 0x1000);
 		ASSERT_TRUE(lst.size() == 8U);
 
 

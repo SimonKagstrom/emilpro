@@ -4,15 +4,13 @@
 #include <stdint.h>
 #include <list>
 
+#include "iinstruction.hh"
+
 namespace emilpro
 {
-	class IInstruction;
-
 	class IDisassembly
 	{
 	public:
-		typedef std::list<IInstruction *> InstructionList_t;
-
 		virtual ~IDisassembly()
 		{
 		}

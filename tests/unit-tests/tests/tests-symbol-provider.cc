@@ -80,7 +80,7 @@ TESTSUITE(symbol_provider)
 		IDisassembly &dis = IDisassembly::getInstance();
 
 		// Disassemble main()
-		IDisassembly::InstructionList_t insns = dis.execute(sym->getDataPtr(), sym->getSize(), sym->getAddress());
+		InstructionList_t insns = dis.execute(sym->getDataPtr(), sym->getSize(), sym->getAddress());
 		ASSERT_TRUE(insns.size() > 0U);
 
 
