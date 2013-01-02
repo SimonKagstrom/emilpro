@@ -51,12 +51,13 @@ private:
 class Instruction : public IInstruction
 {
 public:
-	Instruction(uint64_t address, uint64_t targetAddress, InstructionType_t type, const char *encoding, Ternary_t privileged) :
+	Instruction(uint64_t address, uint64_t targetAddress, InstructionType_t type, const char *encoding, Ternary_t privileged, uint64_t size) :
 		m_address(address),
 		m_targetAddress(targetAddress),
 		m_type(type),
 		m_encoding(encoding),
-		m_privileged(privileged)
+		m_privileged(privileged),
+		m_size(size)
 	{
 	}
 
@@ -77,6 +78,11 @@ public:
 	uint64_t getAddress()
 	{
 		return m_address;
+	}
+
+	uint64_t getSize()
+	{
+		return m_size;
 	}
 
 	uint64_t getBranchTargetAddress()
@@ -110,6 +116,7 @@ private:
 	InstructionType_t m_type;
 	std::string m_encoding;
 	Ternary_t m_privileged;
+	uint64_t m_size;
 
 	IInstruction::OperandList_t m_operands;
 };
@@ -237,7 +244,7 @@ private:
 				targetAddress = (uint64_t)insn->target->value.abs.offset;
 		}
 
-		Instruction *cur = new Instruction(address, targetAddress, type, encoding, privileged);
+		Instruction *cur = new Instruction(address, targetAddress, type, encoding, privileged, insn->size);
 
 		if (insn->status & opdis_decode_ops) {
 
