@@ -5,6 +5,34 @@
 
 using namespace emilpro;
 
+class BasicBlock : public Model::IBasicBlock
+{
+public:
+	virtual ~BasicBlock()
+	{
+	}
+
+	bool hasInstructions()
+	{
+		return m_instructions.size() != 0;
+	}
+
+	void addInstruction(IInstruction *which)
+	{
+		m_instructions.push_back(which);
+	}
+
+	InstructionList_t getInstructions()
+	{
+		return m_instructions;
+	}
+
+private:
+	InstructionList_t m_instructions;
+};
+
+
+
 Model::Model() :
 		m_memory(NULL)
 {
@@ -75,6 +103,47 @@ void Model::fillCacheWithSymbol(ISymbol *sym)
 		m_instructionCache[cur->getAddress()] = cur;
 	}
 }
+
+Model::BasicBlockList_t Model::getBasicBlocksFromInstructions(const InstructionList_t &instructions)
+{
+	typedef std::unordered_map<uint64_t, IInstruction *> BranchMap_t;
+
+	Model::BasicBlockList_t out;
+	BranchMap_t targets;
+
+	for (InstructionList_t::const_iterator it = instructions.begin();
+			it != instructions.end();
+			++it) {
+		IInstruction *cur = *it;
+
+		if (cur->getType() != IInstruction::IT_CFLOW)
+			continue;
+
+		targets[cur->getAddress()] = cur;
+		targets[cur->getBranchTargetAddress()] = cur;
+	}
+
+	BasicBlock *p = new BasicBlock();
+	for (InstructionList_t::const_iterator it = instructions.begin();
+			it != instructions.end();
+			++it) {
+		IInstruction *cur = *it;
+
+		p->addInstruction(cur);
+
+		if (targets[cur->getAddress()] && p->hasInstructions()) {
+			out.push_back(p);
+
+			p = new BasicBlock();
+		}
+	}
+
+	if (out.back() != p)
+		out.push_back(p);
+
+	return out;
+}
+
 
 void Model::onSymbol(ISymbol &sym)
 {

@@ -6,6 +6,7 @@
 
 using namespace emilpro;
 
+#include "assembly-dumps.h"
 
 TESTSUITE(model)
 {
@@ -35,6 +36,29 @@ TESTSUITE(model)
 		lst = model.getInstructions(sym->getAddress() + 1, sym->getAddress() + sym->getSize() - 1);
 		ASSERT_TRUE(lst.size() > 0U);
 		ASSERT_TRUE(lst.size() < sz);
+
+		model.destroy();
+	};
+
+
+	TEST(generateBasicBlocks, SymbolFixture)
+	{
+		Model &model = Model::instance();
+		IDisassembly &dis = IDisassembly::instance();
+
+		InstructionList_t lst = dis.execute((void *)ia32_dump, sizeof(ia32_dump), 0x1000);
+		ASSERT_TRUE(lst.size() == 11U);
+
+		Model::BasicBlockList_t bbLst = model.getBasicBlocksFromInstructions(lst);
+		ASSERT_TRUE(bbLst.size() == 5U);
+
+		Model::IBasicBlock *first = bbLst.front();
+		Model::IBasicBlock *last = bbLst.back();
+
+		ASSERT_TRUE(first->getInstructions().front()->getMnemonic() == "jbe");
+		ASSERT_TRUE(first->getInstructions().back()->getMnemonic() == "jbe");
+		ASSERT_TRUE(last->getInstructions().front()->getMnemonic() == "mov");
+		ASSERT_TRUE(last->getInstructions().back()->getMnemonic() == "mov");
 
 		model.destroy();
 	};

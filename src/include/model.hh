@@ -21,6 +21,10 @@ namespace emilpro
 		class IBasicBlock
 		{
 		public:
+			virtual ~IBasicBlock()
+			{
+			}
+
 			virtual InstructionList_t getInstructions() = 0;
 		};
 
