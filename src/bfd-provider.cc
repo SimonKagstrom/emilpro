@@ -106,7 +106,7 @@ public:
 	{
 		asymbol **syms;
 		char **matching;
-		size_t sz;
+		unsigned int sz;
 		long symcount;
 		struct target_buffer *buffer = (struct target_buffer *)xmalloc(sizeof(struct target_buffer));
 
