@@ -55,7 +55,7 @@ mem_bfd_iovec_pread (struct bfd *abfd, void *stream, void *buf,
   struct target_buffer *buffer = (struct target_buffer *) stream;
 
   /* If this read will read all of the file, limit it to just the rest.  */
-  if (offset + nbytes > buffer->size)
+  if (offset + nbytes > (ssize_t)buffer->size)
     nbytes = buffer->size - offset;
 
   /* If there are no more bytes left, we've reached EOF.  */
