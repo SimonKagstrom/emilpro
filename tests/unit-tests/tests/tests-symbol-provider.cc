@@ -86,6 +86,21 @@ TESTSUITE(symbol_provider)
 		checkSymbols("_");
 	}
 
+	TEST(validMachO, ExecFixture)
+	{
+		SymbolFactory &factory = SymbolFactory::instance();
+		unsigned res;
+
+		size_t sz;
+		void *data = read_file(&sz, "%s/test-binary.mach-o", crpcut::get_start_dir());
+		ASSERT_TRUE(data != (void *)NULL);
+
+		res = factory.parseBestProvider(data, sz);
+		ASSERT_TRUE(res > ISymbolProvider::NO_MATCH);
+
+		checkSymbols("_");
+	}
+
 	TEST(deduceSymbolSize, SymbolFixture)
 	{
 		SymbolFactory &factory = SymbolFactory::instance();
