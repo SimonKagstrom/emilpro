@@ -21,6 +21,65 @@
 
 using namespace emilpro;
 
+
+struct target_buffer
+{
+  uint8_t *base;
+  size_t size;
+};
+
+/* Openning the file is a no-op.  */
+
+static void *
+mem_bfd_iovec_open (struct bfd *abfd, void *open_closure)
+{
+  return open_closure;
+}
+
+/* Closing the file is just freeing the base/size pair on our side.  */
+
+static int
+mem_bfd_iovec_close (struct bfd *abfd, void *stream)
+{
+  free (stream);
+  return 1;
+}
+
+/* For reading the file, we just need to pass through to target_read_memory and
+   fix up the arguments and return values.  */
+
+static file_ptr
+mem_bfd_iovec_pread (struct bfd *abfd, void *stream, void *buf,
+                     file_ptr nbytes, file_ptr offset)
+{
+  struct target_buffer *buffer = (struct target_buffer *) stream;
+
+  /* If this read will read all of the file, limit it to just the rest.  */
+  if (offset + nbytes > buffer->size)
+    nbytes = buffer->size - offset;
+
+  /* If there are no more bytes left, we've reached EOF.  */
+  if (nbytes == 0)
+    return 0;
+
+  memcpy(buf, buffer->base + offset, nbytes);
+
+  return nbytes;
+}
+
+/* For statting the file, we only support the st_size attribute.  */
+
+static int
+mem_bfd_iovec_stat (struct bfd *abfd, void *stream, struct stat *sb)
+{
+  struct target_buffer *buffer = (struct target_buffer*) stream;
+
+  sb->st_size = buffer->size;
+  return 0;
+}
+
+
+
 class BfdProvider : public ISymbolProvider
 {
 public:
@@ -34,6 +93,8 @@ public:
 
 	virtual ~BfdProvider()
 	{
+		if (m_bfd)
+			bfd_close(m_bfd);
 	}
 
 	unsigned match(void *data, size_t dataSize)
@@ -47,9 +108,16 @@ public:
 		char **matching;
 		size_t sz;
 		long symcount;
+		struct target_buffer *buffer = (struct target_buffer *)xmalloc(sizeof(struct target_buffer));
 
-		write_file(data, dataSize, "/tmp/vobb.bin");
-		m_bfd = bfd_openr("/tmp/vobb.bin", NULL);
+		buffer->base = (uint8_t *)data;
+		buffer->size = dataSize;
+		m_bfd = bfd_openr_iovec ("", NULL,
+                          mem_bfd_iovec_open,
+                          buffer,
+                          mem_bfd_iovec_pread,
+                          mem_bfd_iovec_close,
+                          mem_bfd_iovec_stat);
 
 		if (!m_bfd) {
 			error("bfd_openr failed");
@@ -195,7 +263,6 @@ public:
 	Registrer()
 	{
 		bfd_init();
-		bfd_set_default_target("i686-pc-linux-gnu");
 
 		BfdProvider *p = new BfdProvider();
 
