@@ -102,7 +102,7 @@ TESTSUITE(symbol_provider)
 		sym = m_symbolNames["_start"];
 		ASSERT_TRUE(sym != (void *)NULL);
 		ASSERT_TRUE(sym->getSize() == 128U);
-		ASSERT_TRUE(sym->getType() == ISymbol::SYM_DATA);
+		ASSERT_TRUE(sym->getType() == ISymbol::SYM_TEXT);
 	}
 
 	TEST(validPE, ExecFixture)
