@@ -32,7 +32,6 @@ set (${TGT}_SRCS
 	../../src/architecturefactory.cc
 	../../src/disassembly.cc
 	../../src/elf.cc
-	../../src/model.cc
 	../../src/symbolfactory.cc
 	../../src/utils.cc
 	main.cc

@@ -7,6 +7,12 @@
 #include <list>
 #include <map>
 
+// Forward declare the unit test stuff (which befriends this class)
+namespace model
+{
+	class disassembleInstructions;
+}
+
 namespace emilpro
 {
 	class Model : private ISymbolListener
@@ -17,6 +23,8 @@ namespace emilpro
 		public:
 			virtual InstructionList_t getInstructions() = 0;
 		};
+
+		friend class model::disassembleInstructions;
 
 		typedef std::list<IBasicBlock *> BasicBlockList_t;
 		typedef std::list<ISymbol *> SymbolList_t;
