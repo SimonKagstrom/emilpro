@@ -75,6 +75,13 @@ TESTSUITE(symbol_provider)
 		ASSERT_TRUE(sym->getAddress() != 0U);
 		ASSERT_TRUE(sym->getSize() > 0U);
 
+		ASSERT_TRUE(m_symbolNames.find("file") != m_symbolNames.end());
+		sym = m_symbolNames["file"];
+		ASSERT_TRUE(sym != (void *)NULL);
+		ASSERT_TRUE(sym->getType() == ISymbol::SYM_FILE);
+		ASSERT_TRUE(sym->getAddress() == 0U);
+		ASSERT_TRUE(sym->getSize() == sz);
+
 		checkSymbols();
 	}
 

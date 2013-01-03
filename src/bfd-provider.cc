@@ -147,7 +147,17 @@ public:
 
 		handleSymbols(symcount, syms);
 
-		m_listener = listener;
+		// Add the file symbol
+		ISymbol &sym = SymbolFactory::instance().createSymbol(
+				ISymbol::LINK_NORMAL,
+				ISymbol::SYM_FILE,
+				"file",
+				data,
+				0,
+				dataSize
+		);
+
+		m_listener->onSymbol(sym);
 
 		free (syms);
 
