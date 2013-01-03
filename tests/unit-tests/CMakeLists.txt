@@ -30,8 +30,8 @@ set (CMAKE_BUILD_TYPE debug)
 
 set (${TGT}_SRCS
 	../../src/architecturefactory.cc
+	../../src/bfd-provider.cc
 	../../src/disassembly.cc
-	../../src/elf.cc
 	../../src/symbolfactory.cc
 	../../src/utils.cc
 	main.cc
