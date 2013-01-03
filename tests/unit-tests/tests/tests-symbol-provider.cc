@@ -100,7 +100,7 @@ TESTSUITE(symbol_provider)
 		checkSymbols("_");
 	}
 
-	TEST(validMachO, ExecFixture)
+	DISABLED_TEST(validMachO, ExecFixture)
 	{
 		SymbolFactory &factory = SymbolFactory::instance();
 		unsigned res;
