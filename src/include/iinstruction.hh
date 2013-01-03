@@ -72,6 +72,8 @@ namespace emilpro
 
 		virtual std::string &getEncoding() = 0;
 
+		virtual std::string &getMnemonic() = 0;
+
 		virtual const OperandList_t &getOperands() = 0;
 	};
 

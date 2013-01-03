@@ -51,11 +51,12 @@ private:
 class Instruction : public IInstruction
 {
 public:
-	Instruction(uint64_t address, uint64_t targetAddress, InstructionType_t type, const char *encoding, Ternary_t privileged, uint64_t size) :
+	Instruction(uint64_t address, uint64_t targetAddress, InstructionType_t type, const char *encoding, const char *mnemonic, Ternary_t privileged, uint64_t size) :
 		m_address(address),
 		m_targetAddress(targetAddress),
 		m_type(type),
 		m_encoding(encoding),
+		m_mnemonic(mnemonic),
 		m_privileged(privileged),
 		m_size(size)
 	{
@@ -105,6 +106,11 @@ public:
 		return m_encoding;
 	}
 
+	std::string &getMnemonic()
+	{
+		return m_mnemonic;
+	}
+
 	const OperandList_t &getOperands()
 	{
 		return m_operands;
@@ -115,6 +121,7 @@ private:
 	uint64_t m_targetAddress;
 	InstructionType_t m_type;
 	std::string m_encoding;
+	std::string m_mnemonic;
 	Ternary_t m_privileged;
 	uint64_t m_size;
 
@@ -205,6 +212,8 @@ private:
 		uint64_t targetAddress = address;
 		IInstruction::InstructionType_t type = IInstruction::IT_UNKNOWN;
 		const char *encoding = insn->ascii;
+		const char *mnemonic = insn->mnemonic;
+		uint64_t size = insn->size;
 		Ternary_t privileged = T_unknown;
 
 		if (insn->status & opdis_decode_mnem_flags) {
@@ -244,7 +253,7 @@ private:
 				targetAddress = (uint64_t)insn->target->value.abs.offset;
 		}
 
-		Instruction *cur = new Instruction(address, targetAddress, type, encoding, privileged, insn->size);
+		Instruction *cur = new Instruction(address, targetAddress, type, encoding, mnemonic, privileged, size);
 
 		if (insn->status & opdis_decode_ops) {
 

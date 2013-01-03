@@ -112,35 +112,42 @@ TESTSUITE(disassembly)
 
 		p = m[0x1000 +  0]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getEncoding().find("jbe") != std::string::npos);
+		ASSERT_TRUE(p->getMnemonic() == "jbe");
 		ASSERT_TRUE(p->getType() == IInstruction::IT_CFLOW);
 		ASSERT_TRUE(p->getBranchTargetAddress() == 0x1000 + 5U);
 
 		p = m[0x1000 +  2]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getEncoding().find("mov") != std::string::npos);
+		ASSERT_TRUE(p->getMnemonic() == "mov");
 		ASSERT_TRUE(p->getType() == IInstruction::IT_DATA_HANDLING);
 
 		p = m[0x1000 + 11]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getEncoding().find("shr") != std::string::npos);
+		ASSERT_TRUE(p->getMnemonic() == "shr");
 		ASSERT_TRUE(p->getType() == IInstruction::IT_ARITHMETIC_LOGIC);
 
 		p = m[0x1000 + 16]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getEncoding().find("call") != std::string::npos);
+		ASSERT_TRUE(p->getMnemonic() == "call");
 		ASSERT_TRUE(p->getType() == IInstruction::IT_CFLOW);
 		ASSERT_TRUE(p->isPrivileged() == T_false);
 		ASSERT_TRUE(p->getBranchTargetAddress() == 0x1000 + 28U);
 
 		p = m[0x1000 + 27]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getEncoding().find("hlt") != std::string::npos);
+		ASSERT_TRUE(p->getMnemonic() == "hlt");
 		ASSERT_TRUE(p->getType() == IInstruction::IT_OTHER);
 		ASSERT_TRUE(p->isPrivileged() == T_true);
 
 		p = m[0x1000 + 28]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getEncoding().find("int3") != std::string::npos);
+		ASSERT_TRUE(p->getMnemonic() == "int3");
 		ASSERT_TRUE(p->getType() == IInstruction::IT_OTHER);
 		ASSERT_TRUE(p->isPrivileged() == T_false);
 
 		p = m[0x1000 + 29]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getEncoding().find("mov") != std::string::npos);
+		ASSERT_TRUE(p->getMnemonic() == "mov");
 		ASSERT_TRUE(p->getType() == IInstruction::IT_DATA_HANDLING);
 		ASSERT_TRUE(p->isPrivileged() == T_false);
 
