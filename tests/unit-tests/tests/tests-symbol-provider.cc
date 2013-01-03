@@ -11,6 +11,34 @@ using namespace emilpro;
 
 TESTSUITE(symbol_provider)
 {
+	class ExecFixture : public SymbolFixture
+	{
+	public:
+		void checkSymbols()
+		{
+			ASSERT_TRUE(m_symbolNames.find("main") != m_symbolNames.end());
+			ASSERT_TRUE(m_symbolNames.find("global_data") != m_symbolNames.end());
+
+			ISymbol *sym = m_symbolNames["main"];
+			ASSERT_TRUE(sym != (void *)NULL);
+
+			ASSERT_TRUE(sym->getType() == ISymbol::SYM_TEXT);
+			ASSERT_TRUE(sym->getSize() > 1U);
+			ASSERT_TRUE(sym->getDataPtr() != (void *)NULL);
+			IDisassembly &dis = IDisassembly::instance();
+
+			// Disassemble main()
+			InstructionList_t insns = dis.execute(sym->getDataPtr(), sym->getSize(), sym->getAddress());
+			ASSERT_TRUE(insns.size() > 0U);
+
+
+			sym = m_symbolNames["global_data"];
+			ASSERT_TRUE(sym != (void *)NULL);
+			ASSERT_TRUE(sym->getSize() > 1U);
+			ASSERT_TRUE(sym->getType() == ISymbol::SYM_DATA);
+		}
+	};
+
 	TEST(nonPerfectMatches, SymbolFixture)
 	{
 		SymbolFactory &factory = SymbolFactory::instance();
@@ -28,7 +56,7 @@ TESTSUITE(symbol_provider)
 		ASSERT_TRUE(res != ISymbolProvider::PERFECT_MATCH);
 	};
 
-	TEST(validElf, SymbolFixture)
+	TEST(validElf, ExecFixture)
 	{
 		SymbolFactory &factory = SymbolFactory::instance();
 		unsigned res;
@@ -40,26 +68,23 @@ TESTSUITE(symbol_provider)
 		res = factory.parseBestProvider(data, sz);
 		ASSERT_TRUE(res > ISymbolProvider::NO_MATCH);
 
+		checkSymbols();
+	}
+
+	TEST(validPE, ExecFixture)
+	{
+		SymbolFactory &factory = SymbolFactory::instance();
+		unsigned res;
+
+		size_t sz;
+		void *data = read_file(&sz, "%s/test-binary.exe", crpcut::get_start_dir());
+		ASSERT_TRUE(data != (void *)NULL);
+
+		res = factory.parseBestProvider(data, sz);
+		ASSERT_TRUE(res > ISymbolProvider::NO_MATCH);
+
 		ASSERT_TRUE(m_symbolNames.find("main") != m_symbolNames.end());
 		ASSERT_TRUE(m_symbolNames.find("global_data") != m_symbolNames.end());
-
-		ISymbol *sym = m_symbolNames["main"];
-		ASSERT_TRUE(sym != (void *)NULL);
-
-		ASSERT_TRUE(sym->getType() == ISymbol::SYM_TEXT);
-		ASSERT_TRUE(sym->getSize() > 1U);
-		ASSERT_TRUE(sym->getDataPtr() != (void *)NULL);
-		IDisassembly &dis = IDisassembly::instance();
-
-		// Disassemble main()
-		InstructionList_t insns = dis.execute(sym->getDataPtr(), sym->getSize(), sym->getAddress());
-		ASSERT_TRUE(insns.size() > 0U);
-
-
-		sym = m_symbolNames["global_data"];
-		ASSERT_TRUE(sym != (void *)NULL);
-		ASSERT_TRUE(sym->getSize() > 1U);
-		ASSERT_TRUE(sym->getType() == ISymbol::SYM_DATA);
 	}
 
 	TEST(deduceSymbolSize, SymbolFixture)

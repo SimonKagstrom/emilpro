@@ -69,3 +69,7 @@ target_link_libraries(${TGT}
 add_custom_target (test-binary-asm-only ALL
   COMMAND ${CMAKE_C_COMPILER} -nostdlib ${CMAKE_CURRENT_SOURCE_DIR}/elf-assembly-start.S -o ${CMAKE_BINARY_DIR}/test-binary-asm-only
 )
+
+add_custom_target (test-binary.exe ALL
+  COMMAND i586-mingw32msvc-g++ ${CMAKE_CURRENT_SOURCE_DIR}/elf-example-source.cc -o ${CMAKE_BINARY_DIR}/test-binary.exe
+)
