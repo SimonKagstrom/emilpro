@@ -87,8 +87,7 @@ class BfdProvider : public ISymbolProvider
 public:
 	BfdProvider() :
 		m_bfd(NULL),
-		m_listener(NULL),
-		m_elfMemory(NULL)
+		m_listener(NULL)
 	{
 	}
 
@@ -310,7 +309,6 @@ private:
 
 	struct bfd *m_bfd;
 	ISymbolListener *m_listener;
-	uint8_t *m_elfMemory;
 };
 
 
