@@ -295,17 +295,17 @@ private:
 				continue;
 
 			SymbolsByAddress_t::iterator nextIt = std::next(myIt);
+			uint64_t lastSectionAddr = sectionEndAddresses[cur];
 
 			// Last symbol, fixup via the section size
-			if (nextIt == symbolsByAddress.end()) {
-				uint64_t lastSectionAddr = sectionEndAddresses[cur];
-
-				if (lastSectionAddr > cur->getAddress())
-					cur->setSize(lastSectionAddr - cur->getAddress());
-			} else {
+			if (nextIt != symbolsByAddress.end() &&
+					nextIt->second->getAddress() <= lastSectionAddr) {
 				ISymbol *other = nextIt->second;
 
 				cur->setSize(other->getAddress() - cur->getAddress());
+			} else {
+				if (lastSectionAddr > cur->getAddress())
+					cur->setSize(lastSectionAddr - cur->getAddress());
 			}
 		}
 		for (SymbolsByAddress_t::iterator it = symbolsByAddress.begin();
