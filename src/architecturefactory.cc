@@ -5,7 +5,7 @@ using namespace emilpro;
 
 
 ArchitectureFactory::ArchitectureFactory() :
-		m_architecture(ARCH_UNKNOWN)
+		m_architecture(bfd_arch_unknown)
 {
 }
 

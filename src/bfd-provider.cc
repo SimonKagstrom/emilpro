@@ -128,6 +128,8 @@ public:
 			return false;
 		}
 
+		ArchitectureFactory::instance().provideArchitecture((ArchitectureFactory::Architecture_t)bfd_get_arch(m_bfd));
+
 		if ((bfd_get_file_flags(m_bfd) & HAS_SYMS) == 0) {
 			error("no symbols");
 			return false;

@@ -167,7 +167,7 @@ TESTSUITE(disassembly)
 	TEST(otherArchs, DisassemblyFixture)
 	{
 		IDisassembly &dis = IDisassembly::instance();
-		ArchitectureFactory::instance().provideArchitecture(ArchitectureFactory::ARCH_PPC);
+		ArchitectureFactory::instance().provideArchitecture(bfd_arch_powerpc);
 
 		InstructionList_t lst = dis.execute((void *)ppc32_dump, sizeof(ppc32_dump), 0x1000);
 		ASSERT_TRUE(lst.size() == 8U);
@@ -184,7 +184,7 @@ TESTSUITE(disassembly)
 		ASSERT_TRUE(p->getEncoding().find("li") != std::string::npos);
 
 
-		ArchitectureFactory::instance().provideArchitecture(ArchitectureFactory::ARCH_MIPS);
+		ArchitectureFactory::instance().provideArchitecture(bfd_arch_mips);
 		lst = dis.execute((void *)mips_dump, sizeof(mips_dump), 0x1000);
 		ASSERT_TRUE(lst.size() == 17U);
 
@@ -197,7 +197,7 @@ TESTSUITE(disassembly)
 		ASSERT_TRUE(p->getEncoding().find("jr") != std::string::npos);
 
 
-		ArchitectureFactory::instance().provideArchitecture(ArchitectureFactory::ARCH_ARM);
+		ArchitectureFactory::instance().provideArchitecture(bfd_arch_arm);
 		lst = dis.execute((void *)arm_dump, sizeof(arm_dump), 0x1000);
 		ASSERT_TRUE(lst.size() == 10U);
 
