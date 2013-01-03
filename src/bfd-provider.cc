@@ -9,10 +9,12 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <map>
+#include <unordered_map>
 #include <list>
 #include <string>
 
 #include <bfd.h>
+#include <libelf.h>
 
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE
@@ -86,8 +88,7 @@ public:
 	BfdProvider() :
 		m_bfd(NULL),
 		m_listener(NULL),
-		m_elfMemory(NULL),
-		m_elfIs32Bit(true)
+		m_elfMemory(NULL)
 	{
 	}
 
@@ -128,6 +129,8 @@ public:
 			return false;
 		}
 
+		if (bfd_get_arch(m_bfd) == bfd_arch_unknown)
+			guessArchitecture(data, dataSize);
 		ArchitectureFactory::instance().provideArchitecture((ArchitectureFactory::Architecture_t)bfd_get_arch(m_bfd));
 
 		if ((bfd_get_file_flags(m_bfd) & HAS_SYMS) == 0) {
@@ -153,6 +156,59 @@ public:
 	}
 
 private:
+	void guessArchitecture(void *data, size_t dataSize)
+	{
+		struct Elf *elf;
+		std::unordered_map<uint64_t, const char *> archMap;
+
+		archMap[EM_386] = "i386";
+		archMap[EM_X86_64] = "i386";
+		archMap[EM_PPC] = "powerpc";
+		archMap[EM_PPC64] = "powerpc";
+		archMap[EM_MIPS] = "mips";
+		archMap[EM_MIPS_RS3_LE] = "mips";
+		archMap[EM_ARM] = "arm";
+		archMap[EM_AVR] = "avr";
+		archMap[EM_SPARC] = "sparc";
+		archMap[EM_SPARCV9] = "sparc";
+		archMap[EM_SPARC32PLUS] = "sparc";
+
+		// Not an ELF?
+		if (!(elf = elf_memory((char *)data, dataSize)) )
+			return;
+
+		size_t sz;
+		char *raw = elf_getident(elf, &sz);
+		bool elfIs32Bit;
+
+		if (raw && sz > EI_CLASS)
+			elfIs32Bit = raw[EI_CLASS] == ELFCLASS32;
+
+		// Already coincides with e_machine
+		unsigned int arch = EM_NONE;
+		if (elfIs32Bit) {
+			Elf32_Ehdr *ehdr = elf32_getehdr(elf);
+
+			if (ehdr)
+				arch = ehdr->e_machine;
+		} else {
+			Elf64_Ehdr *ehdr = elf64_getehdr(elf);
+
+			if (ehdr)
+				arch = ehdr->e_machine;
+		}
+
+		const char *p = archMap[arch];
+		if (p) {
+			const bfd_arch_info_type *info = bfd_scan_arch(p);
+
+			if (info)
+				bfd_set_arch_info(m_bfd, info);
+		}
+
+		elf_end(elf);
+	}
+
 	void handleSymbols(long symcount, asymbol **syms)
 	{
 		typedef std::map<ISymbol *, uint64_t> SectionAddressBySymbol_t;
@@ -255,7 +311,6 @@ private:
 	struct bfd *m_bfd;
 	ISymbolListener *m_listener;
 	uint8_t *m_elfMemory;
-	bool m_elfIs32Bit;
 };
 
 
