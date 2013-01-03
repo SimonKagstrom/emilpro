@@ -74,6 +74,10 @@ add_custom_target (test-binary.exe ALL
   COMMAND i586-mingw32msvc-g++ ${CMAKE_CURRENT_SOURCE_DIR}/elf-example-source.cc -o ${CMAKE_BINARY_DIR}/test-binary.exe
 )
 
+add_custom_target (test-binary-asm-only-32 ALL
+  COMMAND ${CMAKE_C_COMPILER} -m32 -nostdlib ${CMAKE_CURRENT_SOURCE_DIR}/elf-assembly-start.S -o ${CMAKE_BINARY_DIR}/test-binary-asm-only-32
+)
+
 #add_custom_target (test-binary.mach-o ALL
 #  DEPENDS test-binary
 #  COMMAND objcopy -O mach-o-i386 ${CMAKE_BINARY_DIR}/test-binary ${CMAKE_BINARY_DIR}/test-binary.mach-o

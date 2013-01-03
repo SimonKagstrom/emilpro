@@ -85,6 +85,26 @@ TESTSUITE(symbol_provider)
 		checkSymbols();
 	}
 
+	TEST(valid32bitElf, ExecFixture)
+	{
+		SymbolFactory &factory = SymbolFactory::instance();
+		unsigned res;
+
+		size_t sz;
+		void *data = read_file(&sz, "%s/test-binary-asm-only-32", crpcut::get_start_dir());
+		ASSERT_TRUE(data != (void *)NULL);
+
+		res = factory.parseBestProvider(data, sz);
+		ASSERT_TRUE(res > ISymbolProvider::NO_MATCH);
+
+		ISymbol *sym;
+
+		sym = m_symbolNames["_start"];
+		ASSERT_TRUE(sym != (void *)NULL);
+		ASSERT_TRUE(sym->getSize() == 128U);
+		ASSERT_TRUE(sym->getType() == ISymbol::SYM_DATA);
+	}
+
 	TEST(validPE, ExecFixture)
 	{
 		SymbolFactory &factory = SymbolFactory::instance();
