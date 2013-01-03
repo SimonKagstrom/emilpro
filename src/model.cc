@@ -3,6 +3,8 @@
 #include <isymbolprovider.hh>
 #include <idisassembly.hh>
 
+#include <unordered_map>
+
 using namespace emilpro;
 
 class BasicBlock : public Model::IBasicBlock
