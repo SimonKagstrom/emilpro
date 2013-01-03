@@ -78,7 +78,10 @@ void Model::fillCacheWithSymbol(ISymbol *sym)
 
 void Model::onSymbol(ISymbol &sym)
 {
-	m_symbolsByAddress[sym.getAddress()] = &sym;
+	ISymbol::SymbolType type = sym.getType();
+
+	if (type == ISymbol::SYM_DATA || type == ISymbol::SYM_TEXT)
+		m_symbolsByAddress[sym.getAddress()] = &sym;
 }
 
 

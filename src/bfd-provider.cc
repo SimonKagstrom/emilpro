@@ -305,6 +305,24 @@ private:
 
 			m_listener->onSymbol(*cur);
 		}
+
+		// Provide section symbols
+		for (BfdSectionContents_t::iterator it = sectionContents.begin();
+				it != sectionContents.end();
+				++it) {
+			asection *section = it->first;
+
+			ISymbol &sym = SymbolFactory::instance().createSymbol(
+					ISymbol::LINK_NORMAL,
+					ISymbol::SYM_SECTION,
+					bfd_section_name(m_bfd, section),
+					it->second,
+					(uint64_t)bfd_section_vma(m_bfd, section),
+					(uint64_t)bfd_section_size(m_bfd, section)
+					);
+
+			m_listener->onSymbol(sym);
+		}
 	}
 
 	struct bfd *m_bfd;

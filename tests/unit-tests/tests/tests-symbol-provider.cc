@@ -68,6 +68,13 @@ TESTSUITE(symbol_provider)
 		res = factory.parseBestProvider(data, sz);
 		ASSERT_TRUE(res > ISymbolProvider::NO_MATCH);
 
+		ASSERT_TRUE(m_symbolNames.find(".text") != m_symbolNames.end());
+		ISymbol *sym = m_symbolNames[".text"];
+		ASSERT_TRUE(sym != (void *)NULL);
+		ASSERT_TRUE(sym->getType() == ISymbol::SYM_SECTION);
+		ASSERT_TRUE(sym->getAddress() != 0U);
+		ASSERT_TRUE(sym->getSize() > 0U);
+
 		checkSymbols();
 	}
 
