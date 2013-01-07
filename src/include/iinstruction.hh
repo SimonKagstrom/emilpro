@@ -4,6 +4,8 @@
 #include <string>
 #include <list>
 
+#include "iobject.hh"
+
 namespace emilpro
 {
 	typedef enum
@@ -38,7 +40,7 @@ namespace emilpro
 		virtual const std::string &getString() const = 0;
 	};
 
-	class IInstruction
+	class IInstruction : public IObject
 	{
 	public:
 		typedef enum

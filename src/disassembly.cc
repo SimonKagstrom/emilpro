@@ -51,7 +51,7 @@ private:
 class Instruction : public IInstruction
 {
 public:
-	Instruction(uint64_t address, uint64_t targetAddress, InstructionType_t type, const char *encoding, const char *mnemonic, Ternary_t privileged, uint64_t size) :
+	Instruction(uint64_t address, uint64_t targetAddress, InstructionType_t type, const char *encoding, const char *mnemonic, Ternary_t privileged, uint8_t *ptr, uint64_t size) :
 		m_address(address),
 		m_targetAddress(targetAddress),
 		m_type(type),
@@ -60,10 +60,15 @@ public:
 		m_privileged(privileged),
 		m_size(size)
 	{
+		m_ptr = new uint8_t[m_size];
+
+		mempcpy(m_ptr, ptr, m_size);
 	}
 
 	virtual ~Instruction()
 	{
+		delete []m_ptr;
+
 		for (OperandList_t::iterator it = m_operands.begin();
 				it != m_operands.end();
 				it++)
@@ -116,6 +121,13 @@ public:
 		return m_operands;
 	}
 
+	uint8_t *getRawData(size_t &sz)
+	{
+		sz = m_size;
+
+		return m_ptr;
+	}
+
 private:
 	uint64_t m_address;
 	uint64_t m_targetAddress;
@@ -124,6 +136,7 @@ private:
 	std::string m_mnemonic;
 	Ternary_t m_privileged;
 	uint64_t m_size;
+	uint8_t *m_ptr;
 
 	IInstruction::OperandList_t m_operands;
 };
@@ -210,6 +223,7 @@ private:
 		IInstruction::InstructionType_t type = IInstruction::IT_UNKNOWN;
 		const char *encoding = insn->ascii;
 		const char *mnemonic = insn->mnemonic;
+		uint8_t *bytes = insn->bytes;
 		uint64_t size = insn->size;
 		Ternary_t privileged = T_unknown;
 
@@ -250,7 +264,7 @@ private:
 				targetAddress = (uint64_t)insn->target->value.abs.offset;
 		}
 
-		Instruction *cur = new Instruction(address, targetAddress, type, encoding, mnemonic, privileged, size);
+		Instruction *cur = new Instruction(address, targetAddress, type, encoding, mnemonic, privileged, bytes, size);
 
 		if (insn->status & opdis_decode_ops) {
 
