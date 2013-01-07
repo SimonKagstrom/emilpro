@@ -35,7 +35,7 @@ namespace emilpro
 
 		virtual uint64_t getValue() const = 0;
 
-		virtual const std::string &getEncoding() const = 0;
+		virtual const std::string &getString() const = 0;
 	};
 
 	class IInstruction
@@ -70,7 +70,7 @@ namespace emilpro
 
 		virtual InstructionType_t getType() = 0;
 
-		virtual std::string &getEncoding() = 0;
+		virtual std::string &getString() = 0;
 
 		virtual std::string &getMnemonic() = 0;
 

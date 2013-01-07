@@ -31,7 +31,7 @@ public:
 		return m_type;
 	}
 
-	const std::string &getEncoding() const
+	const std::string &getString() const
 	{
 		return m_encoding;
 	}
@@ -101,7 +101,7 @@ public:
 		return m_type;
 	}
 
-	std::string &getEncoding()
+	std::string &getString()
 	{
 		return m_encoding;
 	}

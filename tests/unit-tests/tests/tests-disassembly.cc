@@ -45,42 +45,42 @@ TESTSUITE(disassembly)
 		IInstruction *p;
 
 		p = m[0x1000 +  0]; ASSERT_TRUE(p);
-		ASSERT_TRUE(p->getEncoding().find("jbe") != std::string::npos);
+		ASSERT_TRUE(p->getString().find("jbe") != std::string::npos);
 		ASSERT_TRUE(p->getMnemonic() == "jbe");
 		ASSERT_TRUE(p->getType() == IInstruction::IT_CFLOW);
 		ASSERT_TRUE(p->getBranchTargetAddress() == 0x1000 + 5U);
 
 		p = m[0x1000 +  2]; ASSERT_TRUE(p);
-		ASSERT_TRUE(p->getEncoding().find("mov") != std::string::npos);
+		ASSERT_TRUE(p->getString().find("mov") != std::string::npos);
 		ASSERT_TRUE(p->getMnemonic() == "mov");
 		ASSERT_TRUE(p->getType() == IInstruction::IT_DATA_HANDLING);
 
 		p = m[0x1000 + 11]; ASSERT_TRUE(p);
-		ASSERT_TRUE(p->getEncoding().find("shr") != std::string::npos);
+		ASSERT_TRUE(p->getString().find("shr") != std::string::npos);
 		ASSERT_TRUE(p->getMnemonic() == "shr");
 		ASSERT_TRUE(p->getType() == IInstruction::IT_ARITHMETIC_LOGIC);
 
 		p = m[0x1000 + 16]; ASSERT_TRUE(p);
-		ASSERT_TRUE(p->getEncoding().find("call") != std::string::npos);
+		ASSERT_TRUE(p->getString().find("call") != std::string::npos);
 		ASSERT_TRUE(p->getMnemonic() == "call");
 		ASSERT_TRUE(p->getType() == IInstruction::IT_CFLOW);
 		ASSERT_TRUE(p->isPrivileged() == T_false);
 		ASSERT_TRUE(p->getBranchTargetAddress() == 0x1000 + 28U);
 
 		p = m[0x1000 + 27]; ASSERT_TRUE(p);
-		ASSERT_TRUE(p->getEncoding().find("hlt") != std::string::npos);
+		ASSERT_TRUE(p->getString().find("hlt") != std::string::npos);
 		ASSERT_TRUE(p->getMnemonic() == "hlt");
 		ASSERT_TRUE(p->getType() == IInstruction::IT_OTHER);
 		ASSERT_TRUE(p->isPrivileged() == T_true);
 
 		p = m[0x1000 + 28]; ASSERT_TRUE(p);
-		ASSERT_TRUE(p->getEncoding().find("int3") != std::string::npos);
+		ASSERT_TRUE(p->getString().find("int3") != std::string::npos);
 		ASSERT_TRUE(p->getMnemonic() == "int3");
 		ASSERT_TRUE(p->getType() == IInstruction::IT_OTHER);
 		ASSERT_TRUE(p->isPrivileged() == T_false);
 
 		p = m[0x1000 + 29]; ASSERT_TRUE(p);
-		ASSERT_TRUE(p->getEncoding().find("mov") != std::string::npos);
+		ASSERT_TRUE(p->getString().find("mov") != std::string::npos);
 		ASSERT_TRUE(p->getMnemonic() == "mov");
 		ASSERT_TRUE(p->getType() == IInstruction::IT_DATA_HANDLING);
 		ASSERT_TRUE(p->isPrivileged() == T_false);
@@ -111,11 +111,11 @@ TESTSUITE(disassembly)
 		IInstruction *p;
 
 		p = m[0x1000 +  0]; ASSERT_TRUE(p);
-		ASSERT_TRUE(p->getEncoding().find("cmpwi") != std::string::npos);
+		ASSERT_TRUE(p->getString().find("cmpwi") != std::string::npos);
 		p = m[0x1000 +  8]; ASSERT_TRUE(p);
-		ASSERT_TRUE(p->getEncoding().find("bgt") != std::string::npos);
+		ASSERT_TRUE(p->getString().find("bgt") != std::string::npos);
 		p = m[0x1000 +  24]; ASSERT_TRUE(p);
-		ASSERT_TRUE(p->getEncoding().find("li") != std::string::npos);
+		ASSERT_TRUE(p->getString().find("li") != std::string::npos);
 
 
 		ArchitectureFactory::instance().provideArchitecture(bfd_arch_mips);
@@ -124,11 +124,11 @@ TESTSUITE(disassembly)
 
 		m = listToAddressMap(lst);
 		p = m[0x1000 +  0]; ASSERT_TRUE(p);
-		ASSERT_TRUE(p->getEncoding().find("slt") != std::string::npos);
+		ASSERT_TRUE(p->getString().find("slt") != std::string::npos);
 		p = m[0x1000 +  4]; ASSERT_TRUE(p);
-		ASSERT_TRUE(p->getEncoding().find("beqz") != std::string::npos);
+		ASSERT_TRUE(p->getString().find("beqz") != std::string::npos);
 		p = m[0x1000 + 20]; ASSERT_TRUE(p);
-		ASSERT_TRUE(p->getEncoding().find("jr") != std::string::npos);
+		ASSERT_TRUE(p->getString().find("jr") != std::string::npos);
 
 
 		ArchitectureFactory::instance().provideArchitecture(bfd_arch_arm);
@@ -137,11 +137,11 @@ TESTSUITE(disassembly)
 
 		m = listToAddressMap(lst);
 		p = m[0x1000 +  0]; ASSERT_TRUE(p);
-		ASSERT_TRUE(p->getEncoding().find("push") != std::string::npos);
+		ASSERT_TRUE(p->getString().find("push") != std::string::npos);
 		p = m[0x1000 +  4]; ASSERT_TRUE(p);
-		ASSERT_TRUE(p->getEncoding().find("cmp") != std::string::npos);
+		ASSERT_TRUE(p->getString().find("cmp") != std::string::npos);
 		p = m[0x1000 + 16]; ASSERT_TRUE(p);
-		ASSERT_TRUE(p->getEncoding().find("ble") != std::string::npos);
+		ASSERT_TRUE(p->getString().find("ble") != std::string::npos);
 
 		ArchitectureFactory::instance().destroy();
 	}
