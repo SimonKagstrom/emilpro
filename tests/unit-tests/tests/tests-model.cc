@@ -3,6 +3,7 @@
 
 #include "../../src/model.cc"
 #include <utils.hh>
+#include <architecturefactory.hh>
 
 using namespace emilpro;
 
@@ -68,15 +69,30 @@ TESTSUITE(model)
 		ASSERT_SCOPE_HEAP_LEAK_FREE
 		{
 			Model &model = Model::instance();
-			IDisassembly &dis = IDisassembly::instance();
+			size_t sz;
+			bool res;
 
-			InstructionList_t lst = dis.execute((void *)ia32_dump, sizeof(ia32_dump), 0x1000);
-			Model::BasicBlockList_t bbLst = model.getBasicBlocksFromInstructions(lst);
-			ASSERT_TRUE(bbLst.size() == 5U);
+			void *data = read_file(&sz, "%s/test-binary", crpcut::get_start_dir());
+			ASSERT_TRUE(data != (void *)NULL);
+
+			res = model.addData(data, sz);
+			ASSERT_TRUE(res == true);
+
+			ISymbol *sym = m_symbolNames["main"];
+			ASSERT_TRUE(sym != (void *)NULL);
+			InstructionList_t lst = model.getInstructions(sym->getAddress(), sym->getAddress() + sym->getSize());
+			sz = lst.size();
+			ASSERT_TRUE(sz > 0U);
+
+//			Model::BasicBlockList_t bbLst = model.getBasicBlocksFromInstructions(lst);
+//			ASSERT_TRUE(bbLst.size() > 0);
 
 			model.destroy();
 			SymbolFactory::instance().destroy();
 			IDisassembly::instance().destroy();
+			ArchitectureFactory::instance().destroy();
+
+			free(data);
 		}
 	}
 }
