@@ -11,12 +11,15 @@ namespace emilpro
 	class IDisassembly
 	{
 	public:
-		virtual ~IDisassembly()
-		{
-		}
-
 		static IDisassembly &instance();
 
 		virtual InstructionList_t execute(void *data, size_t size, uint64_t address) = 0;
+
+		virtual void destroy() = 0;
+
+	protected:
+		virtual ~IDisassembly()
+		{
+		}
 	};
 }

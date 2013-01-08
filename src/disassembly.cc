@@ -211,6 +211,8 @@ public:
 		return out;
 	}
 
+	void destroy();
+
 private:
 
 	void opdisDisplay(const opdis_insn_t *insn)
@@ -321,16 +323,22 @@ private:
 	ArchitectureBfdMap_t m_arch;
 };
 
+static Disassembly *g_instance;
+void Disassembly::destroy()
+{
+	g_instance = NULL;
+
+	delete this;
+}
+
 
 IDisassembly &IDisassembly::instance()
 {
-	static Disassembly *instance;
+	if (!g_instance) {
+		g_instance = new Disassembly();
 
-	if (!instance) {
-		instance = new Disassembly();
-
-		instance->init();
+		g_instance->init();
 	}
 
-	return *instance;
+	return *g_instance;
 }
