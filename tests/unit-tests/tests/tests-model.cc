@@ -62,4 +62,21 @@ TESTSUITE(model)
 
 		model.destroy();
 	};
+
+	TEST(memLeaks, SymbolFixture)
+	{
+		ASSERT_SCOPE_HEAP_LEAK_FREE
+		{
+			Model &model = Model::instance();
+			IDisassembly &dis = IDisassembly::instance();
+
+			InstructionList_t lst = dis.execute((void *)ia32_dump, sizeof(ia32_dump), 0x1000);
+			Model::BasicBlockList_t bbLst = model.getBasicBlocksFromInstructions(lst);
+			ASSERT_TRUE(bbLst.size() == 5U);
+
+			model.destroy();
+			SymbolFactory::instance().destroy();
+			IDisassembly::instance().destroy();
+		}
+	}
 }
