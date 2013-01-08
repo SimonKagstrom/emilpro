@@ -43,6 +43,13 @@ Model::Model() :
 
 Model::~Model()
 {
+	for (InstructionMap_t::iterator it = m_instructionCache.begin();
+			it != m_instructionCache.end();
+			++it) {
+		IInstruction *p = it->second;
+
+		delete p;
+	}
 }
 
 bool Model::addData(void *data, size_t size)
