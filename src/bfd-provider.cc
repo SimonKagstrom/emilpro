@@ -82,7 +82,7 @@ mem_bfd_iovec_stat (struct bfd *abfd, void *stream, struct stat *sb)
 
 
 
-class BfdProvider : public ISymbolProvider
+class BfdProvider
 {
 public:
 	BfdProvider() :
@@ -93,8 +93,13 @@ public:
 
 	virtual ~BfdProvider()
 	{
-		if (m_bfd)
-			bfd_close(m_bfd);
+		for (BfdSectionContents_t::iterator it = m_sectionContents.begin();
+				it != m_sectionContents.end();
+				++it) {
+			void *p = it->second;
+
+			free(p);
+		}
 	}
 
 	unsigned match(void *data, size_t dataSize)
@@ -125,6 +130,8 @@ public:
 		}
 		if (! bfd_check_format_matches (m_bfd, bfd_object, &matching)) {
 			error("not matching %s", bfd_errmsg( bfd_get_error() ));
+			bfd_close(m_bfd);
+			m_bfd =  NULL;
 			return false;
 		}
 
@@ -134,6 +141,8 @@ public:
 
 		if ((bfd_get_file_flags(m_bfd) & HAS_SYMS) == 0) {
 			error("no symbols");
+			bfd_close(m_bfd);
+			m_bfd =  NULL;
 			return false;
 		}
 
@@ -160,6 +169,8 @@ public:
 		m_listener->onSymbol(sym);
 
 		free (syms);
+		bfd_close(m_bfd);
+		m_bfd = NULL;
 
 		return true;
 	}
@@ -222,12 +233,10 @@ private:
 	{
 		typedef std::map<ISymbol *, uint64_t> SectionAddressBySymbol_t;
 		typedef std::map<uint64_t, ISymbol *> SymbolsByAddress_t;
-		typedef std::map<asection *, void *> BfdSectionContents_t;
 		typedef std::list<ISymbol *> SymbolList_t;
 		SectionAddressBySymbol_t sectionEndAddresses;
 		SymbolsByAddress_t symbolsByAddress;
 		SymbolList_t fixupSyms;
-		BfdSectionContents_t sectionContents;
 
 		for (long i = 0; i < symcount; i++) {
 			asymbol *cur = syms[i];
@@ -244,19 +253,21 @@ private:
 			if ((cur->section->flags & SEC_ALLOC) == 0)
 				continue;
 
-			if (sectionContents.find(cur->section) == sectionContents.end()) {
+			if (m_sectionContents.find(cur->section) == m_sectionContents.end()) {
 				bfd_size_type size;
 				bfd_byte *p;
 
 				size = bfd_section_size (m_bfd, cur->section);
 				p = (bfd_byte *) xmalloc (size);
-				if (! bfd_get_section_contents (m_bfd, cur->section, p, 0, size))
+				if (! bfd_get_section_contents (m_bfd, cur->section, p, 0, size)) {
+					free((void *)size);
 					continue;
+				}
 
-				sectionContents[cur->section] = p;
+				m_sectionContents[cur->section] = p;
 			}
 
-			section = (uint8_t *)sectionContents[cur->section];
+			section = (uint8_t *)m_sectionContents[cur->section];
 
 			symType = ISymbol::SYM_TEXT;
 			symName = bfd_asymbol_name(cur);
@@ -317,8 +328,8 @@ private:
 		}
 
 		// Provide section symbols
-		for (BfdSectionContents_t::iterator it = sectionContents.begin();
-				it != sectionContents.end();
+		for (BfdSectionContents_t::iterator it = m_sectionContents.begin();
+				it != m_sectionContents.end();
 				++it) {
 			asection *section = it->first;
 
@@ -335,22 +346,60 @@ private:
 		}
 	}
 
+	typedef std::map<asection *, void *> BfdSectionContents_t;
+
 	struct bfd *m_bfd;
 	ISymbolListener *m_listener;
+
+	BfdSectionContents_t m_sectionContents;
 };
 
 
-class Registrer
+class Registrer : public ISymbolProvider
 {
 public:
-	Registrer()
+	Registrer() :
+		m_bfdInited(false),
+		m_provider(NULL)
 	{
-		bfd_init();
-
-		BfdProvider *p = new BfdProvider();
-
-		SymbolFactory::instance().registerProvider(p);
+		SymbolFactory::instance().registerProvider(this);
 	}
+
+	unsigned match(void *data, size_t dataSize)
+	{
+		maybeCreateProvider();
+
+		return m_provider->match(data, dataSize);
+	}
+
+	virtual bool parse(void *data, size_t dataSize, ISymbolListener *listener)
+	{
+		maybeCreateProvider();
+
+		return m_provider->parse(data, dataSize, listener);
+	}
+
+	virtual void cleanup()
+	{
+		delete m_provider;
+		m_provider = NULL;
+	}
+
+private:
+	void maybeCreateProvider()
+	{
+		if (m_provider)
+			return;
+
+		if (!m_bfdInited)
+			bfd_init();
+
+		m_bfdInited = true;
+		m_provider = new BfdProvider();
+	}
+
+	bool m_bfdInited;
+	BfdProvider *m_provider;
 };
 
 static Registrer registrer;

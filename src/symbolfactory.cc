@@ -151,6 +151,14 @@ SymbolFactory::~SymbolFactory()
 
 		delete cur;
 	}
+
+	for (SymbolProviders_t::iterator it = m_providers.begin();
+			it != m_providers.end();
+			++it) {
+		ISymbolProvider *cur = *it;
+
+		cur->cleanup();
+	}
 }
 
 
