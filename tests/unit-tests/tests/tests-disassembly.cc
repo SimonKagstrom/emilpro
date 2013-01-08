@@ -43,6 +43,8 @@ TESTSUITE(disassembly)
 
 		AddressMap_t m = listToAddressMap(lst);
 		IInstruction *p;
+		uint8_t *d;
+		size_t sz;
 
 		p = m[0x1000 +  0]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getString().find("jbe") != std::string::npos);
@@ -54,6 +56,9 @@ TESTSUITE(disassembly)
 		ASSERT_TRUE(p->getString().find("mov") != std::string::npos);
 		ASSERT_TRUE(p->getMnemonic() == "mov");
 		ASSERT_TRUE(p->getType() == IInstruction::IT_DATA_HANDLING);
+		d = p->getRawData(sz);
+		ASSERT_TRUE(sz == 3U);
+		ASSERT_TRUE(memcmp(d, &ia32_dump[2], sz) == 0U);
 
 		p = m[0x1000 + 11]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getString().find("shr") != std::string::npos);
@@ -109,11 +114,16 @@ TESTSUITE(disassembly)
 
 		AddressMap_t m = listToAddressMap(lst);
 		IInstruction *p;
+		uint8_t *d;
+		size_t sz;
 
 		p = m[0x1000 +  0]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getString().find("cmpwi") != std::string::npos);
 		p = m[0x1000 +  8]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getString().find("bgt") != std::string::npos);
+		d = p->getRawData(sz);
+		ASSERT_TRUE(sz == 4U);
+		ASSERT_TRUE(memcmp(d, &ppc32_dump[8], sz) == 0U);
 		p = m[0x1000 +  24]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getString().find("li") != std::string::npos);
 
@@ -129,6 +139,9 @@ TESTSUITE(disassembly)
 		ASSERT_TRUE(p->getString().find("beqz") != std::string::npos);
 		p = m[0x1000 + 20]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getString().find("jr") != std::string::npos);
+		d = p->getRawData(sz);
+		ASSERT_TRUE(sz == 4U);
+		ASSERT_TRUE(memcmp(d, &mips_dump[20], sz) == 0U);
 
 
 		ArchitectureFactory::instance().provideArchitecture(bfd_arch_arm);
