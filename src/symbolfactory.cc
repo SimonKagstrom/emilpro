@@ -4,6 +4,8 @@
 
 #include <string>
 
+#include "providers.hh"
+
 using namespace emilpro;
 
 class Symbol : public ISymbol
@@ -157,7 +159,7 @@ SymbolFactory::~SymbolFactory()
 			++it) {
 		ISymbolProvider *cur = *it;
 
-		cur->cleanup();
+		delete cur;
 	}
 }
 
@@ -172,8 +174,12 @@ void SymbolFactory::destroy()
 
 SymbolFactory &SymbolFactory::instance()
 {
-	if (!g_instance)
+	if (!g_instance) {
 		g_instance = new SymbolFactory();
+
+		ISymbolProvider *bfd = createBfdProvider();
+		g_instance->registerProvider(bfd);
+	}
 
 	return *g_instance;
 }

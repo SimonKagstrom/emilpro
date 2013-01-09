@@ -21,6 +21,8 @@
 #endif
 #include <link.h>
 
+#include "providers.hh"
+
 using namespace emilpro;
 
 
@@ -82,7 +84,7 @@ mem_bfd_iovec_stat (struct bfd *abfd, void *stream, struct stat *sb)
 
 
 
-class BfdProvider
+class BfdProvider : public ISymbolProvider
 {
 public:
 	BfdProvider() :
@@ -354,52 +356,17 @@ private:
 	BfdSectionContents_t m_sectionContents;
 };
 
-
-class Registrer : public ISymbolProvider
+namespace emilpro
 {
-public:
-	Registrer() :
-		m_bfdInited(false),
-		m_provider(NULL)
+	static bool g_bfdInited;
+
+	ISymbolProvider *createBfdProvider()
 	{
-		SymbolFactory::instance().registerProvider(this);
-	}
-
-	unsigned match(void *data, size_t dataSize)
-	{
-		maybeCreateProvider();
-
-		return m_provider->match(data, dataSize);
-	}
-
-	virtual bool parse(void *data, size_t dataSize, ISymbolListener *listener)
-	{
-		maybeCreateProvider();
-
-		return m_provider->parse(data, dataSize, listener);
-	}
-
-	virtual void cleanup()
-	{
-		delete m_provider;
-		m_provider = NULL;
-	}
-
-private:
-	void maybeCreateProvider()
-	{
-		if (m_provider)
-			return;
-
-		if (!m_bfdInited)
+		if (!g_bfdInited) {
 			bfd_init();
+			g_bfdInited = true;
+		}
 
-		m_bfdInited = true;
-		m_provider = new BfdProvider();
+		return new BfdProvider();
 	}
-
-	bool m_bfdInited;
-	BfdProvider *m_provider;
-};
-
-static Registrer registrer;
+}
