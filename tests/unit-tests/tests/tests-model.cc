@@ -64,7 +64,7 @@ TESTSUITE(model)
 		model.destroy();
 	};
 
-	TEST(memLeaks, SymbolFixture)
+	TEST(memLeaks)
 	{
 		ASSERT_SCOPE_HEAP_LEAK_FREE
 		{
@@ -78,11 +78,22 @@ TESTSUITE(model)
 			res = model.addData(data, sz);
 			ASSERT_TRUE(res == true);
 
-			ISymbol *sym = m_symbolNames["main"];
-			ASSERT_TRUE(sym != (void *)NULL);
-			InstructionList_t lst = model.getInstructions(sym->getAddress(), sym->getAddress() + sym->getSize());
+			const Model::SymbolList_t &syms = model.getSymbols();
+
+			InstructionList_t lst;
+			for (Model::SymbolList_t::const_iterator it = syms.begin();
+					it != syms.end();
+					++it) {
+				ISymbol *sym = *it;
+
+				if (strcmp(sym->getName(), "main") != 0)
+					continue;
+
+				lst = model.getInstructions(sym->getAddress(), sym->getAddress() + sym->getSize());
+			}
 			sz = lst.size();
 			ASSERT_TRUE(sz > 0U);
+
 
 //			Model::BasicBlockList_t bbLst = model.getBasicBlocksFromInstructions(lst);
 //			ASSERT_TRUE(bbLst.size() > 0);
