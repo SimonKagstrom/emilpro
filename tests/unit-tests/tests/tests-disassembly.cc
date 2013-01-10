@@ -158,4 +158,25 @@ TESTSUITE(disassembly)
 
 		ArchitectureFactory::instance().destroy();
 	}
+
+	TEST(memLeaks)
+	{
+		ASSERT_SCOPE_HEAP_LEAK_FREE
+		{
+			IDisassembly &dis = IDisassembly::instance();
+			uint8_t breakpoint = 0xcc;
+
+			InstructionList_t lst = dis.execute((void *)&breakpoint, sizeof(breakpoint), 0x1000);
+			ASSERT_TRUE(lst.size() == 1U);
+
+			for (InstructionList_t::iterator it = lst.begin();
+					it != lst.end();
+					++it) {
+				delete *it;
+			}
+
+			dis.destroy();
+			ArchitectureFactory::instance().destroy();
+		}
+	}
 }
