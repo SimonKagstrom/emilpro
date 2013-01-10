@@ -162,6 +162,22 @@ void Model::onSymbol(ISymbol &sym)
 		m_symbolsByAddress[sym.getAddress()] = &sym;
 }
 
+const Model::SymbolList_t &Model::getSymbols()
+{
+	if (m_symbols.size() != 0)
+		return m_symbols;
+
+	for (Model::SymbolAddressMap_t::iterator it = m_symbolsByAddress.begin();
+			it != m_symbolsByAddress.end();
+			++it) {
+		ISymbol *cur = it->second;
+
+		m_symbols.push_back(cur);
+	}
+
+	return m_symbols;
+}
+
 
 static Model *g_instance;
 void Model::destroy()

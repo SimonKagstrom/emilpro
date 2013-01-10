@@ -45,7 +45,7 @@ namespace emilpro
 
 		BasicBlockList_t getBasicBlocksFromInstructions(const InstructionList_t &instructions);
 
-		SymbolList_t getSymbols();
+		const SymbolList_t &getSymbols();
 
 		void destroy();
 
@@ -65,6 +65,7 @@ namespace emilpro
 
 		InstructionMap_t m_instructionCache;
 		SymbolAddressMap_t m_symbolsByAddress;
+		SymbolList_t m_symbols;
 		uint8_t *m_memory;
 	};
 }
