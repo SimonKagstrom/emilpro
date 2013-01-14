@@ -32,10 +32,19 @@ TESTSUITE(symbol_provider)
 			ASSERT_TRUE(insns.size() > 0U);
 
 
+			uint32_t v = 5;
 			sym = m_symbolNames[prefix + "global_data"];
 			ASSERT_TRUE(sym != (void *)NULL);
-			ASSERT_TRUE(sym->getSize() > 1U);
+			ASSERT_TRUE(sym->getSize() == sizeof(uint32_t));
 			ASSERT_TRUE(sym->getType() == ISymbol::SYM_DATA);
+			ASSERT_TRUE(memcmp(sym->getDataPtr(), &v, sizeof(v)) == 0);
+
+			v = 0;
+			sym = m_symbolNames[prefix + "global_data_bss"];
+			ASSERT_TRUE(sym != (void *)NULL);
+			ASSERT_TRUE(sym->getSize() == sizeof(uint32_t));
+			ASSERT_TRUE(sym->getType() == ISymbol::SYM_DATA);
+			ASSERT_TRUE(memcmp(sym->getDataPtr(), &v, sizeof(v)) == 0);
 		}
 	};
 

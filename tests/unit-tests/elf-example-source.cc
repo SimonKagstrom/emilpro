@@ -1,4 +1,8 @@
-int global_data;
+#include <stdint.h>
+
+uint32_t global_data_bss;
+
+uint32_t global_data = 5;
 
 extern "C" void kalle(void)
 {
