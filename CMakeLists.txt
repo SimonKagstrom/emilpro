@@ -14,6 +14,7 @@ find_package (LibElf REQUIRED)
 find_package (LibDwarf REQUIRED)
 find_package (LibBfd REQUIRED)
 find_package (LibOpdis REQUIRED)
+find_package (PkgConfig REQUIRED)
 
 set (PROJECT_VERSION_MAJOR  1)
 set (PROJECT_VERSION_MINOR  0)
@@ -22,6 +23,8 @@ set (PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJEC
 
 set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
                         ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+pkg_check_modules(GTKMM gtkmm-3.0)
 
 set (CMAKE_CXX_FLAGS "-std=c++0x -Wall -D_GLIBCXX_USE_NANOSLEEP -DPACKAGE=emilpro -DPACKAGE_VERSION=1")
 
@@ -40,7 +43,7 @@ set (${TGT}_SRCS
 	src/model.cc
 	src/symbolfactory.cc
 	src/utils.cc
-	target/main.cc
+	src/gtk/main.cc
 	)
 
 include_directories(
@@ -49,6 +52,7 @@ include_directories(
 	${LIBDWARF_INCLUDE_DIRS}
 	${LIBOPDIS_INCLUDE_DIRS}
 	${LIBBFD_INCLUDE_DIRS}
+	${GTKMM_INCLUDE_DIRS}
 	)
 
 add_executable (${TGT} ${${TGT}_SRCS})
@@ -57,5 +61,6 @@ target_link_libraries(${TGT}
 	${LIBDWARF_LIBRARIES}
 	${LIBOPDIS_LIBRARIES}
 	${LIBBFD_LIBRARIES}
+	${GTKMM_LIBRARIES}
 	z
 	)
