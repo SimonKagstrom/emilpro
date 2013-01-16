@@ -14,7 +14,7 @@ public:
 
 	void init(int argc, char **argv)
 	{
-		m_app = Gtk::Application::create(argc, argv, "org.gtkmm.example");
+		m_app = new Gtk::Main(argc, argv);
 
 		m_builder = Gtk::Builder::create_from_file("/home/ska/projects/emilpro/src/gtk/emilpro.glade");
 
@@ -59,7 +59,7 @@ protected:
 	}
 
 private:
-	Glib::RefPtr<Gtk::Application> m_app;
+	Gtk::Main *m_app;
 	Glib::RefPtr<Gtk::Builder> m_builder;
 };
 
