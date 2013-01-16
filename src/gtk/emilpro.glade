@@ -264,11 +264,40 @@
         </child>
         <child>
           <object class="GtkTreeView" id="symbol_view">
-            <property name="height_request">200</property>
+            <property name="height_request">180</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <child internal-child="selection">
               <object class="GtkTreeSelection" id="treeview-selection3"/>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="symbol_view_img">
+                <property name="sizing">autosize</property>
+                <child>
+                  <object class="GtkCellRendererPixbuf" id="symbol_view_img_pix"/>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="symbol_view_address">
+                <property name="sizing">autosize</property>
+                <property name="title" translatable="yes">Address</property>
+                <property name="reorderable">True</property>
+                <property name="sort_indicator">True</property>
+                <child>
+                  <object class="GtkCellRendererText" id="symbol_view_address_text"/>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="symbol_view_symbol">
+                <property name="title" translatable="yes">Symbol name</property>
+                <property name="reorderable">True</property>
+                <property name="sort_indicator">True</property>
+                <child>
+                  <object class="GtkCellRendererText" id="symbol_view_symbol_text"/>
+                </child>
+              </object>
             </child>
           </object>
           <packing>
@@ -283,11 +312,55 @@
             <property name="can_focus">True</property>
             <property name="margin_bottom">144</property>
             <child>
-              <object class="GtkTreeView" id="treeview1">
+              <object class="GtkTreeView" id="instruction_view">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <child internal-child="selection">
                   <object class="GtkTreeSelection" id="treeview-selection"/>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="instruction_view_address">
+                    <property name="sizing">autosize</property>
+                    <property name="title" translatable="yes">Address</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="instruction_view_b0">
+                    <property name="sizing">autosize</property>
+                    <property name="title" translatable="yes">b0</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="instruction_view_b1">
+                    <property name="sizing">autosize</property>
+                    <property name="title" translatable="yes">b1</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="instruction_view_b2">
+                    <property name="sizing">autosize</property>
+                    <property name="title" translatable="yes">b2</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="instruction_view_instruction">
+                    <property name="title" translatable="yes">Instruction</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="instruction_view_f0">
+                    <property name="title" translatable="yes">f0</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="instruction_view_f1">
+                    <property name="title" translatable="yes">f1</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="instruction_view_f2">
+                    <property name="title" translatable="yes">f2</property>
+                  </object>
                 </child>
               </object>
             </child>
