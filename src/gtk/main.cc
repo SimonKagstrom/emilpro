@@ -45,17 +45,20 @@ protected:
 
 		int v = openFile->run();
 
-		if (v == Gtk::RESPONSE_ACCEPT) {
-			size_t sz;
-
-			void *data = read_file(&sz, "%s", openFile->get_filename().c_str());
-
-			if (data) {
-				Model::instance().addData(data, sz);
-			}
-		}
-
 		openFile->hide();
+
+		if (v != Gtk::RESPONSE_ACCEPT)
+			return;
+
+		size_t sz;
+
+		void *data = read_file(&sz, "%s", openFile->get_filename().c_str());
+
+		if (!data)
+			return; // FIXME! Do something
+
+		if (!Model::instance().addData(data, sz))
+			return;
 	}
 
 private:
