@@ -4,6 +4,7 @@
   <object class="GtkAction" id="action1"/>
   <object class="GtkAction" id="action2"/>
   <object class="GtkAction" id="action3"/>
+  <object class="GtkListStore" id="instruction_liststore"/>
   <object class="GtkFileChooserDialog" id="file_chooser">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -70,7 +71,16 @@
       <action-widget response="-3">file_chooser_ok</action-widget>
     </action-widgets>
   </object>
-  <object class="GtkListStore" id="liststore1"/>
+  <object class="GtkListStore" id="symbol_liststore">
+    <columns>
+      <!-- column-name symbol_view_pix_data -->
+      <column type="GdkPixbuf"/>
+      <!-- column-name symbol_view_address_data -->
+      <column type="guint64"/>
+      <!-- column-name symbol_view_symbol_data -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">EmilPRO</property>
@@ -267,6 +277,7 @@
             <property name="height_request">180</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="model">symbol_liststore</property>
             <child internal-child="selection">
               <object class="GtkTreeSelection" id="treeview-selection3"/>
             </child>
@@ -315,6 +326,7 @@
               <object class="GtkTreeView" id="instruction_view">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="model">instruction_liststore</property>
                 <child internal-child="selection">
                   <object class="GtkTreeSelection" id="treeview-selection"/>
                 </child>
