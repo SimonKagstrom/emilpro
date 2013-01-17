@@ -4,7 +4,6 @@
   <object class="GtkAction" id="action1"/>
   <object class="GtkAction" id="action2"/>
   <object class="GtkAction" id="action3"/>
-  <object class="GtkListStore" id="instruction_liststore"/>
   <object class="GtkFileChooserDialog" id="file_chooser">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -71,6 +70,7 @@
       <action-widget response="-3">file_chooser_ok</action-widget>
     </action-widgets>
   </object>
+  <object class="GtkListStore" id="instruction_liststore"/>
   <object class="GtkListStore" id="symbol_liststore">
     <columns>
       <!-- column-name symbol_view_pix_data -->
@@ -286,6 +286,9 @@
                 <property name="sizing">autosize</property>
                 <child>
                   <object class="GtkCellRendererPixbuf" id="symbol_view_img_pix"/>
+                  <attributes>
+                    <attribute name="pixbuf">0</attribute>
+                  </attributes>
                 </child>
               </object>
             </child>
@@ -297,6 +300,9 @@
                 <property name="sort_indicator">True</property>
                 <child>
                   <object class="GtkCellRendererText" id="symbol_view_address_text"/>
+                  <attributes>
+                    <attribute name="text">1</attribute>
+                  </attributes>
                 </child>
               </object>
             </child>
@@ -307,6 +313,9 @@
                 <property name="sort_indicator">True</property>
                 <child>
                   <object class="GtkCellRendererText" id="symbol_view_symbol_text"/>
+                  <attributes>
+                    <attribute name="text">2</attribute>
+                  </attributes>
                 </child>
               </object>
             </child>
