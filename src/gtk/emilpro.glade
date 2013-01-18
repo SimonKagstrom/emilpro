@@ -71,16 +71,6 @@
     </action-widgets>
   </object>
   <object class="GtkListStore" id="instruction_liststore"/>
-  <object class="GtkListStore" id="symbol_liststore">
-    <columns>
-      <!-- column-name symbol_view_pix_data -->
-      <column type="GdkPixbuf"/>
-      <!-- column-name symbol_view_address_data -->
-      <column type="guint64"/>
-      <!-- column-name symbol_view_symbol_data -->
-      <column type="gchararray"/>
-    </columns>
-  </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">EmilPRO</property>
@@ -273,49 +263,58 @@
           </packing>
         </child>
         <child>
-          <object class="GtkTreeView" id="symbol_view">
-            <property name="height_request">180</property>
+          <object class="GtkScrolledWindow" id="symbol_scrolled_window">
+            <property name="height_request">196</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="model">symbol_liststore</property>
-            <child internal-child="selection">
-              <object class="GtkTreeSelection" id="treeview-selection3"/>
-            </child>
+            <property name="shadow_type">in</property>
             <child>
-              <object class="GtkTreeViewColumn" id="symbol_view_img">
-                <property name="sizing">autosize</property>
-                <child>
-                  <object class="GtkCellRendererPixbuf" id="symbol_view_img_pix"/>
-                  <attributes>
-                    <attribute name="pixbuf">0</attribute>
-                  </attributes>
+              <object class="GtkTreeView" id="symbol_view">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="model">symbol_liststore</property>
+                <property name="headers_clickable">False</property>
+                <property name="search_column">1</property>
+                <child internal-child="selection">
+                  <object class="GtkTreeSelection" id="treeview-selection3"/>
                 </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkTreeViewColumn" id="symbol_view_address">
-                <property name="sizing">autosize</property>
-                <property name="title" translatable="yes">Address</property>
-                <property name="reorderable">True</property>
-                <property name="sort_indicator">True</property>
                 <child>
-                  <object class="GtkCellRendererText" id="symbol_view_address_text"/>
-                  <attributes>
-                    <attribute name="text">1</attribute>
-                  </attributes>
+                  <object class="GtkTreeViewColumn" id="symbol_view_img">
+                    <property name="sizing">autosize</property>
+                    <child>
+                      <object class="GtkCellRendererPixbuf" id="symbol_view_img_pix"/>
+                      <attributes>
+                        <attribute name="pixbuf">0</attribute>
+                      </attributes>
+                    </child>
+                  </object>
                 </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkTreeViewColumn" id="symbol_view_symbol">
-                <property name="title" translatable="yes">Symbol name</property>
-                <property name="reorderable">True</property>
-                <property name="sort_indicator">True</property>
                 <child>
-                  <object class="GtkCellRendererText" id="symbol_view_symbol_text"/>
-                  <attributes>
-                    <attribute name="text">2</attribute>
-                  </attributes>
+                  <object class="GtkTreeViewColumn" id="symbol_view_address">
+                    <property name="sizing">autosize</property>
+                    <property name="title" translatable="yes">Address</property>
+                    <property name="reorderable">True</property>
+                    <property name="sort_indicator">True</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="symbol_view_address_text"/>
+                      <attributes>
+                        <attribute name="text">1</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="symbol_view_symbol">
+                    <property name="title" translatable="yes">Symbol name</property>
+                    <property name="reorderable">True</property>
+                    <property name="sort_indicator">True</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="symbol_view_symbol_text"/>
+                      <attributes>
+                        <attribute name="text">2</attribute>
+                      </attributes>
+                    </child>
+                  </object>
                 </child>
               </object>
             </child>
@@ -332,55 +331,63 @@
             <property name="can_focus">True</property>
             <property name="margin_bottom">144</property>
             <child>
-              <object class="GtkTreeView" id="instruction_view">
+              <object class="GtkScrolledWindow" id="instruction_scrolled_window">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="model">instruction_liststore</property>
-                <child internal-child="selection">
-                  <object class="GtkTreeSelection" id="treeview-selection"/>
-                </child>
+                <property name="shadow_type">in</property>
                 <child>
-                  <object class="GtkTreeViewColumn" id="instruction_view_address">
-                    <property name="sizing">autosize</property>
-                    <property name="title" translatable="yes">Address</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="instruction_view_b0">
-                    <property name="sizing">autosize</property>
-                    <property name="title" translatable="yes">b0</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="instruction_view_b1">
-                    <property name="sizing">autosize</property>
-                    <property name="title" translatable="yes">b1</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="instruction_view_b2">
-                    <property name="sizing">autosize</property>
-                    <property name="title" translatable="yes">b2</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="instruction_view_instruction">
-                    <property name="title" translatable="yes">Instruction</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="instruction_view_f0">
-                    <property name="title" translatable="yes">f0</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="instruction_view_f1">
-                    <property name="title" translatable="yes">f1</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="instruction_view_f2">
-                    <property name="title" translatable="yes">f2</property>
+                  <object class="GtkTreeView" id="instruction_view">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="model">instruction_liststore</property>
+                    <property name="headers_clickable">False</property>
+                    <child internal-child="selection">
+                      <object class="GtkTreeSelection" id="treeview-selection"/>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="instruction_view_address">
+                        <property name="sizing">autosize</property>
+                        <property name="title" translatable="yes">Address</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="instruction_view_b0">
+                        <property name="sizing">autosize</property>
+                        <property name="title" translatable="yes">b0</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="instruction_view_b1">
+                        <property name="sizing">autosize</property>
+                        <property name="title" translatable="yes">b1</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="instruction_view_b2">
+                        <property name="sizing">autosize</property>
+                        <property name="title" translatable="yes">b2</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="instruction_view_instruction">
+                        <property name="title" translatable="yes">Instruction</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="instruction_view_f0">
+                        <property name="title" translatable="yes">f0</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="instruction_view_f1">
+                        <property name="title" translatable="yes">f1</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="instruction_view_f2">
+                        <property name="title" translatable="yes">f2</property>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -433,5 +440,15 @@
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkListStore" id="symbol_liststore">
+    <columns>
+      <!-- column-name symbol_view_pix_data -->
+      <column type="GdkPixbuf"/>
+      <!-- column-name symbol_view_address_data -->
+      <column type="guint64"/>
+      <!-- column-name symbol_view_symbol_data -->
+      <column type="gchararray"/>
+    </columns>
   </object>
 </interface>
