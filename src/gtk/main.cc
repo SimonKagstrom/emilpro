@@ -1,6 +1,9 @@
 #include <gtkmm.h>
 
 #include <model.hh>
+#include <idisassembly.hh>
+#include <architecturefactory.hh>
+#include <symbolfactory.hh>
 #include <utils.hh>
 
 #include <string>
@@ -30,6 +33,11 @@ public:
 	{
 	}
 
+	~EmilProGui()
+	{
+		delete m_symbolColumns;
+	}
+
 	void init(int argc, char **argv)
 	{
 		m_app = new Gtk::Main(argc, argv);
@@ -47,6 +55,12 @@ public:
 		panic_if (!m_symbolListStore,
 				"Can't get symbol liststore");
 
+		m_symbolColumns = new SymbolModelColumns();
+
+		Gtk::CellRendererText *symbolAddressRenderer;
+		m_builder->get_widget("symbol_view_address_text", symbolAddressRenderer);
+		panic_if(!symbolAddressRenderer,
+				"Can't get symbol address renderer");
 	}
 
 	void run()
@@ -58,6 +72,25 @@ public:
 	}
 
 protected:
+	void refresh()
+	{
+		m_symbolListStore->clear();
+
+		const Model::SymbolList_t &syms = Model::instance().getSymbols();
+
+		for (Model::SymbolList_t::const_iterator it = syms.begin();
+				it != syms.end();
+				++it) {
+			ISymbol *cur = *it;
+
+			Gtk::ListStore::iterator rowIt = m_symbolListStore->append();
+			Gtk::TreeRow row = *rowIt;
+
+			row[m_symbolColumns->m_address] = cur->getAddress();
+			row[m_symbolColumns->m_name] = cur->getName();
+		}
+	}
+
 	void onFileOpen()
 	{
 		Gtk::FileChooserDialog *openFile = NULL;
@@ -80,23 +113,15 @@ protected:
 		if (!data)
 			return; // FIXME! Do something
 
+		Model::instance().destroy();
+		SymbolFactory::instance().destroy();
+		IDisassembly::instance().destroy();
+		ArchitectureFactory::instance().destroy();
+
 		if (!Model::instance().addData(data, sz))
 			return;
 
-		SymbolModelColumns columns;
-
-		const Model::SymbolList_t &syms = Model::instance().getSymbols();
-
-		for (Model::SymbolList_t::const_iterator it = syms.begin();
-				it != syms.end();
-				++it) {
-			ISymbol *cur = *it;
-
-			Gtk::ListStore::iterator row = m_symbolListStore->append();
-
-			(*row)[columns.m_address] = cur->getAddress();
-			(*row)[columns.m_name] = cur->getName();
-		}
+		refresh();
 	}
 
 private:
@@ -105,6 +130,7 @@ private:
 	Gtk::Main *m_app;
 	Glib::RefPtr<Gtk::Builder> m_builder;
 	Glib::RefPtr<Gtk::ListStore> m_symbolListStore;
+	SymbolModelColumns *m_symbolColumns;
 };
 
 int main(int argc, char **argv)
