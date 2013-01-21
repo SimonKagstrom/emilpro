@@ -57,10 +57,15 @@ public:
 
 		m_symbolColumns = new SymbolModelColumns();
 
-		Gtk::CellRendererText *symbolAddressRenderer;
-		m_builder->get_widget("symbol_view_address_text", symbolAddressRenderer);
+		Glib::RefPtr<Gtk::CellRendererText> symbolAddressRenderer = Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_address_text"));
 		panic_if(!symbolAddressRenderer,
 				"Can't get symbol address renderer");
+		Glib::RefPtr<Gtk::CellRendererText> symbolTextRenderer = Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_symbol_text"));
+		panic_if(!symbolTextRenderer,
+				"Can't get symbol text renderer");
+
+		symbolAddressRenderer->property_font() = "Monospace";
+		symbolTextRenderer->property_font() = "Monospace";
 	}
 
 	void run(int argc, char *argv[])
