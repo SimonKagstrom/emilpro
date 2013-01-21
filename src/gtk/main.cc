@@ -63,8 +63,21 @@ public:
 				"Can't get symbol address renderer");
 	}
 
-	void run()
+	void run(int argc, char *argv[])
 	{
+		if (argc > 1) {
+			const char *file = argv[1];
+			void *data;
+			size_t sz;
+
+			data = read_file(&sz, "%s", file);
+			if (data) {
+				Model::instance().addData(data, sz);
+			}
+
+			refresh();
+		}
+
 		Gtk::Window * mainWindow = NULL;
 		m_builder->get_widget("main_window", mainWindow);
 
@@ -139,7 +152,7 @@ int main(int argc, char **argv)
 
 	gui.init(argc, argv);
 
-	gui.run();
+	gui.run(argc, argv);
 
 	return 0;
 }
