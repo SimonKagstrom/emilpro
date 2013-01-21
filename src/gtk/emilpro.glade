@@ -446,7 +446,7 @@
       <!-- column-name symbol_view_pix_data -->
       <column type="GdkPixbuf"/>
       <!-- column-name symbol_view_address_data -->
-      <column type="guint64"/>
+      <column type="gchararray"/>
       <!-- column-name symbol_view_symbol_data -->
       <column type="gchararray"/>
     </columns>

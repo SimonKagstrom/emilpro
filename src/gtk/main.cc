@@ -21,7 +21,7 @@ public:
 	}
 
 	Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf>> m_pixbuf;
-	Gtk::TreeModelColumn<uint64_t> m_address;
+	Gtk::TreeModelColumn<Glib::ustring> m_address;
 	Gtk::TreeModelColumn<Glib::ustring> m_name;
 };
 
@@ -99,7 +99,7 @@ protected:
 			Gtk::ListStore::iterator rowIt = m_symbolListStore->append();
 			Gtk::TreeRow row = *rowIt;
 
-			row[m_symbolColumns->m_address] = cur->getAddress();
+			row[m_symbolColumns->m_address] = fmt("0x%llx", cur->getAddress()).c_str();
 			row[m_symbolColumns->m_name] = cur->getName();
 		}
 	}
