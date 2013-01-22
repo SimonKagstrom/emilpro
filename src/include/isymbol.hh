@@ -28,17 +28,17 @@ namespace emilpro
 		{
 		}
 
-		virtual enum LinkageType getLinkage() = 0;
+		virtual enum LinkageType getLinkage() const = 0;
 
-		virtual enum SymbolType getType() = 0;
+		virtual enum SymbolType getType() const = 0;
 
-		virtual const char *getName() = 0;
+		virtual const char *getName() const = 0;
 
-		virtual void *getDataPtr() = 0;
+		virtual void *getDataPtr() const = 0;
 
-		virtual uint64_t getAddress() = 0;
+		virtual uint64_t getAddress() const = 0;
 
-		virtual uint64_t getSize() = 0;
+		virtual uint64_t getSize() const = 0;
 
 
 		virtual void setSize(uint64_t size) = 0;

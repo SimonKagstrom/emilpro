@@ -26,32 +26,32 @@ public:
 	{
 	}
 
-	enum ISymbol::LinkageType getLinkage()
+	enum ISymbol::LinkageType getLinkage() const
 	{
 		return m_linkage;
 	}
 
-	enum ISymbol::SymbolType getType()
+	enum ISymbol::SymbolType getType() const
 	{
 		return m_type;
 	}
 
-	const char *getName()
+	const char *getName() const
 	{
 		return m_name.c_str();
 	}
 
-	void *getDataPtr()
+	void *getDataPtr() const
 	{
 		return m_data;
 	}
 
-	uint64_t getAddress()
+	uint64_t getAddress() const
 	{
 		return m_address;
 	}
 
-	uint64_t getSize()
+	uint64_t getSize() const
 	{
 		return m_size;
 	}
