@@ -351,21 +351,9 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkTreeViewColumn" id="instruction_view_b0">
+                      <object class="GtkTreeViewColumn" id="instruction_view_backward">
                         <property name="sizing">autosize</property>
-                        <property name="title" translatable="yes">b0</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="instruction_view_b1">
-                        <property name="sizing">autosize</property>
-                        <property name="title" translatable="yes">b1</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="instruction_view_b2">
-                        <property name="sizing">autosize</property>
-                        <property name="title" translatable="yes">b2</property>
+                        <property name="title" translatable="yes">b</property>
                       </object>
                     </child>
                     <child>
@@ -374,18 +362,8 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkTreeViewColumn" id="instruction_view_f0">
-                        <property name="title" translatable="yes">f0</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="instruction_view_f1">
-                        <property name="title" translatable="yes">f1</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="instruction_view_f2">
-                        <property name="title" translatable="yes">f2</property>
+                      <object class="GtkTreeViewColumn" id="instruction_view_forward">
+                        <property name="title" translatable="yes">f</property>
                       </object>
                     </child>
                   </object>
