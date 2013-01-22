@@ -66,6 +66,14 @@ public:
 
 		symbolAddressRenderer->property_font() = "Monospace";
 		symbolTextRenderer->property_font() = "Monospace";
+
+		Gtk::TreeView *symbolView;
+		m_builder->get_widget("symbol_view", symbolView);
+		panic_if(!symbolView,
+				"Can't get symbol view");
+
+		symbolView->signal_row_activated().connect(sigc::mem_fun(*this,
+				&EmilProGui::onSymbolRowActivated));
 	}
 
 	void run(int argc, char *argv[])
@@ -90,6 +98,41 @@ public:
 	}
 
 protected:
+	void onSymbolRowActivated(const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn* column)
+	{
+		Gtk::TreeModel::iterator iter = m_symbolListStore->get_iter(path);
+
+		if(!iter)
+			return;
+		Model &model = Model::instance();
+
+		Gtk::TreeModel::Row row = *iter;
+		// FIXME! Should really be a uint64_t...
+		Glib::ustring address = row[m_symbolColumns->m_address];
+		Glib::ustring name = row[m_symbolColumns->m_name];
+
+		const ISymbol *sym = model.getSymbol(strtoull(address.c_str(), NULL, 16));
+		if (!sym) {
+			warning("Can't get symbol\n");
+			return;
+		}
+
+		if (sym->getType() != ISymbol::SYM_TEXT) {
+			warning("Only code for now\n");
+			return;
+		}
+
+		// Disassemble and display
+		InstructionList_t insns = model.getInstructions(sym->getAddress(), sym->getAddress() + sym->getSize());
+		for (InstructionList_t::iterator it = insns.begin();
+				it != insns.end();
+				++it) {
+			IInstruction *cur = *it;
+
+			printf("    %s\n", cur->getString().c_str());
+		}
+	}
+
 	void refresh()
 	{
 		m_symbolListStore->clear();
