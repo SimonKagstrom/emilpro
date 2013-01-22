@@ -47,6 +47,8 @@ namespace emilpro
 
 		const SymbolList_t &getSymbols();
 
+		const ISymbol *getSymbol(uint64_t address);
+
 		void destroy();
 
 		static Model &instance();

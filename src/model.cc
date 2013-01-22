@@ -178,6 +178,12 @@ const Model::SymbolList_t &Model::getSymbols()
 	return m_symbols;
 }
 
+const ISymbol *Model::getSymbol(uint64_t address)
+{
+	return m_symbolsByAddress[address];
+}
+
+
 
 static Model *g_instance;
 void Model::destroy()
