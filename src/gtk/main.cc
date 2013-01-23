@@ -33,11 +33,15 @@ public:
 	InstructionModelColumns()
 	{
 		add(m_address);
+		add(m_backward);
 		add(m_instruction);
+		add(m_forward);
 	}
 
 	Gtk::TreeModelColumn<Glib::ustring> m_address;
+	Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf>> m_backward;
 	Gtk::TreeModelColumn<Glib::ustring> m_instruction;
+	Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf>> m_forward;
 };
 
 class EmilProGui
@@ -171,7 +175,6 @@ protected:
 
 			row[m_instructionColumns->m_address] = fmt("0x%0llx", cur->getAddress()).c_str();
 			row[m_instructionColumns->m_instruction] = cur->getString();
-			//row->set_value(2, cur->getString().c_str());
 		}
 	}
 
