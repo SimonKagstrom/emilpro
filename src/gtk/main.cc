@@ -25,6 +25,18 @@ public:
 	Gtk::TreeModelColumn<Glib::ustring> m_name;
 };
 
+class InstructionModelColumns : public Gtk::TreeModelColumnRecord
+{
+public:
+	InstructionModelColumns()
+	{
+		add(m_address);
+		add(m_instruction);
+	}
+
+	Gtk::TreeModelColumn<Glib::ustring> m_address;
+	Gtk::TreeModelColumn<Glib::ustring> m_instruction;
+};
 
 class EmilProGui
 {
@@ -36,6 +48,7 @@ public:
 	~EmilProGui()
 	{
 		delete m_symbolColumns;
+		delete m_instructionColumns;
 	}
 
 	void init(int argc, char **argv)
@@ -55,7 +68,16 @@ public:
 		panic_if (!m_symbolListStore,
 				"Can't get symbol liststore");
 
+		m_instructionListStore = Glib::RefPtr<Gtk::ListStore>::cast_static(m_builder->get_object("instruction_liststore"));
+		panic_if (!m_instructionListStore,
+				"Can't get instruction liststore");
+
 		m_symbolColumns = new SymbolModelColumns();
+		m_instructionColumns = new InstructionModelColumns();
+
+		m_builder->get_widget("instruction_view", m_instructionView);
+		panic_if(!m_instructionView,
+				"Can't get symbol view");
 
 		Glib::RefPtr<Gtk::CellRendererText> symbolAddressRenderer = Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_address_text"));
 		panic_if(!symbolAddressRenderer,
@@ -63,9 +85,18 @@ public:
 		Glib::RefPtr<Gtk::CellRendererText> symbolTextRenderer = Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_symbol_text"));
 		panic_if(!symbolTextRenderer,
 				"Can't get symbol text renderer");
+		Glib::RefPtr<Gtk::CellRendererText> instructionAddressRenderer = Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("instruction_view_address_text"));
+		panic_if(!instructionAddressRenderer,
+				"Can't get instruction address renderer");
+		Glib::RefPtr<Gtk::CellRendererText> instructionTextRenderer = Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("instruction_view_instruction_text"));
+		panic_if(!instructionTextRenderer,
+				"Can't get instruction text renderer");
 
 		symbolAddressRenderer->property_font() = "Monospace";
 		symbolTextRenderer->property_font() = "Monospace";
+
+		instructionAddressRenderer->property_font() = "Monospace";
+		instructionTextRenderer->property_font() = "Monospace";
 
 		Gtk::TreeView *symbolView;
 		m_builder->get_widget("symbol_view", symbolView);
@@ -121,6 +152,7 @@ protected:
 			warning("Only code for now\n");
 			return;
 		}
+		m_instructionListStore->clear();
 
 		// Disassemble and display
 		InstructionList_t insns = model.getInstructions(sym->getAddress(), sym->getAddress() + sym->getSize());
@@ -129,7 +161,12 @@ protected:
 				++it) {
 			IInstruction *cur = *it;
 
-			printf("    %s\n", cur->getString().c_str());
+			Gtk::ListStore::iterator rowIt = m_instructionListStore->append();
+			Gtk::TreeRow row = *rowIt;
+
+			row[m_instructionColumns->m_address] = fmt("0x%llx", cur->getAddress()).c_str();
+			row[m_instructionColumns->m_instruction] = cur->getString();
+			//row->set_value(2, cur->getString().c_str());
 		}
 	}
 
@@ -191,7 +228,10 @@ private:
 	Gtk::Main *m_app;
 	Glib::RefPtr<Gtk::Builder> m_builder;
 	Glib::RefPtr<Gtk::ListStore> m_symbolListStore;
+	Glib::RefPtr<Gtk::ListStore> m_instructionListStore;
 	SymbolModelColumns *m_symbolColumns;
+	InstructionModelColumns *m_instructionColumns;
+	Gtk::TreeView *m_instructionView;
 };
 
 int main(int argc, char **argv)
