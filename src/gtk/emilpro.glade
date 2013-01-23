@@ -78,6 +78,18 @@
       <column type="gchararray"/>
     </columns>
   </object>
+  <object class="GtkListStore" id="symbol_liststore">
+    <columns>
+      <!-- column-name symbol_view_pix_data -->
+      <column type="GdkPixbuf"/>
+      <!-- column-name symbol_view_address_data -->
+      <column type="gchararray"/>
+      <!-- column-name symbol_view_size_data -->
+      <column type="gchararray"/>
+      <!-- column-name symbol_view_symbol_data -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">EmilPRO</property>
@@ -311,6 +323,17 @@
                   </object>
                 </child>
                 <child>
+                  <object class="GtkTreeViewColumn" id="symbol_view_size">
+                    <property name="title" translatable="yes">Size</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="symbol_view_size_text"/>
+                      <attributes>
+                        <attribute name="text">2</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkTreeViewColumn" id="symbol_view_symbol">
                     <property name="title" translatable="yes">Symbol name</property>
                     <property name="reorderable">True</property>
@@ -318,7 +341,7 @@
                     <child>
                       <object class="GtkCellRendererText" id="symbol_view_symbol_text"/>
                       <attributes>
-                        <attribute name="text">2</attribute>
+                        <attribute name="text">3</attribute>
                       </attributes>
                     </child>
                   </object>
@@ -428,15 +451,5 @@
         </child>
       </object>
     </child>
-  </object>
-  <object class="GtkListStore" id="symbol_liststore">
-    <columns>
-      <!-- column-name symbol_view_pix_data -->
-      <column type="GdkPixbuf"/>
-      <!-- column-name symbol_view_address_data -->
-      <column type="gchararray"/>
-      <!-- column-name symbol_view_symbol_data -->
-      <column type="gchararray"/>
-    </columns>
   </object>
 </interface>

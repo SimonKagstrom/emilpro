@@ -17,11 +17,13 @@ public:
 	{
 		add(m_pixbuf);
 		add(m_address);
+		add(m_size);
 		add(m_name);
 	}
 
 	Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf>> m_pixbuf;
 	Gtk::TreeModelColumn<Glib::ustring> m_address;
+	Gtk::TreeModelColumn<Glib::ustring> m_size;
 	Gtk::TreeModelColumn<Glib::ustring> m_name;
 };
 
@@ -82,6 +84,9 @@ public:
 		Glib::RefPtr<Gtk::CellRendererText> symbolAddressRenderer = Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_address_text"));
 		panic_if(!symbolAddressRenderer,
 				"Can't get symbol address renderer");
+		Glib::RefPtr<Gtk::CellRendererText> symbolSizeRenderer = Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_size_text"));
+		panic_if(!symbolSizeRenderer,
+				"Can't get symbol size renderer");
 		Glib::RefPtr<Gtk::CellRendererText> symbolTextRenderer = Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_symbol_text"));
 		panic_if(!symbolTextRenderer,
 				"Can't get symbol text renderer");
@@ -93,6 +98,7 @@ public:
 				"Can't get instruction text renderer");
 
 		symbolAddressRenderer->property_font() = "Monospace";
+		symbolSizeRenderer->property_font() = "Monospace";
 		symbolTextRenderer->property_font() = "Monospace";
 
 		instructionAddressRenderer->property_font() = "Monospace";
@@ -140,7 +146,6 @@ protected:
 		Gtk::TreeModel::Row row = *iter;
 		// FIXME! Should really be a uint64_t...
 		Glib::ustring address = row[m_symbolColumns->m_address];
-		Glib::ustring name = row[m_symbolColumns->m_name];
 
 		const ISymbol *sym = model.getSymbol(strtoull(address.c_str(), NULL, 16));
 		if (!sym) {
@@ -164,7 +169,7 @@ protected:
 			Gtk::ListStore::iterator rowIt = m_instructionListStore->append();
 			Gtk::TreeRow row = *rowIt;
 
-			row[m_instructionColumns->m_address] = fmt("0x%llx", cur->getAddress()).c_str();
+			row[m_instructionColumns->m_address] = fmt("0x%0llx", cur->getAddress()).c_str();
 			row[m_instructionColumns->m_instruction] = cur->getString();
 			//row->set_value(2, cur->getString().c_str());
 		}
@@ -185,6 +190,7 @@ protected:
 			Gtk::TreeRow row = *rowIt;
 
 			row[m_symbolColumns->m_address] = fmt("0x%llx", cur->getAddress()).c_str();
+			row[m_symbolColumns->m_size] = fmt("0x%08llx", cur->getSize()).c_str();
 			row[m_symbolColumns->m_name] = cur->getName();
 		}
 	}
