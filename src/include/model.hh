@@ -54,7 +54,6 @@ namespace emilpro
 		static Model &instance();
 
 	private:
-		typedef std::map<uint64_t, IInstruction *> InstructionMap_t;
 		typedef std::map<uint64_t, ISymbol *> SymbolAddressMap_t;
 
 		Model();

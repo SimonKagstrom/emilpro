@@ -32,10 +32,12 @@ set (${TGT}_SRCS
 	../../src/architecturefactory.cc
 	../../src/bfd-provider.cc
 	../../src/disassembly.cc
+	../../src/jumptargetdisplay.cc
 	../../src/symbolfactory.cc
 	../../src/utils.cc
 	main.cc
 	tests/tests-disassembly.cc
+	tests/tests-jumptargetdisplay.cc
 	tests/tests-model.cc
 	tests/tests-symbol-provider.cc
 	)
@@ -61,6 +63,7 @@ target_link_libraries(${TGT}
 	${LIBBFD_LIBRARIES}
 	${LIBCRPCUT_LIBRARIES}
 	gtest
+	gmock
 	z
 	pthread
 	dl

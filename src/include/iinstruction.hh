@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string>
 #include <list>
+#include <map>
 
 #include "iobject.hh"
 
@@ -80,4 +81,5 @@ namespace emilpro
 	};
 
 	typedef std::list<IInstruction *> InstructionList_t;
+	typedef std::map<uint64_t, IInstruction *> InstructionMap_t;
 }
