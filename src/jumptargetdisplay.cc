@@ -81,6 +81,14 @@ void JumpTargetDisplay::calculateLanes(InstructionList_t &insns, unsigned nVisib
 		if (!end)
 			continue;
 
+		if (m_isForward) {
+			if (start->getBranchTargetAddress() <= start->getAddress())
+				continue;
+		} else {
+			if (start->getBranchTargetAddress() > start->getAddress())
+				continue;
+		}
+
 		InstructionPair *pair = new InstructionPair(start, end, m_insnNrs[end] - m_insnNrs[start]);
 		pairs.push_back(pair);
 		m_starts[start->getAddress()] = pair;

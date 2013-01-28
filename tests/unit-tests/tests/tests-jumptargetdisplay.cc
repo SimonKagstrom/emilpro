@@ -178,7 +178,7 @@ TESTSUITE(jumptarget)
 		{
 			JumpTargetDisplay *p = new JumpTargetDisplay(false, 4);
 
-			addInstruction();
+			addInstruction(8); // Branch forward
 			uint64_t first = addInstruction();
 			uint64_t second = addInstruction();
 			addInstruction(first);
@@ -212,7 +212,7 @@ TESTSUITE(jumptarget)
 			addInstruction(); // 4
 			addInstruction(28);
 			addInstruction(24);
-			addInstruction();
+			addInstruction(4); // Jump back, should be ignored
 			addInstruction();
 			addInstruction(); // 24
 			addInstruction(); // 28
@@ -225,6 +225,7 @@ TESTSUITE(jumptarget)
 			ASSERT_TRUE(laneHasValue(p, 1, nLanes, JumpTargetDisplay::LANE_START_LONG_DOWN));
 			ASSERT_TRUE(laneHasValue(p, 2, nLanes, JumpTargetDisplay::LANE_START_DOWN));
 			ASSERT_TRUE(laneHasValue(p, 3, nLanes, JumpTargetDisplay::LANE_LINE));
+			ASSERT_FALSE(laneHasValue(p, 3, nLanes, JumpTargetDisplay::LANE_START_UP));
 			ASSERT_TRUE(laneHasValue(p, 5, nLanes, JumpTargetDisplay::LANE_END_DOWN));
 			ASSERT_TRUE(laneHasValue(p, 6, nLanes, JumpTargetDisplay::LANE_END_LONG_DOWN));
 
