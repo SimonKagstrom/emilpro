@@ -9,7 +9,8 @@ using namespace emilpro;
 class emilpro::InstructionPair
 {
 public:
-	InstructionPair(IInstruction *start, IInstruction *end, int distance)
+	InstructionPair(IInstruction *start, IInstruction *end, int distance) :
+		m_start(start), m_end(end)
 	{
 		if (distance < 0)
 			m_distance = -distance;
@@ -22,7 +23,9 @@ public:
 	unsigned m_distance;
 };
 
-typedef std::list<InstructionPair> InstructionPairList_t;
+typedef std::list<InstructionPair *> InstructionPairList_t;
+typedef std::unordered_map<uint64_t, InstructionPair *> InstructionPairStartMap_t;
+typedef std::unordered_map<uint64_t, std::list<InstructionPair *>> InstructionPairEndMap_t;
 typedef std::unordered_map<uint64_t, IInstruction *> InstructionMap_t;
 
 
@@ -56,6 +59,8 @@ void JumpTargetDisplay::calculateLanes(InstructionList_t &insns, unsigned nVisib
 	memset(m_lanes, LANE_INVALID, m_nLanes * m_nRows * sizeof(LaneValue_t));
 
 	InstructionPairList_t pairs;
+	InstructionPairStartMap_t pairStartMap;
+	InstructionPairEndMap_t pairEndMap;
 	InstructionList_t srcs;
 	InstructionMap_t insnMap;
 	unsigned nr = 0;
@@ -86,26 +91,50 @@ void JumpTargetDisplay::calculateLanes(InstructionList_t &insns, unsigned nVisib
 		m_starts[start->getAddress()] = start;
 		m_ends[end->getAddress()] = start;
 
-		pairs.push_back(InstructionPair(start, end, m_insnNrs[end] - m_insnNrs[start]));
+		InstructionPair *pair = new InstructionPair(start, end, m_insnNrs[end] - m_insnNrs[start]);
+		pairs.push_back(pair);
+		pairStartMap[start->getAddress()] = pair;
+		pairEndMap[end->getAddress()].push_back(pair);
 	}
 
 	IInstruction *lanes[m_nLanes];
 
 	memset((void *)lanes, 0, sizeof(IInstruction *) * m_nLanes);
 
-	unsigned row = 0;
-	for (InstructionList_t::iterator it = insns.begin();
-			it != insns.end();
-			++it, ++row) {
-		IInstruction *cur = *it;
-		LaneValue_t *curLane = &m_lanes[row * m_nLanes];
+	unsigned row;
+	if (!m_isForward) {
+		row = insns.size() - 1;
 
-		if (m_starts[cur->getAddress()] == cur)
-			allocateLane(cur, m_ends[cur->getBranchTargetAddress()], lanes);
-		if (m_ends[cur->getAddress()] == cur)
-			deallocateLane(m_ends[cur->getBranchTargetAddress()], cur, lanes);
+		for (InstructionList_t::reverse_iterator it = insns.rbegin();
+				it != insns.rend();
+				++it, --row) {
+			IInstruction *cur = *it;
+			LaneValue_t *curLane = &m_lanes[row * m_nLanes];
 
-		fillLane(curLane, cur, lanes);
+			InstructionPair *startPair = pairStartMap[cur->getAddress()];
+			std::list<InstructionPair *> endPairs = pairEndMap[cur->getAddress()];
+
+			if (startPair != NULL)
+				allocateLane(startPair->m_start, startPair->m_end, lanes);
+
+			fillLane(curLane, cur, lanes);
+
+			for (std::list<InstructionPair *>::iterator itEp = endPairs.begin();
+					itEp != endPairs.end();
+					++itEp) {
+				InstructionPair *p = *itEp;
+
+				deallocateLane(p->m_start, p->m_end, lanes);
+			}
+		}
+	}
+
+	for (InstructionPairList_t::iterator it = pairs.begin();
+			it != pairs.end();
+			++it) {
+		InstructionPair *p = *it;
+
+		delete p;
 	}
 }
 

@@ -96,11 +96,20 @@ public:
 		return out;
 	}
 
-	bool laneHasValue(JumpTargetDisplay *p, unsigned idx, unsigned nLanes, JumpTargetDisplay::LaneValue_t value)
+	bool laneHasValue(JumpTargetDisplay *p, unsigned idx, unsigned nLanes, JumpTargetDisplay::LaneValue_t value, bool onlyValue = false)
 	{
 		JumpTargetDisplay::LaneValue_t lanes[nLanes];
 
 		p->getLanes(idx, lanes);
+
+		if (onlyValue) {
+			for (unsigned i = 0; i < nLanes; i++) {
+				if (lanes[i] != value)
+					return false;
+			}
+
+			return true;
+		}
 
 		for (unsigned i = 0; i < nLanes; i++) {
 			if (lanes[i] == value)
@@ -147,6 +156,7 @@ public:
 				case JumpTargetDisplay::LANE_END_LONG_UP:
 					printf("lu>"); break;
 				default:
+					printf("XXX"); break;
 					break;
 				}
 				printf(".");
@@ -168,17 +178,22 @@ TESTSUITE(jumptarget)
 		{
 			JumpTargetDisplay *p = new JumpTargetDisplay(false, 4);
 
-			uint64_t first = addInstruction();
 			addInstruction();
+			uint64_t first = addInstruction();
+			uint64_t second = addInstruction();
 			addInstruction(first);
+			addInstruction(second);
 			addInstruction();
 
 			p->calculateLanes(m_insns, 10);
 
 			print(p, 4);
 
-			ASSERT_TRUE(laneHasValue(p, 2, 4, JumpTargetDisplay::LANE_START_UP));
-			ASSERT_TRUE(laneHasValue(p, 0, 4, JumpTargetDisplay::LANE_END_UP));
+			ASSERT_TRUE(laneHasValue(p, 3, 4, JumpTargetDisplay::LANE_START_UP));
+			ASSERT_TRUE(laneHasValue(p, 1, 4, JumpTargetDisplay::LANE_END_UP));
+			ASSERT_TRUE(laneHasValue(p, 5, 4, JumpTargetDisplay::LANE_NONE, true));
+			ASSERT_TRUE(laneHasValue(p, 2, 4, JumpTargetDisplay::LANE_END_UP));
+			ASSERT_TRUE(laneHasValue(p, 0, 4, JumpTargetDisplay::LANE_NONE, true));
 
 			cleanup();
 			delete p;
