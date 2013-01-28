@@ -23,12 +23,6 @@ public:
 	unsigned m_distance;
 };
 
-typedef std::list<InstructionPair *> InstructionPairList_t;
-typedef std::unordered_map<uint64_t, InstructionPair *> InstructionPairStartMap_t;
-typedef std::unordered_map<uint64_t, std::list<InstructionPair *>> InstructionPairEndMap_t;
-typedef std::unordered_map<uint64_t, IInstruction *> InstructionMap_t;
-
-
 JumpTargetDisplay::JumpTargetDisplay(bool isForward, unsigned nLanes) :
 		m_isForward(isForward), m_nLanes(nLanes), m_nRows(1)
 {
@@ -51,16 +45,14 @@ void JumpTargetDisplay::calculateLanes(InstructionList_t &insns, unsigned nVisib
 
 	delete[] m_lanes;
 
-	m_insnNrs.clear();
 	m_starts.clear();
 	m_ends.clear();
+	m_insnNrs.clear();
 	m_lanes = new LaneValue_t[m_nLanes * m_nRows];
 
 	memset(m_lanes, LANE_INVALID, m_nLanes * m_nRows * sizeof(LaneValue_t));
 
 	InstructionPairList_t pairs;
-	InstructionPairStartMap_t pairStartMap;
-	InstructionPairEndMap_t pairEndMap;
 	InstructionList_t srcs;
 	InstructionMap_t insnMap;
 	unsigned nr = 0;
@@ -88,13 +80,11 @@ void JumpTargetDisplay::calculateLanes(InstructionList_t &insns, unsigned nVisib
 		// Jump not in this sequence of instructions???
 		if (!end)
 			continue;
-		m_starts[start->getAddress()] = start;
-		m_ends[end->getAddress()] = start;
 
 		InstructionPair *pair = new InstructionPair(start, end, m_insnNrs[end] - m_insnNrs[start]);
 		pairs.push_back(pair);
-		pairStartMap[start->getAddress()] = pair;
-		pairEndMap[end->getAddress()].push_back(pair);
+		m_starts[start->getAddress()] = pair;
+		m_ends[end->getAddress()].push_back(pair);
 	}
 
 	IInstruction *lanes[m_nLanes];
@@ -111,8 +101,8 @@ void JumpTargetDisplay::calculateLanes(InstructionList_t &insns, unsigned nVisib
 			IInstruction *cur = *it;
 			LaneValue_t *curLane = &m_lanes[row * m_nLanes];
 
-			InstructionPair *startPair = pairStartMap[cur->getAddress()];
-			std::list<InstructionPair *> endPairs = pairEndMap[cur->getAddress()];
+			InstructionPair *startPair = m_starts[cur->getAddress()];
+			std::list<InstructionPair *> endPairs = m_ends[cur->getAddress()];
 
 			if (startPair != NULL)
 				allocateLane(startPair->m_start, startPair->m_end, lanes);
@@ -136,8 +126,8 @@ void JumpTargetDisplay::calculateLanes(InstructionList_t &insns, unsigned nVisib
 			IInstruction *cur = *it;
 			LaneValue_t *curLane = &m_lanes[row * m_nLanes];
 
-			InstructionPair *startPair = pairStartMap[cur->getAddress()];
-			std::list<InstructionPair *> endPairs = pairEndMap[cur->getAddress()];
+			InstructionPair *startPair = m_starts[cur->getAddress()];
+			std::list<InstructionPair *> endPairs = m_ends[cur->getAddress()];
 
 			if (startPair != NULL)
 				allocateLane(startPair->m_start, startPair->m_end, lanes);
@@ -165,19 +155,59 @@ void JumpTargetDisplay::calculateLanes(InstructionList_t &insns, unsigned nVisib
 
 void JumpTargetDisplay::fillLane(LaneValue_t *curRow, IInstruction *cur, IInstruction **lanes)
 {
-	for (unsigned i = 0; i < m_nLanes; i++) {
+	std::list<InstructionPair *> ends = m_ends[cur->getAddress()];
+	InstructionPair *start = m_starts[cur->getAddress()];
+
+	for (unsigned i = 0; i < m_nLanes - 1; i++) {
 		IInstruction *p = lanes[i];
 
 		if (p == NULL) {
 			curRow[i] = LANE_NONE;
 		} else {
-			if (cur == p) // this is a start
+			if (start && cur == start->m_start && p == start->m_start) { // this is a start
 				curRow[i] = m_isForward ? LANE_START_DOWN : LANE_START_UP;
-			else if (m_ends[cur->getAddress()] == p)
-				curRow[i] = m_isForward ? LANE_END_DOWN : LANE_END_UP;
-			else
+			} else if (!ends.empty()) {
+				bool found = false;
+
+				for (std::list<InstructionPair *>::iterator it = ends.begin();
+						it != ends.end();
+						++it) {
+					InstructionPair *e = *it;
+
+					if (e->m_end == cur && p == e->m_start && e->m_distance < m_nVisibleInsns) {
+						curRow[i] = m_isForward ? LANE_END_DOWN : LANE_END_UP;
+						found = true;
+					}
+
+					if (!found)
+						curRow[i] = LANE_LINE;
+				}
+			} else {
 				curRow[i] = LANE_LINE;
+			}
 		}
+	}
+
+	if (start && start->m_distance >= m_nVisibleInsns) {
+		curRow[m_nLanes - 1] = m_isForward ? LANE_START_LONG_DOWN : LANE_START_LONG_UP;
+	} else if (!ends.empty()) {
+		bool found = false;
+
+		for (std::list<InstructionPair *>::iterator it = ends.begin();
+				it != ends.end();
+				++it) {
+			InstructionPair *e = *it;
+
+			if (e->m_end == cur && e->m_distance > m_nVisibleInsns) {
+				curRow[m_nLanes - 1] = m_isForward ? LANE_END_LONG_DOWN : LANE_END_LONG_UP;
+				found = true;
+			}
+		}
+
+		if (!found)
+			curRow[m_nLanes - 1] = LANE_NONE;
+	} else {
+		curRow[m_nLanes - 1] = LANE_NONE;
 	}
 }
 

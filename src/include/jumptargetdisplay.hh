@@ -3,10 +3,15 @@
 #include "iinstruction.hh"
 
 #include <unordered_map>
+#include <list>
 
 namespace emilpro
 {
 	class InstructionPair;
+
+	typedef std::list<InstructionPair *> InstructionPairList_t;
+	typedef std::unordered_map<uint64_t, InstructionPair *> InstructionPairStartMap_t;
+	typedef std::unordered_map<uint64_t, std::list<InstructionPair *>> InstructionPairEndMap_t;
 
 	class JumpTargetDisplay
 	{
@@ -49,8 +54,8 @@ namespace emilpro
 		LaneValue_t *m_lanes;
 
 		InstructionNrMap_t m_insnNrs;
-		InstructionMap_t m_starts;
-		InstructionMap_t m_ends;
+		InstructionPairStartMap_t m_starts;
+		InstructionPairEndMap_t m_ends;
 
 		unsigned m_nVisibleInsns;
 	};
