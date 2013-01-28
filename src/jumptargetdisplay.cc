@@ -148,7 +148,7 @@ void JumpTargetDisplay::fillLane(LaneValue_t *curRow, IInstruction *cur, IInstru
 		} else {
 			if (cur == p) // this is a start
 				curRow[i] = m_isForward ? LANE_START_DOWN : LANE_START_UP;
-			else if (m_ends[cur->getAddress()] != NULL)
+			else if (m_ends[cur->getAddress()] == p)
 				curRow[i] = m_isForward ? LANE_END_DOWN : LANE_END_UP;
 			else
 				curRow[i] = LANE_LINE;

@@ -193,6 +193,7 @@ TESTSUITE(jumptarget)
 			ASSERT_TRUE(laneHasValue(p, 1, 4, JumpTargetDisplay::LANE_END_UP));
 			ASSERT_TRUE(laneHasValue(p, 5, 4, JumpTargetDisplay::LANE_NONE, true));
 			ASSERT_TRUE(laneHasValue(p, 2, 4, JumpTargetDisplay::LANE_END_UP));
+			ASSERT_TRUE(laneHasValue(p, 2, 4, JumpTargetDisplay::LANE_LINE));
 			ASSERT_TRUE(laneHasValue(p, 0, 4, JumpTargetDisplay::LANE_NONE, true));
 
 			cleanup();
