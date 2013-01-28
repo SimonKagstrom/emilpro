@@ -115,7 +115,11 @@ public:
 	{
 		printf("\n");
 
-		for (unsigned i = 0; i < m_insns.size(); i++) {
+		unsigned i = 0;
+		for (InstructionList_t::iterator it = m_insns.begin();
+				it != m_insns.end();
+				++it, ++i) {
+			MockInstruction *cur = (MockInstruction *)*it;
 			JumpTargetDisplay::LaneValue_t lanes[nLanes];
 
 			p->getLanes(i, lanes);
@@ -148,7 +152,7 @@ public:
 				printf(".");
 			}
 
-			printf("  INSN\n");
+			printf("  INSN %s\n", cur->m_branchTarget == 0 ? "" : "source");
 		}
 	}
 
