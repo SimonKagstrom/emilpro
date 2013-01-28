@@ -200,4 +200,36 @@ TESTSUITE(jumptarget)
 			delete p;
 		}
 	}
+
+
+	TEST(forwards, JumpTargetFixture)
+	{
+		ASSERT_SCOPE_HEAP_LEAK_FREE
+		{
+			unsigned nLanes = 6;
+			JumpTargetDisplay *p = new JumpTargetDisplay(true, nLanes);
+
+			addInstruction(); // 4
+			addInstruction(28);
+			addInstruction(24);
+			addInstruction();
+			addInstruction();
+			addInstruction(); // 24
+			addInstruction(); // 28
+
+			p->calculateLanes(m_insns, 4);
+
+			print(p, nLanes);
+
+			ASSERT_TRUE(laneHasValue(p, 0, nLanes, JumpTargetDisplay::LANE_NONE, true));
+			ASSERT_TRUE(laneHasValue(p, 1, nLanes, JumpTargetDisplay::LANE_START_LONG_DOWN));
+			ASSERT_TRUE(laneHasValue(p, 2, nLanes, JumpTargetDisplay::LANE_START_DOWN));
+			ASSERT_TRUE(laneHasValue(p, 3, nLanes, JumpTargetDisplay::LANE_LINE));
+			ASSERT_TRUE(laneHasValue(p, 5, nLanes, JumpTargetDisplay::LANE_END_DOWN));
+			ASSERT_TRUE(laneHasValue(p, 6, nLanes, JumpTargetDisplay::LANE_END_LONG_DOWN));
+
+			cleanup();
+			delete p;
+		}
+	}
 }

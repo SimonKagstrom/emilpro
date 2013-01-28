@@ -102,7 +102,32 @@ void JumpTargetDisplay::calculateLanes(InstructionList_t &insns, unsigned nVisib
 	memset((void *)lanes, 0, sizeof(IInstruction *) * m_nLanes);
 
 	unsigned row;
-	if (!m_isForward) {
+	if (m_isForward) {
+		row = 0;
+
+		for (InstructionList_t::iterator it = insns.begin();
+				it != insns.end();
+				++it, ++row) {
+			IInstruction *cur = *it;
+			LaneValue_t *curLane = &m_lanes[row * m_nLanes];
+
+			InstructionPair *startPair = pairStartMap[cur->getAddress()];
+			std::list<InstructionPair *> endPairs = pairEndMap[cur->getAddress()];
+
+			if (startPair != NULL)
+				allocateLane(startPair->m_start, startPair->m_end, lanes);
+
+			fillLane(curLane, cur, lanes);
+
+			for (std::list<InstructionPair *>::iterator itEp = endPairs.begin();
+					itEp != endPairs.end();
+					++itEp) {
+				InstructionPair *p = *itEp;
+
+				deallocateLane(p->m_start, p->m_end, lanes);
+			}
+		}
+	} else {
 		row = insns.size() - 1;
 
 		for (InstructionList_t::reverse_iterator it = insns.rbegin();
