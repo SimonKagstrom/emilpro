@@ -238,14 +238,14 @@ void JumpTargetDisplay::allocateLane(IInstruction *start, IInstruction *end, IIn
 
 	unsigned i;
 
-	for (i = 0; i < m_nLanes; i++) {
+	for (i = 0; i < m_nLanes - 1; i++) {
 		IInstruction *cur = lanes[i];
 
 		if (!cur)
 			break;
 	}
 	// Can't fit this one, so skip it
-	if (i == m_nLanes)
+	if (i == m_nLanes - 1)
 		return;
 
 	lanes[i] = start;
@@ -261,12 +261,12 @@ void JumpTargetDisplay::deallocateLane(IInstruction *start, IInstruction *end, I
 
 	unsigned i;
 
-	for (i = 0; i < m_nLanes; i++) {
+	for (i = 0; i < m_nLanes - 1; i++) {
 		if (lanes[i] == start)
 			break;
 	}
 
-	if (i == m_nLanes)
+	if (i == m_nLanes - 1)
 		return;
 
 	lanes[i] = NULL;
