@@ -5,6 +5,7 @@
 #include <architecturefactory.hh>
 #include <symbolfactory.hh>
 #include <utils.hh>
+#include <jumptargetdisplay.hh>
 
 #include <string>
 
@@ -36,12 +37,14 @@ public:
 		add(m_backward);
 		add(m_instruction);
 		add(m_forward);
+		add(m_target);
 	}
 
 	Gtk::TreeModelColumn<Glib::ustring> m_address;
-	Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf>> m_backward;
+	Gtk::TreeModelColumn<JumpTargetDisplay::LaneValue_t> m_backward;
 	Gtk::TreeModelColumn<Glib::ustring> m_instruction;
-	Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf>> m_forward;
+	Gtk::TreeModelColumn<JumpTargetDisplay::LaneValue_t> m_forward;
+	Gtk::TreeModelColumn<Glib::ustring> m_target;
 };
 
 class EmilProGui
@@ -49,12 +52,16 @@ class EmilProGui
 public:
 	EmilProGui()
 	{
+		m_backwardBranches = new JumpTargetDisplay(false, 4);
+		m_forwardBranches = new JumpTargetDisplay(false, 4);
 	}
 
 	~EmilProGui()
 	{
 		delete m_symbolColumns;
 		delete m_instructionColumns;
+		delete m_forwardBranches;
+		delete m_backwardBranches;
 	}
 
 	void init(int argc, char **argv)
@@ -85,28 +92,12 @@ public:
 		panic_if(!m_instructionView,
 				"Can't get symbol view");
 
-		Glib::RefPtr<Gtk::CellRendererText> symbolAddressRenderer = Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_address_text"));
-		panic_if(!symbolAddressRenderer,
-				"Can't get symbol address renderer");
-		Glib::RefPtr<Gtk::CellRendererText> symbolSizeRenderer = Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_size_text"));
-		panic_if(!symbolSizeRenderer,
-				"Can't get symbol size renderer");
-		Glib::RefPtr<Gtk::CellRendererText> symbolTextRenderer = Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_symbol_text"));
-		panic_if(!symbolTextRenderer,
-				"Can't get symbol text renderer");
-		Glib::RefPtr<Gtk::CellRendererText> instructionAddressRenderer = Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("instruction_view_address_text"));
-		panic_if(!instructionAddressRenderer,
-				"Can't get instruction address renderer");
-		Glib::RefPtr<Gtk::CellRendererText> instructionTextRenderer = Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("instruction_view_instruction_text"));
-		panic_if(!instructionTextRenderer,
-				"Can't get instruction text renderer");
-
-		symbolAddressRenderer->property_font() = "Monospace";
-		symbolSizeRenderer->property_font() = "Monospace";
-		symbolTextRenderer->property_font() = "Monospace";
-
-		instructionAddressRenderer->property_font() = "Monospace";
-		instructionTextRenderer->property_font() = "Monospace";
+		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_address_text")));
+		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_size_text")));
+		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_symbol_text")));
+		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("instruction_view_address_text")));
+		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("instruction_view_instruction_text")));
+		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("instruction_view_target_text")));
 
 		Gtk::TreeView *symbolView;
 		m_builder->get_widget("symbol_view", symbolView);
@@ -139,6 +130,14 @@ public:
 	}
 
 protected:
+	void setFont(Glib::RefPtr<Gtk::CellRendererText> renderer)
+	{
+		panic_if(!renderer,
+				"Can't get renderer");
+
+		renderer->property_font() = "Monospace";
+	}
+
 	void onSymbolRowActivated(const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn* column)
 	{
 		Gtk::TreeModel::iterator iter = m_symbolListStore->get_iter(path);
@@ -175,6 +174,15 @@ protected:
 
 			row[m_instructionColumns->m_address] = fmt("0x%0llx", cur->getAddress()).c_str();
 			row[m_instructionColumns->m_instruction] = cur->getString();
+			if (cur->getBranchTargetAddress() != 0) {
+				uint64_t target = cur->getBranchTargetAddress();
+				const ISymbol *targetSym = model.getSymbol(target);
+
+				if (!targetSym || (target >= sym->getAddress() && target < sym->getAddress() + sym->getSize()))
+					row[m_instructionColumns->m_target] = fmt("0x%0llx", cur->getBranchTargetAddress()).c_str();
+				else
+					row[m_instructionColumns->m_target] = targetSym->getName();
+			}
 		}
 	}
 
@@ -241,6 +249,9 @@ private:
 	SymbolModelColumns *m_symbolColumns;
 	InstructionModelColumns *m_instructionColumns;
 	Gtk::TreeView *m_instructionView;
+
+	JumpTargetDisplay *m_backwardBranches;
+	JumpTargetDisplay *m_forwardBranches;
 };
 
 int main(int argc, char **argv)

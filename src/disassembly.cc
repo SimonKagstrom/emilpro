@@ -221,7 +221,7 @@ private:
 				"No list when displaying!");
 
 		uint64_t address = m_startAddress + insn->offset;
-		uint64_t targetAddress = address;
+		uint64_t targetAddress = 0;
 		IInstruction::InstructionType_t type = IInstruction::IT_UNKNOWN;
 		const char *encoding = insn->ascii;
 		const char *mnemonic = insn->mnemonic;

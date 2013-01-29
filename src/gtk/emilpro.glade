@@ -80,6 +80,8 @@
       <column type="gchararray"/>
       <!-- column-name instruction_view_f_data -->
       <column type="GdkPixbuf"/>
+      <!-- column-name instruction_view_target_data -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkListStore" id="symbol_liststore">
@@ -422,6 +424,17 @@
                           <object class="GtkCellRendererPixbuf" id="instruction_view_f_pix"/>
                           <attributes>
                             <attribute name="pixbuf">3</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="instruction_view_target">
+                        <property name="title" translatable="yes">Target</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="instruction_view_target_text"/>
+                          <attributes>
+                            <attribute name="text">4</attribute>
                           </attributes>
                         </child>
                       </object>

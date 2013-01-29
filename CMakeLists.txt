@@ -40,6 +40,7 @@ set (${TGT}_SRCS
 	src/architecturefactory.cc
 	src/bfd-provider.cc
 	src/disassembly.cc
+	src/jumptargetdisplay.cc
 	src/model.cc
 	src/symbolfactory.cc
 	src/utils.cc
