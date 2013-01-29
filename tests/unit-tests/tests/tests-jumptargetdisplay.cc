@@ -186,6 +186,7 @@ TESTSUITE(jumptarget)
 			addInstruction();
 
 			p->calculateLanes(m_insns, 10);
+			p->calculateLanes(m_insns, 10);
 
 			print(p, 4);
 
@@ -232,5 +233,31 @@ TESTSUITE(jumptarget)
 			cleanup();
 			delete p;
 		}
+	}
+
+
+	TEST(fillLanes, JumpTargetFixture)
+	{
+			unsigned nLanes = 3;
+			JumpTargetDisplay *p = new JumpTargetDisplay(false, nLanes);
+
+			uint64_t a = addInstruction();
+			uint64_t b = addInstruction();
+			uint64_t c = addInstruction();
+			uint64_t d = addInstruction();
+			addInstruction(a);
+			addInstruction(b);
+			addInstruction(c);
+			addInstruction(d); // Should be ignored
+
+			p->calculateLanes(m_insns, 10);
+			p->calculateLanes(m_insns, 10);
+
+			print(p, nLanes);
+			ASSERT_FALSE(laneHasValue(p, 6, nLanes, JumpTargetDisplay::LANE_START_UP));
+			ASSERT_FALSE(laneHasValue(p, 8, nLanes, JumpTargetDisplay::LANE_START_UP));
+
+			cleanup();
+			delete p;
 	}
 }
