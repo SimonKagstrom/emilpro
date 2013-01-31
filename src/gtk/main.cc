@@ -79,15 +79,15 @@ public:
 	{
 		m_app = new Gtk::Main(argc, argv);
 
-		m_pixbufs[JumpTargetDisplay::LANE_LINE] = Gdk::Pixbuf::create_from_file("/home/ska/projects/dissy/gfx/red_line.png");
-		m_pixbufs[JumpTargetDisplay::LANE_START_DOWN] = Gdk::Pixbuf::create_from_file("/home/ska/projects/dissy/gfx/red_start_down.png");
-		m_pixbufs[JumpTargetDisplay::LANE_START_UP] = Gdk::Pixbuf::create_from_file("/home/ska/projects/dissy/gfx/red_start_up.png");
-		m_pixbufs[JumpTargetDisplay::LANE_START_LONG_UP] = Gdk::Pixbuf::create_from_file("/home/ska/projects/dissy/gfx/red_plus.png");
-		m_pixbufs[JumpTargetDisplay::LANE_START_LONG_DOWN] = Gdk::Pixbuf::create_from_file("/home/ska/projects/dissy/gfx/red_plus.png");
-		m_pixbufs[JumpTargetDisplay::LANE_END_DOWN] = Gdk::Pixbuf::create_from_file("/home/ska/projects/dissy/gfx/red_arrow_left.png");
-		m_pixbufs[JumpTargetDisplay::LANE_END_UP] = Gdk::Pixbuf::create_from_file("/home/ska/projects/dissy/gfx/red_arrow_right.png");
-		m_pixbufs[JumpTargetDisplay::LANE_END_LONG_DOWN] = Gdk::Pixbuf::create_from_file("/home/ska/projects/dissy/gfx/red_plus.png");
-		m_pixbufs[JumpTargetDisplay::LANE_END_LONG_UP] = Gdk::Pixbuf::create_from_file("/home/ska/projects/dissy/gfx/red_plus.png");
+		m_pixbufs[JumpTargetDisplay::LANE_LINE] = Gdk::Pixbuf::create_from_file("../../../emilpro/gfx/red_line.png");
+		m_pixbufs[JumpTargetDisplay::LANE_START_DOWN] = Gdk::Pixbuf::create_from_file("../../../emilpro/gfx/red_start_down.png");
+		m_pixbufs[JumpTargetDisplay::LANE_START_UP] = Gdk::Pixbuf::create_from_file("../../../emilpro/gfx/red_start_up.png");
+		m_pixbufs[JumpTargetDisplay::LANE_START_LONG_UP] = Gdk::Pixbuf::create_from_file("../../../emilpro/gfx/red_long_start.png");
+		m_pixbufs[JumpTargetDisplay::LANE_START_LONG_DOWN] = Gdk::Pixbuf::create_from_file("../../../emilpro/gfx/red_long_start.png");
+		m_pixbufs[JumpTargetDisplay::LANE_END_DOWN] = Gdk::Pixbuf::create_from_file("../../../emilpro/gfx/red_arrow_left.png");
+		m_pixbufs[JumpTargetDisplay::LANE_END_UP] = Gdk::Pixbuf::create_from_file("../../../emilpro/gfx/red_arrow_right.png");
+		m_pixbufs[JumpTargetDisplay::LANE_END_LONG_DOWN] = Gdk::Pixbuf::create_from_file("../../../emilpro/gfx/red_long_end.png");
+		m_pixbufs[JumpTargetDisplay::LANE_END_LONG_UP] = Gdk::Pixbuf::create_from_file("../../../emilpro/gfx/red_long_start.png");
 
 		m_builder = Gtk::Builder::create_from_file("/home/ska/projects/emilpro/src/gtk/emilpro.glade");
 
