@@ -18,8 +18,6 @@ namespace emilpro
 	public:
 		typedef enum
 		{
-			LANE_INVALID         = -1,
-
 			LANE_NONE            = 0,
 			LANE_LINE            = 1,
 			LANE_START_DOWN      = 2,
@@ -30,6 +28,10 @@ namespace emilpro
 			LANE_END_UP          = 7,
 			LANE_END_LONG_DOWN   = 8,
 			LANE_END_LONG_UP     = 9,
+
+			LANE_INVALID         = 10,
+
+			LANE_N_VALUES,
 		} LaneValue_t;
 
 		JumpTargetDisplay(bool isForward, unsigned n_lanes);
