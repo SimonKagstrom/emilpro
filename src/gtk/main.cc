@@ -31,29 +31,40 @@ public:
 class InstructionModelColumns : public Gtk::TreeModelColumnRecord
 {
 public:
-	InstructionModelColumns()
+	InstructionModelColumns(unsigned nLanes)
 	{
+		m_backward = new Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf>>[nLanes];
+		m_forward= new Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf>>[nLanes];
+
 		add(m_address);
-		add(m_backward);
+		for (unsigned i = 0; i < nLanes; i++)
+			add(m_backward[i]);
 		add(m_instruction);
-		add(m_forward);
+		for (unsigned i = 0; i < nLanes; i++)
+			add(m_forward[i]);
 		add(m_target);
 	}
 
+	~InstructionModelColumns()
+	{
+		delete[] m_backward;
+		delete[] m_forward;
+	}
+
 	Gtk::TreeModelColumn<Glib::ustring> m_address;
-	Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf>> m_backward;
+	Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf>> *m_backward;
 	Gtk::TreeModelColumn<Glib::ustring> m_instruction;
-	Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf>> m_forward;
+	Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf>> *m_forward;
 	Gtk::TreeModelColumn<Glib::ustring> m_target;
 };
 
 class EmilProGui
 {
 public:
-	EmilProGui()
+	EmilProGui() : m_nLanes(4)
 	{
-		m_backwardBranches = new JumpTargetDisplay(false, 4);
-		m_forwardBranches = new JumpTargetDisplay(true, 4);
+		m_backwardBranches = new JumpTargetDisplay(false, m_nLanes);
+		m_forwardBranches = new JumpTargetDisplay(true, m_nLanes);
 	}
 
 	~EmilProGui()
@@ -92,7 +103,7 @@ public:
 				"Can't get symbol liststore");
 
 		m_symbolColumns = new SymbolModelColumns();
-		m_instructionColumns = new InstructionModelColumns();
+		m_instructionColumns = new InstructionModelColumns(m_nLanes);
 
 		m_instructionListStore = Gtk::ListStore::create(*m_instructionColumns);
 		panic_if (!m_instructionListStore,
@@ -108,12 +119,14 @@ public:
 		instructionView->append_column("Address", m_instructionColumns->m_address);
 
 		Gtk::TreeView::Column* backwardColumn = Gtk::manage( new Gtk::TreeView::Column("B") );
-		backwardColumn->pack_start(m_instructionColumns->m_backward, false);
+		for (unsigned i = 0; i < m_nLanes; i++)
+			backwardColumn->pack_start(m_instructionColumns->m_backward[i], false);
 		instructionView->append_column(*backwardColumn);
 
 		instructionView->append_column("Instruction", m_instructionColumns->m_instruction);
 		Gtk::TreeView::Column* forwardColumn = Gtk::manage( new Gtk::TreeView::Column("F") );
-		forwardColumn->pack_start(m_instructionColumns->m_forward, false);
+		for (unsigned i = 0; i < m_nLanes; i++)
+			forwardColumn->pack_start(m_instructionColumns->m_forward[i], false);
 		instructionView->append_column(*forwardColumn);
 
 		instructionView->append_column("Target", m_instructionColumns->m_target);
@@ -191,7 +204,6 @@ protected:
 		m_instructionListStore->clear();
 
 		// Disassemble and display
-		unsigned nLanes = 4;
 		unsigned n = 0;
 		InstructionList_t insns = model.getInstructions(sym->getAddress(), sym->getAddress() + sym->getSize());
 
@@ -216,12 +228,14 @@ protected:
 				else
 					row[m_instructionColumns->m_target] = targetSym->getName();
 			}
-			JumpTargetDisplay::LaneValue_t lanes[nLanes];
+			JumpTargetDisplay::LaneValue_t lanes[m_nLanes];
 
 			m_backwardBranches->getLanes(n, lanes);
-			row[m_instructionColumns->m_backward] = m_pixbufs[lanes[0]];
+			for (unsigned i = 0; i < m_nLanes; i++)
+				row[m_instructionColumns->m_backward[i]] = m_pixbufs[lanes[i]];
 			m_forwardBranches->getLanes(n, lanes);
-			row[m_instructionColumns->m_forward] = m_pixbufs[lanes[0]];
+			for (unsigned i = 0; i < m_nLanes; i++)
+				row[m_instructionColumns->m_forward[i]] = m_pixbufs[lanes[i]];
 		}
 	}
 
@@ -293,6 +307,7 @@ private:
 	JumpTargetDisplay *m_forwardBranches;
 
 	Glib::RefPtr<Gdk::Pixbuf> m_pixbufs[JumpTargetDisplay::LANE_N_VALUES];
+	unsigned m_nLanes;
 };
 
 int main(int argc, char **argv)
