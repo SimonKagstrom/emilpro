@@ -41,9 +41,9 @@ public:
 	}
 
 	Gtk::TreeModelColumn<Glib::ustring> m_address;
-	Gtk::TreeModelColumn<JumpTargetDisplay::LaneValue_t> m_backward;
+	Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf>> m_backward;
 	Gtk::TreeModelColumn<Glib::ustring> m_instruction;
-	Gtk::TreeModelColumn<JumpTargetDisplay::LaneValue_t> m_forward;
+	Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf>> m_forward;
 	Gtk::TreeModelColumn<Glib::ustring> m_target;
 };
 
@@ -53,7 +53,7 @@ public:
 	EmilProGui()
 	{
 		m_backwardBranches = new JumpTargetDisplay(false, 4);
-		m_forwardBranches = new JumpTargetDisplay(false, 4);
+		m_forwardBranches = new JumpTargetDisplay(true, 4);
 	}
 
 	~EmilProGui()
@@ -68,6 +68,16 @@ public:
 	{
 		m_app = new Gtk::Main(argc, argv);
 
+		m_pixbufs[JumpTargetDisplay::LANE_LINE] = Gdk::Pixbuf::create_from_file("/home/ska/projects/dissy/gfx/red_line.png");
+		m_pixbufs[JumpTargetDisplay::LANE_START_DOWN] = Gdk::Pixbuf::create_from_file("/home/ska/projects/dissy/gfx/red_start_down.png");
+		m_pixbufs[JumpTargetDisplay::LANE_START_UP] = Gdk::Pixbuf::create_from_file("/home/ska/projects/dissy/gfx/red_start_up.png");
+		m_pixbufs[JumpTargetDisplay::LANE_START_LONG_UP] = Gdk::Pixbuf::create_from_file("/home/ska/projects/dissy/gfx/red_plus.png");
+		m_pixbufs[JumpTargetDisplay::LANE_START_LONG_DOWN] = Gdk::Pixbuf::create_from_file("/home/ska/projects/dissy/gfx/red_plus.png");
+		m_pixbufs[JumpTargetDisplay::LANE_END_DOWN] = Gdk::Pixbuf::create_from_file("/home/ska/projects/dissy/gfx/red_arrow_left.png");
+		m_pixbufs[JumpTargetDisplay::LANE_END_UP] = Gdk::Pixbuf::create_from_file("/home/ska/projects/dissy/gfx/red_arrow_right.png");
+		m_pixbufs[JumpTargetDisplay::LANE_END_LONG_DOWN] = Gdk::Pixbuf::create_from_file("/home/ska/projects/dissy/gfx/red_plus.png");
+		m_pixbufs[JumpTargetDisplay::LANE_END_LONG_UP] = Gdk::Pixbuf::create_from_file("/home/ska/projects/dissy/gfx/red_plus.png");
+
 		m_builder = Gtk::Builder::create_from_file("/home/ska/projects/emilpro/src/gtk/emilpro.glade");
 
 		Gtk::ImageMenuItem *fileOpenItem;
@@ -81,12 +91,33 @@ public:
 		panic_if (!m_symbolListStore,
 				"Can't get symbol liststore");
 
-		m_instructionListStore = Glib::RefPtr<Gtk::ListStore>::cast_static(m_builder->get_object("instruction_liststore"));
+		m_symbolColumns = new SymbolModelColumns();
+		m_instructionColumns = new InstructionModelColumns();
+
+		m_instructionListStore = Gtk::ListStore::create(*m_instructionColumns);
 		panic_if (!m_instructionListStore,
 				"Can't get instruction liststore");
 
-		m_symbolColumns = new SymbolModelColumns();
-		m_instructionColumns = new InstructionModelColumns();
+		Gtk::TreeView *instructionView;
+		m_builder->get_widget("instruction_view", instructionView);
+		panic_if(!instructionView,
+				"Can't get instruction view");
+
+		instructionView->set_model(m_instructionListStore);
+
+		instructionView->append_column("Address", m_instructionColumns->m_address);
+
+		Gtk::TreeView::Column* backwardColumn = Gtk::manage( new Gtk::TreeView::Column("B") );
+		backwardColumn->pack_start(m_instructionColumns->m_backward, false);
+		instructionView->append_column(*backwardColumn);
+
+		instructionView->append_column("Instruction", m_instructionColumns->m_instruction);
+		Gtk::TreeView::Column* forwardColumn = Gtk::manage( new Gtk::TreeView::Column("F") );
+		forwardColumn->pack_start(m_instructionColumns->m_forward, false);
+		instructionView->append_column(*forwardColumn);
+
+		instructionView->append_column("Target", m_instructionColumns->m_target);
+
 
 		m_builder->get_widget("instruction_view", m_instructionView);
 		panic_if(!m_instructionView,
@@ -95,9 +126,6 @@ public:
 		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_address_text")));
 		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_size_text")));
 		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_symbol_text")));
-		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("instruction_view_address_text")));
-		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("instruction_view_instruction_text")));
-		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("instruction_view_target_text")));
 
 		Gtk::TreeView *symbolView;
 		m_builder->get_widget("symbol_view", symbolView);
@@ -163,10 +191,15 @@ protected:
 		m_instructionListStore->clear();
 
 		// Disassemble and display
+		unsigned nLanes = 4;
+		unsigned n = 0;
 		InstructionList_t insns = model.getInstructions(sym->getAddress(), sym->getAddress() + sym->getSize());
+
+		m_backwardBranches->calculateLanes(insns, 30);
+		m_forwardBranches->calculateLanes(insns, 30);
 		for (InstructionList_t::iterator it = insns.begin();
 				it != insns.end();
-				++it) {
+				++it, ++n) {
 			IInstruction *cur = *it;
 
 			Gtk::ListStore::iterator rowIt = m_instructionListStore->append();
@@ -183,6 +216,12 @@ protected:
 				else
 					row[m_instructionColumns->m_target] = targetSym->getName();
 			}
+			JumpTargetDisplay::LaneValue_t lanes[nLanes];
+
+			m_backwardBranches->getLanes(n, lanes);
+			row[m_instructionColumns->m_backward] = m_pixbufs[lanes[0]];
+			m_forwardBranches->getLanes(n, lanes);
+			row[m_instructionColumns->m_forward] = m_pixbufs[lanes[0]];
 		}
 	}
 
@@ -252,6 +291,8 @@ private:
 
 	JumpTargetDisplay *m_backwardBranches;
 	JumpTargetDisplay *m_forwardBranches;
+
+	Glib::RefPtr<Gdk::Pixbuf> m_pixbufs[JumpTargetDisplay::LANE_N_VALUES];
 };
 
 int main(int argc, char **argv)

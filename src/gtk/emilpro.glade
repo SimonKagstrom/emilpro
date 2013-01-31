@@ -84,18 +84,6 @@
       <column type="gchararray"/>
     </columns>
   </object>
-  <object class="GtkListStore" id="symbol_liststore">
-    <columns>
-      <!-- column-name symbol_view_pix_data -->
-      <column type="GdkPixbuf"/>
-      <!-- column-name symbol_view_address_data -->
-      <column type="gchararray"/>
-      <!-- column-name symbol_view_size_data -->
-      <column type="gchararray"/>
-      <!-- column-name symbol_view_symbol_data -->
-      <column type="gchararray"/>
-    </columns>
-  </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">EmilPRO</property>
@@ -377,67 +365,9 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="vexpand">True</property>
-                    <property name="model">instruction_liststore</property>
                     <property name="headers_clickable">False</property>
                     <child internal-child="selection">
                       <object class="GtkTreeSelection" id="treeview-selection"/>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="instruction_view_address">
-                        <property name="sizing">autosize</property>
-                        <property name="title" translatable="yes">Address</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="instruction_view_address_text"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="instruction_view_b">
-                        <property name="title" translatable="yes">b</property>
-                        <child>
-                          <object class="GtkCellRendererPixbuf" id="instruction_view_b_pix"/>
-                          <attributes>
-                            <attribute name="pixbuf">1</attribute>
-                          </attributes>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="instruction_view_instruction">
-                        <property name="min_width">300</property>
-                        <property name="title" translatable="yes">Instruction</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="instruction_view_instruction_text"/>
-                          <attributes>
-                            <attribute name="text">2</attribute>
-                          </attributes>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="instruction_view_f">
-                        <property name="title" translatable="yes">f</property>
-                        <child>
-                          <object class="GtkCellRendererPixbuf" id="instruction_view_f_pix"/>
-                          <attributes>
-                            <attribute name="pixbuf">3</attribute>
-                          </attributes>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="instruction_view_target">
-                        <property name="title" translatable="yes">Target</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="instruction_view_target_text"/>
-                          <attributes>
-                            <attribute name="text">4</attribute>
-                          </attributes>
-                        </child>
-                      </object>
                     </child>
                   </object>
                 </child>
@@ -491,5 +421,17 @@
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkListStore" id="symbol_liststore">
+    <columns>
+      <!-- column-name symbol_view_pix_data -->
+      <column type="GdkPixbuf"/>
+      <!-- column-name symbol_view_address_data -->
+      <column type="gchararray"/>
+      <!-- column-name symbol_view_size_data -->
+      <column type="gchararray"/>
+      <!-- column-name symbol_view_symbol_data -->
+      <column type="gchararray"/>
+    </columns>
   </object>
 </interface>
