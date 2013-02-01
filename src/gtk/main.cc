@@ -67,7 +67,7 @@ public:
 class EmilProGui
 {
 public:
-	EmilProGui() : m_nLanes(4)
+	EmilProGui() : m_nLanes(4), m_fontHeight(20) // FIXME!
 	{
 		m_backwardBranches = new JumpTargetDisplay(false, m_nLanes);
 		m_forwardBranches = new JumpTargetDisplay(true, m_nLanes);
@@ -217,8 +217,14 @@ protected:
 		unsigned n = 0;
 		InstructionList_t insns = model.getInstructions(sym->getAddress(), sym->getAddress() + sym->getSize());
 
-		m_backwardBranches->calculateLanes(insns, 30);
-		m_forwardBranches->calculateLanes(insns, 30);
+		Gdk::Rectangle rect;
+		m_instructionView->get_visible_rect(rect);
+
+		// Number of visible instructions in the view
+		unsigned nVisible = rect.get_height() / m_fontHeight + 4;
+
+		m_backwardBranches->calculateLanes(insns, nVisible);
+		m_forwardBranches->calculateLanes(insns, nVisible);
 		for (InstructionList_t::iterator it = insns.begin();
 				it != insns.end();
 				++it, ++n) {
@@ -336,6 +342,8 @@ private:
 
 	Glib::RefPtr<Gdk::Pixbuf> m_pixbufs[JumpTargetDisplay::LANE_N_VALUES];
 	unsigned m_nLanes;
+
+	unsigned m_fontHeight;
 };
 
 int main(int argc, char **argv)
