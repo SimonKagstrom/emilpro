@@ -35,7 +35,9 @@ namespace emilpro
 				const char *name,
 				void *data,
 				uint64_t address,
-				uint64_t size);
+				uint64_t size,
+				bool isAllocated,
+				bool isWriteable);
 
 		static SymbolFactory &instance();
 

@@ -165,7 +165,9 @@ public:
 				"file",
 				data,
 				0,
-				dataSize
+				dataSize,
+				false,
+				false
 		);
 
 		m_listener->onSymbol(sym);
@@ -290,7 +292,10 @@ private:
 					symName,
 					section + cur->value,
 					symAddr,
-					size);
+					size,
+					cur->section->flags & SEC_ALLOC,
+					!(cur->section->flags & SEC_READONLY)
+					);
 			symbolsByAddress[symAddr] = &sym;
 			sectionEndAddresses[&sym] = bfd_section_vma(m_bfd, cur->section) + bfd_section_size(m_bfd, cur->section);
 
@@ -341,7 +346,9 @@ private:
 					bfd_section_name(m_bfd, section),
 					it->second,
 					(uint64_t)bfd_section_vma(m_bfd, section),
-					(uint64_t)bfd_section_size(m_bfd, section)
+					(uint64_t)bfd_section_size(m_bfd, section),
+					false,
+					false
 					);
 
 			m_listener->onSymbol(sym);

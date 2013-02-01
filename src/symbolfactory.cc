@@ -16,13 +16,17 @@ public:
 			void *data,
 			uint64_t address,
 			uint64_t size,
-			const char *name) :
+			const char *name,
+			bool isAllocated,
+			bool isWriteable) :
 				m_type(type),
 				m_linkage(linkage),
 				m_data(data),
 				m_address(address),
 				m_size(size),
-				m_name(name)
+				m_name(name),
+				m_isAllocated(isAllocated),
+				m_isWriteable(isWriteable)
 	{
 	}
 
@@ -34,6 +38,16 @@ public:
 	enum ISymbol::SymbolType getType() const
 	{
 		return m_type;
+	}
+
+	bool isAllocated() const
+	{
+		return m_isAllocated;
+	}
+
+	bool isWriteable() const
+	{
+		return m_isAllocated;
 	}
 
 	const char *getName() const
@@ -68,6 +82,8 @@ private:
 	uint64_t m_address;
 	uint64_t m_size;
 	std::string m_name;
+	bool m_isAllocated;
+	bool m_isWriteable;
 };
 
 
@@ -86,9 +102,11 @@ ISymbol &SymbolFactory::createSymbol(enum ISymbol::LinkageType linkage,
 		const char *name,
 		void *data,
 		uint64_t address,
-		uint64_t size)
+		uint64_t size,
+		bool isAllocated,
+		bool isWriteable)
 {
-	Symbol *cur = new Symbol(type, linkage, data, address, size, name);
+	Symbol *cur = new Symbol(type, linkage, data, address, size, name, isAllocated, isWriteable);
 
 	m_symbols.push_back(cur);
 

@@ -32,6 +32,10 @@ namespace emilpro
 
 		virtual enum SymbolType getType() const = 0;
 
+		virtual bool isAllocated() const = 0;
+
+		virtual bool isWriteable() const = 0;
+
 		virtual const char *getName() const = 0;
 
 		virtual void *getDataPtr() const = 0;
