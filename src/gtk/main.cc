@@ -115,32 +115,26 @@ public:
 		panic_if (!m_instructionListStore,
 				"Can't get instruction liststore");
 
-		Gtk::TreeView *instructionView;
-		m_builder->get_widget("instruction_view", instructionView);
-		panic_if(!instructionView,
+		m_builder->get_widget("instruction_view", m_instructionView);
+		panic_if(!m_instructionView,
 				"Can't get instruction view");
 
-		instructionView->set_model(m_instructionListStore);
+		m_instructionView->set_model(m_instructionListStore);
 
-		instructionView->append_column("Address", m_instructionColumns->m_address);
+		m_instructionView->append_column("Address", m_instructionColumns->m_address);
 
 		Gtk::TreeView::Column* backwardColumn = Gtk::manage( new Gtk::TreeView::Column("B") );
 		for (unsigned i = 0; i < m_nLanes; i++)
 			backwardColumn->pack_start(m_instructionColumns->m_backward[i], false);
-		instructionView->append_column(*backwardColumn);
+		m_instructionView->append_column(*backwardColumn);
 
-		instructionView->append_column("Instruction", m_instructionColumns->m_instruction);
+		m_instructionView->append_column("Instruction", m_instructionColumns->m_instruction);
 		Gtk::TreeView::Column* forwardColumn = Gtk::manage( new Gtk::TreeView::Column("F") );
 		for (unsigned i = 0; i < m_nLanes; i++)
 			forwardColumn->pack_start(m_instructionColumns->m_forward[i], false);
-		instructionView->append_column(*forwardColumn);
+		m_instructionView->append_column(*forwardColumn);
 
-		instructionView->append_column("Target", m_instructionColumns->m_target);
-
-
-		m_builder->get_widget("instruction_view", m_instructionView);
-		panic_if(!m_instructionView,
-				"Can't get symbol view");
+		m_instructionView->append_column("Target", m_instructionColumns->m_target);
 
 		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_address_text")));
 		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_size_text")));
