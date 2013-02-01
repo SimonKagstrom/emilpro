@@ -119,6 +119,10 @@ public:
 		panic_if(!m_instructionView,
 				"Can't get instruction view");
 
+		Pango::FontDescription descr = m_instructionView->get_style_context()->get_font();
+		descr.set_family("Monospace");
+		m_instructionView->override_font(descr);
+
 		m_instructionView->set_model(m_instructionListStore);
 
 		m_instructionView->append_column("Address", m_instructionColumns->m_address);
@@ -136,18 +140,13 @@ public:
 
 		m_instructionView->append_column("Target", m_instructionColumns->m_target);
 
-		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_address_text")));
-		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_size_text")));
-		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_symbol_text")));
-		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_r_text")));
-		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_w_text")));
-		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_x_text")));
-		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_a_text")));
-
 		Gtk::TreeView *symbolView;
 		m_builder->get_widget("symbol_view", symbolView);
 		panic_if(!symbolView,
 				"Can't get symbol view");
+		descr = symbolView->get_style_context()->get_font();
+		descr.set_family("Monospace");
+		symbolView->override_font(descr);
 
 		symbolView->signal_row_activated().connect(sigc::mem_fun(*this,
 				&EmilProGui::onSymbolRowActivated));
@@ -175,13 +174,6 @@ public:
 	}
 
 protected:
-	void setFont(Glib::RefPtr<Gtk::CellRendererText> renderer)
-	{
-		panic_if(!renderer,
-				"Can't get renderer");
-
-		renderer->property_font() = "Monospace";
-	}
 
 	void onSymbolRowActivated(const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn* column)
 	{
