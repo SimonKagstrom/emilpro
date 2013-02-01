@@ -16,15 +16,21 @@ class SymbolModelColumns : public Gtk::TreeModelColumnRecord
 public:
 	SymbolModelColumns()
 	{
-		add(m_pixbuf);
 		add(m_address);
 		add(m_size);
+		add(m_r);
+		add(m_w);
+		add(m_x);
+		add(m_a);
 		add(m_name);
 	}
 
-	Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf>> m_pixbuf;
 	Gtk::TreeModelColumn<Glib::ustring> m_address;
 	Gtk::TreeModelColumn<Glib::ustring> m_size;
+	Gtk::TreeModelColumn<Glib::ustring> m_r;
+	Gtk::TreeModelColumn<Glib::ustring> m_w;
+	Gtk::TreeModelColumn<Glib::ustring> m_x;
+	Gtk::TreeModelColumn<Glib::ustring> m_a;
 	Gtk::TreeModelColumn<Glib::ustring> m_name;
 };
 
@@ -139,6 +145,10 @@ public:
 		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_address_text")));
 		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_size_text")));
 		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_symbol_text")));
+		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_r_text")));
+		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_w_text")));
+		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_x_text")));
+		setFont(Glib::RefPtr<Gtk::CellRendererText>::cast_static(m_builder->get_object("symbol_view_a_text")));
 
 		Gtk::TreeView *symbolView;
 		m_builder->get_widget("symbol_view", symbolView);
@@ -253,8 +263,26 @@ protected:
 			Gtk::ListStore::iterator rowIt = m_symbolListStore->append();
 			Gtk::TreeRow row = *rowIt;
 
+			const char *r = " ";
+			const char *w = cur->isWriteable() ? "W" : " ";
+			const char *x = " ";
+			const char *a = cur->isAllocated() ? "A" : " ";
+
+			ISymbol::SymbolType type = cur->getType();
+			if (type == ISymbol::SYM_TEXT) {
+				r = "R";
+				x = "X";
+				w = " ";
+			} else if (type == ISymbol::SYM_DATA) {
+				r = "R";
+			}
+
 			row[m_symbolColumns->m_address] = fmt("0x%llx", cur->getAddress()).c_str();
 			row[m_symbolColumns->m_size] = fmt("0x%08llx", cur->getSize()).c_str();
+			row[m_symbolColumns->m_r] = r;
+			row[m_symbolColumns->m_w] = w;
+			row[m_symbolColumns->m_x] = x;
+			row[m_symbolColumns->m_a] = a;
 			row[m_symbolColumns->m_name] = cur->getName();
 		}
 	}

@@ -84,6 +84,24 @@
       <column type="gchararray"/>
     </columns>
   </object>
+  <object class="GtkListStore" id="symbol_liststore">
+    <columns>
+      <!-- column-name symbol_view_address_data -->
+      <column type="gchararray"/>
+      <!-- column-name symbol_view_size_data -->
+      <column type="gchararray"/>
+      <!-- column-name symbol_view_r_data -->
+      <column type="gchararray"/>
+      <!-- column-name symbol_view_w_data -->
+      <column type="gchararray"/>
+      <!-- column-name symbol_view_x_data -->
+      <column type="gchararray"/>
+      <!-- column-name symbol_view_a_data -->
+      <column type="gchararray"/>
+      <!-- column-name symbol_view_symbol_data -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">EmilPRO</property>
@@ -297,17 +315,6 @@
                       <object class="GtkTreeSelection" id="treeview-selection3"/>
                     </child>
                     <child>
-                      <object class="GtkTreeViewColumn" id="symbol_view_img">
-                        <property name="sizing">autosize</property>
-                        <child>
-                          <object class="GtkCellRendererPixbuf" id="symbol_view_img_pix"/>
-                          <attributes>
-                            <attribute name="pixbuf">0</attribute>
-                          </attributes>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
                       <object class="GtkTreeViewColumn" id="symbol_view_address">
                         <property name="sizing">autosize</property>
                         <property name="title" translatable="yes">Address</property>
@@ -316,7 +323,7 @@
                         <child>
                           <object class="GtkCellRendererText" id="symbol_view_address_text"/>
                           <attributes>
-                            <attribute name="text">1</attribute>
+                            <attribute name="text">0</attribute>
                           </attributes>
                         </child>
                       </object>
@@ -327,7 +334,51 @@
                         <child>
                           <object class="GtkCellRendererText" id="symbol_view_size_text"/>
                           <attributes>
+                            <attribute name="text">1</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="symbol_view_r">
+                        <property name="title" translatable="yes">R</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="symbol_view_r_text"/>
+                          <attributes>
                             <attribute name="text">2</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="symbol_view_w">
+                        <property name="title" translatable="yes">W</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="symbol_view_w_text"/>
+                          <attributes>
+                            <attribute name="text">3</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="symbol_view_x">
+                        <property name="title" translatable="yes">X</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="symbol_view_x_text"/>
+                          <attributes>
+                            <attribute name="text">4</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="symbol_view_a">
+                        <property name="title" translatable="yes">A</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="symbol_view_a_text"/>
+                          <attributes>
+                            <attribute name="text">5</attribute>
                           </attributes>
                         </child>
                       </object>
@@ -340,7 +391,7 @@
                         <child>
                           <object class="GtkCellRendererText" id="symbol_view_symbol_text"/>
                           <attributes>
-                            <attribute name="text">3</attribute>
+                            <attribute name="text">6</attribute>
                           </attributes>
                         </child>
                       </object>
@@ -431,17 +482,5 @@
         </child>
       </object>
     </child>
-  </object>
-  <object class="GtkListStore" id="symbol_liststore">
-    <columns>
-      <!-- column-name symbol_view_pix_data -->
-      <column type="GdkPixbuf"/>
-      <!-- column-name symbol_view_address_data -->
-      <column type="gchararray"/>
-      <!-- column-name symbol_view_size_data -->
-      <column type="gchararray"/>
-      <!-- column-name symbol_view_symbol_data -->
-      <column type="gchararray"/>
-    </columns>
   </object>
 </interface>
