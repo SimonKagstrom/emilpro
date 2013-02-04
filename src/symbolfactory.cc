@@ -209,7 +209,7 @@ SymbolFactory &SymbolFactory::instance()
 	if (!g_instance) {
 		g_instance = new SymbolFactory();
 
-		ISymbolProvider *bfd = createBfdProvider();
+		createBfdProvider();
 	}
 
 	return *g_instance;
