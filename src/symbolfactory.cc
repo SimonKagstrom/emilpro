@@ -97,6 +97,20 @@ void SymbolFactory::registerProvider(ISymbolProvider *provider)
 	m_providers.push_back(provider);
 }
 
+void SymbolFactory::registerLineProvider(ILineProvider *provider)
+{
+	m_lineProviders.push_back(provider);
+}
+
+ILineProvider *SymbolFactory::getLineProvider()
+{
+	if (m_lineProviders.empty())
+		return NULL;
+
+	return m_lineProviders.front();
+}
+
+
 ISymbol &SymbolFactory::createSymbol(enum ISymbol::LinkageType linkage,
 		enum ISymbol::SymbolType type,
 		const char *name,
@@ -196,7 +210,6 @@ SymbolFactory &SymbolFactory::instance()
 		g_instance = new SymbolFactory();
 
 		ISymbolProvider *bfd = createBfdProvider();
-		g_instance->registerProvider(bfd);
 	}
 
 	return *g_instance;

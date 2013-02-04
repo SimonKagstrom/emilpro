@@ -183,6 +183,14 @@ const ISymbol *Model::getSymbol(uint64_t address)
 	return m_symbolsByAddress[address];
 }
 
+const ILineProvider::FileLine Model::getLineByAddress(uint64_t addr)
+{
+	// Return nothing
+	if (!SymbolFactory::instance().getLineProvider())
+		return ILineProvider::FileLine();
+
+	return SymbolFactory::instance().getLineProvider()->getLineByAddress(addr);
+}
 
 
 static Model *g_instance;

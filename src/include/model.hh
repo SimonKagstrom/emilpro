@@ -1,6 +1,7 @@
 #pragma once
 
 #include "iinstruction.hh"
+#include "ilineprovider.hh"
 #include "symbolfactory.hh"
 #include "isymbol.hh"
 
@@ -48,6 +49,8 @@ namespace emilpro
 		const SymbolList_t &getSymbols();
 
 		const ISymbol *getSymbol(uint64_t address);
+
+		const ILineProvider::FileLine getLineByAddress(uint64_t addr);
 
 		void destroy();
 

@@ -8,6 +8,8 @@ namespace emilpro
 {
 	class ISymbolProvider;
 
+	class ILineProvider;
+
 	class ISymbolListener
 	{
 	public:
@@ -27,6 +29,10 @@ namespace emilpro
 
 		void registerProvider(ISymbolProvider *provider);
 
+
+		void registerLineProvider(ILineProvider *provider);
+
+		ILineProvider *getLineProvider();
 
 		unsigned parseBestProvider(void *data, size_t size);
 
@@ -55,6 +61,7 @@ namespace emilpro
 
 		typedef std::list<ISymbolProvider *> SymbolProviders_t;
 		typedef std::list<ISymbolListener *> SymbolListeners_t;
+		typedef std::list<ILineProvider *> LineProviders_t;
 		typedef std::list<ISymbol *> Symbols_t;
 
 		SymbolFactory();
@@ -64,6 +71,7 @@ namespace emilpro
 		SymbolProviders_t m_providers;
 		SymbolListeners_t m_listeners;
 		Symbols_t m_symbols;
+		LineProviders_t m_lineProviders;
 
 		MetaListener m_metaListener;
 	};

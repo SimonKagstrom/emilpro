@@ -1,4 +1,5 @@
 #include <isymbolprovider.hh>
+#include <ilineprovider.hh>
 #include <symbolfactory.hh>
 #include <isymbol.hh>
 #include <architecturefactory.hh>
@@ -84,12 +85,14 @@ mem_bfd_iovec_stat (struct bfd *abfd, void *stream, struct stat *sb)
 
 
 
-class BfdProvider : public ISymbolProvider
+class BfdProvider : public ISymbolProvider, public ILineProvider
 {
 public:
 	BfdProvider() :
 		m_bfd(NULL),
-		m_listener(NULL)
+		m_listener(NULL),
+		m_symcount(0),
+		m_bfdSyms(NULL)
 	{
 	}
 
@@ -102,8 +105,46 @@ public:
 
 			free(p);
 		}
+
+		if (m_bfd) {
+			free (m_bfdSyms);
+			bfd_close(m_bfd);
+			m_bfd = NULL;
+		}
 	}
 
+	// From ILineProvider
+	ILineProvider::FileLine getLineByAddress(uint64_t addr)
+	{
+		ILineProvider::FileLine out;
+
+		BfdSectionByAddress_t::iterator it = m_sectionByAddress.lower_bound(addr);
+		if (it == m_sectionByAddress.end())
+			return out;
+
+		asection *section = it->second;
+
+		if (!section)
+			return out;
+
+		const char *fileName;
+		const char *function;
+		unsigned int lineNr;
+
+		if (bfd_find_nearest_line(m_bfd, section, m_bfdSyms, addr - section->vma,
+				&fileName, &function, &lineNr)) {
+			if (!fileName)
+				return out;
+
+			out.m_file = fileName;
+			out.m_lineNr = lineNr;
+			out.m_isValid = true;
+		}
+
+		return out;
+	}
+
+	// From ISymbolProvider
 	unsigned match(void *data, size_t dataSize)
 	{
 		return ISymbolProvider::PERFECT_MATCH;
@@ -111,11 +152,15 @@ public:
 
 	bool parse(void *data, size_t dataSize, ISymbolListener *listener)
 	{
-		asymbol **syms;
 		char **matching;
 		unsigned int sz;
-		long symcount;
 		struct target_buffer *buffer = (struct target_buffer *)xmalloc(sizeof(struct target_buffer));
+
+		if (m_bfd) {
+			free (m_bfdSyms);
+			bfd_close(m_bfd);
+			m_bfd = NULL;
+		}
 
 		buffer->base = (uint8_t *)data;
 		buffer->size = dataSize;
@@ -150,13 +195,13 @@ public:
 
 		m_listener = listener;
 
-		symcount = bfd_read_minisymbols(m_bfd, FALSE,
-				(void **)&syms, &sz);
-		if (symcount == 0)
-			symcount = bfd_read_minisymbols(m_bfd, TRUE /* dynamic */,
-					(void **)&syms, &sz);
+		m_symcount = bfd_read_minisymbols(m_bfd, FALSE,
+				(void **)&m_bfdSyms, &sz);
+		if (m_symcount == 0)
+			m_symcount = bfd_read_minisymbols(m_bfd, TRUE /* dynamic */,
+					(void **)&m_bfdSyms, &sz);
 
-		handleSymbols(symcount, syms);
+		handleSymbols(m_symcount, m_bfdSyms);
 
 		// Add the file symbol
 		ISymbol &sym = SymbolFactory::instance().createSymbol(
@@ -171,10 +216,6 @@ public:
 		);
 
 		m_listener->onSymbol(sym);
-
-		free (syms);
-		bfd_close(m_bfd);
-		m_bfd = NULL;
 
 		return true;
 	}
@@ -340,6 +381,8 @@ private:
 				++it) {
 			asection *section = it->first;
 
+			m_sectionByAddress[(uint64_t)bfd_section_vma(m_bfd, section)] = section;
+
 			ISymbol &sym = SymbolFactory::instance().createSymbol(
 					ISymbol::LINK_NORMAL,
 					ISymbol::SYM_SECTION,
@@ -356,11 +399,16 @@ private:
 	}
 
 	typedef std::map<asection *, void *> BfdSectionContents_t;
+	typedef std::map<uint64_t, asection *> BfdSectionByAddress_t;
 
 	struct bfd *m_bfd;
 	ISymbolListener *m_listener;
+	long m_symcount;
+	asymbol **m_bfdSyms;
+
 
 	BfdSectionContents_t m_sectionContents;
+	BfdSectionByAddress_t m_sectionByAddress;
 };
 
 namespace emilpro
@@ -374,6 +422,11 @@ namespace emilpro
 			g_bfdInited = true;
 		}
 
-		return new BfdProvider();
+		BfdProvider *out = new BfdProvider();
+
+		SymbolFactory::instance().registerProvider(out);
+		SymbolFactory::instance().registerLineProvider(out);
+
+		return out;
 	}
 }

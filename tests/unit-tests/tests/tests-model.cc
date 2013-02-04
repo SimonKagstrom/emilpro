@@ -64,6 +64,47 @@ TESTSUITE(model)
 		model.destroy();
 	};
 
+	TEST(sourceLines, SymbolFixture)
+	{
+		Model &model = Model::instance();
+		bool res;
+
+		size_t sz;
+		void *data = read_file(&sz, "%s/test-binary", crpcut::get_start_dir());
+		ASSERT_TRUE(data != (void *)NULL);
+
+		res = model.addData(data, sz);
+		ASSERT_TRUE(res == true);
+
+		ISymbol *sym = m_symbolNames["main"];
+		ASSERT_TRUE(sym != (void *)NULL);
+
+		InstructionList_t lst = model.getInstructions(sym->getAddress(), sym->getAddress() + sym->getSize());
+		sz = lst.size();
+		ASSERT_TRUE(sz > 0U);
+
+		bool foundMain14 = false; // kalle(); at line 14 in elf-example-source.c
+		for (InstructionList_t::iterator it = lst.begin();
+				it != lst.end();
+				++it) {
+			IInstruction *cur = *it;
+			ILineProvider::FileLine fileLine = model.getLineByAddress(cur->getAddress());
+
+			if (!fileLine.m_isValid)
+				continue;
+
+			if (fileLine.m_file.find("elf-example-source.c") == std::string::npos)
+				continue;
+
+			if (fileLine.m_lineNr == 14)
+				foundMain14 = true;
+		}
+
+		ASSERT_TRUE(foundMain14 == true);
+
+		model.destroy();
+	}
+
 	TEST(memLeaks)
 	{
 		ASSERT_SCOPE_HEAP_LEAK_FREE
@@ -94,6 +135,24 @@ TESTSUITE(model)
 			sz = lst.size();
 			ASSERT_TRUE(sz > 0U);
 
+			bool foundMain14 = false; // kalle(); at line 14 in elf-example-source.c
+			for (InstructionList_t::iterator it = lst.begin();
+					it != lst.end();
+					++it) {
+				IInstruction *cur = *it;
+				ILineProvider::FileLine fileLine = model.getLineByAddress(cur->getAddress());
+
+				if (!fileLine.m_isValid)
+					continue;
+
+				if (fileLine.m_file.find("elf-example-source.c") == std::string::npos)
+					continue;
+
+				if (fileLine.m_lineNr == 14)
+					foundMain14 = true;
+			}
+
+			ASSERT_TRUE(foundMain14 == true);
 
 //			Model::BasicBlockList_t bbLst = model.getBasicBlocksFromInstructions(lst);
 //			ASSERT_TRUE(bbLst.size() > 0);
