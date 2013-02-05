@@ -185,11 +185,18 @@ const ISymbol *Model::getSymbol(uint64_t address)
 
 const ILineProvider::FileLine Model::getLineByAddress(uint64_t addr)
 {
+	if (m_fileLineCache.find(addr) != m_fileLineCache.end())
+	{
+		return m_fileLineCache[addr];
+	}
+
 	// Return nothing
 	if (!SymbolFactory::instance().getLineProvider())
-		return ILineProvider::FileLine();
+		m_fileLineCache[addr] = ILineProvider::FileLine();
+	else
+		m_fileLineCache[addr] = SymbolFactory::instance().getLineProvider()->getLineByAddress(addr);
 
-	return SymbolFactory::instance().getLineProvider()->getLineByAddress(addr);
+	return m_fileLineCache[addr];
 }
 
 

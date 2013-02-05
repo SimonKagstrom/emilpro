@@ -79,10 +79,12 @@ TESTSUITE(model)
 		ISymbol *sym = m_symbolNames["main"];
 		ASSERT_TRUE(sym != (void *)NULL);
 
+		ASSERT_TRUE(model.m_fileLineCache.empty() == true);
 		InstructionList_t lst = model.getInstructions(sym->getAddress(), sym->getAddress() + sym->getSize());
 		sz = lst.size();
 		ASSERT_TRUE(sz > 0U);
 
+		bool foundMain15 = false; // Empty line (should not be found)
 		bool foundMain14 = false; // kalle(); at line 14 in elf-example-source.c
 		for (InstructionList_t::iterator it = lst.begin();
 				it != lst.end();
@@ -98,9 +100,37 @@ TESTSUITE(model)
 
 			if (fileLine.m_lineNr == 14)
 				foundMain14 = true;
+			else if (fileLine.m_lineNr == 15)
+				foundMain15 = true;
 		}
 
+		ASSERT_TRUE(model.m_fileLineCache.empty() == false);
+		ASSERT_TRUE(foundMain15 == false);
 		ASSERT_TRUE(foundMain14 == true);
+
+		// Rerun to test the cache
+		foundMain14 = false;
+		foundMain15 = false;
+		for (InstructionList_t::iterator it = lst.begin();
+				it != lst.end();
+				++it) {
+			IInstruction *cur = *it;
+			ILineProvider::FileLine fileLine = model.getLineByAddress(cur->getAddress());
+
+			if (!fileLine.m_isValid)
+				continue;
+
+			if (fileLine.m_file.find("elf-example-source.c") == std::string::npos)
+				continue;
+
+			if (fileLine.m_lineNr == 14)
+				foundMain14 = true;
+			else if (fileLine.m_lineNr == 15)
+				foundMain15 = true;
+		}
+		ASSERT_TRUE(foundMain15 == false);
+		ASSERT_TRUE(foundMain14 == true);
+
 
 		model.destroy();
 	}
@@ -135,7 +165,6 @@ TESTSUITE(model)
 			sz = lst.size();
 			ASSERT_TRUE(sz > 0U);
 
-			bool foundMain15 = false; // Empty line (should not be found)
 			bool foundMain14 = false; // kalle(); at line 14 in elf-example-source.c
 			for (InstructionList_t::iterator it = lst.begin();
 					it != lst.end();
@@ -151,11 +180,8 @@ TESTSUITE(model)
 
 				if (fileLine.m_lineNr == 14)
 					foundMain14 = true;
-				else if (fileLine.m_lineNr == 15)
-					foundMain15 = true;
 			}
 
-			ASSERT_TRUE(foundMain15 == false);
 			ASSERT_TRUE(foundMain14 == true);
 
 //			Model::BasicBlockList_t bbLst = model.getBasicBlocksFromInstructions(lst);

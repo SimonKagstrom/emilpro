@@ -12,6 +12,7 @@
 namespace model
 {
 	class disassembleInstructions;
+	class sourceLines;
 }
 
 namespace emilpro
@@ -30,6 +31,7 @@ namespace emilpro
 		};
 
 		friend class model::disassembleInstructions;
+		friend class model::sourceLines;
 
 		typedef std::list<IBasicBlock *> BasicBlockList_t;
 		typedef std::list<ISymbol *> SymbolList_t;
@@ -58,6 +60,7 @@ namespace emilpro
 
 	private:
 		typedef std::map<uint64_t, ISymbol *> SymbolAddressMap_t;
+		typedef std::unordered_map<uint64_t, ILineProvider::FileLine> AddressFileLineMap_t;
 
 		Model();
 		virtual ~Model();
@@ -70,6 +73,7 @@ namespace emilpro
 		InstructionMap_t m_instructionCache;
 		SymbolAddressMap_t m_symbolsByAddress;
 		SymbolList_t m_symbols;
+		AddressFileLineMap_t m_fileLineCache;
 		uint8_t *m_memory;
 	};
 }
