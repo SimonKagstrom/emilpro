@@ -135,6 +135,7 @@ TESTSUITE(model)
 			sz = lst.size();
 			ASSERT_TRUE(sz > 0U);
 
+			bool foundMain15 = false; // Empty line (should not be found)
 			bool foundMain14 = false; // kalle(); at line 14 in elf-example-source.c
 			for (InstructionList_t::iterator it = lst.begin();
 					it != lst.end();
@@ -150,8 +151,11 @@ TESTSUITE(model)
 
 				if (fileLine.m_lineNr == 14)
 					foundMain14 = true;
+				else if (fileLine.m_lineNr == 15)
+					foundMain15 = true;
 			}
 
+			ASSERT_TRUE(foundMain15 == false);
 			ASSERT_TRUE(foundMain14 == true);
 
 //			Model::BasicBlockList_t bbLst = model.getBasicBlocksFromInstructions(lst);
