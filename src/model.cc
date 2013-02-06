@@ -110,6 +110,9 @@ void Model::fillCacheWithSymbol(ISymbol *sym)
 		IInstruction *cur = *it;
 
 		m_instructionCache[cur->getAddress()] = cur;
+
+		// Fill the file:line cache with this instruction
+		getLineByAddress(cur->getAddress());
 	}
 }
 
