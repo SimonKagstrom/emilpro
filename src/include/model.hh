@@ -7,6 +7,7 @@
 
 #include <list>
 #include <map>
+#include <unordered_map>
 
 // Forward declare the unit test stuff (which befriends this class)
 namespace model
