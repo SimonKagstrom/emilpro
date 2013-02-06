@@ -1,4 +1,5 @@
 #include <gtkmm.h>
+#include <gtksourceviewmm.h>
 
 #include <model.hh>
 #include <idisassembly.hh>
@@ -84,6 +85,7 @@ public:
 	void init(int argc, char **argv)
 	{
 		m_app = new Gtk::Main(argc, argv);
+		Gsv::init();
 
 		m_pixbufs[JumpTargetDisplay::LANE_LINE] = Gdk::Pixbuf::create_from_file("../../../emilpro/gfx/red_line.png");
 		m_pixbufs[JumpTargetDisplay::LANE_START_DOWN] = Gdk::Pixbuf::create_from_file("../../../emilpro/gfx/red_start_down.png");

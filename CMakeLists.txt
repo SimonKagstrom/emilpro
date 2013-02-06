@@ -25,6 +25,7 @@ set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
                         ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 pkg_check_modules(GTKMM gtkmm-3.0)
+pkg_check_modules(GTKSOURCEVIEWMM gtksourceviewmm-3.0)
 
 set (CMAKE_CXX_FLAGS "-std=c++0x -Wall -D_GLIBCXX_USE_NANOSLEEP -DPACKAGE=emilpro -DPACKAGE_VERSION=1")
 
@@ -54,6 +55,7 @@ include_directories(
 	${LIBOPDIS_INCLUDE_DIRS}
 	${LIBBFD_INCLUDE_DIRS}
 	${GTKMM_INCLUDE_DIRS}
+	${GTKSOURCEVIEWMM_INCLUDE_DIRS}
 	)
 
 add_executable (${TGT} ${${TGT}_SRCS})
@@ -63,5 +65,6 @@ target_link_libraries(${TGT}
 	${LIBOPDIS_LIBRARIES}
 	${LIBBFD_LIBRARIES}
 	${GTKMM_LIBRARIES}
+	${GTKSOURCEVIEWMM_LIBRARIES}
 	z
 	)
