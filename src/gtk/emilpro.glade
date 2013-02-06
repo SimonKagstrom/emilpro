@@ -84,24 +84,6 @@
       <column type="gchararray"/>
     </columns>
   </object>
-  <object class="GtkListStore" id="symbol_liststore">
-    <columns>
-      <!-- column-name symbol_view_address_data -->
-      <column type="gchararray"/>
-      <!-- column-name symbol_view_size_data -->
-      <column type="gchararray"/>
-      <!-- column-name symbol_view_r_data -->
-      <column type="gchararray"/>
-      <!-- column-name symbol_view_w_data -->
-      <column type="gchararray"/>
-      <!-- column-name symbol_view_x_data -->
-      <column type="gchararray"/>
-      <!-- column-name symbol_view_a_data -->
-      <column type="gchararray"/>
-      <!-- column-name symbol_view_symbol_data -->
-      <column type="gchararray"/>
-    </columns>
-  </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">EmilPRO</property>
@@ -278,7 +260,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">0</property>
+            <property name="position">1</property>
           </packing>
         </child>
         <child>
@@ -290,188 +272,202 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">1</property>
+            <property name="position">2</property>
           </packing>
         </child>
         <child>
-          <object class="GtkPaned" id="symbol_insn_paned">
+          <object class="GtkPaned" id="symbol_insn_src_paned">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="orientation">vertical</property>
             <child>
-              <object class="GtkScrolledWindow" id="symbol_scrolled_window">
-                <property name="height_request">196</property>
+              <object class="GtkPaned" id="symbol_insn_paned">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="shadow_type">in</property>
+                <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkTreeView" id="symbol_view">
+                  <object class="GtkScrolledWindow" id="symbol_scrolled_window">
+                    <property name="height_request">196</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="model">symbol_liststore</property>
-                    <property name="headers_clickable">False</property>
-                    <property name="search_column">1</property>
-                    <child internal-child="selection">
-                      <object class="GtkTreeSelection" id="treeview-selection3"/>
-                    </child>
+                    <property name="shadow_type">in</property>
                     <child>
-                      <object class="GtkTreeViewColumn" id="symbol_view_address">
-                        <property name="sizing">autosize</property>
-                        <property name="title" translatable="yes">Address</property>
-                        <property name="reorderable">True</property>
-                        <property name="sort_indicator">True</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="symbol_view_address_text"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
+                      <object class="GtkTreeView" id="symbol_view">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="model">symbol_liststore</property>
+                        <property name="headers_clickable">False</property>
+                        <property name="search_column">1</property>
+                        <child internal-child="selection">
+                          <object class="GtkTreeSelection" id="treeview-selection"/>
                         </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="symbol_view_size">
-                        <property name="title" translatable="yes">Size</property>
                         <child>
-                          <object class="GtkCellRendererText" id="symbol_view_size_text"/>
-                          <attributes>
-                            <attribute name="text">1</attribute>
-                          </attributes>
+                          <object class="GtkTreeViewColumn" id="symbol_view_address">
+                            <property name="sizing">autosize</property>
+                            <property name="title" translatable="yes">Address</property>
+                            <property name="reorderable">True</property>
+                            <property name="sort_indicator">True</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="symbol_view_address_text"/>
+                              <attributes>
+                                <attribute name="text">0</attribute>
+                              </attributes>
+                            </child>
+                          </object>
                         </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="symbol_view_r">
-                        <property name="title" translatable="yes">R</property>
                         <child>
-                          <object class="GtkCellRendererText" id="symbol_view_r_text"/>
-                          <attributes>
-                            <attribute name="text">2</attribute>
-                          </attributes>
+                          <object class="GtkTreeViewColumn" id="symbol_view_size">
+                            <property name="title" translatable="yes">Size</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="symbol_view_size_text"/>
+                              <attributes>
+                                <attribute name="text">1</attribute>
+                              </attributes>
+                            </child>
+                          </object>
                         </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="symbol_view_w">
-                        <property name="title" translatable="yes">W</property>
                         <child>
-                          <object class="GtkCellRendererText" id="symbol_view_w_text"/>
-                          <attributes>
-                            <attribute name="text">3</attribute>
-                          </attributes>
+                          <object class="GtkTreeViewColumn" id="symbol_view_r">
+                            <property name="title" translatable="yes">R</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="symbol_view_r_text"/>
+                              <attributes>
+                                <attribute name="text">2</attribute>
+                              </attributes>
+                            </child>
+                          </object>
                         </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="symbol_view_x">
-                        <property name="title" translatable="yes">X</property>
                         <child>
-                          <object class="GtkCellRendererText" id="symbol_view_x_text"/>
-                          <attributes>
-                            <attribute name="text">4</attribute>
-                          </attributes>
+                          <object class="GtkTreeViewColumn" id="symbol_view_w">
+                            <property name="title" translatable="yes">W</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="symbol_view_w_text"/>
+                              <attributes>
+                                <attribute name="text">3</attribute>
+                              </attributes>
+                            </child>
+                          </object>
                         </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="symbol_view_a">
-                        <property name="title" translatable="yes">A</property>
                         <child>
-                          <object class="GtkCellRendererText" id="symbol_view_a_text"/>
-                          <attributes>
-                            <attribute name="text">5</attribute>
-                          </attributes>
+                          <object class="GtkTreeViewColumn" id="symbol_view_x">
+                            <property name="title" translatable="yes">X</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="symbol_view_x_text"/>
+                              <attributes>
+                                <attribute name="text">4</attribute>
+                              </attributes>
+                            </child>
+                          </object>
                         </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="symbol_view_symbol">
-                        <property name="title" translatable="yes">Symbol name</property>
-                        <property name="reorderable">True</property>
-                        <property name="sort_indicator">True</property>
                         <child>
-                          <object class="GtkCellRendererText" id="symbol_view_symbol_text"/>
-                          <attributes>
-                            <attribute name="text">6</attribute>
-                          </attributes>
+                          <object class="GtkTreeViewColumn" id="symbol_view_a">
+                            <property name="title" translatable="yes">A</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="symbol_view_a_text"/>
+                              <attributes>
+                                <attribute name="text">5</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="symbol_view_symbol">
+                            <property name="title" translatable="yes">Symbol name</property>
+                            <property name="reorderable">True</property>
+                            <property name="sort_indicator">True</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="symbol_view_symbol_text"/>
+                              <attributes>
+                                <attribute name="text">6</attribute>
+                              </attributes>
+                            </child>
+                          </object>
                         </child>
                       </object>
                     </child>
                   </object>
+                  <packing>
+                    <property name="resize">True</property>
+                    <property name="shrink">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkNotebook" id="tabs">
+                    <property name="height_request">500</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="vexpand">True</property>
+                    <child>
+                      <object class="GtkScrolledWindow" id="instruction_scrolled_window">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="vexpand">True</property>
+                        <property name="shadow_type">in</property>
+                        <child>
+                          <object class="GtkTreeView" id="instruction_view">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="vexpand">True</property>
+                            <child internal-child="selection">
+                              <object class="GtkTreeSelection" id="treeview-selection1"/>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="tab">
+                      <object class="GtkLabel" id="label4">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Instructions</property>
+                      </object>
+                      <packing>
+                        <property name="tab_fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkTreeView" id="treeview2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <child internal-child="selection">
+                          <object class="GtkTreeSelection" id="treeview-selection3"/>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child type="tab">
+                      <object class="GtkLabel" id="label5">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Data</property>
+                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                        <property name="tab_fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child type="tab">
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="resize">False</property>
+                    <property name="shrink">True</property>
+                  </packing>
                 </child>
               </object>
               <packing>
                 <property name="resize">True</property>
-                <property name="shrink">True</property>
+                <property name="shrink">False</property>
               </packing>
             </child>
             <child>
-              <object class="GtkNotebook" id="tabs">
-                <property name="height_request">500</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="vexpand">True</property>
-                <child>
-                  <object class="GtkScrolledWindow" id="instruction_scrolled_window">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="vexpand">True</property>
-                    <property name="shadow_type">in</property>
-                    <child>
-                      <object class="GtkTreeView" id="instruction_view">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="vexpand">True</property>
-                        <child internal-child="selection">
-                          <object class="GtkTreeSelection" id="treeview-selection"/>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child type="tab">
-                  <object class="GtkLabel" id="label4">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Instructions</property>
-                  </object>
-                  <packing>
-                    <property name="tab_fill">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkTreeView" id="treeview2">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <child internal-child="selection">
-                      <object class="GtkTreeSelection" id="treeview-selection1"/>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child type="tab">
-                  <object class="GtkLabel" id="label5">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Data</property>
-                  </object>
-                  <packing>
-                    <property name="position">1</property>
-                    <property name="tab_fill">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child type="tab">
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="resize">False</property>
-                <property name="shrink">True</property>
-              </packing>
+              <placeholder/>
             </child>
           </object>
           <packing>
@@ -482,5 +478,23 @@
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkListStore" id="symbol_liststore">
+    <columns>
+      <!-- column-name symbol_view_address_data -->
+      <column type="gchararray"/>
+      <!-- column-name symbol_view_size_data -->
+      <column type="gchararray"/>
+      <!-- column-name symbol_view_r_data -->
+      <column type="gchararray"/>
+      <!-- column-name symbol_view_w_data -->
+      <column type="gchararray"/>
+      <!-- column-name symbol_view_x_data -->
+      <column type="gchararray"/>
+      <!-- column-name symbol_view_a_data -->
+      <column type="gchararray"/>
+      <!-- column-name symbol_view_symbol_data -->
+      <column type="gchararray"/>
+    </columns>
   </object>
 </interface>
