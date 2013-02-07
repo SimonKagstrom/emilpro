@@ -9,6 +9,7 @@
 #include <jumptargetdisplay.hh>
 
 #include <string>
+#include <vector>
 
 using namespace emilpro;
 
@@ -152,6 +153,13 @@ public:
 
 		symbolView->signal_row_activated().connect(sigc::mem_fun(*this,
 				&EmilProGui::onSymbolRowActivated));
+
+		m_instructionView->signal_cursor_changed().connect(sigc::mem_fun(*this,
+				&EmilProGui::onInstructionCursorChanged));
+
+		m_builder->get_widget("source_view", m_sourceView);
+		panic_if(!m_sourceView,
+				"Can't get source view");
 	}
 
 	void run(int argc, char *argv[])
@@ -176,6 +184,79 @@ public:
 	}
 
 protected:
+	Glib::RefPtr<Gsv::Buffer> getSourceBuffer(ILineProvider::FileLine &fileLine)
+	{
+		Glib::RefPtr<Gsv::Buffer> buffer;
+
+		if (!fileLine.m_isValid)
+			return buffer;
+
+		if (m_filesToBuffer.find(fileLine.m_file) != m_filesToBuffer.end())
+			return m_filesToBuffer[fileLine.m_file];
+
+		size_t sz;
+		char *p = (char *)read_file(&sz, "%s", fileLine.m_file.c_str());
+		if (!p)
+			return buffer;
+		std::string data(p, sz);
+		free(p);
+
+		Glib::RefPtr<Gsv::LanguageManager> manager = Gsv::LanguageManager::get_default();
+		Glib::RefPtr<Gsv::Language> language;
+
+		bool uncertain;
+		Glib::ustring content = Gio::content_type_guess(fileLine.m_file, data, uncertain);
+
+		if (uncertain)
+			content.clear();
+
+		language = manager->guess_language(fileLine.m_file, content);
+
+		buffer = Gsv::Buffer::create(language);
+		buffer->set_highlight_syntax(true);
+
+		buffer->begin_not_undoable_action();
+		buffer->set_text(data);
+		buffer->end_not_undoable_action();
+
+		return buffer;
+	}
+
+	void onInstructionCursorChanged()
+	{
+		Gtk::TreeModel::Path path;
+		Gtk::TreeViewColumn *column;
+
+		m_instructionView->get_cursor(path, column);
+
+		Gtk::TreeModel::iterator iter = m_instructionListStore->get_iter(path);
+
+		if(!iter)
+			return;
+		Model &model = Model::instance();
+
+		Gtk::TreeModel::Row row = *iter;
+		// FIXME! Should really be a uint64_t...
+		Glib::ustring addressStr = row[m_symbolColumns->m_address];
+		uint64_t address = strtoull(addressStr.c_str(), NULL, 16);
+
+		ILineProvider::FileLine fileLine = model.getLineByAddress(address);
+
+		Glib::RefPtr<Gsv::Buffer> buffer = getSourceBuffer(fileLine);
+
+		if (m_currentBuffer != buffer)
+			m_sourceView->set_buffer(buffer);
+		m_currentBuffer = buffer;
+
+		if (buffer) {
+			Gsv::Buffer::iterator it = buffer->get_iter_at_line(fileLine.m_lineNr - 1);
+
+			Glib::RefPtr<Gtk::TextBuffer::Mark> mark = buffer->create_mark(it);
+			buffer->place_cursor(it);
+			m_sourceView->scroll_to(mark);
+			buffer->delete_mark(mark);
+		}
+	}
 
 	void onSymbolRowActivated(const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn* column)
 	{
@@ -315,7 +396,8 @@ protected:
 	}
 
 private:
-	 typedef Gtk::TreeModel::Children TreeModelChildren_t;
+	typedef Gtk::TreeModel::Children TreeModelChildren_t;
+	typedef std::unordered_map<std::string, Glib::RefPtr<Gsv::Buffer>> FileToBufferMap_t;
 
 	Gtk::Main *m_app;
 	Glib::RefPtr<Gtk::Builder> m_builder;
@@ -332,6 +414,10 @@ private:
 	unsigned m_nLanes;
 
 	unsigned m_fontHeight;
+
+	FileToBufferMap_t m_filesToBuffer;
+	Gsv::View *m_sourceView;
+	Glib::RefPtr<Gsv::Buffer> m_currentBuffer;
 };
 
 int main(int argc, char **argv)
