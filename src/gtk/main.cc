@@ -281,6 +281,7 @@ protected:
 			Gsv::Buffer::iterator it = buffer->get_iter_at_line(line);
 			Gsv::Buffer::iterator itNext = buffer->get_iter_at_line(line + 1);
 
+			buffer->remove_all_tags(buffer->get_iter_at_line(0), buffer->get_iter_at_line(buffer->get_line_count()));
 			buffer->apply_tag(m_sourceTags[0], it, itNext);
 
 			Gtk::ScrolledWindow *sourceScrolledWindow;
