@@ -273,18 +273,34 @@ protected:
 
 		Glib::RefPtr<Gsv::Buffer> buffer = getSourceBuffer(fileLine);
 
-		if (m_currentBuffer != buffer)
+		if (m_currentBuffer != buffer) {
 			m_sourceView->set_buffer(buffer);
+			m_lastSourceLines.clear();
+		}
 		m_currentBuffer = buffer;
 
 		if (buffer) {
 			unsigned int line = fileLine.m_lineNr - 1;
 
 			Gsv::Buffer::iterator it = buffer->get_iter_at_line(line);
-			Gsv::Buffer::iterator itNext = buffer->get_iter_at_line(line + 1);
 
 			buffer->remove_all_tags(buffer->get_iter_at_line(0), buffer->get_iter_at_line(buffer->get_line_count()));
-			buffer->apply_tag(m_sourceTags[0], it, itNext);
+
+			m_lastSourceLines.push_back(line);
+			if (m_lastSourceLines.size() > 3)
+				m_lastSourceLines.pop_front();
+
+			unsigned i = 0;
+			for (SourceLineNrList_t::iterator lineIt = m_lastSourceLines.begin();
+					lineIt != m_lastSourceLines.end();
+					++lineIt, ++i) {
+				unsigned int cur = *lineIt;
+
+				Gsv::Buffer::iterator curIt = buffer->get_iter_at_line(cur);
+				Gsv::Buffer::iterator itNext = buffer->get_iter_at_line(cur + 1);
+
+				buffer->apply_tag(m_sourceTags[i], curIt, itNext);
+			}
 
 			Gtk::ScrolledWindow *sourceScrolledWindow;
 			m_builder->get_widget("source_view_scrolled_window", sourceScrolledWindow);
@@ -444,6 +460,7 @@ protected:
 private:
 	typedef Gtk::TreeModel::Children TreeModelChildren_t;
 	typedef std::unordered_map<std::string, Glib::RefPtr<Gsv::Buffer>> FileToBufferMap_t;
+	typedef std::list<unsigned int> SourceLineNrList_t;
 
 	Gtk::Main *m_app;
 	Glib::RefPtr<Gtk::Builder> m_builder;
@@ -465,8 +482,10 @@ private:
 	Gsv::View *m_sourceView;
 	Glib::RefPtr<Gsv::Buffer> m_currentBuffer;
 
+
 	Glib::RefPtr<Gtk::TextBuffer::Tag> m_sourceTags[3];
 	Glib::RefPtr<Gtk::TextBuffer::TagTable> m_tagTable;
+	SourceLineNrList_t m_lastSourceLines;
 };
 
 int main(int argc, char **argv)
