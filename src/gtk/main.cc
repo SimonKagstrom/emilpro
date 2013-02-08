@@ -174,6 +174,18 @@ public:
 		panic_if(!m_sourceView,
 				"Can't get source view");
 		m_sourceView->override_font(Pango::FontDescription(sourceFont->get_font_name()));
+
+		m_tagTable = Gtk::TextBuffer::TagTable::create();
+		Gtk::ColorButton *historyColors[3];
+		for (unsigned i = 0; i < 3; i++) {
+			m_builder->get_widget(fmt("history_color%d", i).c_str(), historyColors[i]);
+
+			m_sourceTags[i] = Gtk::TextBuffer::Tag::create();
+
+
+			m_sourceTags[i]->property_paragraph_background_gdk() = historyColors[i]->get_color();
+			m_tagTable->add(m_sourceTags[i]);
+		}
 	}
 
 	void run(int argc, char *argv[])
@@ -226,7 +238,8 @@ protected:
 
 		language = manager->guess_language(fileLine.m_file, content);
 
-		buffer = Gsv::Buffer::create(language);
+		buffer = Gsv::Buffer::create(m_tagTable);
+		buffer->set_language(language);
 		buffer->set_highlight_syntax(true);
 
 		buffer->begin_not_undoable_action();
@@ -263,19 +276,28 @@ protected:
 		m_currentBuffer = buffer;
 
 		if (buffer) {
-			Gsv::Buffer::iterator it = buffer->get_iter_at_line(fileLine.m_lineNr - 1);
+			unsigned int line = fileLine.m_lineNr - 1;
 
+			Gsv::Buffer::iterator it = buffer->get_iter_at_line(line);
+			Gsv::Buffer::iterator itNext = buffer->get_iter_at_line(line + 1);
+
+			buffer->apply_tag(m_sourceTags[0], it, itNext);
+
+			Gtk::ScrolledWindow *sourceScrolledWindow;
+			m_builder->get_widget("source_view_scrolled_window", sourceScrolledWindow);
+
+			Glib::RefPtr<Gtk::Adjustment> adj = sourceScrolledWindow->get_vadjustment();
+
+			adj->set_value(adj->get_upper());
+
+			it = buffer->get_iter_at_line(line - 5 < 0 ? 0 : line - 5);
 			Glib::RefPtr<Gtk::TextBuffer::Mark> mark = buffer->create_mark(it);
+
 			buffer->place_cursor(it);
 			m_sourceView->scroll_to(mark);
 			buffer->delete_mark(mark);
 
-		Gtk::ScrolledWindow *sourceScrolledWindow;
-		m_builder->get_widget("source_view_scrolled_window", sourceScrolledWindow);
-
-		Glib::RefPtr<Gtk::Adjustment> adj = sourceScrolledWindow->get_vadjustment();
-
-		adj->set_value(adj->get_upper());
+			printf("L:%d in %s\n", line + 1, fileLine.m_file.c_str());
 		}
 	}
 
@@ -439,6 +461,9 @@ private:
 	FileToBufferMap_t m_filesToBuffer;
 	Gsv::View *m_sourceView;
 	Glib::RefPtr<Gsv::Buffer> m_currentBuffer;
+
+	Glib::RefPtr<Gtk::TextBuffer::Tag> m_sourceTags[3];
+	Glib::RefPtr<Gtk::TextBuffer::TagTable> m_tagTable;
 };
 
 int main(int argc, char **argv)
