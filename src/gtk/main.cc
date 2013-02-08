@@ -122,9 +122,13 @@ public:
 		panic_if(!m_instructionView,
 				"Can't get instruction view");
 
-		Pango::FontDescription descr = m_instructionView->get_style_context()->get_font();
-		descr.set_family("Monospace");
-		m_instructionView->override_font(descr);
+
+		Gtk::FontButton *instructionFont;
+		m_builder->get_widget("instruction_font", instructionFont);
+		panic_if(!instructionFont,
+				"Can't get instruction font");
+
+		m_instructionView->override_font(Pango::FontDescription(instructionFont->get_font_name()));
 
 		m_instructionView->set_model(m_instructionListStore);
 
@@ -143,13 +147,16 @@ public:
 
 		m_instructionView->append_column("Target", m_instructionColumns->m_target);
 
+		Gtk::FontButton *symbolFont;
+		m_builder->get_widget("symbol_font", symbolFont);
+		panic_if(!symbolFont,
+				"Can't get instruction view");
+
 		Gtk::TreeView *symbolView;
 		m_builder->get_widget("symbol_view", symbolView);
 		panic_if(!symbolView,
 				"Can't get symbol view");
-		descr = symbolView->get_style_context()->get_font();
-		descr.set_family("Monospace");
-		symbolView->override_font(descr);
+		symbolView->override_font(Pango::FontDescription(symbolFont->get_font_name()));
 
 		symbolView->signal_row_activated().connect(sigc::mem_fun(*this,
 				&EmilProGui::onSymbolRowActivated));
@@ -157,9 +164,16 @@ public:
 		m_instructionView->signal_cursor_changed().connect(sigc::mem_fun(*this,
 				&EmilProGui::onInstructionCursorChanged));
 
+
+		Gtk::FontButton *sourceFont;
+		m_builder->get_widget("source_font", sourceFont);
+		panic_if(!sourceFont,
+				"Can't get source font");
+
 		m_builder->get_widget("source_view", m_sourceView);
 		panic_if(!m_sourceView,
 				"Can't get source view");
+		m_sourceView->override_font(Pango::FontDescription(sourceFont->get_font_name()));
 	}
 
 	void run(int argc, char *argv[])
@@ -255,6 +269,13 @@ protected:
 			buffer->place_cursor(it);
 			m_sourceView->scroll_to(mark);
 			buffer->delete_mark(mark);
+
+		Gtk::ScrolledWindow *sourceScrolledWindow;
+		m_builder->get_widget("source_view_scrolled_window", sourceScrolledWindow);
+
+		Glib::RefPtr<Gtk::Adjustment> adj = sourceScrolledWindow->get_vadjustment();
+
+		adj->set_value(adj->get_upper());
 		}
 	}
 
