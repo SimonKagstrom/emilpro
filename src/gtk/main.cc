@@ -246,6 +246,8 @@ protected:
 		buffer->set_text(data);
 		buffer->end_not_undoable_action();
 
+		m_filesToBuffer[fileLine.m_file] = buffer;
+
 		return buffer;
 	}
 
