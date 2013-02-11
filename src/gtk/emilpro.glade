@@ -470,7 +470,7 @@
             </child>
             <child>
               <object class="GtkScrolledWindow" id="source_view_scrolled_window">
-                <property name="height_request">160</property>
+                <property name="height_request">100</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="hscrollbar_policy">never</property>
@@ -582,7 +582,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="color">#8a8ae2e23434</property>
+                    <property name="color">#afc8ffffba67</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -595,7 +595,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="color">#7373d2d21616</property>
+                    <property name="color">#4902eb8472e9</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -608,7 +608,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="color">#4e4e9a9a0606</property>
+                    <property name="color">#7373d2d21616</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
