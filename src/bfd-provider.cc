@@ -244,7 +244,7 @@ private:
 
 		size_t sz;
 		char *raw = elf_getident(elf, &sz);
-		bool elfIs32Bit;
+		bool elfIs32Bit = false;
 
 		if (raw && sz > EI_CLASS)
 			elfIs32Bit = raw[EI_CLASS] == ELFCLASS32;
