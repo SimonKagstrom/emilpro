@@ -72,10 +72,6 @@ static inline void *xmalloc(size_t sz)
   return out;
 }
 
-int coin_get_current_cpu(void);
-
-void coin_set_cpu(pid_t pid, int cpu);
-
 void *read_file(size_t *out_size, const char *fmt, ...);
 
 int write_file(const void *data, size_t len, const char *fmt, ...);
