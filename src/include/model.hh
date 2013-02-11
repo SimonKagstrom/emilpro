@@ -5,6 +5,8 @@
 #include "symbolfactory.hh"
 #include "isymbol.hh"
 
+#include <mutex>
+#include <thread>
 #include <list>
 #include <map>
 #include <unordered_map>
@@ -14,6 +16,7 @@ namespace model
 {
 	class disassembleInstructions;
 	class sourceLines;
+	class workerThreads;
 }
 
 namespace emilpro
@@ -33,6 +36,7 @@ namespace emilpro
 
 		friend class model::disassembleInstructions;
 		friend class model::sourceLines;
+		friend class model::workerThreads;
 
 		typedef std::list<IBasicBlock *> BasicBlockList_t;
 		typedef std::list<ISymbol *> SymbolList_t;
@@ -57,24 +61,43 @@ namespace emilpro
 
 		void destroy();
 
+
+		void parseAll();
+
+		bool parsingComplete();
+
 		static Model &instance();
 
 	private:
 		typedef std::map<uint64_t, ISymbol *> SymbolAddressMap_t;
 		typedef std::unordered_map<uint64_t, ILineProvider::FileLine> AddressFileLineMap_t;
+		typedef std::list<ISymbol *> SymbolQueue_t;
 
 		Model();
 		virtual ~Model();
 
 		void fillCacheWithSymbol(ISymbol *sym);
 
+		const ILineProvider::FileLine getLineByAddressLocked(uint64_t addr);
+
+		const SymbolList_t &getSymbolsLocked();
+
+		const ISymbol *getSymbolLocked(uint64_t address);
+
+		void worker(unsigned queueNr);
+
+
 		// From ISymbolListener
 		void onSymbol(ISymbol &sym);
 
+		std::mutex m_mutex;
 		InstructionMap_t m_instructionCache;
 		SymbolAddressMap_t m_symbolsByAddress;
 		SymbolList_t m_symbols;
 		AddressFileLineMap_t m_fileLineCache;
 		uint8_t *m_memory;
+
+		std::thread **m_threads;
+		SymbolList_t *m_workQueues;
 	};
 }

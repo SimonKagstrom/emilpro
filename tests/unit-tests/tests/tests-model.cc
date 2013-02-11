@@ -131,8 +131,30 @@ TESTSUITE(model)
 		ASSERT_TRUE(foundMain15 == false);
 		ASSERT_TRUE(foundMain14 == true);
 
-
 		model.destroy();
+	}
+
+	TEST(workerThreads, SymbolFixture)
+	{
+		Model &model = Model::instance();
+		size_t sz;
+		bool res;
+
+		void *data = read_file(&sz, "%s/test-binary", crpcut::get_start_dir());
+		ASSERT_TRUE(data != (void *)NULL);
+
+		res = model.addData(data, sz);
+		ASSERT_TRUE(res == true);
+
+		ISymbol *mainSym = m_symbolNames["main"];
+		ASSERT_TRUE(mainSym);
+		ASSERT_TRUE(!model.m_instructionCache[mainSym->getAddress()]);
+
+		model.parseAll();
+		while (!model.parsingComplete())
+			;
+
+		ASSERT_TRUE(model.m_instructionCache[mainSym->getAddress()]);
 	}
 
 	TEST(memLeaks)

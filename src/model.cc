@@ -2,6 +2,7 @@
 #include <symbolfactory.hh>
 #include <isymbolprovider.hh>
 #include <idisassembly.hh>
+#include <utils.hh>
 
 #include <unordered_map>
 
@@ -38,11 +39,29 @@ private:
 Model::Model() :
 		m_memory(NULL)
 {
+	unsigned cores = get_number_of_cores();
+
+	m_threads = new std::thread*[cores];
+	m_workQueues = new SymbolQueue_t[cores];
+
+	for (unsigned i = 0; i < cores; i++)
+		m_threads[i] = NULL;
+
 	SymbolFactory::instance().registerListener(this);
 }
 
 Model::~Model()
 {
+	unsigned cores = get_number_of_cores();
+
+	for (unsigned i = 0; i < cores; i++) {
+		if (m_threads[i])
+			m_threads[i]->join();
+	}
+
+	delete[] m_threads;
+	delete[] m_workQueues;
+
 	for (InstructionMap_t::iterator it = m_instructionCache.begin();
 			it != m_instructionCache.end();
 			++it) {
@@ -72,6 +91,7 @@ const InstructionList_t Model::getInstructions(uint64_t start, uint64_t end)
 	uint64_t curAddress = start;
 
 	// Instructions here?
+	m_mutex.lock();
 	while (1) {
 		if (curAddress >= end)
 			break;
@@ -96,6 +116,7 @@ const InstructionList_t Model::getInstructions(uint64_t start, uint64_t end)
 
 		curAddress = p->getAddress() + p->getSize();
 	}
+	m_mutex.unlock();
 
 	return out;
 }
@@ -112,8 +133,56 @@ void Model::fillCacheWithSymbol(ISymbol *sym)
 		m_instructionCache[cur->getAddress()] = cur;
 
 		// Fill the file:line cache with this instruction
-		getLineByAddress(cur->getAddress());
+		getLineByAddressLocked(cur->getAddress());
 	}
+}
+
+void Model::worker(unsigned queueNr)
+{
+	SymbolQueue_t *queue = &m_workQueues[queueNr];
+
+	while (queue->size() != 0) {
+		ISymbol *cur = queue->front();
+
+		fillCacheWithSymbol(cur);
+
+		queue->pop_front();
+	}
+}
+
+bool Model::parsingComplete()
+{
+	unsigned cores = get_number_of_cores();
+
+	for (unsigned i = 0; i < cores; i++) {
+		if (!m_workQueues[i].empty())
+			return false;
+	}
+
+	return true;
+}
+
+void Model::parseAll()
+{
+	unsigned cores = get_number_of_cores();
+	unsigned curCore = 0;
+
+	// Fill work queues
+	(void)getSymbols();
+	for (SymbolList_t::iterator it = m_symbols.begin();
+			it != m_symbols.end();
+			++it, ++curCore) {
+		ISymbol *cur = *it;
+
+		if (curCore == cores)
+			curCore = 0;
+
+		m_workQueues[curCore].push_back(cur);
+	}
+
+	// Create threads for all queues
+	for (unsigned i = 0; i < cores; i++)
+		m_threads[i] = new std::thread(&Model::worker, this, i);
 }
 
 Model::BasicBlockList_t Model::getBasicBlocksFromInstructions(const InstructionList_t &instructions)
@@ -161,11 +230,14 @@ void Model::onSymbol(ISymbol &sym)
 {
 	ISymbol::SymbolType type = sym.getType();
 
-	if (type == ISymbol::SYM_DATA || type == ISymbol::SYM_TEXT)
+	if (type == ISymbol::SYM_DATA || type == ISymbol::SYM_TEXT) {
+		m_mutex.lock();
 		m_symbolsByAddress[sym.getAddress()] = &sym;
+		m_mutex.unlock();
+	}
 }
 
-const Model::SymbolList_t &Model::getSymbols()
+const Model::SymbolList_t &Model::getSymbolsLocked()
 {
 	if (m_symbols.size() != 0)
 		return m_symbols;
@@ -181,12 +253,30 @@ const Model::SymbolList_t &Model::getSymbols()
 	return m_symbols;
 }
 
-const ISymbol *Model::getSymbol(uint64_t address)
+const Model::SymbolList_t &Model::getSymbols()
+{
+	m_mutex.lock();
+	const Model::SymbolList_t &out = getSymbolsLocked();
+	m_mutex.unlock();
+
+	return out;
+}
+
+const ISymbol *Model::getSymbolLocked(uint64_t address)
 {
 	return m_symbolsByAddress[address];
 }
 
-const ILineProvider::FileLine Model::getLineByAddress(uint64_t addr)
+const ISymbol *Model::getSymbol(uint64_t address)
+{
+	m_mutex.lock();
+	const ISymbol *out = getSymbolLocked(address);
+	m_mutex.unlock();
+
+	return out;
+}
+
+const ILineProvider::FileLine Model::getLineByAddressLocked(uint64_t addr)
 {
 	if (m_fileLineCache.find(addr) != m_fileLineCache.end())
 	{
@@ -200,6 +290,15 @@ const ILineProvider::FileLine Model::getLineByAddress(uint64_t addr)
 		m_fileLineCache[addr] = SymbolFactory::instance().getLineProvider()->getLineByAddress(addr);
 
 	return m_fileLineCache[addr];
+}
+
+const ILineProvider::FileLine Model::getLineByAddress(uint64_t addr)
+{
+	m_mutex.lock();
+	const ILineProvider::FileLine out = getLineByAddressLocked(addr);
+	m_mutex.unlock();
+
+	return out;
 }
 
 
