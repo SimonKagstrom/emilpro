@@ -388,6 +388,8 @@ protected:
 
 	void refresh()
 	{
+		Model::instance().parseAll();
+
 		m_symbolListStore->clear();
 
 		const Model::SymbolList_t &syms = Model::instance().getSymbols();
