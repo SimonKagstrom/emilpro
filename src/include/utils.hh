@@ -72,6 +72,8 @@ static inline void *xmalloc(size_t sz)
   return out;
 }
 
+unsigned get_number_of_cores();
+
 void *read_file(size_t *out_size, const char *fmt, ...);
 
 int write_file(const void *data, size_t len, const char *fmt, ...);

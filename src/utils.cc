@@ -3,6 +3,12 @@
 
 #include "utils.hh"
 
+unsigned get_number_of_cores()
+{
+	return 1; // FIXME!
+}
+
+
 void *read_file(size_t *out_size, const char *fmt, ...)
 {
 	struct stat buf;
