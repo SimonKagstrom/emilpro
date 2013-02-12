@@ -69,7 +69,7 @@ namespace emilpro
 		static Model &instance();
 
 	private:
-		typedef std::map<uint64_t, ISymbol *> SymbolAddressMap_t;
+		typedef std::map<uint64_t, ISymbol *> SymbolOrderedMap_t;
 		typedef std::unordered_map<uint64_t, ILineProvider::FileLine> AddressFileLineMap_t;
 		typedef std::list<ISymbol *> SymbolQueue_t;
 
@@ -92,7 +92,7 @@ namespace emilpro
 
 		std::mutex m_mutex;
 		InstructionMap_t m_instructionCache;
-		SymbolAddressMap_t m_symbolsByAddress;
+		SymbolOrderedMap_t m_orderedSymbols;
 		SymbolList_t m_symbols;
 		AddressFileLineMap_t m_fileLineCache;
 		uint8_t *m_memory;
