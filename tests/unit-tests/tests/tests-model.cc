@@ -11,6 +11,30 @@ using namespace emilpro;
 
 TESTSUITE(model)
 {
+	TEST(lookupSymbols, SymbolFixture)
+	{
+		Model &model = Model::instance();
+		bool res;
+
+		size_t sz;
+		void *data = read_file(&sz, "%s/test-binary", crpcut::get_start_dir());
+		ASSERT_TRUE(data != (void *)NULL);
+
+		res = model.addData(data, sz);
+		ASSERT_TRUE(res == true);
+
+		ISymbol *sym = m_symbolNames["main"];
+		ASSERT_TRUE(sym != (void *)NULL);
+
+		const ISymbol *other = model.getSymbolExact(sym->getAddress());
+		ASSERT_TRUE(other == sym);
+
+		other = model.getNearestSymbol(sym->getAddress() + 8);
+		printf("%s vs %s\n", sym->getName(), other->getName());
+		ASSERT_TRUE(other == sym);
+	}
+
+
 	TEST(disassembleInstructions, SymbolFixture)
 	{
 		Model &model = Model::instance();
