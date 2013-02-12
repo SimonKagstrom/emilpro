@@ -66,6 +66,19 @@ public:
 	Gtk::TreeModelColumn<Glib::ustring> m_target;
 };
 
+class ReferenceModelColumns : public Gtk::TreeModelColumnRecord
+{
+public:
+	ReferenceModelColumns()
+	{
+		add(m_symbol);
+	}
+
+	Gtk::TreeModelColumn<Glib::ustring> m_symbol;
+};
+
+
+
 class EmilProGui
 {
 public:
@@ -79,6 +92,7 @@ public:
 	{
 		delete m_symbolColumns;
 		delete m_instructionColumns;
+		delete m_referenceColumns;
 		delete m_forwardBranches;
 		delete m_backwardBranches;
 	}
@@ -113,6 +127,7 @@ public:
 
 		m_symbolColumns = new SymbolModelColumns();
 		m_instructionColumns = new InstructionModelColumns(m_nLanes);
+		m_referenceColumns = new ReferenceModelColumns();
 
 		m_instructionListStore = Gtk::ListStore::create(*m_instructionColumns);
 		panic_if (!m_instructionListStore,
@@ -147,22 +162,24 @@ public:
 
 		m_instructionView->append_column("Target", m_instructionColumns->m_target);
 
+		m_instructionView->signal_cursor_changed().connect(sigc::mem_fun(*this,
+				&EmilProGui::onInstructionCursorChanged));
+
+
 		Gtk::FontButton *symbolFont;
 		m_builder->get_widget("symbol_font", symbolFont);
 		panic_if(!symbolFont,
 				"Can't get instruction view");
 
-		Gtk::TreeView *symbolView;
-		m_builder->get_widget("symbol_view", symbolView);
-		panic_if(!symbolView,
+		m_builder->get_widget("symbol_view", m_symbolView);
+		panic_if(!m_symbolView,
 				"Can't get symbol view");
-		symbolView->override_font(Pango::FontDescription(symbolFont->get_font_name()));
+		m_symbolView->override_font(Pango::FontDescription(symbolFont->get_font_name()));
 
-		symbolView->signal_row_activated().connect(sigc::mem_fun(*this,
+		m_symbolView->signal_row_activated().connect(sigc::mem_fun(*this,
 				&EmilProGui::onSymbolRowActivated));
-
-		m_instructionView->signal_cursor_changed().connect(sigc::mem_fun(*this,
-				&EmilProGui::onInstructionCursorChanged));
+		m_symbolView->signal_cursor_changed().connect(sigc::mem_fun(*this,
+				&EmilProGui::onSymbolCursorChanged));
 
 
 		Gtk::FontButton *sourceFont;
@@ -186,6 +203,15 @@ public:
 			m_sourceTags[i]->property_paragraph_background_gdk() = historyColors[i]->get_color();
 			m_tagTable->add(m_sourceTags[i]);
 		}
+
+
+		m_builder->get_widget("references_view", m_referenceView);
+		panic_if(!m_referenceView,
+				"Can't get reference view");
+
+		m_referencesListStore = Glib::RefPtr<Gtk::ListStore>::cast_static(m_builder->get_object("references_liststore"));
+		panic_if (!m_referencesListStore,
+				"Can't get references liststore");
 	}
 
 	void run(int argc, char *argv[])
@@ -318,6 +344,44 @@ protected:
 		}
 	}
 
+	void onSymbolCursorChanged()
+	{
+		Gtk::TreeModel::Path path;
+		Gtk::TreeViewColumn *column;
+
+		m_symbolView->get_cursor(path, column);
+
+		Gtk::TreeModel::iterator iter = m_symbolListStore->get_iter(path);
+
+		m_referencesListStore->clear();
+
+		if(!iter)
+			return;
+		Model &model = Model::instance();
+
+		Gtk::TreeModel::Row row = *iter;
+		// FIXME! Should really be a uint64_t...
+		Glib::ustring addressStr = row[m_symbolColumns->m_address];
+		uint64_t address = strtoull(addressStr.c_str(), NULL, 16);
+
+		const Model::CrossReferenceList_t &references = model.getReferences(address);
+
+		for (Model::CrossReferenceList_t::const_iterator it = references.begin();
+				it != references.end();
+				++it) {
+			uint64_t cur = *it;
+			const ISymbol *sym = model.getNearestSymbol(cur);
+
+			Gtk::ListStore::iterator rowIt = m_referencesListStore->append();
+			Gtk::TreeRow row = *rowIt;
+
+			if (!sym)
+				row[m_referenceColumns->m_symbol] = fmt("0x%llx", cur);
+			else
+				row[m_referenceColumns->m_symbol] = fmt("%s+0x%llx", sym->getName(), cur - sym->getAddress());
+		}
+	}
+
 	void onSymbolRowActivated(const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn* column)
 	{
 		Gtk::TreeModel::iterator iter = m_symbolListStore->get_iter(path);
@@ -330,7 +394,7 @@ protected:
 		// FIXME! Should really be a uint64_t...
 		Glib::ustring address = row[m_symbolColumns->m_address];
 
-		const ISymbol *sym = model.getSymbol(strtoull(address.c_str(), NULL, 16));
+		const ISymbol *sym = model.getSymbolExact(strtoull(address.c_str(), NULL, 16));
 		if (!sym) {
 			warning("Can't get symbol\n");
 			return;
@@ -366,7 +430,7 @@ protected:
 			row[m_instructionColumns->m_instruction] = cur->getString();
 			if (cur->getBranchTargetAddress() != IInstruction::INVALID_ADDRESS) {
 				uint64_t target = cur->getBranchTargetAddress();
-				const ISymbol *targetSym = model.getSymbol(target);
+				const ISymbol *targetSym = model.getSymbolExact(target);
 
 				if (!targetSym || (target >= sym->getAddress() && target < sym->getAddress() + sym->getSize()))
 					row[m_instructionColumns->m_target] = fmt("0x%0llx", cur->getBranchTargetAddress()).c_str();
@@ -466,9 +530,13 @@ private:
 	Glib::RefPtr<Gtk::Builder> m_builder;
 	Glib::RefPtr<Gtk::ListStore> m_symbolListStore;
 	Glib::RefPtr<Gtk::ListStore> m_instructionListStore;
+	Glib::RefPtr<Gtk::ListStore> m_referencesListStore;
 	SymbolModelColumns *m_symbolColumns;
 	InstructionModelColumns *m_instructionColumns;
+	ReferenceModelColumns *m_referenceColumns;
+	Gtk::TreeView *m_symbolView;
 	Gtk::TreeView *m_instructionView;
+	Gtk::TreeView *m_referenceView;
 
 	JumpTargetDisplay *m_backwardBranches;
 	JumpTargetDisplay *m_forwardBranches;

@@ -56,7 +56,9 @@ namespace emilpro
 
 		const SymbolList_t &getSymbols();
 
-		const ISymbol *getSymbol(uint64_t address);
+		const ISymbol *getSymbolExact(uint64_t address);
+
+		const ISymbol *getNearestSymbol(uint64_t address);
 
 		const ILineProvider::FileLine getLineByAddress(uint64_t addr);
 
@@ -88,7 +90,9 @@ namespace emilpro
 
 		const SymbolList_t &getSymbolsLocked();
 
-		const ISymbol *getSymbolLocked(uint64_t address);
+		const ISymbol *getSymbolExactLocked(uint64_t address);
+
+		const ISymbol *getNearestSymbolLocked(uint64_t address);
 
 		void worker(unsigned queueNr);
 

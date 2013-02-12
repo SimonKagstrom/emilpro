@@ -173,11 +173,11 @@ TESTSUITE(model)
 		while (!model.parsingComplete())
 			;
 
-		const ISymbol *sym = model.getSymbol(m_symbolNames["kalle"]->getAddress());
+		const ISymbol *sym = model.getSymbolExact(m_symbolNames["kalle"]->getAddress());
 		ASSERT_TRUE(sym);
 		ASSERT_TRUE(model.getReferences(sym->getAddress()).size() == 2U);
 
-		sym = model.getSymbol(m_symbolNames["knatte"]->getAddress());
+		sym = model.getSymbolExact(m_symbolNames["knatte"]->getAddress());
 		ASSERT_TRUE(sym);
 		ASSERT_TRUE(model.getReferences(sym->getAddress()).size() == 0U);
 	}

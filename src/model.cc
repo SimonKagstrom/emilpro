@@ -272,15 +272,40 @@ const Model::SymbolList_t &Model::getSymbols()
 	return out;
 }
 
-const ISymbol *Model::getSymbolLocked(uint64_t address)
+const ISymbol *Model::getSymbolExactLocked(uint64_t address)
 {
 	return m_symbolsByAddress[address];
 }
 
-const ISymbol *Model::getSymbol(uint64_t address)
+const ISymbol *Model::getNearestSymbolLocked(uint64_t address)
+{
+	const ISymbol *out = m_symbolsByAddress[address];
+
+	if (!out) {
+		SymbolOrderedMap_t::iterator it = m_orderedSymbols.lower_bound(address);
+
+		if (it == m_orderedSymbols.end())
+			return out;
+
+		out = it->second;
+	}
+
+	return out;
+}
+
+const ISymbol *Model::getSymbolExact(uint64_t address)
 {
 	m_mutex.lock();
-	const ISymbol *out = getSymbolLocked(address);
+	const ISymbol *out = getSymbolExactLocked(address);
+	m_mutex.unlock();
+
+	return out;
+}
+
+const ISymbol *Model::getNearestSymbol(uint64_t address)
+{
+	m_mutex.lock();
+	const ISymbol *out = getNearestSymbolLocked(address);
 	m_mutex.unlock();
 
 	return out;
