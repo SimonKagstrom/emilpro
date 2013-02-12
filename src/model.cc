@@ -97,12 +97,18 @@ const InstructionList_t Model::getInstructions(uint64_t start, uint64_t end)
 			break;
 
 		if (!m_instructionCache[curAddress]) {
-			SymbolOrderedMap_t::iterator it = m_orderedSymbols.lower_bound(curAddress);
+			ISymbol *sym = m_symbolsByAddress[curAddress];
 
-			if (it == m_orderedSymbols.end())
-				break;
+			if (!sym) {
+				SymbolOrderedMap_t::iterator it = m_orderedSymbols.lower_bound(curAddress);
 
-			fillCacheWithSymbol(it->second);
+				if (it == m_orderedSymbols.end())
+					break;
+
+				sym = it->second;
+			}
+
+			fillCacheWithSymbol(sym);
 		}
 
 		IInstruction *p = m_instructionCache[curAddress];
@@ -232,6 +238,7 @@ void Model::onSymbol(ISymbol &sym)
 
 	if (type == ISymbol::SYM_DATA || type == ISymbol::SYM_TEXT) {
 		m_mutex.lock();
+		m_symbolsByAddress[sym.getAddress()] = &sym;
 		m_orderedSymbols[sym.getAddress()] = &sym;
 		m_mutex.unlock();
 	}
@@ -264,7 +271,7 @@ const Model::SymbolList_t &Model::getSymbols()
 
 const ISymbol *Model::getSymbolLocked(uint64_t address)
 {
-	return m_orderedSymbols[address];
+	return m_symbolsByAddress[address];
 }
 
 const ISymbol *Model::getSymbol(uint64_t address)
