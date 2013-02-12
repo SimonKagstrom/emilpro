@@ -315,8 +315,6 @@ protected:
 			buffer->place_cursor(it);
 			m_sourceView->scroll_to(mark);
 			buffer->delete_mark(mark);
-
-			printf("L:%d in %s\n", line + 1, fileLine.m_file.c_str());
 		}
 	}
 
