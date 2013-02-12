@@ -40,6 +40,7 @@ namespace emilpro
 
 		typedef std::list<IBasicBlock *> BasicBlockList_t;
 		typedef std::list<ISymbol *> SymbolList_t;
+		typedef std::list<uint64_t> CrossReferenceList_t;
 
 		bool addData(void *data, size_t size);
 
@@ -59,6 +60,8 @@ namespace emilpro
 
 		const ILineProvider::FileLine getLineByAddress(uint64_t addr);
 
+		const CrossReferenceList_t &getReferences(uint64_t addr) const;
+
 		void destroy();
 
 
@@ -73,6 +76,8 @@ namespace emilpro
 		typedef std::unordered_map<uint64_t, ISymbol *> SymbolMap_t;
 		typedef std::unordered_map<uint64_t, ILineProvider::FileLine> AddressFileLineMap_t;
 		typedef std::list<ISymbol *> SymbolQueue_t;
+
+		typedef std::unordered_map<uint64_t, CrossReferenceList_t> CrossReferenceMap_t;
 
 		Model();
 		virtual ~Model();
@@ -98,6 +103,8 @@ namespace emilpro
 		SymbolList_t m_symbols;
 		AddressFileLineMap_t m_fileLineCache;
 		uint8_t *m_memory;
+		CrossReferenceMap_t m_crossReferences;
+		CrossReferenceList_t m_emptyReferenceList;
 
 		std::thread **m_threads;
 		SymbolList_t *m_workQueues;

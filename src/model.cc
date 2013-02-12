@@ -138,6 +138,9 @@ void Model::fillCacheWithSymbol(ISymbol *sym)
 
 		m_instructionCache[cur->getAddress()] = cur;
 
+		if (cur->getBranchTargetAddress() != IInstruction::INVALID_ADDRESS)
+			m_crossReferences[cur->getBranchTargetAddress()].push_back(cur->getAddress());
+
 		// Fill the file:line cache with this instruction
 		getLineByAddressLocked(cur->getAddress());
 	}
@@ -306,6 +309,16 @@ const ILineProvider::FileLine Model::getLineByAddress(uint64_t addr)
 	m_mutex.unlock();
 
 	return out;
+}
+
+const Model::CrossReferenceList_t &Model::getReferences(uint64_t addr) const
+{
+	Model::CrossReferenceMap_t::const_iterator it = m_crossReferences.find(addr);
+
+	if (it != m_crossReferences.end())
+		return it->second;
+
+	return m_emptyReferenceList;
 }
 
 

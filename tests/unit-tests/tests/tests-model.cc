@@ -157,6 +157,31 @@ TESTSUITE(model)
 		ASSERT_TRUE(model.m_instructionCache[mainSym->getAddress()]);
 	}
 
+	TEST(crossReferences, SymbolFixture)
+	{
+		Model &model = Model::instance();
+		size_t sz;
+		bool res;
+
+		void *data = read_file(&sz, "%s/test-binary", crpcut::get_start_dir());
+		ASSERT_TRUE(data != (void *)NULL);
+
+		res = model.addData(data, sz);
+		ASSERT_TRUE(res == true);
+
+		model.parseAll();
+		while (!model.parsingComplete())
+			;
+
+		const ISymbol *sym = model.getSymbol(m_symbolNames["kalle"]->getAddress());
+		ASSERT_TRUE(sym);
+		ASSERT_TRUE(model.getReferences(sym->getAddress()).size() == 2U);
+
+		sym = model.getSymbol(m_symbolNames["knatte"]->getAddress());
+		ASSERT_TRUE(sym);
+		ASSERT_TRUE(model.getReferences(sym->getAddress()).size() == 0U);
+	}
+
 	TEST(memLeaks)
 	{
 		ASSERT_SCOPE_HEAP_LEAK_FREE

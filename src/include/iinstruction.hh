@@ -44,6 +44,11 @@ namespace emilpro
 	class IInstruction : public IObject
 	{
 	public:
+		enum
+		{
+			INVALID_ADDRESS = 0xfffffffffffffffbULL,
+		};
+
 		typedef enum
 		{
 			IT_UNKNOWN,
