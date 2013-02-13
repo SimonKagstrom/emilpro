@@ -284,10 +284,16 @@ const ISymbol *Model::getNearestSymbolLocked(uint64_t address)
 	if (!out) {
 		SymbolOrderedMap_t::iterator it = m_orderedSymbols.lower_bound(address);
 
+		--it;
+
+		// Above the last symbol
 		if (it == m_orderedSymbols.end())
-			return out;
+			return NULL;
 
 		out = it->second;
+
+		if (out->getAddress() + out->getSize() < address)
+			return NULL;
 	}
 
 	return out;
