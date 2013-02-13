@@ -212,6 +212,13 @@ public:
 		m_referencesListStore = Glib::RefPtr<Gtk::ListStore>::cast_static(m_builder->get_object("references_liststore"));
 		panic_if (!m_referencesListStore,
 				"Can't get references liststore");
+
+		Gtk::FontButton *referencesFont;
+		m_builder->get_widget("references_font", referencesFont);
+		panic_if(!referencesFont,
+				"Can't get references font");
+
+		m_referenceView->override_font(Pango::FontDescription(referencesFont->get_font_name()));
 	}
 
 	void run(int argc, char *argv[])
