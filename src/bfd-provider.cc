@@ -147,7 +147,7 @@ public:
 	// From ISymbolProvider
 	unsigned match(void *data, size_t dataSize)
 	{
-		return ISymbolProvider::PERFECT_MATCH;
+		return ISymbolProvider::PERFECT_MATCH - 1;
 	}
 
 	bool parse(void *data, size_t dataSize, ISymbolListener *listener)
