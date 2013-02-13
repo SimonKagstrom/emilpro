@@ -25,6 +25,8 @@ public:
 		add(m_x);
 		add(m_a);
 		add(m_name);
+
+		add(m_rawAddress);
 	}
 
 	Gtk::TreeModelColumn<Glib::ustring> m_address;
@@ -34,6 +36,9 @@ public:
 	Gtk::TreeModelColumn<Glib::ustring> m_x;
 	Gtk::TreeModelColumn<Glib::ustring> m_a;
 	Gtk::TreeModelColumn<Glib::ustring> m_name;
+
+	// Hidden
+	Gtk::TreeModelColumn<uint64_t> m_rawAddress;
 };
 
 class InstructionModelColumns : public Gtk::TreeModelColumnRecord
@@ -51,6 +56,8 @@ public:
 		for (unsigned i = 0; i < nLanes; i++)
 			add(m_forward[i]);
 		add(m_target);
+
+		add(m_rawAddress);
 	}
 
 	~InstructionModelColumns()
@@ -64,6 +71,9 @@ public:
 	Gtk::TreeModelColumn<Glib::ustring> m_instruction;
 	Gtk::TreeModelColumn<Glib::RefPtr<Gdk::Pixbuf>> *m_forward;
 	Gtk::TreeModelColumn<Glib::ustring> m_target;
+
+	// Hidden
+	Gtk::TreeModelColumn<uint64_t> m_rawAddress;
 };
 
 class ReferenceModelColumns : public Gtk::TreeModelColumnRecord
@@ -121,10 +131,6 @@ public:
 				"Can't get file_menu_open");
 		fileOpenItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onFileOpen));
 
-		m_symbolListStore = Glib::RefPtr<Gtk::ListStore>::cast_static(m_builder->get_object("symbol_liststore"));
-		panic_if (!m_symbolListStore,
-				"Can't get symbol liststore");
-
 		m_symbolColumns = new SymbolModelColumns();
 		m_instructionColumns = new InstructionModelColumns(m_nLanes);
 		m_referenceColumns = new ReferenceModelColumns();
@@ -175,6 +181,17 @@ public:
 		panic_if(!m_symbolView,
 				"Can't get symbol view");
 		m_symbolView->override_font(Pango::FontDescription(symbolFont->get_font_name()));
+
+		m_symbolListStore = Gtk::ListStore::create(*m_symbolColumns);
+		m_symbolView->append_column("Address", m_symbolColumns->m_address);
+		m_symbolView->append_column("Size", m_symbolColumns->m_size);
+		m_symbolView->append_column("R", m_symbolColumns->m_r);
+		m_symbolView->append_column("W", m_symbolColumns->m_w);
+		m_symbolView->append_column("X", m_symbolColumns->m_x);
+		m_symbolView->append_column("A", m_symbolColumns->m_a);
+		m_symbolView->append_column("SymbolName", m_symbolColumns->m_name);
+
+		m_symbolView->set_model(m_symbolListStore);
 
 		m_symbolView->signal_row_activated().connect(sigc::mem_fun(*this,
 				&EmilProGui::onSymbolRowActivated));
@@ -298,9 +315,7 @@ protected:
 		Model &model = Model::instance();
 
 		Gtk::TreeModel::Row row = *iter;
-		// FIXME! Should really be a uint64_t...
-		Glib::ustring addressStr = row[m_symbolColumns->m_address];
-		uint64_t address = strtoull(addressStr.c_str(), NULL, 16);
+		uint64_t address = row[m_instructionColumns->m_rawAddress];
 
 		ILineProvider::FileLine fileLine = model.getLineByAddress(address);
 
@@ -367,9 +382,7 @@ protected:
 		Model &model = Model::instance();
 
 		Gtk::TreeModel::Row row = *iter;
-		// FIXME! Should really be a uint64_t...
-		Glib::ustring addressStr = row[m_symbolColumns->m_address];
-		uint64_t address = strtoull(addressStr.c_str(), NULL, 16);
+		uint64_t address = row[m_symbolColumns->m_rawAddress];
 
 		const Model::CrossReferenceList_t &references = model.getReferences(address);
 
@@ -398,10 +411,9 @@ protected:
 		Model &model = Model::instance();
 
 		Gtk::TreeModel::Row row = *iter;
-		// FIXME! Should really be a uint64_t...
-		Glib::ustring address = row[m_symbolColumns->m_address];
+		uint64_t address = row[m_symbolColumns->m_rawAddress];
 
-		const ISymbol *sym = model.getSymbolExact(strtoull(address.c_str(), NULL, 16));
+		const ISymbol *sym = model.getSymbolExact(address);
 		if (!sym) {
 			warning("Can't get symbol\n");
 			return;
@@ -435,6 +447,7 @@ protected:
 
 			row[m_instructionColumns->m_address] = fmt("0x%0llx", cur->getAddress()).c_str();
 			row[m_instructionColumns->m_instruction] = cur->getString();
+
 			if (cur->getBranchTargetAddress() != IInstruction::INVALID_ADDRESS) {
 				uint64_t target = cur->getBranchTargetAddress();
 				const ISymbol *targetSym = model.getSymbolExact(target);
@@ -452,6 +465,8 @@ protected:
 			m_forwardBranches->getLanes(n, lanes);
 			for (unsigned i = 0; i < m_nLanes; i++)
 				row[m_instructionColumns->m_forward[i]] = m_pixbufs[lanes[i]];
+
+			row[m_instructionColumns->m_rawAddress] = cur->getAddress();
 		}
 	}
 
@@ -492,6 +507,8 @@ protected:
 			row[m_symbolColumns->m_x] = x;
 			row[m_symbolColumns->m_a] = a;
 			row[m_symbolColumns->m_name] = cur->getName();
+
+			row[m_symbolColumns->m_rawAddress] = cur->getAddress();
 		}
 	}
 
