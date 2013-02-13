@@ -9,6 +9,47 @@ using namespace emilpro;
 
 #include "assembly-dumps.h"
 
+class MockSymbolProvider : public ISymbolProvider
+{
+public:
+	MockSymbolProvider() :
+		m_listener(NULL)
+	{
+		SymbolFactory::instance().registerProvider(this);
+	}
+
+	unsigned match(void *data, size_t dataSize)
+	{
+		return ISymbolProvider::PERFECT_MATCH;
+	}
+
+	bool parse(void *data, size_t dataSize, ISymbolListener *listener)
+	{
+		m_listener = listener;
+
+		return true;
+	}
+
+	void addSymbol(uint64_t start, uint64_t end)
+	{
+		ASSERT_TRUE(m_listener);
+
+		ISymbol &p = SymbolFactory::instance().createSymbol(ISymbol::LINK_NORMAL,
+				ISymbol::SYM_TEXT,
+				fmt("%llx..%llx\n", start, end).c_str(),
+				NULL,
+				start,
+				end - start,
+				true,
+				true);
+
+		m_listener->onSymbol(p);
+	}
+
+private:
+	ISymbolListener *m_listener;
+};
+
 TESTSUITE(model)
 {
 	TEST(lookupSymbols, SymbolFixture)
@@ -34,6 +75,64 @@ TESTSUITE(model)
 		ASSERT_TRUE(other == sym);
 	}
 
+	TEST(lookupSymbolsNearest, SymbolFixture)
+	{
+		MockSymbolProvider *symProvider = new MockSymbolProvider();
+
+		Model &model = Model::instance();
+		bool res;
+
+		size_t sz;
+		void *data = read_file(&sz, "%s/test-binary", crpcut::get_start_dir());
+		ASSERT_TRUE(data != (void *)NULL);
+
+		res = model.addData(data, sz);
+		ASSERT_TRUE(res == true);
+
+		symProvider->addSymbol(10, 19);
+		symProvider->addSymbol(20, 29);
+		symProvider->addSymbol(30, 39);
+		symProvider->addSymbol(50, 59); // Some space between
+
+		const ISymbol *sym;
+
+		sym = model.getSymbolExact(10); ASSERT_TRUE(sym);
+		ASSERT_TRUE(sym->getAddress() == 10);
+		sym = model.getSymbolExact(20);	ASSERT_TRUE(sym);
+		ASSERT_TRUE(sym->getAddress() == 20);
+		sym = model.getSymbolExact(30);	ASSERT_TRUE(sym);
+		ASSERT_TRUE(sym->getAddress() == 30);
+		sym = model.getSymbolExact(50);	ASSERT_TRUE(sym);
+		ASSERT_TRUE(sym->getAddress() == 50);
+
+		sym = model.getSymbolExact(11);
+		ASSERT_TRUE(!sym);
+		sym = model.getSymbolExact(9);
+		ASSERT_TRUE(!sym);
+
+
+		sym = model.getNearestSymbol(10);
+		ASSERT_TRUE(sym);
+		ASSERT_TRUE(sym->getAddress() == 10);
+
+		// No symbols
+		sym = model.getNearestSymbol(60);
+		ASSERT_TRUE(!sym);
+		sym = model.getNearestSymbol(9);
+		ASSERT_TRUE(!sym);
+		sym = model.getNearestSymbol(40);
+		ASSERT_TRUE(!sym);
+
+
+		sym = model.getNearestSymbol(11); ASSERT_TRUE(sym);
+		ASSERT_TRUE(sym->getAddress() == 10);
+		sym = model.getNearestSymbol(29); ASSERT_TRUE(sym);
+		ASSERT_TRUE(sym->getAddress() == 20);
+		sym = model.getNearestSymbol(31); ASSERT_TRUE(sym);
+		ASSERT_TRUE(sym->getAddress() == 30);
+		sym = model.getNearestSymbol(51); ASSERT_TRUE(sym);
+		ASSERT_TRUE(sym->getAddress() == 50);
+	}
 
 	TEST(disassembleInstructions, SymbolFixture)
 	{
