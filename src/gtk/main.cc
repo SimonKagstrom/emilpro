@@ -353,7 +353,7 @@ protected:
 		for (InstructionIterList_t::iterator it = m_lastInstructionIters.begin();
 				it != m_lastInstructionIters.end();
 				++it, ++i) {
-			Gtk::TreeModel::iterator cur = m_lastInstructionIters.front();
+			Gtk::TreeModel::iterator cur = *it;
 			Gtk::TreeModel::Row curRow = *cur;
 
 			curRow[m_instructionColumns->m_bgColor] = m_historyColors[i];
@@ -363,8 +363,6 @@ protected:
 
 		Gtk::TreeModel::Row row = *iter;
 		uint64_t address = row[m_instructionColumns->m_rawAddress];
-
-		row[m_instructionColumns->m_bgColor] = m_historyColors[0];
 
 		ILineProvider::FileLine fileLine = model.getLineByAddress(address);
 
