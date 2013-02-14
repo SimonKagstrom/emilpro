@@ -27,6 +27,7 @@ public:
 		add(m_name);
 
 		add(m_rawAddress);
+		add(m_bgColor);
 	}
 
 	Gtk::TreeModelColumn<Glib::ustring> m_address;
@@ -39,6 +40,7 @@ public:
 
 	// Hidden
 	Gtk::TreeModelColumn<uint64_t> m_rawAddress;
+	Gtk::TreeModelColumn<Gdk::Color> m_bgColor;
 };
 
 class InstructionModelColumns : public Gtk::TreeModelColumnRecord
@@ -58,6 +60,7 @@ public:
 		add(m_target);
 
 		add(m_rawAddress);
+		add(m_bgColor);
 	}
 
 	~InstructionModelColumns()
@@ -74,6 +77,7 @@ public:
 
 	// Hidden
 	Gtk::TreeModelColumn<uint64_t> m_rawAddress;
+	Gtk::TreeModelColumn<Gdk::Color> m_bgColor;
 };
 
 class ReferenceModelColumns : public Gtk::TreeModelColumnRecord
@@ -171,6 +175,14 @@ public:
 		m_instructionView->signal_cursor_changed().connect(sigc::mem_fun(*this,
 				&EmilProGui::onInstructionCursorChanged));
 
+		Gtk::TreeViewColumn *cp;
+		Gtk::CellRenderer *cr;
+
+		cp = m_instructionView->get_column(2);
+
+		cr = cp->get_first_cell();
+		cp->add_attribute(cr->property_cell_background_gdk(), m_instructionColumns->m_bgColor);
+
 
 		Gtk::FontButton *symbolFont;
 		m_builder->get_widget("symbol_font", symbolFont);
@@ -198,6 +210,18 @@ public:
 		m_symbolView->signal_cursor_changed().connect(sigc::mem_fun(*this,
 				&EmilProGui::onSymbolCursorChanged));
 
+		// FIXME! Get this from properties instead!
+		m_backgroundColor = Gdk::Color("white");
+		for (unsigned i = 0; i < m_symbolView->get_n_columns(); i++) {
+			Gtk::TreeViewColumn *cp;
+			Gtk::CellRenderer *cr;
+
+			cp = m_symbolView->get_column(i);
+
+			cr = cp->get_first_cell();
+
+			cp->add_attribute(cr->property_cell_background_gdk(), m_symbolColumns->m_bgColor);
+		}
 
 		Gtk::FontButton *sourceFont;
 		m_builder->get_widget("source_font", sourceFont);
@@ -213,14 +237,17 @@ public:
 		Gtk::ColorButton *historyColors[3];
 		for (unsigned i = 0; i < 3; i++) {
 			m_builder->get_widget(fmt("history_color%d", i).c_str(), historyColors[i]);
+			panic_if(!historyColors[i],
+					"Can't get history color");
+
+			m_historyColors[i] = historyColors[i]->get_color();
 
 			m_sourceTags[i] = Gtk::TextBuffer::Tag::create();
 
 
-			m_sourceTags[i]->property_paragraph_background_gdk() = historyColors[i]->get_color();
+			m_sourceTags[i]->property_paragraph_background_gdk() = m_historyColors[i];
 			m_tagTable->add(m_sourceTags[i]);
 		}
-
 
 		m_builder->get_widget("references_view", m_referenceView);
 		panic_if(!m_referenceView,
@@ -312,10 +339,32 @@ protected:
 
 		if(!iter)
 			return;
+		m_lastInstructionIters.push_back(iter);
+
+		if (m_lastInstructionIters.size() > 3) {
+			Gtk::TreeModel::iterator last = m_lastInstructionIters.front();
+			Gtk::TreeModel::Row lastRow = *last;
+
+			lastRow[m_instructionColumns->m_bgColor] = m_backgroundColor;
+			m_lastInstructionIters.pop_front();
+		}
+
+		unsigned i = 0;
+		for (InstructionIterList_t::iterator it = m_lastInstructionIters.begin();
+				it != m_lastInstructionIters.end();
+				++it, ++i) {
+			Gtk::TreeModel::iterator cur = m_lastInstructionIters.front();
+			Gtk::TreeModel::Row curRow = *cur;
+
+			curRow[m_instructionColumns->m_bgColor] = m_historyColors[i];
+		}
+
 		Model &model = Model::instance();
 
 		Gtk::TreeModel::Row row = *iter;
 		uint64_t address = row[m_instructionColumns->m_rawAddress];
+
+		row[m_instructionColumns->m_bgColor] = m_historyColors[0];
 
 		ILineProvider::FileLine fileLine = model.getLineByAddress(address);
 
@@ -549,6 +598,7 @@ private:
 	typedef Gtk::TreeModel::Children TreeModelChildren_t;
 	typedef std::unordered_map<std::string, Glib::RefPtr<Gsv::Buffer>> FileToBufferMap_t;
 	typedef std::list<unsigned int> SourceLineNrList_t;
+	typedef std::list<Gtk::TreeModel::iterator> InstructionIterList_t;
 
 	Gtk::Main *m_app;
 	Glib::RefPtr<Gtk::Builder> m_builder;
@@ -578,6 +628,10 @@ private:
 	Glib::RefPtr<Gtk::TextBuffer::Tag> m_sourceTags[3];
 	Glib::RefPtr<Gtk::TextBuffer::TagTable> m_tagTable;
 	SourceLineNrList_t m_lastSourceLines;
+
+	Gdk::Color m_historyColors[3];
+	Gdk::Color m_backgroundColor;
+	InstructionIterList_t m_lastInstructionIters;
 };
 
 int main(int argc, char **argv)
