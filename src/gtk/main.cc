@@ -266,6 +266,9 @@ public:
 				"Can't get references font");
 
 		m_referenceView->override_font(Pango::FontDescription(referencesFont->get_font_name()));
+
+
+		m_emptyBuffer = Gsv::Buffer::create(m_tagTable);
 	}
 
 	void run(int argc, char *argv[])
@@ -295,7 +298,7 @@ protected:
 		Glib::RefPtr<Gsv::Buffer> buffer;
 
 		if (!fileLine.m_isValid)
-			return buffer;
+			return m_emptyBuffer;
 
 		if (m_filesToBuffer.find(fileLine.m_file) != m_filesToBuffer.end())
 			return m_filesToBuffer[fileLine.m_file];
@@ -303,7 +306,7 @@ protected:
 		size_t sz;
 		char *p = (char *)read_file(&sz, "%s", fileLine.m_file.c_str());
 		if (!p)
-			return buffer;
+			return m_emptyBuffer;
 		std::string data(p, sz);
 		free(p);
 
@@ -635,6 +638,7 @@ private:
 	unsigned m_fontHeight;
 
 	FileToBufferMap_t m_filesToBuffer;
+	Glib::RefPtr<Gsv::Buffer> m_emptyBuffer;
 	Gsv::View *m_sourceView;
 	Glib::RefPtr<Gsv::Buffer> m_currentBuffer;
 
