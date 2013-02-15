@@ -339,13 +339,21 @@ protected:
 
 		if(!iter)
 			return;
+
+		if (m_instructionListStore->children().size() != m_lastInstructionStoreSize) {
+			m_lastInstructionIters.clear();
+			m_lastInstructionStoreSize = m_instructionListStore->children().size();
+		}
+
 		m_lastInstructionIters.push_back(iter);
 
 		if (m_lastInstructionIters.size() > 3) {
 			Gtk::TreeModel::iterator last = m_lastInstructionIters.front();
-			Gtk::TreeModel::Row lastRow = *last;
+			if (m_instructionListStore->iter_is_valid(last)) {
+				Gtk::TreeModel::Row lastRow = *last;
 
-			lastRow[m_instructionColumns->m_bgColor] = m_backgroundColor;
+				lastRow[m_instructionColumns->m_bgColor] = m_backgroundColor;
+			}
 			m_lastInstructionIters.pop_front();
 		}
 
@@ -354,9 +362,11 @@ protected:
 				it != m_lastInstructionIters.end();
 				++it, ++i) {
 			Gtk::TreeModel::iterator cur = *it;
-			Gtk::TreeModel::Row curRow = *cur;
+			if (m_instructionListStore->iter_is_valid(cur)) {
+				Gtk::TreeModel::Row curRow = *cur;
 
-			curRow[m_instructionColumns->m_bgColor] = m_historyColors[i];
+				curRow[m_instructionColumns->m_bgColor] = m_historyColors[i];
+			}
 		}
 
 		Model &model = Model::instance();
@@ -455,6 +465,7 @@ protected:
 
 		if(!iter)
 			return;
+
 		Model &model = Model::instance();
 
 		Gtk::TreeModel::Row row = *iter;
@@ -470,7 +481,9 @@ protected:
 			warning("Only code for now\n");
 			return;
 		}
+
 		m_instructionListStore->clear();
+		m_lastInstructionIters.clear();
 
 		// Disassemble and display
 		unsigned n = 0;
@@ -630,6 +643,7 @@ private:
 	Gdk::Color m_historyColors[3];
 	Gdk::Color m_backgroundColor;
 	InstructionIterList_t m_lastInstructionIters;
+	unsigned m_lastInstructionStoreSize;
 };
 
 int main(int argc, char **argv)
