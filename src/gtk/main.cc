@@ -328,6 +328,8 @@ protected:
 			content.clear();
 
 		language = manager->guess_language(fileLine.m_file, content);
+		if (!language)
+			language = manager->get_language("cpp");
 
 		buffer = Gsv::Buffer::create(m_tagTable);
 		buffer->set_language(language);
