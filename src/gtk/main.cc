@@ -96,7 +96,10 @@ public:
 class EmilProGui
 {
 public:
-	EmilProGui() : m_nLanes(4), m_fontHeight(20) // FIXME!
+	EmilProGui() :
+		m_nLanes(4),
+		m_fontHeight(20), // FIXME!
+		m_lastInstructionStoreSize(0)
 	{
 		m_backwardBranches = new JumpTargetDisplay(false, m_nLanes);
 		m_forwardBranches = new JumpTargetDisplay(true, m_nLanes);
