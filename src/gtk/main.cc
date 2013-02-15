@@ -86,9 +86,14 @@ public:
 	ReferenceModelColumns()
 	{
 		add(m_symbol);
+
+		add(m_rawAddress);
 	}
 
 	Gtk::TreeModelColumn<Glib::ustring> m_symbol;
+
+	// Hidden
+	Gtk::TreeModelColumn<uint64_t> m_rawAddress;
 };
 
 
@@ -252,21 +257,24 @@ public:
 			m_tagTable->add(m_sourceTags[i]);
 		}
 
-		m_builder->get_widget("references_view", m_referenceView);
-		panic_if(!m_referenceView,
+		m_builder->get_widget("references_view", m_referencesView);
+		panic_if(!m_referencesView,
 				"Can't get reference view");
 
-		m_referencesListStore = Glib::RefPtr<Gtk::ListStore>::cast_static(m_builder->get_object("references_liststore"));
-		panic_if (!m_referencesListStore,
-				"Can't get references liststore");
+		m_referencesListStore = Gtk::ListStore::create(*m_referenceColumns);
+		m_referencesView->append_column("Symbol references", m_referenceColumns->m_symbol);
+
+		m_referencesView->set_model(m_referencesListStore);
 
 		Gtk::FontButton *referencesFont;
 		m_builder->get_widget("references_font", referencesFont);
 		panic_if(!referencesFont,
 				"Can't get references font");
 
-		m_referenceView->override_font(Pango::FontDescription(referencesFont->get_font_name()));
+		m_referencesView->override_font(Pango::FontDescription(referencesFont->get_font_name()));
 
+		m_referencesView->signal_row_activated().connect(sigc::mem_fun(*this,
+				&EmilProGui::onReferenceRowActivated));
 
 		m_emptyBuffer = Gsv::Buffer::create(m_tagTable);
 	}
@@ -458,10 +466,13 @@ protected:
 			Gtk::ListStore::iterator rowIt = m_referencesListStore->append();
 			Gtk::TreeRow row = *rowIt;
 
-			if (!sym)
+			if (!sym) {
 				row[m_referenceColumns->m_symbol] = fmt("0x%llx", cur);
-			else
+				row[m_referenceColumns->m_rawAddress] = IInstruction::INVALID_ADDRESS;
+			} else {
 				row[m_referenceColumns->m_symbol] = fmt("%s+0x%llx", sym->getName(), cur - sym->getAddress());
+				row[m_referenceColumns->m_rawAddress] = cur;
+			}
 		}
 	}
 
@@ -483,10 +494,40 @@ protected:
 			return;
 		}
 
+		updateInstructionView(address, sym);
+	}
+
+	void onReferenceRowActivated(const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn* column)
+	{
+		Gtk::TreeModel::iterator iter = m_referencesListStore->get_iter(path);
+
+		if(!iter)
+			return;
+
+		Model &model = Model::instance();
+
+		Gtk::TreeModel::Row row = *iter;
+		uint64_t address = row[m_referenceColumns->m_rawAddress];
+
+		if (address == IInstruction::INVALID_ADDRESS)
+			return;
+
+		const ISymbol *sym = model.getNearestSymbol(address);
+		if (!sym) {
+			warning("Can't get symbol\n");
+			return;
+		}
+
+		updateInstructionView(address, sym);
+	}
+
+	void updateInstructionView(uint64_t address, const ISymbol *sym)
+	{
 		if (sym->getType() != ISymbol::SYM_TEXT) {
 			warning("Only code for now\n");
 			return;
 		}
+		Model &model = Model::instance();
 
 		m_instructionListStore->clear();
 		m_lastInstructionIters.clear();
@@ -500,6 +541,8 @@ protected:
 
 		// Number of visible instructions in the view
 		unsigned nVisible = rect.get_height() / m_fontHeight + 4;
+
+		Gtk::ListStore::iterator newCursor;
 
 		m_backwardBranches->calculateLanes(insns, nVisible);
 		m_forwardBranches->calculateLanes(insns, nVisible);
@@ -533,7 +576,12 @@ protected:
 				row[m_instructionColumns->m_forward[i]] = m_pixbufs[lanes[i]];
 
 			row[m_instructionColumns->m_rawAddress] = cur->getAddress();
+
+			if (cur->getAddress() == address)
+				newCursor = rowIt;
 		}
+
+		m_instructionView->set_cursor(m_instructionListStore->get_path(newCursor));
 	}
 
 	void refresh()
@@ -627,7 +675,7 @@ private:
 	ReferenceModelColumns *m_referenceColumns;
 	Gtk::TreeView *m_symbolView;
 	Gtk::TreeView *m_instructionView;
-	Gtk::TreeView *m_referenceView;
+	Gtk::TreeView *m_referencesView;
 
 	JumpTargetDisplay *m_backwardBranches;
 	JumpTargetDisplay *m_forwardBranches;
