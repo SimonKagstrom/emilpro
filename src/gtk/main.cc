@@ -383,58 +383,10 @@ protected:
 			}
 		}
 
-		Model &model = Model::instance();
-
 		Gtk::TreeModel::Row row = *iter;
 		uint64_t address = row[m_instructionColumns->m_rawAddress];
 
-		ILineProvider::FileLine fileLine = model.getLineByAddress(address);
-
-		Glib::RefPtr<Gsv::Buffer> buffer = getSourceBuffer(fileLine);
-
-		if (m_currentBuffer != buffer) {
-			m_sourceView->set_buffer(buffer);
-			m_lastSourceLines.clear();
-		}
-		m_currentBuffer = buffer;
-
-		if (buffer) {
-			unsigned int line = fileLine.m_lineNr - 1;
-
-			Gsv::Buffer::iterator it = buffer->get_iter_at_line(line);
-
-			buffer->remove_all_tags(buffer->get_iter_at_line(0), buffer->get_iter_at_line(buffer->get_line_count()));
-
-			m_lastSourceLines.push_back(line);
-			if (m_lastSourceLines.size() > 3)
-				m_lastSourceLines.pop_front();
-
-			unsigned i = 0;
-			for (SourceLineNrList_t::iterator lineIt = m_lastSourceLines.begin();
-					lineIt != m_lastSourceLines.end();
-					++lineIt, ++i) {
-				unsigned int cur = *lineIt;
-
-				Gsv::Buffer::iterator curIt = buffer->get_iter_at_line(cur);
-				Gsv::Buffer::iterator itNext = buffer->get_iter_at_line(cur + 1);
-
-				buffer->apply_tag(m_sourceTags[i], curIt, itNext);
-			}
-
-			Gtk::ScrolledWindow *sourceScrolledWindow;
-			m_builder->get_widget("source_view_scrolled_window", sourceScrolledWindow);
-
-			Glib::RefPtr<Gtk::Adjustment> adj = sourceScrolledWindow->get_vadjustment();
-
-			adj->set_value(adj->get_upper());
-
-			it = buffer->get_iter_at_line(line - 5 < 0 ? 0 : line - 5);
-			Glib::RefPtr<Gtk::TextBuffer::Mark> mark = buffer->create_mark(it);
-
-			buffer->place_cursor(it);
-			m_sourceView->scroll_to(mark);
-			buffer->delete_mark(mark);
-		}
+		updateSourceView(address);
 	}
 
 	void onSymbolCursorChanged()
@@ -582,6 +534,61 @@ protected:
 		}
 
 		m_instructionView->set_cursor(m_instructionListStore->get_path(newCursor));
+	}
+
+	void updateSourceView(uint64_t address)
+	{
+		Model &model = Model::instance();
+
+		ILineProvider::FileLine fileLine = model.getLineByAddress(address);
+
+		Glib::RefPtr<Gsv::Buffer> buffer = getSourceBuffer(fileLine);
+
+		if (m_currentBuffer != buffer) {
+			m_sourceView->set_buffer(buffer);
+			m_lastSourceLines.clear();
+		}
+		m_currentBuffer = buffer;
+
+		// Should never happen, but anyway...
+		if (!buffer)
+			return;
+
+		unsigned int line = fileLine.m_lineNr - 1;
+
+		Gsv::Buffer::iterator it = buffer->get_iter_at_line(line);
+
+		buffer->remove_all_tags(buffer->get_iter_at_line(0), buffer->get_iter_at_line(buffer->get_line_count()));
+
+		m_lastSourceLines.push_back(line);
+		if (m_lastSourceLines.size() > 3)
+			m_lastSourceLines.pop_front();
+
+		unsigned i = 0;
+		for (SourceLineNrList_t::iterator lineIt = m_lastSourceLines.begin();
+				lineIt != m_lastSourceLines.end();
+				++lineIt, ++i) {
+			unsigned int cur = *lineIt;
+
+			Gsv::Buffer::iterator curIt = buffer->get_iter_at_line(cur);
+			Gsv::Buffer::iterator itNext = buffer->get_iter_at_line(cur + 1);
+
+			buffer->apply_tag(m_sourceTags[i], curIt, itNext);
+		}
+
+		Gtk::ScrolledWindow *sourceScrolledWindow;
+		m_builder->get_widget("source_view_scrolled_window", sourceScrolledWindow);
+
+		Glib::RefPtr<Gtk::Adjustment> adj = sourceScrolledWindow->get_vadjustment();
+
+		adj->set_value(adj->get_upper());
+
+		it = buffer->get_iter_at_line(line - 5 < 0 ? 0 : line - 5);
+		Glib::RefPtr<Gtk::TextBuffer::Mark> mark = buffer->create_mark(it);
+
+		buffer->place_cursor(it);
+		m_sourceView->scroll_to(mark);
+		buffer->delete_mark(mark);
 	}
 
 	void refresh()
