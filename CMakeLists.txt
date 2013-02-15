@@ -35,7 +35,7 @@ endif (HAVE_BFD_MULTIARCH)
 
 set (TGT emilpro)
 
-set (CMAKE_BUILD_TYPE release)
+set (CMAKE_BUILD_TYPE debug)
 
 set (${TGT}_SRCS
 	src/architecturefactory.cc
