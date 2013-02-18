@@ -300,15 +300,15 @@ const Model::SymbolList_t Model::getNearestSymbolLocked(uint64_t address)
 	if (it == m_orderedSymbols.end())
 		return out;
 
-	out = it->second;
-
-	for (Model::SymbolList_t::iterator sIt = out.begin();
-			sIt != out.end();
+	for (Model::SymbolList_t::iterator sIt = it->second.begin();
+			sIt != it->second.end();
 			++sIt) {
 		ISymbol *cur = *sIt;
-		// FIXME!
+
 		if (cur->getAddress() + cur->getSize() < address)
-			return Model::SymbolList_t();
+			continue;
+
+		out.push_back(cur);
 	}
 
 	return out;
