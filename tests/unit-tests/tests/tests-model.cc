@@ -83,11 +83,9 @@ TESTSUITE(model)
 		Model &model = Model::instance();
 		bool res;
 
-		size_t sz;
-		void *data = read_file(&sz, "%s/test-binary", crpcut::get_start_dir());
-		ASSERT_TRUE(data != (void *)NULL);
+		uint8_t data;
 
-		res = model.addData(data, sz);
+		res = model.addData((void *)&data, 1);
 		ASSERT_TRUE(res == true);
 
 		symProvider->addSymbol(10, 19);
