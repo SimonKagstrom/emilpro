@@ -106,7 +106,16 @@ const InstructionList_t Model::getInstructions(uint64_t start, uint64_t end)
 			if (syms.size())
 				error("Size is wrong, we don't handle this now...");
 
-			fillCacheWithSymbol(syms.front());
+			for (Model::SymbolList_t::const_iterator it = syms.begin();
+					it != syms.end();
+					++it) {
+				ISymbol *cur = *it;
+
+				if (cur->getType() == ISymbol::SYM_TEXT) {
+					fillCacheWithSymbol(syms.front());
+					break;
+				}
+			}
 		}
 
 		IInstruction *p = m_instructionCache[curAddress];
@@ -184,6 +193,9 @@ void Model::parseAll()
 		if (curCore == cores)
 			curCore = 0;
 
+		if (cur->getType() != ISymbol::SYM_TEXT)
+			continue;
+
 		m_workQueues[curCore].push_back(cur);
 	}
 
@@ -235,14 +247,10 @@ Model::BasicBlockList_t Model::getBasicBlocksFromInstructions(const InstructionL
 
 void Model::onSymbol(ISymbol &sym)
 {
-	ISymbol::SymbolType type = sym.getType();
-
-	if (type == ISymbol::SYM_DATA || type == ISymbol::SYM_TEXT) {
-		m_mutex.lock();
-		m_symbolsByAddress[sym.getAddress()].push_back(&sym);
-		m_orderedSymbols[sym.getAddress()].push_back(&sym);
-		m_mutex.unlock();
-	}
+	m_mutex.lock();
+	m_symbolsByAddress[sym.getAddress()].push_back(&sym);
+	m_orderedSymbols[sym.getAddress()].push_back(&sym);
+	m_mutex.unlock();
 }
 
 const Model::SymbolList_t &Model::getSymbolsLocked()
