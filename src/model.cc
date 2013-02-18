@@ -97,18 +97,16 @@ const InstructionList_t Model::getInstructions(uint64_t start, uint64_t end)
 			break;
 
 		if (!m_instructionCache[curAddress]) {
-			ISymbol *sym = m_symbolsByAddress[curAddress];
 
-			if (!sym) {
-				SymbolOrderedMap_t::iterator it = m_orderedSymbols.lower_bound(curAddress);
+			const Model::SymbolList_t syms = getNearestSymbolLocked(curAddress);
 
-				if (it == m_orderedSymbols.end())
-					break;
+			if (syms.empty())
+				break;
 
-				sym = it->second;
-			}
+			if (syms.size())
+				error("Size is wrong, we don't handle this now...");
 
-			fillCacheWithSymbol(sym);
+			fillCacheWithSymbol(syms.front());
 		}
 
 		IInstruction *p = m_instructionCache[curAddress];
@@ -241,8 +239,8 @@ void Model::onSymbol(ISymbol &sym)
 
 	if (type == ISymbol::SYM_DATA || type == ISymbol::SYM_TEXT) {
 		m_mutex.lock();
-		m_symbolsByAddress[sym.getAddress()] = &sym;
-		m_orderedSymbols[sym.getAddress()] = &sym;
+		m_symbolsByAddress[sym.getAddress()].push_back(&sym);
+		m_orderedSymbols[sym.getAddress()].push_back(&sym);
 		m_mutex.unlock();
 	}
 }
@@ -255,9 +253,15 @@ const Model::SymbolList_t &Model::getSymbolsLocked()
 	for (Model::SymbolOrderedMap_t::iterator it = m_orderedSymbols.begin();
 			it != m_orderedSymbols.end();
 			++it) {
-		ISymbol *cur = it->second;
+		Model::SymbolList_t syms = it->second;
 
-		m_symbols.push_back(cur);
+		for (Model::SymbolList_t::iterator sIt = syms.begin();
+				sIt != syms.end();
+				++sIt) {
+			ISymbol *cur = *sIt;
+
+			m_symbols.push_back(cur);
+		}
 	}
 
 	return m_symbols;
@@ -272,46 +276,57 @@ const Model::SymbolList_t &Model::getSymbols()
 	return out;
 }
 
-const ISymbol *Model::getSymbolExactLocked(uint64_t address)
+const Model::SymbolList_t Model::getSymbolExactLocked(uint64_t address)
 {
-	return m_symbolsByAddress[address];
+	if (m_symbolsByAddress.find(address) != m_symbolsByAddress.end())
+		return m_symbolsByAddress[address];
+
+	return Model::SymbolList_t();
 }
 
-const ISymbol *Model::getNearestSymbolLocked(uint64_t address)
+const Model::SymbolList_t Model::getNearestSymbolLocked(uint64_t address)
 {
-	const ISymbol *out = m_symbolsByAddress[address];
+	Model::SymbolMap_t::const_iterator exactIt = m_symbolsByAddress.find(address);
 
-	if (!out) {
-		SymbolOrderedMap_t::iterator it = m_orderedSymbols.lower_bound(address);
+	if (exactIt != m_symbolsByAddress.end())
+		return exactIt->second;
 
-		--it;
+	SymbolOrderedMap_t::iterator it = m_orderedSymbols.lower_bound(address);
+	Model::SymbolList_t out;
 
-		// Above the last symbol
-		if (it == m_orderedSymbols.end())
-			return NULL;
+	--it;
 
-		out = it->second;
+	// Above the last symbol
+	if (it == m_orderedSymbols.end())
+		return out;
 
-		if (out->getAddress() + out->getSize() < address)
-			return NULL;
+	out = it->second;
+
+	for (Model::SymbolList_t::iterator sIt = out.begin();
+			sIt != out.end();
+			++sIt) {
+		ISymbol *cur = *sIt;
+		// FIXME!
+		if (cur->getAddress() + cur->getSize() < address)
+			return Model::SymbolList_t();
 	}
 
 	return out;
 }
 
-const ISymbol *Model::getSymbolExact(uint64_t address)
+const Model::SymbolList_t Model::getSymbolExact(uint64_t address)
 {
 	m_mutex.lock();
-	const ISymbol *out = getSymbolExactLocked(address);
+	const Model::SymbolList_t out = getSymbolExactLocked(address);
 	m_mutex.unlock();
 
 	return out;
 }
 
-const ISymbol *Model::getNearestSymbol(uint64_t address)
+const Model::SymbolList_t Model::getNearestSymbol(uint64_t address)
 {
 	m_mutex.lock();
-	const ISymbol *out = getNearestSymbolLocked(address);
+	const Model::SymbolList_t out = getNearestSymbolLocked(address);
 	m_mutex.unlock();
 
 	return out;

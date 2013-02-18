@@ -415,17 +415,23 @@ protected:
 				it != references.end();
 				++it) {
 			uint64_t cur = *it;
-			const ISymbol *sym = model.getNearestSymbol(cur);
+			const Model::SymbolList_t syms = model.getNearestSymbol(cur);
 
 			Gtk::ListStore::iterator rowIt = m_referencesListStore->append();
 			Gtk::TreeRow row = *rowIt;
 
-			if (!sym) {
+			if (syms.empty()) {
 				row[m_referenceColumns->m_symbol] = fmt("0x%llx", cur);
 				row[m_referenceColumns->m_rawAddress] = IInstruction::INVALID_ADDRESS;
 			} else {
-				row[m_referenceColumns->m_symbol] = fmt("%s+0x%llx", sym->getName(), cur - sym->getAddress());
-				row[m_referenceColumns->m_rawAddress] = cur;
+				for (Model::SymbolList_t::const_iterator sIt = syms.begin();
+						sIt != syms.end();
+						++sIt) {
+					ISymbol *sym = *sIt;
+
+					row[m_referenceColumns->m_symbol] = fmt("%s+0x%llx", sym->getName(), cur - sym->getAddress());
+					row[m_referenceColumns->m_rawAddress] = cur;
+				}
 			}
 		}
 	}
@@ -442,13 +448,24 @@ protected:
 		Gtk::TreeModel::Row row = *iter;
 		uint64_t address = row[m_symbolColumns->m_rawAddress];
 
-		const ISymbol *sym = model.getSymbolExact(address);
-		if (!sym) {
+		Model::SymbolList_t syms = model.getSymbolExact(address);
+		if (syms.empty()) {
 			warning("Can't get symbol\n");
 			return;
 		}
 
-		updateInstructionView(address, sym);
+		const ISymbol *largest = syms.front();
+
+		for (Model::SymbolList_t::iterator it = syms.begin();
+				it != syms.end();
+				++it) {
+			const ISymbol *cur = *it;
+
+			if (cur->getSize() > largest->getSize())
+				largest = cur;
+		}
+
+		updateInstructionView(address, largest);
 	}
 
 	void onReferenceRowActivated(const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn* column)
@@ -466,13 +483,24 @@ protected:
 		if (address == IInstruction::INVALID_ADDRESS)
 			return;
 
-		const ISymbol *sym = model.getNearestSymbol(address);
-		if (!sym) {
+		Model::SymbolList_t syms = model.getNearestSymbol(address);
+		if (syms.empty()) {
 			warning("Can't get symbol\n");
 			return;
 		}
 
-		updateInstructionView(address, sym);
+		const ISymbol *largest = syms.front();
+
+		for (Model::SymbolList_t::iterator it = syms.begin();
+				it != syms.end();
+				++it) {
+			const ISymbol *cur = *it;
+
+			if (cur->getSize() > largest->getSize())
+				largest = cur;
+		}
+
+		updateInstructionView(address, largest);
 	}
 
 	void updateInstructionView(uint64_t address, const ISymbol *sym)
@@ -513,12 +541,15 @@ protected:
 
 			if (cur->getBranchTargetAddress() != IInstruction::INVALID_ADDRESS) {
 				uint64_t target = cur->getBranchTargetAddress();
-				const ISymbol *targetSym = model.getSymbolExact(target);
+				Model::SymbolList_t targetSyms = model.getSymbolExact(target);
 
-				if (!targetSym || (target >= sym->getAddress() && target < sym->getAddress() + sym->getSize()))
+				if (targetSyms.empty() || (target >= sym->getAddress() && target < sym->getAddress() + sym->getSize())) {
 					row[m_instructionColumns->m_target] = fmt("0x%0llx", cur->getBranchTargetAddress()).c_str();
-				else
+				} else {
+					const ISymbol *targetSym = targetSyms.front();
+
 					row[m_instructionColumns->m_target] = targetSym->getName();
+				}
 			}
 			JumpTargetDisplay::LaneValue_t lanes[m_nLanes];
 

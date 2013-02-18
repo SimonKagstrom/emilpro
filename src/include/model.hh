@@ -56,9 +56,9 @@ namespace emilpro
 
 		const SymbolList_t &getSymbols();
 
-		const ISymbol *getSymbolExact(uint64_t address);
+		const SymbolList_t getSymbolExact(uint64_t address);
 
-		const ISymbol *getNearestSymbol(uint64_t address);
+		const SymbolList_t getNearestSymbol(uint64_t address);
 
 		const ILineProvider::FileLine getLineByAddress(uint64_t addr);
 
@@ -74,8 +74,8 @@ namespace emilpro
 		static Model &instance();
 
 	private:
-		typedef std::map<uint64_t, ISymbol *> SymbolOrderedMap_t;
-		typedef std::unordered_map<uint64_t, ISymbol *> SymbolMap_t;
+		typedef std::map<uint64_t, SymbolList_t> SymbolOrderedMap_t;
+		typedef std::unordered_map<uint64_t, SymbolList_t> SymbolMap_t;
 		typedef std::unordered_map<uint64_t, ILineProvider::FileLine> AddressFileLineMap_t;
 		typedef std::list<ISymbol *> SymbolQueue_t;
 
@@ -90,9 +90,9 @@ namespace emilpro
 
 		const SymbolList_t &getSymbolsLocked();
 
-		const ISymbol *getSymbolExactLocked(uint64_t address);
+		const SymbolList_t getSymbolExactLocked(uint64_t address);
 
-		const ISymbol *getNearestSymbolLocked(uint64_t address);
+		const SymbolList_t getNearestSymbolLocked(uint64_t address);
 
 		void worker(unsigned queueNr);
 
