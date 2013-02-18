@@ -367,17 +367,6 @@ private:
 					cur->setSize(lastSectionAddr - cur->getAddress());
 			}
 		}
-		for (SymbolsByAddress_t::iterator it = symbolsByAddress.begin();
-				it != symbolsByAddress.end();
-				++it) {
-			for (SymbolList_t::iterator sIt = it->second.begin();
-					sIt != it->second.end();
-					++sIt) {
-				ISymbol *cur = *sIt;
-
-				m_listener->onSymbol(*cur);
-			}
-		}
 
 		// Provide section symbols
 		for (BfdSectionContents_t::iterator it = m_sectionContents.begin();
@@ -399,6 +388,18 @@ private:
 					);
 
 			m_listener->onSymbol(sym);
+		}
+
+		for (SymbolsByAddress_t::iterator it = symbolsByAddress.begin();
+				it != symbolsByAddress.end();
+				++it) {
+			for (SymbolList_t::iterator sIt = it->second.begin();
+					sIt != it->second.end();
+					++sIt) {
+				ISymbol *cur = *sIt;
+
+				m_listener->onSymbol(*cur);
+			}
 		}
 	}
 
