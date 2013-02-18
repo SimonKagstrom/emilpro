@@ -277,7 +277,7 @@ private:
 	void handleSymbols(long symcount, asymbol **syms)
 	{
 		typedef std::map<ISymbol *, uint64_t> SectionAddressBySymbol_t;
-		typedef std::map<uint64_t, ISymbol *> SymbolsByAddress_t;
+		typedef std::map<uint64_t, std::list<ISymbol *> > SymbolsByAddress_t;
 		typedef std::list<ISymbol *> SymbolList_t;
 		SectionAddressBySymbol_t sectionEndAddresses;
 		SymbolsByAddress_t symbolsByAddress;
@@ -337,7 +337,7 @@ private:
 					cur->section->flags & SEC_ALLOC,
 					!(cur->section->flags & SEC_READONLY)
 					);
-			symbolsByAddress[symAddr] = &sym;
+			symbolsByAddress[symAddr].push_back(&sym);
 			sectionEndAddresses[&sym] = bfd_section_vma(m_bfd, cur->section) + bfd_section_size(m_bfd, cur->section);
 
 			if (size == 0)
@@ -358,8 +358,8 @@ private:
 
 			// Last symbol, fixup via the section size
 			if (nextIt != symbolsByAddress.end() &&
-					nextIt->second->getAddress() <= lastSectionAddr) {
-				ISymbol *other = nextIt->second;
+					nextIt->second.front()->getAddress() <= lastSectionAddr) {
+				ISymbol *other = nextIt->second.front();
 
 				cur->setSize(other->getAddress() - cur->getAddress());
 			} else {
@@ -370,9 +370,13 @@ private:
 		for (SymbolsByAddress_t::iterator it = symbolsByAddress.begin();
 				it != symbolsByAddress.end();
 				++it) {
-			ISymbol *cur = it->second;
+			for (SymbolList_t::iterator sIt = it->second.begin();
+					sIt != it->second.end();
+					++sIt) {
+				ISymbol *cur = *sIt;
 
-			m_listener->onSymbol(*cur);
+				m_listener->onSymbol(*cur);
+			}
 		}
 
 		// Provide section symbols
