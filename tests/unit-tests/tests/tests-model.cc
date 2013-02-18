@@ -91,6 +91,7 @@ TESTSUITE(model)
 		symProvider->addSymbol(10, 19);
 		symProvider->addSymbol(20, 29);
 		symProvider->addSymbol(30, 39);
+		symProvider->addSymbol(30, 34); // Two at the same address
 		symProvider->addSymbol(50, 59); // Some space between
 
 		Model::SymbolList_t sym;
@@ -99,7 +100,7 @@ TESTSUITE(model)
 		ASSERT_TRUE(sym.front()->getAddress() == 10);
 		sym = model.getSymbolExact(20);	ASSERT_TRUE(sym.size() == 1);
 		ASSERT_TRUE(sym.front()->getAddress() == 20);
-		sym = model.getSymbolExact(30);	ASSERT_TRUE(sym.size() == 1);
+		sym = model.getSymbolExact(30);	ASSERT_TRUE(sym.size() == 2);
 		ASSERT_TRUE(sym.front()->getAddress() == 30);
 		sym = model.getSymbolExact(50);	ASSERT_TRUE(sym.size() == 1);
 		ASSERT_TRUE(sym.front()->getAddress() == 50);
@@ -127,7 +128,9 @@ TESTSUITE(model)
 		ASSERT_TRUE(sym.front()->getAddress() == 10);
 		sym = model.getNearestSymbol(29); ASSERT_TRUE(sym.size() == 1);
 		ASSERT_TRUE(sym.front()->getAddress() == 20);
-		sym = model.getNearestSymbol(31); ASSERT_TRUE(sym.size() == 1);
+		sym = model.getNearestSymbol(31); ASSERT_TRUE(sym.size() == 2);
+		ASSERT_TRUE(sym.front()->getAddress() == 30);
+		sym = model.getNearestSymbol(35); ASSERT_TRUE(sym.size() == 1);
 		ASSERT_TRUE(sym.front()->getAddress() == 30);
 		sym = model.getNearestSymbol(51); ASSERT_TRUE(sym.size() == 1);
 		ASSERT_TRUE(sym.front()->getAddress() == 50);
