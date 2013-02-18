@@ -637,6 +637,10 @@ protected:
 				++it) {
 			ISymbol *cur = *it;
 
+			// Skip the file symbol
+			if (cur->getType() == ISymbol::SYM_FILE)
+				continue;
+
 			Gtk::ListStore::iterator rowIt = m_symbolListStore->append();
 			Gtk::TreeRow row = *rowIt;
 
