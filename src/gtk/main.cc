@@ -660,7 +660,8 @@ protected:
 			row[m_symbolColumns->m_w] = w;
 			row[m_symbolColumns->m_x] = x;
 			row[m_symbolColumns->m_a] = a;
-			row[m_symbolColumns->m_name] = cur->getName();
+			row[m_symbolColumns->m_name] = fmt("%s%s",
+					cur->getType() == ISymbol::SYM_SECTION ? "Section " : "", cur->getName());
 
 			row[m_symbolColumns->m_rawAddress] = cur->getAddress();
 		}
