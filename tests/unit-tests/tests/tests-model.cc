@@ -74,6 +74,14 @@ TESTSUITE(model)
 		other = model.getNearestSymbol(sym->getAddress() + 8);
 		ASSERT_TRUE(other.size() == 1);
 		ASSERT_TRUE(other.front() == sym);
+
+		sym = m_symbolNames["asm_sym2"];
+		if (!sym)
+			sym = m_symbolNames["asm_sym3"];
+		ASSERT_TRUE(sym);
+
+		Model::SymbolList_t syms = model.getSymbolExact(sym->getAddress());
+		ASSERT_TRUE(syms.size() == 2); // asm_sym3 as well
 	}
 
 	TEST(lookupSymbolsNearest, SymbolFixture)
