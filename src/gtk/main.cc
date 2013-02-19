@@ -30,6 +30,11 @@ public:
 		add(m_bgColor);
 	}
 
+	unsigned getNumberOfVisibleColumns()
+	{
+		return 7;
+	}
+
 	Gtk::TreeModelColumn<Glib::ustring> m_address;
 	Gtk::TreeModelColumn<Glib::ustring> m_size;
 	Gtk::TreeModelColumn<Glib::ustring> m_r;
@@ -220,7 +225,7 @@ public:
 
 		// FIXME! Get this from properties instead!
 		m_backgroundColor = Gdk::Color("white");
-		for (unsigned i = 0; i < m_symbolView->get_n_columns(); i++) {
+		for (unsigned i = 0; i < m_symbolColumns->getNumberOfVisibleColumns(); i++) {
 			Gtk::TreeViewColumn *cp;
 			Gtk::CellRenderer *cr;
 
