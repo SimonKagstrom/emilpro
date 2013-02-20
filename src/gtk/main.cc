@@ -533,6 +533,9 @@ protected:
 				++it) {
 			const ISymbol *cur = *it;
 
+			if (cur->getType() != ISymbol::SYM_TEXT)
+				continue;
+
 			if (cur->getSize() > largest->getSize())
 				largest = cur;
 		}
@@ -542,10 +545,6 @@ protected:
 
 	void updateInstructionView(uint64_t address, const ISymbol *sym)
 	{
-		if (sym->getType() != ISymbol::SYM_TEXT) {
-			warning("Only code for now\n");
-			return;
-		}
 		Model &model = Model::instance();
 
 		m_instructionListStore->clear();
