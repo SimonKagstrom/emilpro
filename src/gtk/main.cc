@@ -67,6 +67,7 @@ public:
 
 		add(m_rawAddress);
 		add(m_bgColor);
+		add(m_rawInstruction);
 	}
 
 	~InstructionModelColumns()
@@ -84,6 +85,7 @@ public:
 	// Hidden
 	Gtk::TreeModelColumn<uint64_t> m_rawAddress;
 	Gtk::TreeModelColumn<Gdk::Color> m_bgColor;
+	Gtk::TreeModelColumn<IInstruction *> m_rawInstruction;
 };
 
 class ReferenceModelColumns : public Gtk::TreeModelColumnRecord
@@ -424,6 +426,10 @@ protected:
 
 		Gtk::TreeModel::Row row = *iter;
 		uint64_t address = row[m_instructionColumns->m_rawAddress];
+		IInstruction *cur = row[m_instructionColumns->m_rawInstruction];
+
+		if (cur)
+			m_hexView.markRange(cur->getAddress(), (size_t)cur->getSize());
 
 		updateSourceView(address);
 	}
@@ -597,6 +603,7 @@ protected:
 				row[m_instructionColumns->m_forward[i]] = m_pixbufs[lanes[i]];
 
 			row[m_instructionColumns->m_rawAddress] = cur->getAddress();
+			row[m_instructionColumns->m_rawInstruction] = cur;
 
 			if (cur->getAddress() == address)
 				newCursor = rowIt;

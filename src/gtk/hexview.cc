@@ -240,6 +240,41 @@ bool HexView::getViewLittleEndian()
 	return m_viewIsLittleEndian;
 }
 
+void HexView::markRange(uint64_t address, size_t size)
+{
+	AddressToLineNr_t::iterator aIt = m_addressToLineMap.find(address & ~15);
+
+	if (aIt == m_addressToLineMap.end())
+		return;
+
+	for (unsigned int i = 0; i < 4; i++) {
+		markRangeInBuffer(address, size, m_textBuffers[i], i);
+	}
+}
+
+void HexView::markRangeInBuffer(uint64_t address, size_t size,
+		Glib::RefPtr<Gtk::TextBuffer> buffer, unsigned viewIdx)
+{
+	unsigned line = m_addressToLineMap[address & ~15];
+
+	Gtk::TextBuffer::iterator it = buffer->get_iter_at_line(line);
+	Gtk::TextBuffer::iterator itNext = buffer->get_iter_at_line(line + 1);
+
+	buffer->remove_all_tags(buffer->get_iter_at_line(0), buffer->get_iter_at_line(buffer->get_line_count()));
+
+	if (it == buffer->end() || itNext == buffer->end())
+		return;
+
+	buffer->apply_tag(m_tag, it, itNext);
+
+	it = buffer->get_iter_at_line(line < 5 ? 0 : line - 5);
+	Glib::RefPtr<Gtk::TextBuffer::Mark> mark = buffer->create_mark(it);
+
+	buffer->place_cursor(it);
+	m_textViews[viewIdx]->scroll_to(mark);
+	buffer->delete_mark(mark);
+}
+
 uint64_t HexView::sw64(uint64_t v, bool doSwap)
 {
 	uint64_t out = v;

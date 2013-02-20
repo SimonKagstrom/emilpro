@@ -40,6 +40,8 @@ public:
 
 	bool getViewLittleEndian();
 
+	void markRange(uint64_t address, size_t size);
+
 	Gtk::TextView &getTextView(unsigned width);
 
 private:
@@ -63,6 +65,8 @@ private:
 
 	typedef std::unordered_map<uint64_t, uint64_t> AddressToLineNr_t;
 	typedef std::map<uint64_t, Data> DataMap_t;
+
+	void markRangeInBuffer(uint64_t address, size_t size, Glib::RefPtr<Gtk::TextBuffer> buffer, unsigned viewIdx);
 
 	std::string handleAllData(unsigned width, bool littleEndian, bool updateLineMap = false);
 
