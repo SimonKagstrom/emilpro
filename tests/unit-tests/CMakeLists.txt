@@ -17,6 +17,9 @@ find_package (LibDwarf REQUIRED)
 find_package (LibBfd REQUIRED)
 find_package (LibOpdis REQUIRED)
 find_package (LibCRPCUT REQUIRED)
+find_package (PkgConfig REQUIRED)
+
+pkg_check_modules(GTKMM gtkmm-3.0)
 
 set (TGT ut)
 
@@ -32,23 +35,27 @@ set (${TGT}_SRCS
 	../../src/architecturefactory.cc
 	../../src/bfd-provider.cc
 	../../src/disassembly.cc
+	../../src/gtk/hexview.cc
 	../../src/jumptargetdisplay.cc
 	../../src/symbolfactory.cc
 	../../src/utils.cc
 	main.cc
 	tests/tests-disassembly.cc
+	tests/tests-hexview.cc
 	tests/tests-jumptargetdisplay.cc
 	tests/tests-model.cc
 	tests/tests-symbol-provider.cc
 	)
 
 include_directories(
+	../../src/gtk/include/
 	../../src/include/
 	${LIBELF_INCLUDE_DIRS}
 	${LIBDWARF_INCLUDE_DIRS}
 	${LIBOPDIS_INCLUDE_DIRS}
 	${LIBBFD_INCLUDE_DIRS}
 	${LIBCRPCUT_INCLUDE_DIRS}
+	${GTKMM_INCLUDE_DIRS}
 	)
 
 add_executable (test-binary
@@ -62,6 +69,7 @@ target_link_libraries(${TGT}
 	${LIBOPDIS_LIBRARIES}
 	${LIBBFD_LIBRARIES}
 	${LIBCRPCUT_LIBRARIES}
+	${GTKMM_LIBRARIES}
 	gtest
 	gmock
 	z

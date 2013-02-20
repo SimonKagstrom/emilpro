@@ -7,6 +7,7 @@
 #include <symbolfactory.hh>
 #include <utils.hh>
 #include <jumptargetdisplay.hh>
+#include <hexview.hh>
 
 #include <string>
 #include <vector>
@@ -128,6 +129,8 @@ public:
 	{
 		m_app = new Gtk::Main(argc, argv);
 		Gsv::init();
+
+		m_hexView.init();
 
 		m_pixbufs[JumpTargetDisplay::LANE_LINE] = Gdk::Pixbuf::create_from_file("../../../emilpro/gfx/red_line.png");
 		m_pixbufs[JumpTargetDisplay::LANE_START_DOWN] = Gdk::Pixbuf::create_from_file("../../../emilpro/gfx/red_start_down.png");
@@ -282,6 +285,35 @@ public:
 				&EmilProGui::onReferenceRowActivated));
 
 		m_emptyBuffer = Gsv::Buffer::create(m_tagTable);
+
+
+		Gtk::ScrolledWindow *hexView8Bit, *hexView16Bit, *hexView32Bit, *hexView64Bit;
+		m_builder->get_widget("hex_data_8bit_scrolledwindow", hexView8Bit);
+		m_builder->get_widget("hex_data_16bit_scrolledwindow", hexView16Bit);
+		m_builder->get_widget("hex_data_32bit_scrolledwindow", hexView32Bit);
+		m_builder->get_widget("hex_data_64bit_scrolledwindow", hexView64Bit);
+
+		panic_if(!hexView64Bit, "Can't get hexview");
+
+		Gtk::TextView &tv8 = m_hexView.getTextView(8);
+		Gtk::TextView &tv16 = m_hexView.getTextView(16);
+		Gtk::TextView &tv32 = m_hexView.getTextView(32);
+		Gtk::TextView &tv64 = m_hexView.getTextView(64);
+
+		hexView8Bit->add(tv8);
+		hexView16Bit->add(tv16);
+		hexView32Bit->add(tv32);
+		hexView64Bit->add(tv64);
+
+		tv8.override_font(Pango::FontDescription(sourceFont->get_font_name()));
+		tv16.override_font(Pango::FontDescription(sourceFont->get_font_name()));
+		tv32.override_font(Pango::FontDescription(sourceFont->get_font_name()));
+		tv64.override_font(Pango::FontDescription(sourceFont->get_font_name()));
+
+		tv8.show();
+		tv16.show();
+		tv32.show();
+		tv64.show();
 	}
 
 	void run(int argc, char *argv[])
@@ -634,6 +666,7 @@ protected:
 		Model::instance().parseAll();
 
 		m_symbolListStore->clear();
+		m_hexView.clearData();
 
 		const Model::SymbolList_t &syms = Model::instance().getSymbols();
 
@@ -645,6 +678,10 @@ protected:
 			// Skip the file symbol
 			if (cur->getType() == ISymbol::SYM_FILE)
 				continue;
+
+			if (cur->getType() == ISymbol::SYM_SECTION
+					&& cur->getSize() > 0)
+				m_hexView.addData(cur->getDataPtr(), cur->getAddress(), cur->getSize());
 
 			Gtk::ListStore::iterator rowIt = m_symbolListStore->append();
 			Gtk::TreeRow row = *rowIt;
@@ -674,6 +711,8 @@ protected:
 
 			row[m_symbolColumns->m_rawAddress] = cur->getAddress();
 		}
+
+		m_hexView.update();
 	}
 
 	void onFileOpen()
@@ -749,6 +788,8 @@ private:
 	Gdk::Color m_backgroundColor;
 	InstructionIterList_t m_lastInstructionIters;
 	unsigned m_lastInstructionStoreSize;
+
+	HexView m_hexView;
 };
 
 int main(int argc, char **argv)

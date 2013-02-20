@@ -45,10 +45,12 @@ set (${TGT}_SRCS
 	src/model.cc
 	src/symbolfactory.cc
 	src/utils.cc
+	src/gtk/hexview.cc
 	src/gtk/main.cc
 	)
 
 include_directories(
+	src/gtk/include/
 	src/include/
 	${LIBELF_INCLUDE_DIRS}
 	${LIBDWARF_INCLUDE_DIRS}
