@@ -125,7 +125,6 @@ void HexView::init()
 	m_tagTable = Gtk::TextBuffer::TagTable::create();
 	m_tag = Gtk::TextBuffer::Tag::create();
 
-	m_tag->property_paragraph_background_rgba() = Gdk::RGBA("blue"); // FIXME!
 	m_tagTable->add(m_tag);
 
 	for (unsigned i = 0; i < 4; i++)
