@@ -8,6 +8,14 @@ unsigned get_number_of_cores()
 	return 1; // FIXME!
 }
 
+bool cpu_is_little_endian()
+{
+	static uint16_t data = 0x1122;
+	uint8_t *p = (uint8_t *)&data;
+
+	return p[0] == 0x22;
+}
+
 
 void *read_file(size_t *out_size, const char *fmt, ...)
 {

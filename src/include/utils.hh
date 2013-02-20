@@ -83,3 +83,5 @@ std::string fmt(const char *fmt, ...);
 std::string escapeHtml(std::string &str);
 
 std::string escapeHtml(const char *str);
+
+bool cpu_is_little_endian();
