@@ -36,6 +36,8 @@ public:
 
 	void update();
 
+	void setMarkColor(Gdk::Color color);
+
 	void setViewLittleEndian(bool littleEndian);
 
 	bool getViewLittleEndian();

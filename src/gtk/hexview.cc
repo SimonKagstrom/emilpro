@@ -275,6 +275,11 @@ void HexView::markRangeInBuffer(uint64_t address, size_t size,
 	buffer->delete_mark(mark);
 }
 
+void HexView::setMarkColor(Gdk::Color color)
+{
+	m_tag->property_paragraph_background_gdk() = color;
+}
+
 uint64_t HexView::sw64(uint64_t v, bool doSwap)
 {
 	uint64_t out = v;

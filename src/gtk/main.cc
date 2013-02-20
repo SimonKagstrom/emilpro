@@ -312,6 +312,8 @@ public:
 		tv32.override_font(Pango::FontDescription(sourceFont->get_font_name()));
 		tv64.override_font(Pango::FontDescription(sourceFont->get_font_name()));
 
+		m_hexView.setMarkColor(m_historyColors[2]);
+
 		tv8.show();
 		tv16.show();
 		tv32.show();
