@@ -318,6 +318,10 @@ public:
 		tv16.show();
 		tv32.show();
 		tv64.show();
+
+		m_builder->get_widget("instructions_data_notebook", m_instructionsDataNotebook);
+
+		panic_if(!m_instructionsDataNotebook, "Can't get notebook");
 	}
 
 	void run(int argc, char *argv[])
@@ -505,12 +509,19 @@ protected:
 				it != syms.end();
 				++it) {
 			const ISymbol *cur = *it;
+			enum ISymbol::SymbolType type = cur->getType();
+
+			if (type != ISymbol::SYM_TEXT && type != ISymbol::SYM_DATA)
+				continue;
 
 			if (cur->getSize() > largest->getSize())
 				largest = cur;
 		}
 
-		updateInstructionView(address, largest);
+		if (largest->getType() == ISymbol::SYM_TEXT)
+			updateInstructionView(address, largest);
+		else
+			updateDataView(address, largest);
 	}
 
 	void onReferenceRowActivated(const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn* column)
@@ -540,15 +551,30 @@ protected:
 				it != syms.end();
 				++it) {
 			const ISymbol *cur = *it;
+			enum ISymbol::SymbolType type = cur->getType();
 
-			if (cur->getType() != ISymbol::SYM_TEXT)
+			if (type != ISymbol::SYM_TEXT && type != ISymbol::SYM_DATA)
 				continue;
 
 			if (cur->getSize() > largest->getSize())
 				largest = cur;
 		}
 
-		updateInstructionView(address, largest);
+		if (largest->getType() == ISymbol::SYM_TEXT)
+			updateInstructionView(address, largest);
+		else
+			updateDataView(address, largest);
+	}
+
+	void updateDataView(uint64_t address, const ISymbol *sym)
+	{
+		m_instructionListStore->clear();
+		m_lastInstructionIters.clear();
+
+		m_instructionsDataNotebook->set_current_page(1);
+
+
+		m_hexView.markRange(sym->getAddress(), (size_t)sym->getSize());
 	}
 
 	void updateInstructionView(uint64_t address, const ISymbol *sym)
@@ -557,6 +583,7 @@ protected:
 
 		m_instructionListStore->clear();
 		m_lastInstructionIters.clear();
+		m_instructionsDataNotebook->set_current_page(0);
 
 		// Disassemble and display
 		unsigned n = 0;
@@ -798,6 +825,8 @@ private:
 	unsigned m_lastInstructionStoreSize;
 
 	HexView m_hexView;
+
+	Gtk::Notebook *m_instructionsDataNotebook;
 };
 
 int main(int argc, char **argv)
