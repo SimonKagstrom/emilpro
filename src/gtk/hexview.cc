@@ -271,8 +271,7 @@ void HexView::markRangeInBuffer(uint64_t address, size_t size,
 	it = buffer->get_iter_at_line(line < 5 ? 0 : line - 5);
 	Glib::RefPtr<Gtk::TextBuffer::Mark> mark = buffer->create_mark(it);
 
-	buffer->place_cursor(it);
-	m_textViews[viewIdx]->scroll_to(mark);
+	m_textViews[viewIdx]->scroll_to(mark, 0.2);
 	buffer->delete_mark(mark);
 }
 
