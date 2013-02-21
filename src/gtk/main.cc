@@ -514,6 +514,9 @@ protected:
 			if (type != ISymbol::SYM_TEXT && type != ISymbol::SYM_DATA)
 				continue;
 
+			if (largest->getType() != ISymbol::SYM_TEXT && largest->getType() != ISymbol::SYM_DATA)
+				largest = cur;
+
 			if (cur->getSize() > largest->getSize())
 				largest = cur;
 		}
@@ -555,6 +558,9 @@ protected:
 
 			if (type != ISymbol::SYM_TEXT && type != ISymbol::SYM_DATA)
 				continue;
+
+			if (largest->getType() != ISymbol::SYM_TEXT && largest->getType() != ISymbol::SYM_DATA)
+				largest = cur;
 
 			if (cur->getSize() > largest->getSize())
 				largest = cur;
