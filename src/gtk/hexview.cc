@@ -216,8 +216,10 @@ std::string HexView::handleAllData(unsigned width, bool littleEndian, bool updat
 		Data *cur = &it->second;
 
 		out = out + handleData(cur, width, littleEndian, updateLineMap);
-		if (n < m_data.size() - 1)
+		if (n < m_data.size() - 1) {
 			out = out + "...\n";
+			m_lineNr++;
+		}
 	}
 
 	return out;
