@@ -317,10 +317,16 @@ HexView::LineOffsetList_t HexView::getMarkRegions(uint64_t address, size_t size,
 		break;
 	}
 
-	unsigned delimiters = size / bytesPerDelimiter;
+	unsigned delimiters = size / bytesPerDelimiter - 1;
 
 	unsigned startOffset = startOfData + 2 * offset + offset / bytesPerDelimiter;
 	unsigned len = size * 2 + delimiters;
+
+	out.push_back(LineOffset(line, startOffset, len));
+
+	// Ascii stuff
+	startOffset = startOfAscii + offset;
+	len = size;
 
 	out.push_back(LineOffset(line, startOffset, len));
 
