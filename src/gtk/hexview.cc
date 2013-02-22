@@ -280,6 +280,53 @@ void HexView::setMarkColor(Gdk::Color color)
 	m_tag->property_paragraph_background_gdk() = color;
 }
 
+HexView::LineOffsetList_t HexView::getMarkRegions(uint64_t address, size_t size, unsigned width)
+{
+	LineOffsetList_t out;
+
+	if (size == 0)
+		return out;
+
+	AddressToLineNr_t::iterator aIt = m_addressToLineMap.find(address & ~15);
+
+	if (aIt == m_addressToLineMap.end())
+		return out;
+
+	uint32_t offset = address & 15;
+
+	unsigned line = aIt->second;
+
+	const unsigned startOfData = 20;
+	const unsigned startOfAscii = 69;
+	const unsigned delimiterSize = 1;
+
+	unsigned bytesPerDelimiter = 1; // assume 8-bits
+
+	switch (width)
+	{
+	case 16:
+		bytesPerDelimiter = 2;
+		break;
+	case 32:
+		bytesPerDelimiter = 4;
+		break;
+	case 64:
+		bytesPerDelimiter = 8;
+		break;
+	default:
+		break;
+	}
+
+	unsigned delimiters = size / bytesPerDelimiter;
+
+	unsigned startOffset = startOfData + 2 * offset + offset / bytesPerDelimiter;
+	unsigned len = size * 2 + delimiters;
+
+	out.push_back(LineOffset(line, startOffset, len));
+
+	return out;
+}
+
 uint64_t HexView::sw64(uint64_t v, bool doSwap)
 {
 	uint64_t out = v;

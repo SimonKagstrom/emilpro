@@ -1,9 +1,11 @@
 #pragma once
 
 #include <gtkmm.h>
+
 #include <unordered_map>
 #include <map>
 #include <string>
+#include <list>
 
 // Unit test stuff
 namespace hexview
@@ -13,6 +15,8 @@ namespace hexview
 	class test32;
 	class test64;
 	class update;
+	class mark;
+	class MarkFixture;
 }
 
 class HexView
@@ -23,6 +27,8 @@ public:
 	friend class hexview::test32;
 	friend class hexview::test64;
 	friend class hexview::update;
+	friend class hexview::mark;
+	friend class hexview::MarkFixture;
 
 	HexView();
 
@@ -65,10 +71,31 @@ private:
 		size_t m_size;
 	};
 
+	class LineOffset
+	{
+	public:
+		LineOffset() :
+			m_line(0), m_offset(0), m_count(0)
+		{
+		}
+
+		LineOffset(unsigned line, unsigned offset, unsigned count) :
+			m_line(line), m_offset(offset), m_count(count)
+		{
+		}
+
+		unsigned m_line;
+		unsigned m_offset;
+		unsigned m_count;
+	};
+
 	typedef std::unordered_map<uint64_t, uint64_t> AddressToLineNr_t;
 	typedef std::map<uint64_t, Data> DataMap_t;
+	typedef std::list<LineOffset> LineOffsetList_t;
 
 	void markRangeInBuffer(uint64_t address, size_t size, Glib::RefPtr<Gtk::TextBuffer> buffer, unsigned viewIdx);
+
+	LineOffsetList_t getMarkRegions(uint64_t address, size_t size, unsigned width);
 
 	std::string handleAllData(unsigned width, bool littleEndian, bool updateLineMap = false);
 
