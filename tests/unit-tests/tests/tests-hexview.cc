@@ -5,6 +5,8 @@
 #include <utils.hh>
 #include <hexview.hh>
 
+#include <ctype.h>
+
 TESTSUITE(hexview)
 {
 	class MarkFixture
@@ -52,24 +54,33 @@ TESTSUITE(hexview)
 				if (i == mask.size())
 					break;
 
+				char curChar = toupper(mask[i]);
+				char nextChar = toupper(mask[i + 1]);
+
 				if (startX != 0) {
-					xCount++;
-					if (mask[i] != 'X' && mask[i] != ' ') {
+					if (!(curChar == 'X' || (curChar == ' ' && nextChar == 'X'))) {
 						printf("X ending at %u\n", i);
 						ASSERT_TRUE(!lst.empty());
 
 						HexView::LineOffset cur = lst.front();
 						lst.pop_front();
 
+						printf("  Comparing: offset %u/%u, count %u/%u, line %u/%u\n",
+								cur.m_offset, startX, cur.m_count, xCount, cur.m_line, line);
 						ASSERT_TRUE(cur.m_offset == startX);
 						ASSERT_TRUE(cur.m_count == xCount);
 						ASSERT_TRUE(cur.m_line == line);
+
+						xCount = 0;
+						startX = 0;
+					} else {
+						xCount++;
 					}
-				} else if (mask[i] == 'X') {
+				} else if (curChar == 'X') {
 					printf("X starting at %u\n", i);
 					startX = i;
-					xCount = 0;
-				} else if (mask[i] == '\n')
+					xCount = 1;
+				} else if (curChar == '\n')
 					line++;
 
 				i++;
@@ -162,10 +173,10 @@ TESTSUITE(hexview)
 
 	TEST(mark, MarkFixture)
 	{
-		std::string m1 = "0x0000000000000000  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  .................\n";
-		std::string m2 = "0x0000000000000000  00 00 00 00 00 00 00 00 XX XX 00 00 00 00 00 00  ..........x......\n";
-		std::string m3 = "0x0000000000000000  0000 0000 0000 0000 0000 0000 0000 00XX          ................x\n"
-				         "0x0000000000000010  XXXX 0000 0000 0000 0000 0000 0000 0000          xx...............\n";
+		std::string m1 = "000000000000000000  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  .................\n";
+		std::string m2 = "000000000000000000  00 00 00 00 00 00 00 00 XX XX 00 00 00 00 00 00  ........xx.......\n";
+		std::string m3 = "000000000000000000  0000 0000 0000 0000 0000 0000 0000 00XX          ................x\n"
+				         "000000000000000010  XXXX 0000 0000 0000 0000 0000 0000 0000          xx...............\n";
 		bool res;
 
 		uint64_t start;
@@ -181,8 +192,12 @@ TESTSUITE(hexview)
 		res = verifyMask(m1, lst);
 		ASSERT_TRUE(res);
 
-
 		res = getStartAndSize(m2, start, size);
+		ASSERT_TRUE(res);
+		HexView::LineOffsetList_t selfTest;
+		selfTest.push_back(HexView::LineOffset(0, 44, 5));
+		selfTest.push_back(HexView::LineOffset(0, 77, 2));
+		res = verifyMask(m2, selfTest);
 		ASSERT_TRUE(res);
 
 		lst = h.getMarkRegions(start, size, 8);
@@ -192,7 +207,6 @@ TESTSUITE(hexview)
 
 		res = getStartAndSize(m3, start, size);
 		ASSERT_TRUE(res);
-
 		lst = h.getMarkRegions(start, size, 16);
 		res = verifyMask(m3, lst);
 		ASSERT_TRUE(res);
