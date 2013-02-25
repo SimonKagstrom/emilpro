@@ -298,7 +298,6 @@ HexView::LineOffsetList_t HexView::getMarkRegions(uint64_t address, size_t size,
 
 	const unsigned startOfData = 20;
 	const unsigned startOfAscii = 69;
-	const unsigned delimiterSize = 1;
 
 	unsigned bytesPerDelimiter = 1; // assume 8-bits
 
@@ -318,6 +317,9 @@ HexView::LineOffsetList_t HexView::getMarkRegions(uint64_t address, size_t size,
 	}
 
 	unsigned delimiters = size / bytesPerDelimiter - 1;
+
+	if (address % bytesPerDelimiter == 0 && size <= bytesPerDelimiter)
+		delimiters = 0;
 
 	unsigned startOffset = startOfData + 2 * offset + offset / bytesPerDelimiter;
 	unsigned len = size * 2 + delimiters;
