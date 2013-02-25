@@ -21,6 +21,8 @@ TESTSUITE(hexview)
 			unsigned zeros = 0;
 			unsigned crosses = 0;
 
+			printf("%s", mask.c_str());
+
 			// Find first cross
 			for (unsigned i = 20; i < 20+49; i++) {
 				if (mask[i] == '0')
@@ -43,7 +45,7 @@ TESTSUITE(hexview)
 			return true;
 		}
 
-		bool verifyMask(const std::string &mask, HexView::LineOffsetList_t lst)
+		std::string verifyMaskList(const std::string &mask, HexView::LineOffsetList_t lst)
 		{
 			unsigned i = 0;
 			unsigned startX = 0;
@@ -60,16 +62,19 @@ TESTSUITE(hexview)
 				if (startX != 0) {
 					if (!(curChar == 'X' || (curChar == ' ' && nextChar == 'X'))) {
 						printf("X ending at %u\n", i);
-						ASSERT_TRUE(!lst.empty());
+						if (lst.empty())
+							return "List empty";
 
 						HexView::LineOffset cur = lst.front();
 						lst.pop_front();
 
 						printf("  Comparing: offset %u/%u, count %u/%u, line %u/%u\n",
 								cur.m_offset, startX, cur.m_count, xCount, cur.m_line, line);
-						ASSERT_TRUE(cur.m_offset == startX);
-						ASSERT_TRUE(cur.m_count == xCount);
-						ASSERT_TRUE(cur.m_line == line);
+						if (cur.m_offset != startX ||
+								cur.m_count != xCount ||
+								cur.m_line != line)
+							return fmt("offset %u/%u, count %u/%u, line %u/%u\n",
+								cur.m_offset, startX, cur.m_count, xCount, cur.m_line, line);
 
 						xCount = 0;
 						startX = 0;
@@ -86,7 +91,30 @@ TESTSUITE(hexview)
 				i++;
 			}
 
-			return lst.empty();
+			if (!lst.empty())
+				return fmt("Entries still left in the list: %d\n", lst.size());
+
+			return "";
+		}
+
+		std::string verify(std::string mask, unsigned width)
+		{
+			uint64_t start;
+			size_t size;
+			HexView h;
+
+			h.m_addressToLineMap[0] = 0;
+			h.m_addressToLineMap[0x10] = 0x10;
+
+			printf("\n");
+			bool res = getStartAndSize(mask, start, size);
+
+			if (!res)
+				return "Can't get size and mask";
+
+			HexView::LineOffsetList_t lst = h.getMarkRegions(start, size, width);
+
+			return verifyMaskList(mask, lst);
 		}
 	};
 
@@ -173,10 +201,8 @@ TESTSUITE(hexview)
 
 	TEST(mark, MarkFixture)
 	{
-		std::string m1 = "000000000000000000  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  .................\n";
-		std::string m2 = "000000000000000000  00 00 00 00 00 00 00 00 XX XX 00 00 00 00 00 00  ........xx.......\n";
-		std::string m3 = "000000000000000000  0000 0000 0000 0000 0000 0000 0000 00XX          ................x\n"
-				         "000000000000000010  XXXX 0000 0000 0000 0000 0000 0000 0000          xx...............\n";
+		std::string selfTest = "000000000000000000  00 00 00 00 00 00 00 00 XX XX 00 00 00 00 00 00  ........xx.......\n";
+		std::string s;
 		bool res;
 
 		uint64_t start;
@@ -185,30 +211,30 @@ TESTSUITE(hexview)
 
 		h.m_addressToLineMap[0] = 0;
 		h.m_addressToLineMap[0x10] = 0x10;
-		res = getStartAndSize(m1, start, size);
-		ASSERT_TRUE(res);
 
-		HexView::LineOffsetList_t lst = h.getMarkRegions(start, size, 8);
-		res = verifyMask(m1, lst);
+		res = getStartAndSize(selfTest, start, size);
 		ASSERT_TRUE(res);
+		HexView::LineOffsetList_t lst;
+		lst.push_back(HexView::LineOffset(0, 44, 5));
+		lst.push_back(HexView::LineOffset(0, 77, 2));
+		s = verifyMaskList(selfTest, lst);
+		ASSERT_TRUE(s == "");
 
-		res = getStartAndSize(m2, start, size);
-		ASSERT_TRUE(res);
-		HexView::LineOffsetList_t selfTest;
-		selfTest.push_back(HexView::LineOffset(0, 44, 5));
-		selfTest.push_back(HexView::LineOffset(0, 77, 2));
-		res = verifyMask(m2, selfTest);
-		ASSERT_TRUE(res);
+		s = verify("000000000000000000  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  .................\n", 8);
+		ASSERT_TRUE(s == "");
 
-		lst = h.getMarkRegions(start, size, 8);
-		res = verifyMask(m2, lst);
-		ASSERT_TRUE(res);
+		s = verify("000000000000000000  00 00 00 00 00 00 00 00 XX XX 00 00 00 00 00 00  ........xx.......\n", 8);
+		ASSERT_TRUE(s == "");
 
+		s = verify("000000000000000000  0000 0000 0000 0000 XXXX 0000 0000 0000          ........xx.......\n", 16);
+		ASSERT_TRUE(s == "");
 
-		res = getStartAndSize(m3, start, size);
-		ASSERT_TRUE(res);
-		lst = h.getMarkRegions(start, size, 16);
-		res = verifyMask(m3, lst);
-		ASSERT_TRUE(res);
+		s = verify("000000000000000000  00000000 00000000 XXXX0000 00000000              ........xx.......\n", 32);
+		ASSERT_TRUE(s == "");
+
+		s = verify(
+				"000000000000000000  0000 0000 0000 0000 0000 0000 0000 00XX          ................x\n"
+				"000000000000000010  XXXX 0000 0000 0000 0000 0000 0000 0000          xx...............\n", 16);
+		ASSERT_TRUE(s == "");
 	}
 }
