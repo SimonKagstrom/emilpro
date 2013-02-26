@@ -83,10 +83,13 @@ TESTSUITE(hexview)
 					}
 				} else if (curChar == 'X') {
 					printf("X starting at %u\n", i);
-					startX = i;
+					startX = (i % 86);
 					xCount = 1;
-				} else if (curChar == '\n')
+				}
+
+				if (curChar == '\n') {
 					line++;
+				}
 
 				i++;
 			}
@@ -104,7 +107,7 @@ TESTSUITE(hexview)
 			HexView h;
 
 			h.m_addressToLineMap[0] = 0;
-			h.m_addressToLineMap[0x10] = 0x10;
+			h.m_addressToLineMap[0x10] = 1;
 
 			printf("\n");
 			bool res = getStartAndSize(mask, start, size);
@@ -199,7 +202,7 @@ TESTSUITE(hexview)
 		ASSERT_TRUE(s64BE == "0x0000000000001000  0011223344556677 8899aabbccddeeff                ..\"3DUfw........\n");
 	}
 
-	TEST(mark, MarkFixture)
+	TEST(markSelfTest, MarkFixture)
 	{
 		std::string selfTest = "000000000000000000  00 00 00 00 00 00 00 00 XX XX 00 00 00 00 00 00  ........xx.......\n";
 		std::string s;
@@ -210,7 +213,7 @@ TESTSUITE(hexview)
 		HexView h;
 
 		h.m_addressToLineMap[0] = 0;
-		h.m_addressToLineMap[0x10] = 0x10;
+		h.m_addressToLineMap[0x10] = 1;
 
 		res = getStartAndSize(selfTest, start, size);
 		ASSERT_TRUE(res);
@@ -219,11 +222,16 @@ TESTSUITE(hexview)
 		lst.push_back(HexView::LineOffset(0, 77, 2));
 		s = verifyMaskList(selfTest, lst);
 		ASSERT_TRUE(s == "");
+	}
+
+	TEST(mark, MarkFixture)
+	{
+		std::string s;
 
 		s = verify("000000000000000000  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  .................\n", 8);
 		ASSERT_TRUE(s == "");
 
-		s = verify("000000000000000000  00 00 00 00 00 00 00 00 XX XX 00 00 00 00 00 00  ........xx.......\n", 8);
+		s = verify("000000000000000000  00 00 00 00 00 00 00 00 00 XX XX 00 00 00 00 00  .........xx......\n", 8);
 		ASSERT_TRUE(s == "");
 
 		s = verify("000000000000000000  0000 0000 0000 0000 XXXX 0000 0000 0000          ........xx.......\n", 16);
@@ -232,9 +240,8 @@ TESTSUITE(hexview)
 		s = verify("000000000000000000  00000000 00000000 XXXX0000 00000000              ........xx.......\n", 32);
 		ASSERT_TRUE(s == "");
 
-		s = verify(
-				"000000000000000000  0000 0000 0000 0000 0000 0000 0000 00XX          ................x\n"
-				"000000000000000010  XXXX 0000 0000 0000 0000 0000 0000 0000          xx...............\n", 16);
+		s = verify("000000000000000000  0000 0000 0000 0000 0000 0000 0000 00XX          ...............x\n"
+				   "000000000000000010  XXXX 0000 0000 0000 0000 0000 0000 0000          xx..............\n", 16);
 		ASSERT_TRUE(s == "");
 	}
 }
