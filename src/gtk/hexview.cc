@@ -375,7 +375,7 @@ uint64_t HexView::sw64(uint64_t v, bool doSwap)
 	uint8_t *pV = (uint8_t *)&v;
 
 	if (doSwap)
-		out = pV[7] | (pV[6] << 8ULL) | (pV[5] << 16ULL) | (pV[4] << 24ULL) |
+		out = pV[7] | (pV[6] << 8ULL) | (pV[5] << 16ULL) | ((uint64_t)pV[4] << 24ULL) |
 		((uint64_t)pV[3] << 32ULL) | ((uint64_t)pV[2] << 40ULL) | ((uint64_t)pV[1] << 48ULL) | ((uint64_t)pV[0] << 56ULL);
 
 	return out;
