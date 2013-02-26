@@ -16,6 +16,7 @@ namespace hexview
 	class test64;
 	class update;
 	class mark;
+	class markSelfTest;
 	class MarkFixture;
 }
 
@@ -28,6 +29,7 @@ public:
 	friend class hexview::test64;
 	friend class hexview::update;
 	friend class hexview::mark;
+	friend class hexview::markSelfTest;
 	friend class hexview::MarkFixture;
 
 	HexView();
@@ -96,6 +98,8 @@ private:
 	void markRangeInBuffer(uint64_t address, size_t size, Glib::RefPtr<Gtk::TextBuffer> buffer, unsigned viewIdx);
 
 	LineOffsetList_t getMarkRegions(uint64_t address, size_t size, unsigned width);
+
+	LineOffsetList_t getMarkRegionsLine(unsigned line, uint64_t address, size_t size, unsigned width);
 
 	std::string handleAllData(unsigned width, bool littleEndian, bool updateLineMap = false);
 

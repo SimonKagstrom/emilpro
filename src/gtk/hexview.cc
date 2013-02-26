@@ -287,14 +287,45 @@ HexView::LineOffsetList_t HexView::getMarkRegions(uint64_t address, size_t size,
 	if (size == 0)
 		return out;
 
-	AddressToLineNr_t::iterator aIt = m_addressToLineMap.find(address & ~15);
+	size_t left = size;
 
-	if (aIt == m_addressToLineMap.end())
-		return out;
+	uint64_t curAddress = address;
+	while (left > 0) {
+		size_t onLine = left;
+
+		if ((curAddress & 15) + onLine > 16)
+			onLine = 16 - (curAddress & 15);
+
+		if (onLine > left)
+			onLine = left;
+
+		AddressToLineNr_t::iterator aIt = m_addressToLineMap.find(curAddress & ~15);
+
+		if (aIt == m_addressToLineMap.end())
+			return out;
+
+		LineOffsetList_t tmp = getMarkRegionsLine(aIt->second, curAddress, onLine, width);
+		for (LineOffsetList_t::iterator it = tmp.begin();
+				it != tmp.end();
+				++it)
+			out.push_back(*it);
+
+		left -= onLine;
+		if ((curAddress & 15) != 0)
+			curAddress += 16 - (curAddress & 15);
+		else
+			curAddress += 16;
+	}
+
+	return out;
+}
+
+HexView::LineOffsetList_t HexView::getMarkRegionsLine(unsigned line, uint64_t address, size_t size,
+		unsigned width)
+{
+	LineOffsetList_t out;
 
 	uint32_t offset = address & 15;
-
-	unsigned line = aIt->second;
 
 	const unsigned startOfData = 20;
 	const unsigned startOfAscii = 69;
@@ -316,7 +347,10 @@ HexView::LineOffsetList_t HexView::getMarkRegions(uint64_t address, size_t size,
 		break;
 	}
 
-	unsigned delimiters = size / bytesPerDelimiter - 1;
+	int delimiters = size / bytesPerDelimiter - 1;
+
+	if (delimiters < 0)
+		delimiters = 0;
 
 	if (address % bytesPerDelimiter == 0 && size <= bytesPerDelimiter)
 		delimiters = 0;
