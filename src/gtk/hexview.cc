@@ -256,28 +256,55 @@ void HexView::markRange(uint64_t address, size_t size)
 void HexView::markRangeInBuffer(uint64_t address, size_t size,
 		Glib::RefPtr<Gtk::TextBuffer> buffer, unsigned viewIdx)
 {
-	unsigned line = m_addressToLineMap[address & ~15];
+	unsigned width = 8;
 
-	Gtk::TextBuffer::iterator it = buffer->get_iter_at_line(line);
-	Gtk::TextBuffer::iterator itNext = buffer->get_iter_at_line(line + 1);
+	if (viewIdx == 1)
+		width = 16;
+	else if (viewIdx == 2)
+		width = 32;
+	else if (viewIdx == 3)
+		width = 64;
 
-	buffer->remove_all_tags(buffer->get_iter_at_line(0), buffer->get_iter_at_line(buffer->get_line_count()));
+	HexView::LineOffsetList_t regions = getMarkRegions(address, size, width);
 
-	if (it == buffer->end() || itNext == buffer->end())
-		return;
+	buffer->remove_all_tags(buffer->get_iter_at_line(0),
+			buffer->get_iter_at_line(buffer->get_line_count()));
 
-	buffer->apply_tag(m_tag, it, itNext);
+	unsigned firstLine = 0xffffffff;
 
-	it = buffer->get_iter_at_line(line < 5 ? 0 : line - 5);
+	for (HexView::LineOffsetList_t::iterator it = regions.begin();
+			it != regions.end();
+			++it) {
+		HexView::LineOffset *cur = &(*it);
+
+		Gtk::TextBuffer::iterator lIt = buffer->get_iter_at_line(cur->m_line);
+		if (lIt == buffer->end())
+			continue;
+
+		if (firstLine == 0xffffffff)
+			firstLine = cur->m_line;
+
+		Gtk::TextBuffer::iterator start = buffer->get_iter_at_offset(lIt.get_offset() + cur->m_offset);
+		Gtk::TextBuffer::iterator end = buffer->get_iter_at_offset(lIt.get_offset() + cur->m_offset + cur->m_count);
+
+		if (start == buffer->end())
+			continue;
+
+		buffer->apply_tag(m_tag, start, end);
+	}
+
+	Gtk::TextBuffer::iterator it = buffer->get_iter_at_line(firstLine < 5 ? 0 : firstLine - 5);
 	Glib::RefPtr<Gtk::TextBuffer::Mark> mark = buffer->create_mark(it);
 
 	m_textViews[viewIdx]->scroll_to(mark, 0.2);
 	buffer->delete_mark(mark);
+
+	m_textViews[viewIdx]->show_now();
 }
 
 void HexView::setMarkColor(Gdk::Color color)
 {
-	m_tag->property_paragraph_background_gdk() = color;
+	m_tag->property_background_gdk() = color;
 }
 
 HexView::LineOffsetList_t HexView::getMarkRegions(uint64_t address, size_t size, unsigned width)
