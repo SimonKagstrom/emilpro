@@ -40,9 +40,9 @@ set (CMAKE_BUILD_TYPE debug)
 set (${TGT}_SRCS
 	src/architecturefactory.cc
 	src/bfd-provider.cc
-	src/disassembly.cc
 	src/jumptargetdisplay.cc
 	src/model.cc
+	src/opdis-disassembly.cc
 	src/symbolfactory.cc
 	src/utils.cc
 	src/gtk/hexview.cc
