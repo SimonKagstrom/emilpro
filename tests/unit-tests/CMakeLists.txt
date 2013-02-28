@@ -35,6 +35,7 @@ set (${TGT}_SRCS
 	../../src/architecturefactory.cc
 	../../src/bfd-provider.cc
 	../../src/gtk/hexview.cc
+	../../src/instructionfactory.cc
 	../../src/jumptargetdisplay.cc
 	../../src/opdis-disassembly.cc
 	../../src/symbolfactory.cc

@@ -103,6 +103,21 @@ TESTSUITE(disassembly)
 		ASSERT_TRUE(src->getValue() == 0x80U);
 	};
 
+	TEST(ia32Prefixes, DisassemblyFixture)
+	{
+		IDisassembly &dis = IDisassembly::instance();
+		ArchitectureFactory::instance().provideArchitecture(bfd_arch_i386);
+
+		InstructionList_t lst = dis.execute((void *)ia32_prefix_dump, sizeof(ia32_prefix_dump), 0x1000);
+		ASSERT_TRUE(lst.size() == 1U);
+
+		AddressMap_t m = listToAddressMap(lst);
+		IInstruction *p;
+
+		p = m[0x1000 +  0]; ASSERT_TRUE(p);
+		ASSERT_TRUE(p->getMnemonic() == "incl");
+	};
+
 	TEST(otherArchs, DisassemblyFixture)
 	{
 		IDisassembly &dis = IDisassembly::instance();

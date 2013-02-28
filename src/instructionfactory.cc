@@ -135,9 +135,37 @@ private:
 	IInstruction::OperandList_t m_operands;
 };
 
+class GenericEncodingHandler : public InstructionFactory::IEncodingHandler
+{
+public:
+	std::string getMnemonic(std::vector<std::string> encodingVector)
+	{
+		return encodingVector[0];
+	}
+};
+
+class I386EncodingHandler : public InstructionFactory::IEncodingHandler
+{
+public:
+	std::string getMnemonic(std::vector<std::string> encodingVector)
+	{
+		if (encodingVector.size() < 2)
+			return encodingVector[0];
+
+		if (encodingVector[0] == "lock")
+			return encodingVector[1];
+
+		return encodingVector[0];
+	}
+};
 
 InstructionFactory::InstructionFactory()
 {
+	m_encodingMap[bfd_arch_i386] = new I386EncodingHandler();
+	m_genericEncodingHandler = new GenericEncodingHandler();
+	m_encodingHandler = m_genericEncodingHandler;
+
+	ArchitectureFactory::instance().registerListener(this);
 }
 
 IInstruction* InstructionFactory::create(uint64_t address, std::vector<std::string> encodingVector,
@@ -146,7 +174,7 @@ IInstruction* InstructionFactory::create(uint64_t address, std::vector<std::stri
 	if (encodingVector.size() == 0)
 		return NULL;
 
-	std::string &mnemonic = encodingVector[0];
+	std::string mnemonic = m_encodingHandler->getMnemonic(encodingVector);
 	uint64_t targetAddress = IInstruction::INVALID_ADDRESS;
 	IInstruction::InstructionType_t type = IInstruction::IT_UNKNOWN;
 	Ternary_t privileged = T_unknown;
@@ -158,6 +186,13 @@ static InstructionFactory *g_instance;
 void InstructionFactory::destroy()
 {
 	g_instance = NULL;
+	for (InstructionFactory::ArchitectureToEncoding_t::iterator it = m_encodingMap.begin();
+			it != m_encodingMap.end();
+			++it) {
+		delete it->second;
+	}
+
+	delete m_genericEncodingHandler;
 
 	delete this;
 }
@@ -172,5 +207,11 @@ InstructionFactory& InstructionFactory::instance()
 
 void InstructionFactory::onArchitectureDetected(ArchitectureFactory::Architecture_t arch)
 {
+	InstructionFactory::ArchitectureToEncoding_t::iterator it = m_encodingMap.find((unsigned)arch);
+
+	if (it == m_encodingMap.end())
+		m_encodingHandler = m_genericEncodingHandler;
+	else
+		m_encodingHandler = it->second;
 }
 

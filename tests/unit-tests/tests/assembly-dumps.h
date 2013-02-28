@@ -18,6 +18,11 @@ static const uint8_t ia32_dump[] =
 		0xa1, 0x80, 0x00, 0x00, 0x00,       //    29 mov    0x80,%eax
 };
 
+static const uint8_t ia32_prefix_dump[] =
+{
+		0x67, 0xf0, 0xff, 0x00,             //     0 lock incl (%eax)
+};
+
 // From sample-source.c
 static const uint8_t ppc32_dump[] =
 {
