@@ -4,6 +4,7 @@
 #include "../../src/model.cc"
 #include <utils.hh>
 #include <architecturefactory.hh>
+#include <instructionfactory.hh>
 
 using namespace emilpro;
 
@@ -371,6 +372,7 @@ TESTSUITE(model)
 			SymbolFactory::instance().destroy();
 			IDisassembly::instance().destroy();
 			ArchitectureFactory::instance().destroy();
+			InstructionFactory::instance().destroy();
 
 			free(data);
 		}

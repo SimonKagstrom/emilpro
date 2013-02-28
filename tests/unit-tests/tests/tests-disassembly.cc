@@ -1,6 +1,7 @@
 #include "../test.hh"
 
 #include <architecturefactory.hh>
+#include <instructionfactory.hh>
 #include <idisassembly.hh>
 #include <iinstruction.hh>
 #include <utils.hh>
@@ -192,6 +193,7 @@ TESTSUITE(disassembly)
 
 			dis.destroy();
 			ArchitectureFactory::instance().destroy();
+			InstructionFactory::instance().destroy();
 		}
 	}
 }
