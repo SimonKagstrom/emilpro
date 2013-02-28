@@ -121,7 +121,7 @@ private:
 	    init_disassemble_info(&m_info, (void *)this, Disassembly::opcodesFprintFuncStatic);
 
 		m_info.arch = arch->bfd_arch;
-		m_info.mach = bfd_mach_i386_i386;
+		m_info.mach = arch->bfd_mach;
 		m_disassembler = arch->callback;
 		disassemble_init_for_target(&m_info);
 		m_info.application_data = (void *)this;
