@@ -159,3 +159,23 @@ std::string escapeHtml(const char *str)
 
 	return escapeHtml(s);
 }
+
+std::string trimString(std::string &strIn)
+{
+	std::string str = strIn;
+	size_t endpos = str.find_last_not_of(" \t");
+
+	if( std::string::npos != endpos )
+	{
+		str = str.substr( 0, endpos+1 );
+	}
+
+	// trim leading spaces
+	size_t startpos = str.find_first_not_of(" \t");
+	if( std::string::npos != startpos )
+	{
+		str = str.substr( startpos );
+	}
+
+	return str;
+}
