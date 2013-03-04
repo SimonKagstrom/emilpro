@@ -59,7 +59,7 @@ TESTSUITE(disassembly)
 		ASSERT_TRUE(p->getType() == IInstruction::IT_DATA_HANDLING);
 		d = p->getRawData(sz);
 		ASSERT_TRUE(sz == 3U);
-		ASSERT_TRUE(memcmp(d, &ia32_dump[2], sz) == 0U);
+		ASSERT_TRUE(memcmp(d, &ia32_dump[2], sz) == 0);
 
 		p = m[0x1000 + 11]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getString().find("shr") != std::string::npos);
@@ -139,7 +139,7 @@ TESTSUITE(disassembly)
 		ASSERT_TRUE(p->getString().find("bgt") != std::string::npos);
 		d = p->getRawData(sz);
 		ASSERT_TRUE(sz == 4U);
-		ASSERT_TRUE(memcmp(d, &ppc32_dump[8], sz) == 0U);
+		ASSERT_TRUE(memcmp(d, &ppc32_dump[8], sz) == 0);
 		p = m[0x1000 +  24]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getString().find("li") != std::string::npos);
 
@@ -157,7 +157,7 @@ TESTSUITE(disassembly)
 		ASSERT_TRUE(p->getString().find("jr") != std::string::npos);
 		d = p->getRawData(sz);
 		ASSERT_TRUE(sz == 4U);
-		ASSERT_TRUE(memcmp(d, &mips_dump[20], sz) == 0U);
+		ASSERT_TRUE(memcmp(d, &mips_dump[20], sz) == 0);
 
 
 		ArchitectureFactory::instance().provideArchitecture(bfd_arch_arm);

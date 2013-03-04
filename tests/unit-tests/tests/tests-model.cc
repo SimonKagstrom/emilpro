@@ -69,11 +69,11 @@ TESTSUITE(model)
 		ASSERT_TRUE(sym != (void *)NULL);
 
 		Model::SymbolList_t other = model.getSymbolExact(sym->getAddress());
-		ASSERT_TRUE(other.size() == 1);
+		ASSERT_TRUE(other.size() == 1U);
 		ASSERT_TRUE(other.front() == sym);
 
 		other = model.getNearestSymbol(sym->getAddress() + 8);
-		ASSERT_TRUE(other.size() == 1);
+		ASSERT_TRUE(other.size() == 1U);
 		ASSERT_TRUE(other.front() == sym);
 
 		sym = m_symbolNames["asm_sym2"];
@@ -82,7 +82,7 @@ TESTSUITE(model)
 		ASSERT_TRUE(sym);
 
 		Model::SymbolList_t syms = model.getSymbolExact(sym->getAddress());
-		ASSERT_TRUE(syms.size() == 2); // asm_sym3 as well
+		ASSERT_TRUE(syms.size() == 2U); // asm_sym3 as well
 	}
 
 	TEST(lookupSymbolsNearest, SymbolFixture)
@@ -105,14 +105,14 @@ TESTSUITE(model)
 
 		Model::SymbolList_t sym;
 
-		sym = model.getSymbolExact(10); ASSERT_TRUE(sym.size() == 1);
-		ASSERT_TRUE(sym.front()->getAddress() == 10);
-		sym = model.getSymbolExact(20);	ASSERT_TRUE(sym.size() == 1);
-		ASSERT_TRUE(sym.front()->getAddress() == 20);
-		sym = model.getSymbolExact(30);	ASSERT_TRUE(sym.size() == 2);
-		ASSERT_TRUE(sym.front()->getAddress() == 30);
-		sym = model.getSymbolExact(50);	ASSERT_TRUE(sym.size() == 1);
-		ASSERT_TRUE(sym.front()->getAddress() == 50);
+		sym = model.getSymbolExact(10); ASSERT_TRUE(sym.size() == 1U);
+		ASSERT_TRUE(sym.front()->getAddress() == 10U);
+		sym = model.getSymbolExact(20);	ASSERT_TRUE(sym.size() == 1U);
+		ASSERT_TRUE(sym.front()->getAddress() == 20U);
+		sym = model.getSymbolExact(30);	ASSERT_TRUE(sym.size() == 2U);
+		ASSERT_TRUE(sym.front()->getAddress() == 30U);
+		sym = model.getSymbolExact(50);	ASSERT_TRUE(sym.size() == 1U);
+		ASSERT_TRUE(sym.front()->getAddress() == 50U);
 
 		sym = model.getSymbolExact(11);
 		ASSERT_TRUE(sym.empty());
@@ -121,8 +121,8 @@ TESTSUITE(model)
 
 
 		sym = model.getNearestSymbol(10);
-		ASSERT_TRUE(sym.size() == 1);
-		ASSERT_TRUE(sym.front()->getAddress() == 10);
+		ASSERT_TRUE(sym.size() == 1U);
+		ASSERT_TRUE(sym.front()->getAddress() == 10U);
 
 		// No symbols
 		sym = model.getNearestSymbol(60);
@@ -133,16 +133,16 @@ TESTSUITE(model)
 		ASSERT_TRUE(sym.empty());
 
 
-		sym = model.getNearestSymbol(11); ASSERT_TRUE(sym.size() == 1);
-		ASSERT_TRUE(sym.front()->getAddress() == 10);
-		sym = model.getNearestSymbol(29); ASSERT_TRUE(sym.size() == 1);
-		ASSERT_TRUE(sym.front()->getAddress() == 20);
-		sym = model.getNearestSymbol(31); ASSERT_TRUE(sym.size() == 2);
-		ASSERT_TRUE(sym.front()->getAddress() == 30);
-		sym = model.getNearestSymbol(35); ASSERT_TRUE(sym.size() == 1);
-		ASSERT_TRUE(sym.front()->getAddress() == 30);
-		sym = model.getNearestSymbol(51); ASSERT_TRUE(sym.size() == 1);
-		ASSERT_TRUE(sym.front()->getAddress() == 50);
+		sym = model.getNearestSymbol(11); ASSERT_TRUE(sym.size() == 1U);
+		ASSERT_TRUE(sym.front()->getAddress() == 10U);
+		sym = model.getNearestSymbol(29); ASSERT_TRUE(sym.size() == 1U);
+		ASSERT_TRUE(sym.front()->getAddress() == 20U);
+		sym = model.getNearestSymbol(31); ASSERT_TRUE(sym.size() == 2U);
+		ASSERT_TRUE(sym.front()->getAddress() == 30U);
+		sym = model.getNearestSymbol(35); ASSERT_TRUE(sym.size() == 1U);
+		ASSERT_TRUE(sym.front()->getAddress() == 30U);
+		sym = model.getNearestSymbol(51); ASSERT_TRUE(sym.size() == 1U);
+		ASSERT_TRUE(sym.front()->getAddress() == 50U);
 	}
 
 	TEST(disassembleInstructions, SymbolFixture)
@@ -308,11 +308,11 @@ TESTSUITE(model)
 			;
 
 		Model::SymbolList_t syms = model.getSymbolExact(m_symbolNames["kalle"]->getAddress());
-		ASSERT_TRUE(syms.size() == 1);
+		ASSERT_TRUE(syms.size() == 1U);
 		ASSERT_TRUE(model.getReferences(syms.front()->getAddress()).size() == 2U);
 
 		syms = model.getSymbolExact(m_symbolNames["knatte"]->getAddress());
-		ASSERT_TRUE(syms.size() == 1);
+		ASSERT_TRUE(syms.size() == 1U);
 		ASSERT_TRUE(model.getReferences(syms.front()->getAddress()).size() == 0U);
 	}
 
