@@ -196,4 +196,29 @@ TESTSUITE(disassembly)
 			InstructionFactory::instance().destroy();
 		}
 	}
+
+	TEST(architectures)
+	{
+		ArchitectureFactory &af = ArchitectureFactory::instance();
+
+		ArchitectureFactory::Architecture_t arch;
+		std::string s;
+
+		arch = af.getArchitectureFromName("kalle");
+		ASSERT_TRUE(arch == bfd_arch_unknown);
+
+		arch = af.getArchitectureFromName("powerpc");
+		ASSERT_TRUE(arch == bfd_arch_powerpc);
+
+		s = af.getNameFromArchitecture(bfd_arch_powerpc);
+		ASSERT_TRUE(s == "powerpc");
+
+		s = af.getNameFromArchitecture(bfd_arch_i386);
+		ASSERT_TRUE(s == "i386");
+
+		s = af.getNameFromArchitecture(bfd_arch_mips);
+		ASSERT_TRUE(s == "mips");
+
+		af.destroy();
+	}
 }
