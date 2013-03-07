@@ -48,7 +48,7 @@ TESTSUITE(instruction_factory)
 
 		ASSERT_TRUE(!insnFactory.m_instructionModelByArchitecture[(unsigned)bfd_arch_mips]["beqz"]);
 		x.parse(xml);
-		InstructionModel *p = insnFactory.m_instructionModelByArchitecture[(unsigned)bfd_arch_mips]["beqz"];
+		InstructionFactory::IInstructionModel *p = insnFactory.m_instructionModelByArchitecture[(unsigned)bfd_arch_mips]["beqz"];
 		ASSERT_TRUE(p);
 
 		ASSERT_TRUE(p->getType() == IInstruction::IT_CFLOW);

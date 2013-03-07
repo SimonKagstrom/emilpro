@@ -34,13 +34,56 @@ namespace emilpro
 			virtual std::string getMnemonic(std::vector<std::string> encodingVector) = 0;
 		};
 
+		class IInstructionModel
+		{
+		public:
+			enum
+			{
+				IDX_GUESS = -1
+			};
+
+			virtual ~IInstructionModel()
+			{
+			}
+
+			/**
+			 * The type of instruction (control-flow, arithmetic etc)
+			 */
+			virtual void setType(std::string &typeStr) = 0;
+
+			/**
+			 * If the instruction is privileged or not (true/false/unknown)
+			 */
+			virtual void setPrivileged(std::string &privilegedStr) = 0;
+
+			/**
+			 * The description (HTML) of what the instruction does.
+			 */
+			virtual void setDescription(std::string &description) = 0;
+
+			/**
+			 * Set the index of the address reference (if applicable). IDX_GUESS to scan and
+			 * guess (which is also the default)
+			 */
+			virtual void setAddressReferenceIndex(int index) = 0;
+
+
+			virtual IInstruction::InstructionType_t getType() = 0;
+
+			virtual Ternary_t isPrivileged() = 0;
+
+			virtual std::string &getDescription() = 0;
+
+			virtual int &getAddressReferenceIndex() = 0;
+		};
+
 		InstructionFactory();
 
 		void destroy();
 
 		static InstructionFactory &instance();
 
-		IInstruction *create(uint64_t address, std::vector<std::string> encodingVector,
+		IInstruction *create(uint64_t startAddress, uint64_t pc, std::vector<std::string> encodingVector,
 				std::string &encoding, uint8_t *data, size_t size);
 
 		virtual void onArchitectureDetected(ArchitectureFactory::Architecture_t arch);
@@ -61,12 +104,12 @@ namespace emilpro
 
 		private:
 			InstructionFactory *m_parent;
-			InstructionModel *m_currentModel;
+			IInstructionModel *m_currentModel;
 		};
 
 
 		typedef std::unordered_map<unsigned, IEncodingHandler *> ArchitectureToEncoding_t;
-		typedef std::unordered_map<std::string, InstructionModel*> MnemonicToModel_t;
+		typedef std::unordered_map<std::string, IInstructionModel*> MnemonicToModel_t;
 		typedef std::unordered_map<unsigned, MnemonicToModel_t> ArchitectureToModelMap_t;
 
 		IEncodingHandler *m_encodingHandler;

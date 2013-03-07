@@ -136,14 +136,15 @@ private:
 };
 
 
-class emilpro::InstructionModel
+class emilpro::InstructionModel : public InstructionFactory::IInstructionModel
 {
 public:
 	InstructionModel(std::string &mnemonic, std::string &architecture) :
 		m_mnemonic(mnemonic),
 		m_type(IInstruction::IT_UNKNOWN),
 		m_privileged(T_unknown),
-		m_description("")
+		m_description(""),
+		m_addressReferenceIndex(IInstructionModel::IDX_GUESS)
 	{
 		m_architecture = ArchitectureFactory::instance().getArchitectureFromName(architecture);
 	}
@@ -177,6 +178,9 @@ public:
 		m_description = description;
 	}
 
+	void setAddressReferenceIndex(int index)
+	{
+	}
 
 	IInstruction::InstructionType_t getType()
 	{
@@ -193,11 +197,17 @@ public:
 		return m_description;
 	}
 
+	int &getAddressReferenceIndex()
+	{
+		return m_addressReferenceIndex;
+	}
+
 	std::string m_mnemonic;
 	IInstruction::InstructionType_t m_type;
 	Ternary_t m_privileged;
 	std::string m_description;
 	ArchitectureFactory::Architecture_t m_architecture;
+	int m_addressReferenceIndex;
 };
 
 class GenericEncodingHandler : public InstructionFactory::IEncodingHandler
@@ -235,7 +245,7 @@ InstructionFactory::InstructionFactory() :
 	ArchitectureFactory::instance().registerListener(this);
 }
 
-IInstruction* InstructionFactory::create(uint64_t address, std::vector<std::string> encodingVector,
+IInstruction* InstructionFactory::create(uint64_t startAddress, uint64_t pc, std::vector<std::string> encodingVector,
 		std::string& encoding, uint8_t *data, size_t size)
 {
 	if (encodingVector.size() == 0)
@@ -246,15 +256,31 @@ IInstruction* InstructionFactory::create(uint64_t address, std::vector<std::stri
 	uint64_t targetAddress = IInstruction::INVALID_ADDRESS;
 	IInstruction::InstructionType_t type = IInstruction::IT_UNKNOWN;
 	Ternary_t privileged = T_unknown;
+	int addressReferenceIndex = IInstructionModel::IDX_GUESS;
 
 	InstructionFactory::MnemonicToModel_t &cur = m_instructionModelByArchitecture[(unsigned)m_currentArchitecture];
-	InstructionModel *insnModel = cur[mnemonic];
+	InstructionModel *insnModel = (InstructionModel *)cur[mnemonic];
+
 	if (insnModel) {
 		type = insnModel->getType();
 		privileged = insnModel->isPrivileged();
+		addressReferenceIndex = insnModel->getAddressReferenceIndex();
 	}
 
-	return new Instruction(address, targetAddress, type, encoding, mnemonic, privileged, data, size);
+	if (addressReferenceIndex == IInstructionModel::IDX_GUESS) {
+		for (std::vector<std::string>::iterator it = encodingVector.begin();
+				it != encodingVector.end();
+				++it) {
+			std::string &cur = *it;
+
+			if (string_is_integer(cur)) {
+				targetAddress = startAddress + string_to_integer(cur);
+				break;
+			}
+		}
+	}
+
+	return new Instruction(startAddress + pc, targetAddress, type, encoding, mnemonic, privileged, data, size);
 }
 
 static InstructionFactory *g_instance;
@@ -274,7 +300,7 @@ void InstructionFactory::destroy()
 		for (InstructionFactory::MnemonicToModel_t::iterator itModel = cur.begin();
 				itModel != cur.end();
 				++itModel) {
-			InstructionModel *p = itModel->second;
+			InstructionModel *p = (InstructionModel *)itModel->second;
 
 			delete p;
 		}
@@ -352,7 +378,7 @@ bool InstructionFactory::XmlListener::onElement(const Glib::ustring& name,
 	if (!m_currentModel)
 		return false;
 
-	InstructionModel *p = m_currentModel;
+	InstructionModel *p = (InstructionModel *)m_currentModel;
 
 	if (name == "type")
 		p->setType(value);
@@ -370,7 +396,7 @@ bool InstructionFactory::XmlListener::onEnd(const Glib::ustring& name)
 		if (!m_currentModel)
 			return false;
 
-		InstructionModel *p = m_currentModel;
+		InstructionModel *p = (InstructionModel *)m_currentModel;
 
 		InstructionFactory::MnemonicToModel_t &cur = m_parent->m_instructionModelByArchitecture[(unsigned)p->m_architecture];
 		cur[p->m_mnemonic] = m_currentModel;
