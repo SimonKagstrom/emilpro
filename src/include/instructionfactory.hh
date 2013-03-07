@@ -75,6 +75,12 @@ namespace emilpro
 			virtual std::string &getDescription() = 0;
 
 			virtual int &getAddressReferenceIndex() = 0;
+
+
+			/**
+			 * Produce XML from the instruction model
+			 */
+			virtual std::string toXml() = 0;
 		};
 
 		InstructionFactory();

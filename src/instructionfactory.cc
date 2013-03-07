@@ -203,6 +203,53 @@ public:
 		return m_addressReferenceIndex;
 	}
 
+	std::string toXml()
+	{
+		return fmt(
+				"  <InstructionModel name=\"%s\" architecture=\"%s\">\n"
+				"    <type>%s</type>\n"
+				"    <privileged>%s</privileged>\n"
+				"    <description>%s</description>\n"
+				"  </InstructionModel>\n",
+				m_mnemonic.c_str(),
+				ArchitectureFactory::instance().getNameFromArchitecture(m_architecture).c_str(),
+				getTypeString().c_str(),
+				getPrivilegeString().c_str(),
+				m_description.c_str()
+				);
+	}
+
+//private:
+	std::string getTypeString()
+	{
+		switch (m_type)
+		{
+		case IInstruction::IT_CFLOW:
+			return "cflow";
+		case IInstruction::IT_DATA_HANDLING:
+			return "data_handling";
+		case IInstruction::IT_ARITHMETIC_LOGIC:
+			return "arithmetic_logic";
+		case IInstruction::IT_OTHER:
+			return "other";
+		case IInstruction::IT_UNKNOWN:
+		default:
+			break;
+		}
+
+		return "unknown";
+	}
+
+	std::string getPrivilegeString()
+	{
+		if (m_privileged == T_true)
+			return "true";
+		else if (m_privileged == T_false)
+			return "false";
+
+		return "unknown";
+	}
+
 	std::string m_mnemonic;
 	IInstruction::InstructionType_t m_type;
 	Ternary_t m_privileged;
