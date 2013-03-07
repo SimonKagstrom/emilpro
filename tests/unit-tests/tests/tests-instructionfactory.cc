@@ -61,4 +61,41 @@ TESTSUITE(instruction_factory)
 		ASSERT_TRUE(insn->getMnemonic() == "beqz");
 		ASSERT_TRUE(insn->getType() == IInstruction::IT_CFLOW);
 	}
+
+	TEST(modelToFromXml)
+	{
+		InstructionFactory &insnFactory = InstructionFactory::instance();
+		XmlFactory &x = XmlFactory::instance();
+
+		std::string xml =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				"<emilpro>\n"
+				"  <InstructionModel name=\"beqz\" architecture=\"mips\">\n"
+				"    <type>cflow</type>\n"
+				"    <privileged>false</privileged>\n"
+				"    <description>Branch if greater or equal\n"
+				"           Yada yada."
+				"    </description>\n"
+				"  </InstructionModel>\n"
+				"</emilpro>\n";
+
+		ArchitectureFactory::instance().provideArchitecture(bfd_arch_mips);
+
+		x.parse(xml);
+		InstructionModel *p = (InstructionModel *)insnFactory.m_instructionModelByArchitecture[(unsigned)bfd_arch_mips]["beqz"];
+		ASSERT_TRUE(p);
+
+		xml = p->toXml();
+		insnFactory.m_instructionModelByArchitecture[(unsigned)bfd_arch_mips]["beqz"] = NULL;
+		x.parse(xml);
+		InstructionModel *p2 = (InstructionModel *)insnFactory.m_instructionModelByArchitecture[(unsigned)bfd_arch_mips]["beqz"];
+		ASSERT_TRUE(p2);
+
+		ASSERT_TRUE(p->m_addressReferenceIndex == p2->m_addressReferenceIndex);
+		ASSERT_TRUE(p->m_architecture == p2->m_architecture);
+		ASSERT_TRUE(p->m_description == p2->m_description);
+		ASSERT_TRUE(p->m_mnemonic == p2->m_mnemonic);
+		ASSERT_TRUE(p->m_privileged == p2->m_privileged);
+		ASSERT_TRUE(p->m_type == p2->m_type);
+	}
 }

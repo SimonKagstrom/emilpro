@@ -13,6 +13,7 @@
 namespace instruction_factory
 {
 	class instructionModelXml;
+	class modelToFromXml;
 }
 
 namespace emilpro
@@ -23,6 +24,7 @@ namespace emilpro
 	{
 	public:
 		friend class instruction_factory::instructionModelXml;
+		friend class instruction_factory::modelToFromXml;
 
 		class IEncodingHandler
 		{
