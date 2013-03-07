@@ -34,8 +34,6 @@ ArchitectureFactory::ArchitectureFactory() :
 	m_architectureNameMap[(unsigned)bfd_arch_dlx] = "dlx";
 	m_architectureNameMap[(unsigned)bfd_arch_m68hc11] = "m68hc11";
 	m_architectureNameMap[(unsigned)bfd_arch_m68hc12] = "m68hc12";
-	m_architectureNameMap[(unsigned)bfd_arch_m9s12x] = "m9s12x";
-	m_architectureNameMap[(unsigned)bfd_arch_m9s12xg] = "m9s12xg";
 	m_architectureNameMap[(unsigned)bfd_arch_z8k] = "z8k";
 	m_architectureNameMap[(unsigned)bfd_arch_h8500] = "h8500";
 	m_architectureNameMap[(unsigned)bfd_arch_sh] = "sh";
@@ -60,7 +58,6 @@ ArchitectureFactory::ArchitectureFactory() :
 	m_architectureNameMap[(unsigned)bfd_arch_ia64] = "ia64";
 	m_architectureNameMap[(unsigned)bfd_arch_ip2k] = "ip2k";
 	m_architectureNameMap[(unsigned)bfd_arch_iq2000] = "iq2000";
-	m_architectureNameMap[(unsigned)bfd_arch_epiphany] = "epiphany";
 	m_architectureNameMap[(unsigned)bfd_arch_mt] =   "mt";
 	m_architectureNameMap[(unsigned)bfd_arch_avr] = "avr";
 	m_architectureNameMap[(unsigned)bfd_arch_bfin] = "bfin";
@@ -68,20 +65,17 @@ ArchitectureFactory::ArchitectureFactory() :
 	m_architectureNameMap[(unsigned)bfd_arch_cr16c] = "cr16c";
 	m_architectureNameMap[(unsigned)bfd_arch_crx] = "crx";
 	m_architectureNameMap[(unsigned)bfd_arch_cris] = "cris";
-	m_architectureNameMap[(unsigned)bfd_arch_rl78] =  "rl78";
 	m_architectureNameMap[(unsigned)bfd_arch_s390] = "s390";
 	m_architectureNameMap[(unsigned)bfd_arch_score] = "score";
 	m_architectureNameMap[(unsigned)bfd_arch_openrisc] = "openrisc";
 	m_architectureNameMap[(unsigned)bfd_arch_mmix] = "mmix";
 	m_architectureNameMap[(unsigned)bfd_arch_xstormy16] =  "xstormy16";
 	m_architectureNameMap[(unsigned)bfd_arch_xc16x] = "xc16x";
-	m_architectureNameMap[(unsigned)bfd_arch_xgate] = "xgate";
 	m_architectureNameMap[(unsigned)bfd_arch_xtensa] = "xtensa";
 	m_architectureNameMap[(unsigned)bfd_arch_z80] = "z80";
 	m_architectureNameMap[(unsigned)bfd_arch_microblaze] = "microblaze";
 	m_architectureNameMap[(unsigned)bfd_arch_tilepro] = "tilepro";
 	m_architectureNameMap[(unsigned)bfd_arch_tilegx] = "tilegx";
-	m_architectureNameMap[(unsigned)bfd_arch_aarch64] = "aarch64";
 
 	m_nameArchitectureMap["m68k"] = (unsigned)bfd_arch_m68k;
 	m_nameArchitectureMap["vax"] = (unsigned)bfd_arch_vax;
@@ -111,8 +105,6 @@ ArchitectureFactory::ArchitectureFactory() :
 	m_nameArchitectureMap["dlx"] = (unsigned)bfd_arch_dlx;
 	m_nameArchitectureMap["m68hc11"] = (unsigned)bfd_arch_m68hc11;
 	m_nameArchitectureMap["m68hc12"] = (unsigned)bfd_arch_m68hc12;
-	m_nameArchitectureMap["m9s12x"] = (unsigned)bfd_arch_m9s12x;
-	m_nameArchitectureMap["m9s12xg"] = (unsigned)bfd_arch_m9s12xg;
 	m_nameArchitectureMap["z8k"] = (unsigned)bfd_arch_z8k;
 	m_nameArchitectureMap["h8500"] = (unsigned)bfd_arch_h8500;
 	m_nameArchitectureMap["sh"] = (unsigned)bfd_arch_sh;
@@ -137,7 +129,6 @@ ArchitectureFactory::ArchitectureFactory() :
 	m_nameArchitectureMap["ia64"] = (unsigned)bfd_arch_ia64;
 	m_nameArchitectureMap["ip2k"] = (unsigned)bfd_arch_ip2k;
 	m_nameArchitectureMap["iq2000"] = (unsigned)bfd_arch_iq2000;
-	m_nameArchitectureMap["epiphany"] = (unsigned)bfd_arch_epiphany;
 	m_nameArchitectureMap["mt"] =   (unsigned)bfd_arch_mt;
 	m_nameArchitectureMap["avr"] = (unsigned)bfd_arch_avr;
 	m_nameArchitectureMap["bfin"] = (unsigned)bfd_arch_bfin;
@@ -145,20 +136,17 @@ ArchitectureFactory::ArchitectureFactory() :
 	m_nameArchitectureMap["cr16c"] = (unsigned)bfd_arch_cr16c;
 	m_nameArchitectureMap["crx"] = (unsigned)bfd_arch_crx;
 	m_nameArchitectureMap["cris"] = (unsigned)bfd_arch_cris;
-	m_nameArchitectureMap["rl78"] =  (unsigned)bfd_arch_rl78;
 	m_nameArchitectureMap["s390"] = (unsigned)bfd_arch_s390;
 	m_nameArchitectureMap["score"] = (unsigned)bfd_arch_score;
 	m_nameArchitectureMap["openrisc"] = (unsigned)bfd_arch_openrisc;
 	m_nameArchitectureMap["mmix"] = (unsigned)bfd_arch_mmix;
 	m_nameArchitectureMap["xstormy16"] =  (unsigned)bfd_arch_xstormy16;
 	m_nameArchitectureMap["xc16x"] = (unsigned)bfd_arch_xc16x;
-	m_nameArchitectureMap["xgate"] = (unsigned)bfd_arch_xgate;
 	m_nameArchitectureMap["xtensa"] = (unsigned)bfd_arch_xtensa;
 	m_nameArchitectureMap["z80"] = (unsigned)bfd_arch_z80;
 	m_nameArchitectureMap["microblaze"] = (unsigned)bfd_arch_microblaze;
 	m_nameArchitectureMap["tilepro"] = (unsigned)bfd_arch_tilepro;
 	m_nameArchitectureMap["tilegx"] = (unsigned)bfd_arch_tilegx;
-	m_nameArchitectureMap[ "aarch64"] = (unsigned)bfd_arch_aarch64;
 }
 
 std::string& ArchitectureFactory::getNameFromArchitecture(ArchitectureFactory::Architecture_t arch)
