@@ -1,4 +1,5 @@
 #include <instructionfactory.hh>
+#include <utils.hh>
 
 #include <string.h>
 #include <stdlib.h>
