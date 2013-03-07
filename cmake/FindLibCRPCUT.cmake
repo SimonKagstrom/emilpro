@@ -24,26 +24,27 @@ find_path (LIBCRPCUT_INCLUDE_DIRS
     NAMES
       crpcut.hpp
     PATHS
+      /home/ska/local/include
       /usr/include
       /usr/include/crpcut
       /usr/local/include
       /usr/local/include/crpcut
       /opt/local/include
       /opt/local/include/crpcut
-      /home/ska/local/include
       ENV CPATH)
 
 find_library (LIBCRPCUT_LIBRARIES
     NAMES
       crpcut
     PATHS
+      /home/ska/local/lib
+      /home/ska/local/lib64
       /usr/lib
       /usr/lib64
       /usr/local/lib
       /usr/local/lib64
       /opt/local/lib
       /opt/usr/lib64
-      /home/ska/local/lib
       ENV LIBRARY_PATH
       ENV LD_LIBRARY_PATH)
 
