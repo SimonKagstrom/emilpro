@@ -87,3 +87,5 @@ std::string escapeHtml(const char *str);
 bool cpu_is_little_endian();
 
 std::string trimString(std::string &strIn);
+
+std::string get_home_directory();

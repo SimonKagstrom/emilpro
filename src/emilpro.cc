@@ -5,11 +5,19 @@
 #include <instructionfactory.hh>
 #include <idisassembly.hh>
 #include <xmlfactory.hh>
+#include <configuration.hh>
+#include <utils.hh>
+
+#include <sys/stat.h>
+#include <sys/types.h>
 
 using namespace emilpro;
 
 void EmilPro::init()
 {
+	std::string confDir = Configuration::instance().getBasePath();
+
+	::mkdir(confDir.c_str(), 0744);
 }
 
 void EmilPro::destroy()

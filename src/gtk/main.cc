@@ -8,6 +8,7 @@
 #include <utils.hh>
 #include <jumptargetdisplay.hh>
 #include <hexview.hh>
+#include <emilpro.hh>
 
 #include <string>
 #include <vector>
@@ -837,11 +838,15 @@ private:
 
 int main(int argc, char **argv)
 {
+	EmilPro::init();
+
 	EmilProGui gui;
 
 	gui.init(argc, argv);
 
 	gui.run(argc, argv);
+
+	EmilPro::destroy();
 
 	return 0;
 }

@@ -1,5 +1,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <stdlib.h>
 
 #include "utils.hh"
 
@@ -179,3 +180,11 @@ std::string trimString(std::string &strIn)
 
 	return str;
 }
+
+std::string get_home_directory()
+{
+	std::string home = getenv("HOME");
+
+	return home;
+}
+
