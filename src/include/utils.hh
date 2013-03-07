@@ -78,7 +78,7 @@ void *read_file(size_t *out_size, const char *fmt, ...);
 
 int write_file(const void *data, size_t len, const char *fmt, ...);
 
-std::string fmt(const char *fmt, ...);
+std::string fmt(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
 std::string escapeHtml(std::string &str);
 
