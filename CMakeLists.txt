@@ -41,6 +41,8 @@ set (${TGT}_SRCS
 	src/architecturefactory.cc
 	src/bfd-disassembly.cc
 	src/bfd-provider.cc
+	src/configuration.cc
+	src/emilpro.cc
 	src/instructionfactory.cc
 	src/jumptargetdisplay.cc
 	src/model.cc

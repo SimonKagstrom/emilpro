@@ -4,6 +4,7 @@
 #include <instructionfactory.hh>
 #include <idisassembly.hh>
 #include <iinstruction.hh>
+#include <emilpro.hh>
 #include <utils.hh>
 
 #include <unordered_map>
@@ -172,7 +173,7 @@ TESTSUITE(disassembly)
 		p = m[0x1000 + 16]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getString().find("ble") != std::string::npos);
 
-		ArchitectureFactory::instance().destroy();
+		EmilPro::destroy();
 	}
 
 	TEST(memLeaks)
@@ -191,10 +192,7 @@ TESTSUITE(disassembly)
 				delete *it;
 			}
 
-			dis.destroy();
-			ArchitectureFactory::instance().destroy();
-			InstructionFactory::instance().destroy();
-			XmlFactory::instance().destroy();
+			EmilPro::destroy();
 		}
 	}
 

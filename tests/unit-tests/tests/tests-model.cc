@@ -5,6 +5,7 @@
 #include <utils.hh>
 #include <architecturefactory.hh>
 #include <instructionfactory.hh>
+#include <emilpro.hh>
 
 using namespace emilpro;
 
@@ -368,12 +369,7 @@ TESTSUITE(model)
 //			Model::BasicBlockList_t bbLst = model.getBasicBlocksFromInstructions(lst);
 //			ASSERT_TRUE(bbLst.size() > 0);
 
-			model.destroy();
-			SymbolFactory::instance().destroy();
-			IDisassembly::instance().destroy();
-			ArchitectureFactory::instance().destroy();
-			InstructionFactory::instance().destroy();
-			XmlFactory::instance().destroy();
+			EmilPro::destroy();
 
 			free(data);
 		}
