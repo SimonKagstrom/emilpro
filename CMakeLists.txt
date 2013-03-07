@@ -26,6 +26,7 @@ set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
 
 pkg_check_modules(GTKMM gtkmm-3.0)
 pkg_check_modules(GTKSOURCEVIEWMM gtksourceviewmm-3.0)
+pkg_check_modules(LIBXMLPP libxml++-2.6)
 
 set (CMAKE_CXX_FLAGS "-std=c++0x -Wall -D_GLIBCXX_USE_NANOSLEEP -DPACKAGE=emilpro -DPACKAGE_VERSION=1")
 
@@ -39,12 +40,14 @@ set (CMAKE_BUILD_TYPE debug)
 
 set (${TGT}_SRCS
 	src/architecturefactory.cc
+	src/bfd-disassembly.cc
 	src/bfd-provider.cc
+	src/instructionfactory.cc
 	src/jumptargetdisplay.cc
 	src/model.cc
-	src/opdis-disassembly.cc
 	src/symbolfactory.cc
 	src/utils.cc
+	src/xmlfactory.cc
 	src/gtk/hexview.cc
 	src/gtk/main.cc
 	)
@@ -58,6 +61,7 @@ include_directories(
 	${LIBBFD_INCLUDE_DIRS}
 	${GTKMM_INCLUDE_DIRS}
 	${GTKSOURCEVIEWMM_INCLUDE_DIRS}
+	${LIBXMLPP_INCLUDE_DIRS}
 	)
 
 add_executable (${TGT} ${${TGT}_SRCS})
@@ -68,5 +72,6 @@ target_link_libraries(${TGT}
 	${LIBBFD_LIBRARIES}
 	${GTKMM_LIBRARIES}
 	${GTKSOURCEVIEWMM_LIBRARIES}
+	${LIBXMLPP_LIBRARIES}
 	z
 	)
