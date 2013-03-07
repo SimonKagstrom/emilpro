@@ -15,9 +15,12 @@ using namespace emilpro;
 
 void EmilPro::init()
 {
-	std::string confDir = Configuration::instance().getBasePath();
+	Configuration &conf = Configuration::instance();
 
-	::mkdir(confDir.c_str(), 0744);
+	::mkdir(conf.getBasePath().c_str(), 0744);
+	::mkdir(conf.getPath(Configuration::DIR_CONFIGURATION).c_str(), 0744);
+	::mkdir(conf.getPath(Configuration::DIR_LOCAL).c_str(), 0744);
+	::mkdir(conf.getPath(Configuration::DIR_REMOTE).c_str(), 0744);
 }
 
 void EmilPro::destroy()
