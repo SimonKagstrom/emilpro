@@ -1,6 +1,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h>
+#include <stdexcept>
 
 #include "utils.hh"
 
@@ -188,3 +189,25 @@ std::string get_home_directory()
 	return home;
 }
 
+bool string_is_integer(std::string str)
+{
+	size_t pos;
+
+	try
+	{
+		stoll(str, &pos, 0);
+	}
+	catch(std::invalid_argument &e)
+	{
+		return false;
+	}
+
+	return pos == str.size();
+}
+
+int64_t string_to_integer(std::string str)
+{
+	size_t pos;
+
+	return (uint64_t)stoll(str, &pos, 0);
+}

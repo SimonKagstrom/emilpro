@@ -89,3 +89,7 @@ bool cpu_is_little_endian();
 std::string trimString(std::string &strIn);
 
 std::string get_home_directory();
+
+bool string_is_integer(std::string str);
+
+int64_t string_to_integer(std::string str);
