@@ -373,6 +373,7 @@ TESTSUITE(model)
 			IDisassembly::instance().destroy();
 			ArchitectureFactory::instance().destroy();
 			InstructionFactory::instance().destroy();
+			XmlFactory::instance().destroy();
 
 			free(data);
 		}

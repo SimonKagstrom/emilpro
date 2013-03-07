@@ -194,6 +194,7 @@ TESTSUITE(disassembly)
 			dis.destroy();
 			ArchitectureFactory::instance().destroy();
 			InstructionFactory::instance().destroy();
+			XmlFactory::instance().destroy();
 		}
 	}
 

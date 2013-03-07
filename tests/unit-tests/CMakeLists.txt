@@ -20,6 +20,7 @@ find_package (LibCRPCUT REQUIRED)
 find_package (PkgConfig REQUIRED)
 
 pkg_check_modules(GTKMM gtkmm-3.0)
+pkg_check_modules(LIBXMLPP libxml++-2.6)
 
 set (TGT ut)
 
@@ -33,19 +34,21 @@ set (CMAKE_BUILD_TYPE debug)
 
 set (${TGT}_SRCS
 	../../src/architecturefactory.cc
+	../../src/bfd-disassembly.cc
 	../../src/bfd-provider.cc
 	../../src/gtk/hexview.cc
-	../../src/instructionfactory.cc
 	../../src/jumptargetdisplay.cc
-	../../src/opdis-disassembly.cc
 	../../src/symbolfactory.cc
 	../../src/utils.cc
+	../../src/xmlfactory.cc
 	main.cc
 	tests/tests-disassembly.cc
 	tests/tests-hexview.cc
+	tests/tests-instructionfactory.cc
 	tests/tests-jumptargetdisplay.cc
 	tests/tests-model.cc
 	tests/tests-symbol-provider.cc
+	tests/tests-xml.cc
 	)
 
 include_directories(
@@ -57,6 +60,7 @@ include_directories(
 	${LIBBFD_INCLUDE_DIRS}
 	${LIBCRPCUT_INCLUDE_DIRS}
 	${GTKMM_INCLUDE_DIRS}
+	${LIBXMLPP_INCLUDE_DIRS}
 	)
 
 add_executable (test-binary
@@ -71,6 +75,7 @@ target_link_libraries(${TGT}
 	${LIBBFD_LIBRARIES}
 	${LIBCRPCUT_LIBRARIES}
 	${GTKMM_LIBRARIES}
+	${LIBXMLPP_LIBRARIES}
 	gtest
 	gmock
 	z
