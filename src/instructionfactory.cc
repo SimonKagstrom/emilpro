@@ -135,6 +135,71 @@ private:
 	IInstruction::OperandList_t m_operands;
 };
 
+
+class emilpro::InstructionModel
+{
+public:
+	InstructionModel(std::string &mnemonic, std::string &architecture) :
+		m_mnemonic(mnemonic),
+		m_type(IInstruction::IT_UNKNOWN),
+		m_privileged(T_unknown),
+		m_description("")
+	{
+		m_architecture = ArchitectureFactory::instance().getArchitectureFromName(architecture);
+	}
+
+	void setType(std::string &typeStr)
+	{
+		if (typeStr == "cflow")
+			m_type = IInstruction::IT_CFLOW;
+		else if (typeStr == "data_handling")
+			m_type = IInstruction::IT_DATA_HANDLING;
+		else if (typeStr == "arithmetic_logic")
+			m_type = IInstruction::IT_ARITHMETIC_LOGIC;
+		else if (typeStr == "other")
+			m_type = IInstruction::IT_OTHER;
+		else
+			m_type = IInstruction::IT_UNKNOWN;
+	}
+
+	void setPrivileged(std::string &privilegedStr)
+	{
+		if (privilegedStr == "true")
+			m_privileged = T_true;
+		else if (privilegedStr == "false")
+			m_privileged = T_false;
+		else
+			m_privileged = T_unknown;
+	}
+
+	void setDescription(std::string &description)
+	{
+		m_description = description;
+	}
+
+
+	IInstruction::InstructionType_t getType()
+	{
+		return m_type;
+	}
+
+	Ternary_t isPrivileged()
+	{
+		return m_privileged;
+	}
+
+	std::string &getDescription()
+	{
+		return m_description;
+	}
+
+	std::string m_mnemonic;
+	IInstruction::InstructionType_t m_type;
+	Ternary_t m_privileged;
+	std::string m_description;
+	ArchitectureFactory::Architecture_t m_architecture;
+};
+
 class GenericEncodingHandler : public InstructionFactory::IEncodingHandler
 {
 public:
@@ -159,7 +224,9 @@ public:
 	}
 };
 
-InstructionFactory::InstructionFactory()
+InstructionFactory::InstructionFactory() :
+		m_instructionModelByArchitecture(),
+		m_xmlListener(this)
 {
 	m_encodingMap[bfd_arch_i386] = new I386EncodingHandler();
 	m_genericEncodingHandler = new GenericEncodingHandler();
@@ -174,10 +241,18 @@ IInstruction* InstructionFactory::create(uint64_t address, std::vector<std::stri
 	if (encodingVector.size() == 0)
 		return NULL;
 
+
 	std::string mnemonic = m_encodingHandler->getMnemonic(encodingVector);
 	uint64_t targetAddress = IInstruction::INVALID_ADDRESS;
 	IInstruction::InstructionType_t type = IInstruction::IT_UNKNOWN;
 	Ternary_t privileged = T_unknown;
+
+	InstructionFactory::MnemonicToModel_t &cur = m_instructionModelByArchitecture[(unsigned)m_currentArchitecture];
+	InstructionModel *insnModel = cur[mnemonic];
+	if (insnModel) {
+		type = insnModel->getType();
+		privileged = insnModel->isPrivileged();
+	}
 
 	return new Instruction(address, targetAddress, type, encoding, mnemonic, privileged, data, size);
 }
@@ -190,6 +265,19 @@ void InstructionFactory::destroy()
 			it != m_encodingMap.end();
 			++it) {
 		delete it->second;
+	}
+	for (InstructionFactory::ArchitectureToModelMap_t::iterator it = m_instructionModelByArchitecture.begin();
+			it != m_instructionModelByArchitecture.end();
+			++it) {
+		InstructionFactory::MnemonicToModel_t &cur = it->second;
+
+		for (InstructionFactory::MnemonicToModel_t::iterator itModel = cur.begin();
+				itModel != cur.end();
+				++itModel) {
+			InstructionModel *p = itModel->second;
+
+			delete p;
+		}
 	}
 
 	delete m_genericEncodingHandler;
@@ -213,5 +301,81 @@ void InstructionFactory::onArchitectureDetected(ArchitectureFactory::Architectur
 		m_encodingHandler = m_genericEncodingHandler;
 	else
 		m_encodingHandler = it->second;
+
+	m_currentArchitecture = arch;
 }
 
+InstructionFactory::XmlListener::XmlListener(InstructionFactory* parent) :
+		m_parent(parent),
+		m_currentModel(NULL)
+{
+	XmlFactory::instance().registerListener("InstructionModel", this);
+}
+
+InstructionFactory::XmlListener::~XmlListener()
+{
+	if (m_currentModel)
+		delete m_currentModel;
+}
+
+bool InstructionFactory::XmlListener::onStart(const Glib::ustring& name,
+		const xmlpp::SaxParser::AttributeList& properties, std::string value)
+{
+	if (name == "InstructionModel") {
+		if (m_currentModel)
+			delete m_currentModel;
+
+		std::string instructionName;
+		std::string instructionArchitecture;
+
+		for(xmlpp::SaxParser::AttributeList::const_iterator it = properties.begin();
+				it != properties.end();
+				++it) {
+			if (it->name == "name")
+				instructionName = it->value;
+			else if (it->name == "architecture")
+				instructionArchitecture = it->value;
+		}
+
+		if (instructionName == "" || instructionArchitecture == "")
+			return false;
+
+		m_currentModel = new InstructionModel(instructionName, instructionArchitecture);
+	}
+
+	return true;
+}
+
+bool InstructionFactory::XmlListener::onElement(const Glib::ustring& name,
+		const xmlpp::SaxParser::AttributeList& properties, std::string value)
+{
+	if (!m_currentModel)
+		return false;
+
+	InstructionModel *p = m_currentModel;
+
+	if (name == "type")
+		p->setType(value);
+	else if (name == "privileged")
+		p->setPrivileged(value);
+	else if (name == "description")
+		p->setDescription(value);
+
+	return true;
+}
+
+bool InstructionFactory::XmlListener::onEnd(const Glib::ustring& name)
+{
+	if (name == "InstructionModel") {
+		if (!m_currentModel)
+			return false;
+
+		InstructionModel *p = m_currentModel;
+
+		InstructionFactory::MnemonicToModel_t &cur = m_parent->m_instructionModelByArchitecture[(unsigned)p->m_architecture];
+		cur[p->m_mnemonic] = m_currentModel;
+
+		m_currentModel = NULL;
+	}
+	return true;
+}
