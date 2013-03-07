@@ -31,7 +31,7 @@ void EmilPro::init()
 	IDisassembly::instance();
 	ArchitectureFactory::instance();
 	InstructionFactory::instance();
-	XmlFactory &xmlFactory = XmlFactory::instance();
+	XmlFactory::instance();
 
 	std::string confDir = conf.getPath(Configuration::DIR_CONFIGURATION);
 	std::string localDir = conf.getPath(Configuration::DIR_LOCAL);
@@ -42,14 +42,10 @@ void EmilPro::init()
 	::mkdir(localDir.c_str(), 0744);
 	::mkdir(remoteDir.c_str(), 0744);
 
-	std::string modelXml;
-
 	// Parse all XML files with configuration and instruction models
-	modelXml += g_instance->parseDirectory(confDir);
-	modelXml += g_instance->parseDirectory(localDir);
-	modelXml += g_instance->parseDirectory(remoteDir);
-
-	xmlFactory.parse(modelXml);
+	g_instance->parseDirectory(confDir);
+	g_instance->parseDirectory(localDir);
+	g_instance->parseDirectory(remoteDir);
 }
 
 void EmilPro::destroy()
@@ -114,6 +110,8 @@ std::string EmilPro::parseFile(std::string& fileName)
 
 	std::string out(p);
 	free(p);
+
+	XmlFactory::instance().parse(out);
 
 	return out;
 }
