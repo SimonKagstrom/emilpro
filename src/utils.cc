@@ -184,6 +184,7 @@ std::string trimString(std::string &strIn)
 
 std::string get_home_directory()
 {
+	// FIXME! This will not work in Windows, if someone would like to use that
 	std::string home = getenv("HOME");
 
 	return home;
