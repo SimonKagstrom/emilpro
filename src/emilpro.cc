@@ -49,7 +49,6 @@ void EmilPro::init()
 	modelXml += g_instance->parseDirectory(localDir);
 	modelXml += g_instance->parseDirectory(remoteDir);
 
-	printf("VVV: \n%s\n", modelXml.c_str());
 	xmlFactory.parse(modelXml);
 }
 
