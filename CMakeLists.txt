@@ -13,7 +13,6 @@ set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
 find_package (LibElf REQUIRED)
 find_package (LibDwarf REQUIRED)
 find_package (LibBfd REQUIRED)
-find_package (LibOpdis REQUIRED)
 find_package (PkgConfig REQUIRED)
 
 set (PROJECT_VERSION_MAJOR  1)
@@ -57,7 +56,6 @@ include_directories(
 	src/include/
 	${LIBELF_INCLUDE_DIRS}
 	${LIBDWARF_INCLUDE_DIRS}
-	${LIBOPDIS_INCLUDE_DIRS}
 	${LIBBFD_INCLUDE_DIRS}
 	${GTKMM_INCLUDE_DIRS}
 	${GTKSOURCEVIEWMM_INCLUDE_DIRS}
@@ -68,7 +66,6 @@ add_executable (${TGT} ${${TGT}_SRCS})
 target_link_libraries(${TGT}
 	${LIBELF_LIBRARIES}
 	${LIBDWARF_LIBRARIES}
-	${LIBOPDIS_LIBRARIES}
 	${LIBBFD_LIBRARIES}
 	${GTKMM_LIBRARIES}
 	${GTKSOURCEVIEWMM_LIBRARIES}
