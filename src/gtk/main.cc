@@ -473,7 +473,7 @@ protected:
 			Gtk::TreeRow row = *rowIt;
 
 			if (syms.empty()) {
-				row[m_referenceColumns->m_symbol] = fmt("0x%llx", cur);
+				row[m_referenceColumns->m_symbol] = fmt("0x%llx", (long long)cur);
 				row[m_referenceColumns->m_rawAddress] = IInstruction::INVALID_ADDRESS;
 			} else {
 				for (Model::SymbolList_t::const_iterator sIt = syms.begin();
@@ -481,7 +481,7 @@ protected:
 						++sIt) {
 					ISymbol *sym = *sIt;
 
-					row[m_referenceColumns->m_symbol] = fmt("%s+0x%llx", sym->getName(), cur - sym->getAddress());
+					row[m_referenceColumns->m_symbol] = fmt("%s+0x%llx", sym->getName(), (long long)(cur - sym->getAddress()));
 					row[m_referenceColumns->m_rawAddress] = cur;
 				}
 			}
@@ -616,7 +616,7 @@ protected:
 			Gtk::ListStore::iterator rowIt = m_instructionListStore->append();
 			Gtk::TreeRow row = *rowIt;
 
-			row[m_instructionColumns->m_address] = fmt("0x%0llx", cur->getAddress()).c_str();
+			row[m_instructionColumns->m_address] = fmt("0x%0llx", (long long)cur->getAddress()).c_str();
 			row[m_instructionColumns->m_instruction] = cur->getString();
 
 			if (cur->getBranchTargetAddress() != IInstruction::INVALID_ADDRESS) {
@@ -624,7 +624,7 @@ protected:
 				Model::SymbolList_t targetSyms = model.getSymbolExact(target);
 
 				if (targetSyms.empty() || (target >= sym->getAddress() && target < sym->getAddress() + sym->getSize())) {
-					row[m_instructionColumns->m_target] = fmt("0x%0llx", cur->getBranchTargetAddress()).c_str();
+					row[m_instructionColumns->m_target] = fmt("0x%0llx", (long long)cur->getBranchTargetAddress()).c_str();
 				} else {
 					const ISymbol *targetSym = targetSyms.front();
 
@@ -744,8 +744,8 @@ protected:
 				r = "R";
 			}
 
-			row[m_symbolColumns->m_address] = fmt("0x%llx", cur->getAddress()).c_str();
-			row[m_symbolColumns->m_size] = fmt("0x%08llx", cur->getSize()).c_str();
+			row[m_symbolColumns->m_address] = fmt("0x%llx", (long long)cur->getAddress()).c_str();
+			row[m_symbolColumns->m_size] = fmt("0x%08llx", (long long)cur->getSize()).c_str();
 			row[m_symbolColumns->m_r] = r;
 			row[m_symbolColumns->m_w] = w;
 			row[m_symbolColumns->m_x] = x;

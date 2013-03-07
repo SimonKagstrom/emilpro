@@ -95,7 +95,7 @@ TESTSUITE(hexview)
 			}
 
 			if (!lst.empty())
-				return fmt("Entries still left in the list: %d\n", lst.size());
+				return fmt("Entries still left in the list: %u\n", (unsigned)lst.size());
 
 			return "";
 		}

@@ -38,7 +38,7 @@ public:
 
 		ISymbol &p = SymbolFactory::instance().createSymbol(ISymbol::LINK_NORMAL,
 				ISymbol::SYM_TEXT,
-				fmt("%llx..%llx\n", start, end).c_str(),
+				fmt("%llx..%llx\n", (long long)start, (long long)end).c_str(),
 				NULL,
 				start,
 				end - start,

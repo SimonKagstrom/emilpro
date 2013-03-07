@@ -106,7 +106,7 @@ std::string HexView::getLine64(uint64_t* d, bool littleEndian)
 	bool swp = !(cpu_is_little_endian() && littleEndian);
 
 	return fmt("%016llx %016llx",
-			sw64(d[0], swp), sw64(d[1], swp));
+			(unsigned long long)sw64(d[0], swp), (unsigned long long)sw64(d[1], swp));
 }
 
 std::string HexView::getAscii(uint8_t* data)
@@ -199,7 +199,8 @@ std::string HexView::handleData(Data* p, unsigned width, bool littleEndian, bool
 
 		std::string ascii = getAscii(curLine);
 
-		out  =  out + fmt("0x%016llx  %-47s  %s\n", curAddress, hex.c_str(), ascii.c_str());
+		out  =  out + fmt("0x%016llx  %-47s  %s\n",
+				(unsigned long long)curAddress, hex.c_str(), ascii.c_str());
 	}
 
 	return out;
