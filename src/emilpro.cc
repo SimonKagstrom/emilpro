@@ -10,17 +10,47 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
+#include <dirent.h>
 
 using namespace emilpro;
 
+static EmilPro *g_instance;
+
 void EmilPro::init()
 {
+	panic_if(g_instance,
+			"Instance already created");
+
+	g_instance = new EmilPro();
+
+	// Create everything
 	Configuration &conf = Configuration::instance();
+	Model::instance();
+	SymbolFactory::instance();
+	IDisassembly::instance();
+	ArchitectureFactory::instance();
+	InstructionFactory::instance();
+	XmlFactory &xmlFactory = XmlFactory::instance();
+
+	std::string confDir = conf.getPath(Configuration::DIR_CONFIGURATION);
+	std::string localDir = conf.getPath(Configuration::DIR_LOCAL);
+	std::string remoteDir = conf.getPath(Configuration::DIR_REMOTE);
 
 	::mkdir(conf.getBasePath().c_str(), 0744);
-	::mkdir(conf.getPath(Configuration::DIR_CONFIGURATION).c_str(), 0744);
-	::mkdir(conf.getPath(Configuration::DIR_LOCAL).c_str(), 0744);
-	::mkdir(conf.getPath(Configuration::DIR_REMOTE).c_str(), 0744);
+	::mkdir(confDir.c_str(), 0744);
+	::mkdir(localDir.c_str(), 0744);
+	::mkdir(remoteDir.c_str(), 0744);
+
+	std::string modelXml;
+
+	// Parse all XML files with configuration and instruction models
+	modelXml += g_instance->parseDirectory(confDir);
+	modelXml += g_instance->parseDirectory(localDir);
+	modelXml += g_instance->parseDirectory(remoteDir);
+
+	printf("VVV: \n%s\n", modelXml.c_str());
+	xmlFactory.parse(modelXml);
 }
 
 void EmilPro::destroy()
@@ -31,4 +61,61 @@ void EmilPro::destroy()
 	ArchitectureFactory::instance().destroy();
 	InstructionFactory::instance().destroy();
 	XmlFactory::instance().destroy();
+
+	if (g_instance)
+		delete g_instance;
 }
+
+std::string EmilPro::parseDirectory(std::string& dirName)
+{
+		struct dirent *de;
+		DIR *dir;
+		std::string out;
+
+		dir = ::opendir(dirName.c_str());
+		if (!dir)
+			return out;
+
+		for (de = readdir(dir);
+				de;
+				de = readdir(dir)) {
+			struct stat st;
+
+			std::string name(de->d_name);
+			std::string curPath = dirName + "/" + name;
+
+			if (name == "." || name == "..")
+				continue;
+
+			// Add this file
+			if (name.find(".xml") != std::string::npos) {
+				out += parseFile(curPath);
+				continue;
+			}
+
+			lstat(std::string(dirName + "/" + name).c_str(), &st);
+			// Recuse and check the next directory level
+			if (S_ISDIR(st.st_mode))
+				out += parseDirectory(curPath);
+		}
+
+		::closedir(dir);
+
+		return out;
+}
+
+std::string EmilPro::parseFile(std::string& fileName)
+{
+	size_t sz;
+	char *p;
+
+	p = (char *)read_file(&sz, "%s", fileName.c_str());
+	if (!p)
+		return std::string();
+
+	std::string out(p);
+	free(p);
+
+	return out;
+}
+
