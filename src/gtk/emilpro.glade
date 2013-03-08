@@ -351,59 +351,138 @@
                     <property name="can_focus">True</property>
                     <property name="vexpand">True</property>
                     <child>
-                      <object class="GtkPaned" id="instructions_src_paned">
+                      <object class="GtkPaned" id="instructions_src_info_box_paned">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="orientation">vertical</property>
                         <child>
-                          <object class="GtkScrolledWindow" id="instruction_scrolled_window">
+                          <object class="GtkPaned" id="instructions_src_paned">
+                            <property name="width_request">700</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="vexpand">True</property>
-                            <property name="shadow_type">in</property>
+                            <property name="orientation">vertical</property>
                             <child>
-                              <object class="GtkTreeView" id="instruction_view">
+                              <object class="GtkScrolledWindow" id="instruction_scrolled_window">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="vexpand">True</property>
-                                <child internal-child="selection">
-                                  <object class="GtkTreeSelection" id="treeview-selection1"/>
+                                <property name="shadow_type">in</property>
+                                <child>
+                                  <object class="GtkTreeView" id="instruction_view">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="vexpand">True</property>
+                                    <child internal-child="selection">
+                                      <object class="GtkTreeSelection" id="treeview-selection1"/>
+                                    </child>
+                                  </object>
                                 </child>
                               </object>
+                              <packing>
+                                <property name="resize">True</property>
+                                <property name="shrink">True</property>
+                              </packing>
                             </child>
-                          </object>
-                          <packing>
-                            <property name="resize">True</property>
-                            <property name="shrink">True</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkScrolledWindow" id="source_view_scrolled_window">
-                            <property name="height_request">210</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="hscrollbar_policy">never</property>
-                            <property name="window_placement_set">True</property>
-                            <property name="kinetic_scrolling">False</property>
                             <child>
-                              <object class="GtkSourceView" id="source_view">
+                              <object class="GtkScrolledWindow" id="source_view_scrolled_window">
+                                <property name="height_request">210</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="has_tooltip">True</property>
-                                <property name="editable">False</property>
-                                <property name="left_margin">2</property>
-                                <property name="right_margin">2</property>
-                                <property name="cursor_visible">False</property>
-                                <property name="show_line_numbers">True</property>
-                                <property name="tab_width">4</property>
-                                <property name="auto_indent">True</property>
-                                <property name="highlight_current_line">True</property>
-                                <property name="indent_on_tab">False</property>
+                                <property name="hscrollbar_policy">never</property>
+                                <property name="window_placement_set">True</property>
+                                <property name="kinetic_scrolling">False</property>
+                                <child>
+                                  <object class="GtkSourceView" id="source_view">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="has_tooltip">True</property>
+                                    <property name="editable">False</property>
+                                    <property name="left_margin">2</property>
+                                    <property name="right_margin">2</property>
+                                    <property name="cursor_visible">False</property>
+                                    <property name="show_line_numbers">True</property>
+                                    <property name="tab_width">4</property>
+                                    <property name="auto_indent">True</property>
+                                    <property name="highlight_current_line">True</property>
+                                    <property name="indent_on_tab">False</property>
+                                  </object>
+                                </child>
                               </object>
+                              <packing>
+                                <property name="resize">False</property>
+                                <property name="shrink">True</property>
+                              </packing>
                             </child>
                           </object>
                           <packing>
                             <property name="resize">False</property>
+                            <property name="shrink">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkBox" id="box2">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <object class="GtkBox" id="box4">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <child>
+                                  <object class="GtkLabel" id="instruction_label">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="halign">start</property>
+                                    <property name="label" translatable="yes">Instruction: </property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="edit_instruction_model_button">
+                                    <property name="label">gtk-edit</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <property name="use_stock">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkScrolledWindow" id="info_box_scrolled_window">
+                                <property name="width_request">300</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="shadow_type">in</property>
+                                <child>
+                                  <object class="GtkTextView" id="info_box_text_view">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="resize">True</property>
                             <property name="shrink">True</property>
                           </packing>
                         </child>

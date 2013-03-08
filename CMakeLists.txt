@@ -49,6 +49,7 @@ set (${TGT}_SRCS
 	src/utils.cc
 	src/xmlfactory.cc
 	src/gtk/hexview.cc
+	src/gtk/infobox.cc
 	src/gtk/main.cc
 	)
 
