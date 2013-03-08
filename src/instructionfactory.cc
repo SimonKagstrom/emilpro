@@ -453,3 +453,11 @@ bool InstructionFactory::XmlListener::onEnd(const Glib::ustring& name)
 	}
 	return true;
 }
+
+InstructionFactory::IInstructionModel* InstructionFactory::getModelFromInstruction(IInstruction &insn)
+{
+	InstructionFactory::MnemonicToModel_t &archModel = m_instructionModelByArchitecture[(unsigned)m_currentArchitecture];
+
+	return archModel[insn.getMnemonic()];
+}
+

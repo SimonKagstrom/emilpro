@@ -96,6 +96,8 @@ namespace emilpro
 
 		virtual void onArchitectureDetected(ArchitectureFactory::Architecture_t arch);
 
+		IInstructionModel *getModelFromInstruction(IInstruction &insn);
+
 	private:
 		class XmlListener : public XmlFactory::IXmlListener
 		{
