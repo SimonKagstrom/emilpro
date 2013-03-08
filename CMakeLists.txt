@@ -11,7 +11,6 @@ set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
 
 # Dependencies
 find_package (LibElf REQUIRED)
-find_package (LibDwarf REQUIRED)
 find_package (LibBfd REQUIRED)
 find_package (PkgConfig REQUIRED)
 
@@ -57,7 +56,6 @@ include_directories(
 	src/gtk/include/
 	src/include/
 	${LIBELF_INCLUDE_DIRS}
-	${LIBDWARF_INCLUDE_DIRS}
 	${LIBBFD_INCLUDE_DIRS}
 	${GTKMM_INCLUDE_DIRS}
 	${GTKSOURCEVIEWMM_INCLUDE_DIRS}
@@ -67,7 +65,6 @@ include_directories(
 add_executable (${TGT} ${${TGT}_SRCS})
 target_link_libraries(${TGT}
 	${LIBELF_LIBRARIES}
-	${LIBDWARF_LIBRARIES}
 	${LIBBFD_LIBRARIES}
 	${GTKMM_LIBRARIES}
 	${GTKSOURCEVIEWMM_LIBRARIES}
