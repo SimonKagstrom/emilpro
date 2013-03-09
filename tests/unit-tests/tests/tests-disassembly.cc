@@ -94,6 +94,23 @@ TESTSUITE(disassembly)
 		ASSERT_TRUE(p->getMnemonic() == "mov");
 		ASSERT_TRUE(p->getType() == IInstruction::IT_DATA_HANDLING);
 		ASSERT_TRUE(p->isPrivileged() == T_false);
+	};
+
+	// NYI
+	DISABLED_TEST(ia32_operands, DisassemblyFixture)
+	{
+		EmilPro::init();
+
+		IDisassembly &dis = IDisassembly::instance();
+		ArchitectureFactory::instance().provideArchitecture(bfd_arch_i386);
+
+		InstructionList_t lst = dis.execute((void *)ia32_dump, sizeof(ia32_dump), 0x1000);
+		ASSERT_TRUE(lst.size() == 11U);
+
+		AddressMap_t m = listToAddressMap(lst);
+		IInstruction *p;
+
+		p = m[0x1000 +  0]; ASSERT_TRUE(p);
 
 		IInstruction::OperandList_t opList = p->getOperands();
 		ASSERT_TRUE(opList.size() == 2U);
