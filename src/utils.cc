@@ -210,5 +210,5 @@ int64_t string_to_integer(std::string str)
 {
 	size_t pos;
 
-	return (uint64_t)stoll(str, &pos, 0);
+	return (int64_t)stoll(str, &pos, 0);
 }
