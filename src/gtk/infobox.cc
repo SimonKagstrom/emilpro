@@ -8,12 +8,16 @@ InfoBox::InfoBox()
 {
 }
 
-void InfoBox::init(Glib::RefPtr<Gtk::Label> label,
-		Glib::RefPtr<Gtk::TextView> textView, Glib::RefPtr<Gtk::Button> button)
+void InfoBox::init(Glib::RefPtr<Gtk::Builder> builder)
 {
-	m_label = label;
-	m_textView = textView;
-	m_editButton = button;
+	builder->get_widget("info_box_text_view", m_textView);
+	panic_if(!m_textView,	"Can't get view");
+	builder->get_widget("edit_instruction_model_button", m_editButton);
+	panic_if(!m_editButton, "Can't get button");
+	builder->get_widget("instruction_label", m_label);
+	panic_if(!m_label, "Can't get label");
+	builder->get_widget("edit_instruction_dialog", m_dialog);
+	panic_if(!m_dialog, "Can't get dialog");
 
 	m_tagTable = Gtk::TextBuffer::TagTable::create();
 	m_textBuffer = Gtk::TextBuffer::create(m_tagTable);
@@ -76,4 +80,5 @@ void InfoBox::onInstructionSelected(IInstruction &insn)
 
 void InfoBox::onEditButtonClicked()
 {
+	m_dialog->show();
 }

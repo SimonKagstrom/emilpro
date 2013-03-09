@@ -326,20 +326,7 @@ public:
 		m_builder->get_widget("instructions_data_notebook", m_instructionsDataNotebook);
 		panic_if(!m_instructionsDataNotebook, "Can't get notebook");
 
-		Gtk::Button *button;
-		Gtk::TextView *textView;
-		Gtk::Label *label;
-
-		m_builder->get_widget("info_box_text_view", textView);
-		panic_if(!textView,	"Can't get view");
-		m_builder->get_widget("edit_instruction_model_button", button);
-		panic_if(!button, "Can't get button");
-		m_builder->get_widget("instruction_label", label);
-		panic_if(!label, "Can't get label");
-
-		m_infoBox.init(Glib::RefPtr<Gtk::Label>(label),
-				Glib::RefPtr<Gtk::TextView>(textView),
-				Glib::RefPtr<Gtk::Button>(button));
+		m_infoBox.init(m_builder);
 	}
 
 	void run(int argc, char *argv[])
