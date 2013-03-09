@@ -332,7 +332,12 @@ IInstruction* InstructionFactory::create(uint64_t startAddress, uint64_t pc, std
 			std::string &cur = *it;
 
 			if (string_is_integer(cur)) {
-				targetAddress = startAddress + string_to_integer(cur);
+				int64_t offset = string_to_integer(cur);
+
+				if (size < 8 && (offset & (1 << 31)))
+					offset |= 0xffffffff00000000ULL;
+
+				targetAddress = startAddress + offset;
 				break;
 			}
 		}
