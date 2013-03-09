@@ -53,10 +53,14 @@ namespace emilpro
 			 */
 			virtual void setType(std::string &typeStr) = 0;
 
+			virtual void setType(IInstruction::InstructionType_t type) = 0;
+
 			/**
 			 * If the instruction is privileged or not (true/false/unknown)
 			 */
 			virtual void setPrivileged(std::string &privilegedStr) = 0;
+
+			virtual void setPrivileged(Ternary_t priv) = 0;
 
 			/**
 			 * The description (HTML) of what the instruction does.

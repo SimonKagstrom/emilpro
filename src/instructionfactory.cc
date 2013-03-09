@@ -164,6 +164,11 @@ public:
 			m_type = IInstruction::IT_UNKNOWN;
 	}
 
+	void setType(IInstruction::InstructionType_t type)
+	{
+		m_type = type;
+	}
+
 	void setPrivileged(std::string &privilegedStr)
 	{
 		if (privilegedStr == "true")
@@ -172,6 +177,11 @@ public:
 			m_privileged = T_false;
 		else
 			m_privileged = T_unknown;
+	}
+
+	void setPrivileged(Ternary_t privileged)
+	{
+		m_privileged = privileged;
 	}
 
 	void setDescription(std::string &description)
