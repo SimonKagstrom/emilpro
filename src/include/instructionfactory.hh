@@ -102,6 +102,8 @@ namespace emilpro
 
 		IInstructionModel *getModelFromInstruction(IInstruction &insn);
 
+		IInstructionModel *createModelForInstruction(IInstruction &insn);
+
 	private:
 		class XmlListener : public XmlFactory::IXmlListener
 		{

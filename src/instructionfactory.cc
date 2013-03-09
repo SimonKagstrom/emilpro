@@ -471,3 +471,13 @@ InstructionFactory::IInstructionModel* InstructionFactory::getModelFromInstructi
 	return archModel[insn.getMnemonic()];
 }
 
+InstructionFactory::IInstructionModel* InstructionFactory::createModelForInstruction(IInstruction& insn)
+{
+	InstructionFactory::IInstructionModel *out = new InstructionModel(insn.getMnemonic(),
+			ArchitectureFactory::instance().getNameFromArchitecture(m_currentArchitecture));
+
+	InstructionFactory::MnemonicToModel_t &archModel = m_instructionModelByArchitecture[(unsigned)m_currentArchitecture];
+	archModel[insn.getMnemonic()] = out;
+
+	return out;
+}
