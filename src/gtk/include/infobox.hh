@@ -4,6 +4,7 @@
 
 #include <gtkmm.h>
 
+class EditDialog;
 
 class InfoBox
 {
@@ -20,7 +21,7 @@ private:
 	Gtk::Label *m_label;
 	Gtk::TextView *m_textView;
 	Gtk::Button *m_editButton;
-	Gtk::Dialog *m_dialog;
+	EditDialog *m_dialog;
 
 	Glib::RefPtr<Gtk::TextBuffer> m_textBuffer;
 	Glib::RefPtr<Gtk::TextBuffer::TagTable> m_tagTable;
