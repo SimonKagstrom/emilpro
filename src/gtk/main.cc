@@ -16,6 +16,8 @@
 #include <string>
 #include <vector>
 
+#include <emilpro_glade.hh>
+
 using namespace emilpro;
 
 
@@ -406,7 +408,7 @@ public:
 
 		m_hexView.init();
 
-		m_builder = Gtk::Builder::create_from_file("/home/ska/projects/emilpro/src/gtk/emilpro.glade");
+		m_builder = Gtk::Builder::create_from_string(glade_file);
 
 		Gtk::ImageMenuItem *fileOpenItem;
 		m_builder->get_widget("file_menu_open", fileOpenItem);

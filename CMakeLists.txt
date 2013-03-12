@@ -36,6 +36,21 @@ set (TGT emilpro)
 
 set (CMAKE_BUILD_TYPE debug)
 
+
+add_executable (glade-to-source
+	src/utils.cc
+	tools/glade-to-source.cc
+)
+
+add_custom_command (OUTPUT emilpro_glade.hh
+  COMMAND ${CMAKE_BINARY_DIR}/glade-to-source ${CMAKE_SOURCE_DIR}/src/gtk/emilpro.glade ${CMAKE_BINARY_DIR}/emilpro_glade.hh 
+  DEPENDS ${CMAKE_SOURCE_DIR}/src/gtk/emilpro.glade
+)
+
+add_custom_target(emilpro_glade ALL
+	DEPENDS emilpro_glade.hh
+)
+
 set (${TGT}_SRCS
 	src/architecturefactory.cc
 	src/bfd-disassembly.cc
@@ -52,10 +67,13 @@ set (${TGT}_SRCS
 	src/gtk/infobox.cc
 	src/gtk/main.cc
 	)
+	
+set_property(SOURCE src/gtk/main.cc APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_BINARY_DIR}/emilpro_glade.hh)
 
 include_directories(
 	src/gtk/include/
 	src/include/
+	${CMAKE_BINARY_DIR}
 	${LIBELF_INCLUDE_DIRS}
 	${LIBBFD_INCLUDE_DIRS}
 	${GTKMM_INCLUDE_DIRS}
