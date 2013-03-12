@@ -212,3 +212,21 @@ int64_t string_to_integer(std::string str)
 
 	return (int64_t)stoll(str, &pos, 0);
 }
+
+std::string escape_string_for_c(std::string &str)
+{
+	std::string out;
+
+	for (unsigned i = 0; i < str.size(); i++) {
+		char c = str[i];
+
+		if (c == '"')
+			out += '\\';
+		if (c == '\n')
+			out += "\\n\"\n\"";
+		else
+			out += c;
+	}
+
+	return out;
+}

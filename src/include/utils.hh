@@ -93,3 +93,5 @@ std::string get_home_directory();
 bool string_is_integer(std::string str);
 
 int64_t string_to_integer(std::string str);
+
+std::string escape_string_for_c(std::string &str);
