@@ -40,6 +40,7 @@ public:
 		m_tagTable = Gtk::TextBuffer::TagTable::create();
 		m_textBuffer = Gtk::TextBuffer::create(m_tagTable);
 		m_textView->set_buffer(m_textBuffer);
+		m_textView->set_wrap_mode(Gtk::WRAP_WORD);
 
 		m_okButton->signal_clicked().connect(sigc::mem_fun(*this,
 				&EditDialog::onOkClicked));
@@ -197,6 +198,7 @@ void InfoBox::init(Glib::RefPtr<Gtk::Builder> builder)
 	m_tagTable = Gtk::TextBuffer::TagTable::create();
 	m_textBuffer = Gtk::TextBuffer::create(m_tagTable);
 	m_textView->set_buffer(m_textBuffer);
+	m_textView->set_wrap_mode(Gtk::WRAP_WORD);
 
 	m_editButton->signal_clicked().connect(sigc::mem_fun(*this,	&InfoBox::onEditButtonClicked));
 }
