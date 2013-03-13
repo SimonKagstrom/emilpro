@@ -86,11 +86,15 @@ namespace emilpro
 
 			virtual uint64_t getTimeStamp() = 0;
 
+			virtual ArchitectureFactory::Architecture_t getArchitecture() = 0;
+
 			/**
 			 * Produce XML from the instruction model
 			 */
 			virtual std::string toXml() = 0;
 		};
+
+		typedef std::list<IInstructionModel *> InstructionModelList_t;
 
 		InstructionFactory();
 
@@ -106,6 +110,8 @@ namespace emilpro
 		IInstructionModel *getModelFromInstruction(IInstruction &insn);
 
 		IInstructionModel *createModelForInstruction(IInstruction &insn);
+
+		InstructionModelList_t getInstructionModels();
 
 	private:
 		class XmlListener : public XmlFactory::IXmlListener

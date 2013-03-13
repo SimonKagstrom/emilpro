@@ -224,6 +224,11 @@ public:
 		return m_addressReferenceIndex;
 	}
 
+	ArchitectureFactory::Architecture_t getArchitecture()
+	{
+		return m_architecture;
+	}
+
 	std::string toXml()
 	{
 		return fmt(
@@ -502,6 +507,38 @@ InstructionFactory::IInstructionModel* InstructionFactory::createModelForInstruc
 
 	InstructionFactory::MnemonicToModel_t &archModel = m_instructionModelByArchitecture[(unsigned)m_currentArchitecture];
 	archModel[insn.getMnemonic()] = out;
+
+	return out;
+}
+
+InstructionFactory::InstructionModelList_t InstructionFactory::getInstructionModels()
+{
+	InstructionFactory::InstructionModelList_t out;
+	std::map<std::string, InstructionModelList_t> byMnemonic;
+
+	for (InstructionFactory::ArchitectureToModelMap_t::iterator it = m_instructionModelByArchitecture.begin();
+			it != m_instructionModelByArchitecture.end();
+			++it) {
+		InstructionFactory::MnemonicToModel_t &cur = it->second;
+
+		for (InstructionFactory::MnemonicToModel_t::iterator itModel = cur.begin();
+				itModel != cur.end();
+				++itModel) {
+			InstructionModel *p = (InstructionModel *)itModel->second;
+
+			byMnemonic[p->m_mnemonic].push_back(p);
+		}
+	}
+
+	for (std::map<std::string, InstructionModelList_t>::iterator it = byMnemonic.begin();
+			it != byMnemonic.end();
+			++it) {
+		for (InstructionFactory::InstructionModelList_t::iterator lstIt = it->second.begin();
+				lstIt != it->second.end();
+				++lstIt) {
+			out.push_back(*lstIt);
+		}
+	}
 
 	return out;
 }
