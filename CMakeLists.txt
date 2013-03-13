@@ -41,12 +41,27 @@ add_executable (file-to-source
 )
 
 add_custom_command (OUTPUT emilpro_glade.hh
-  COMMAND ${CMAKE_BINARY_DIR}/file-to-source ${CMAKE_SOURCE_DIR}/src/gtk/emilpro.glade ${CMAKE_BINARY_DIR}/emilpro_glade.hh glade_file 
+  COMMAND ${CMAKE_BINARY_DIR}/file-to-source ${CMAKE_BINARY_DIR}/emilpro_glade.hh glade_file ${CMAKE_SOURCE_DIR}/src/gtk/emilpro.glade 
   DEPENDS ${CMAKE_SOURCE_DIR}/src/gtk/emilpro.glade file-to-source
 )
 
 add_custom_target(emilpro_glade ALL
 	DEPENDS emilpro_glade.hh
+)
+
+
+add_custom_command (OUTPUT built_in_instruction_models.hh
+  COMMAND ${CMAKE_BINARY_DIR}/file-to-source ${CMAKE_BINARY_DIR}/built_in_instruction_models.hh built_in_instruction_models_xml
+  	${CMAKE_SOURCE_DIR}/data/instruction-models/i386.xml 
+  	${CMAKE_SOURCE_DIR}/data/instruction-models/mips.xml
+  DEPENDS
+  	${CMAKE_SOURCE_DIR}/data/instruction-models/i386.xml 
+  	${CMAKE_SOURCE_DIR}/data/instruction-models/mips.xml
+  	file-to-source
+)
+
+add_custom_target(emilpro_built_in_instruction_models ALL
+	DEPENDS built_in_instruction_models.hh
 )
 
 set (BASE_SRCS
@@ -70,6 +85,7 @@ set (GUI_SRCS
 	)
 	
 set_property(SOURCE src/gtk/main.cc APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_BINARY_DIR}/emilpro_glade.hh)
+set_property(SOURCE src/emilpro.cc APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_BINARY_DIR}/built_in_instruction_models.hh)
 
 include_directories(
 	src/gtk/include/

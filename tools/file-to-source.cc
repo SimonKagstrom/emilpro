@@ -5,28 +5,38 @@
 
 int main(int argc, const char *argv[])
 {
-	if (argc != 4) {
+	if (argc < 4) {
 		printf("Too few arguments:\n"
-				"Usage: XXX infile outfile.h symbol_name\n"
+				"Usage: XXX outfile.h symbol_name infile...\n"
 				);
 		exit(1);
 	}
 
-	size_t sz;
-	char *p = (char *)read_file(&sz, "%s", argv[1]);
-	if (!p) {
-		printf("Can't read %s\n", argv[1]);
-		exit(1);
+	std::string in;
+	for (int i = 3; i < argc; i++) {
+		size_t sz;
+		char *p = (char *)read_file(&sz, "%s", argv[i]);
+		if (!p) {
+			printf("Can't read %s\n", argv[i]);
+			exit(1);
+		}
+		in += p;
 	}
 
-	std::string in(p);
+	if (in.find("<?xml version=\"1.0\"") == std::string::npos) {
+		in =	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				"<emilpro>\n"
+				+ in +
+				"</emilpro>\n";
+	}
+
 	std::string out =
 			fmt("#pragma once\n"
 			"#include <string>\n"
 			"\n"
-			"std::string %s = \n\"", argv[3]);
+			"std::string %s = \n\"", argv[2]);
 	out += escape_string_for_c(in);
 	out += "\";";
 
-	write_file((void *)out.c_str(), out.size(), "%s", argv[2]);
+	write_file((void *)out.c_str(), out.size(), "%s", argv[1]);
 }

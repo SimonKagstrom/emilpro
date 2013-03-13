@@ -13,6 +13,8 @@
 #include <unistd.h>
 #include <dirent.h>
 
+#include <built_in_instruction_models.hh>
+
 using namespace emilpro;
 
 static EmilPro *g_instance;
@@ -44,6 +46,8 @@ void EmilPro::init()
 
 	// Parse all XML files with configuration and instruction models
 	g_instance->parseDirectory(confDir);
+	panic_if (!XmlFactory::instance().parse(built_in_instruction_models_xml),
+			"Can't parse built-in instruction models");
 	g_instance->parseDirectory(localDir);
 	g_instance->parseDirectory(remoteDir);
 }

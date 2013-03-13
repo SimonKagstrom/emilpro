@@ -1,0 +1,5 @@
+  <InstructionModel name="bge" architecture="mips" timestamp="0">
+    <type>cflow</type>
+    <privileged>false</privileged>
+    <description>Branch if greater or equal.</description>
+  </InstructionModel>

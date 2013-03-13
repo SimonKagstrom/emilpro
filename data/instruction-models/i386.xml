@@ -1,0 +1,83 @@
+  <InstructionModel name="call" architecture="i386" timestamp="0">
+    <type>cflow</type>
+    <privileged>false</privileged>
+    <description>Call function.
+
+The address to the next instruction is pushed to the stack.</description>
+  </InstructionModel>
+  <InstructionModel name="dec" architecture="i386" timestamp="0">
+    <type>arithmetic_logic</type>
+    <privileged>false</privileged>
+    <description>Decrement register or memory location with 1.
+
+Does not affect the CF flag.
+    </description>
+  </InstructionModel>
+  <InstructionModel name="hlt" architecture="i386" timestamp="0">
+    <type>other</type>
+    <privileged>true</privileged>
+    <description>Halt the processor.</description>
+  </InstructionModel>
+  <InstructionModel name="int3" architecture="i386" timestamp="0">
+    <type>other</type>
+    <privileged>false</privileged>
+    <description>Cause debug exception</description>
+  </InstructionModel>
+  <InstructionModel name="ja" architecture="i386" timestamp="0">
+    <type>cflow</type>
+    <privileged>false</privileged>
+    <description>
+  </description>
+  </InstructionModel>
+  <InstructionModel name="jbe" architecture="i386" timestamp="0">
+    <type>cflow</type>
+    <privileged>false</privileged>
+    <description>Branch if below or equal.
+
+Check if CF == 1 or ZF == 1 in the
+eflags register.
+    </description>
+  </InstructionModel>
+  <InstructionModel name="je" architecture="i386" timestamp="0">
+    <type>cflow</type>
+    <privileged>false</privileged>
+    <description>Branch if equal</description>
+  </InstructionModel>
+  <InstructionModel name="jmp" architecture="i386" timestamp="0">
+    <type>cflow</type>
+    <privileged>false</privileged>
+    <description>Unconditional branch</description>
+  </InstructionModel>
+  <InstructionModel name="jne" architecture="i386" timestamp="0">
+    <type>cflow</type>
+    <privileged>false</privileged>
+    <description>Jump if not equal</description>
+  </InstructionModel>
+  <InstructionModel name="mov" architecture="i386" timestamp="0">
+    <type>data_handling</type>
+    <privileged>false</privileged>
+    <description>Copy data from memory/registers onto another location.</description>
+  </InstructionModel>
+  <InstructionModel name="pop" architecture="i386" timestamp="0">
+    <type>data_handling</type>
+    <privileged>false</privileged>
+    <description>Pop one entry from the stack.
+
+The number of bytes depends on the destination size.</description>
+  </InstructionModel>
+  <InstructionModel name="shr" architecture="i386" timestamp="0">
+    <type>arithmetic_logic</type>
+    <privileged>false</privileged>
+    <description>Shift logical right
+    </description>
+  </InstructionModel>
+  <InstructionModel name="sub" architecture="i386" timestamp="0">
+    <type>arithmetic_logic</type>
+    <privileged>false</privileged>
+    <description>Subtract value from register or memory location.</description>
+  </InstructionModel>
+  <InstructionModel name="xor" architecture="i386" timestamp="0">
+    <type>arithmetic_logic</type>
+    <privileged>false</privileged>
+    <description>Exclusive or</description>
+  </InstructionModel>

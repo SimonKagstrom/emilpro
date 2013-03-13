@@ -55,6 +55,7 @@ set (${TGT}_SRCS
 include_directories(
 	../../src/gtk/include/
 	../../src/include/
+	${CMAKE_BINARY_DIR}
 	${LIBELF_INCLUDE_DIRS}
 	${LIBBFD_INCLUDE_DIRS}
 	${LIBCRPCUT_INCLUDE_DIRS}
@@ -65,6 +66,26 @@ include_directories(
 add_executable (test-binary
 	elf-assembly.S
 	elf-example-source.cc)
+
+add_executable (file-to-source
+	../../src/utils.cc
+	../../tools/file-to-source.cc
+)
+
+add_custom_command (OUTPUT built_in_instruction_models.hh
+  COMMAND ${CMAKE_BINARY_DIR}/file-to-source ${CMAKE_BINARY_DIR}/built_in_instruction_models.hh built_in_instruction_models_xml
+  	${CMAKE_SOURCE_DIR}/../../data/instruction-models/i386.xml 
+  	${CMAKE_SOURCE_DIR}/../../data/instruction-models/mips.xml
+  DEPENDS
+  	${CMAKE_SOURCE_DIR}/../../data/instruction-models/i386.xml 
+  	${CMAKE_SOURCE_DIR}/../../data/instruction-models/mips.xml
+  	file-to-source
+)
+
+add_custom_target(emilpro_built_in_instruction_models ALL
+	DEPENDS built_in_instruction_models.hh
+)
+set_property(SOURCE ../../src/emilpro.cc APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_BINARY_DIR}/built_in_instruction_models.hh)
 
 add_executable (${TGT} ${${TGT}_SRCS})
 target_link_libraries(${TGT}
