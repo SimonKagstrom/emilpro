@@ -145,7 +145,8 @@ public:
 		m_type(IInstruction::IT_UNKNOWN),
 		m_privileged(T_unknown),
 		m_description(""),
-		m_addressReferenceIndex(IInstructionModel::IDX_GUESS)
+		m_addressReferenceIndex(IInstructionModel::IDX_GUESS),
+		m_timestamp(0)
 	{
 		m_architecture = ArchitectureFactory::instance().getArchitectureFromName(architecture);
 	}
@@ -193,6 +194,16 @@ public:
 	{
 	}
 
+	void setTimeStamp(uint64_t ts)
+	{
+		m_timestamp = ts;
+	}
+
+	uint64_t getTimeStamp()
+	{
+		return m_timestamp;
+	}
+
 	IInstruction::InstructionType_t getType()
 	{
 		return m_type;
@@ -216,13 +227,14 @@ public:
 	std::string toXml()
 	{
 		return fmt(
-				"  <InstructionModel name=\"%s\" architecture=\"%s\">\n"
+				"  <InstructionModel name=\"%s\" architecture=\"%s\" timestamp=\"%llu\">\n"
 				"    <type>%s</type>\n"
 				"    <privileged>%s</privileged>\n"
 				"    <description>%s</description>\n"
 				"  </InstructionModel>\n",
 				m_mnemonic.c_str(),
 				ArchitectureFactory::instance().getNameFromArchitecture(m_architecture).c_str(),
+				(unsigned long long)m_timestamp,
 				getTypeString().c_str(),
 				getPrivilegeString().c_str(),
 				m_description.c_str()
@@ -266,6 +278,7 @@ public:
 	std::string m_description;
 	ArchitectureFactory::Architecture_t m_architecture;
 	int m_addressReferenceIndex;
+	uint64_t m_timestamp;
 };
 
 class GenericEncodingHandler : public InstructionFactory::IEncodingHandler
@@ -416,20 +429,26 @@ bool InstructionFactory::XmlListener::onStart(const Glib::ustring& name,
 
 		std::string instructionName;
 		std::string instructionArchitecture;
+		uint64_t timestamp = 0;
 
 		for(xmlpp::SaxParser::AttributeList::const_iterator it = properties.begin();
 				it != properties.end();
 				++it) {
-			if (it->name == "name")
+			if (it->name == "name") {
 				instructionName = it->value;
-			else if (it->name == "architecture")
+			} else if (it->name == "architecture") {
 				instructionArchitecture = it->value;
+			} else if (it->name == "timestamp") {
+				if (string_is_integer(it->value))
+					timestamp = string_to_integer(it->value);
+			}
 		}
 
 		if (instructionName == "" || instructionArchitecture == "")
 			return false;
 
 		m_currentModel = new InstructionModel(instructionName, instructionArchitecture);
+		m_currentModel->setTimeStamp(timestamp);
 	}
 
 	return true;

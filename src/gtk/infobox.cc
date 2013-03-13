@@ -63,7 +63,6 @@ public:
 			m_typeComboBox->set_active(0);
 			m_privilegedComboBox->set_active(2);
 			m_textBuffer->set_text("");
-
 		}
 
 		m_dialog->set_title(fmt("Editing instruction '%s'",
@@ -136,6 +135,7 @@ private:
 		model->setDescription(descr);
 		model->setType(indexToType(m_typeComboBox->get_active_row_number()));
 		model->setPrivileged(indexToTernary(m_privilegedComboBox->get_active_row_number()));
+		model->setTimeStamp(get_utc_timestamp());
 
 		std::string archStr = ArchitectureFactory::instance().getNameFromArchitecture(m_currentArchitecture);
 

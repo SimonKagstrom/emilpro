@@ -73,6 +73,8 @@ namespace emilpro
 			 */
 			virtual void setAddressReferenceIndex(int index) = 0;
 
+			virtual void setTimeStamp(uint64_t ts) = 0;
+
 
 			virtual IInstruction::InstructionType_t getType() = 0;
 
@@ -82,6 +84,7 @@ namespace emilpro
 
 			virtual int &getAddressReferenceIndex() = 0;
 
+			virtual uint64_t getTimeStamp() = 0;
 
 			/**
 			 * Produce XML from the instruction model

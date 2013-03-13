@@ -70,7 +70,7 @@ TESTSUITE(instruction_factory)
 		std::string xml =
 				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 				"<emilpro>\n"
-				"  <InstructionModel name=\"beqz\" architecture=\"mips\">\n"
+				"  <InstructionModel name=\"beqz\" architecture=\"mips\" timestamp=\"2\">\n"
 				"    <type>cflow</type>\n"
 				"    <privileged>false</privileged>\n"
 				"    <description>Branch if greater or equal\n"
@@ -97,5 +97,6 @@ TESTSUITE(instruction_factory)
 		ASSERT_TRUE(p->m_mnemonic == p2->m_mnemonic);
 		ASSERT_TRUE(p->m_privileged == p2->m_privileged);
 		ASSERT_TRUE(p->m_type == p2->m_type);
+		ASSERT_TRUE(p->m_timestamp == p2->m_timestamp);
 	}
 }
