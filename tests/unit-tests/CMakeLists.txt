@@ -48,6 +48,7 @@ set (${TGT}_SRCS
 	tests/tests-jumptargetdisplay.cc
 	tests/tests-model.cc
 	tests/tests-symbol-provider.cc
+	tests/tests-utils.cc
 	tests/tests-xml.cc
 	)
 

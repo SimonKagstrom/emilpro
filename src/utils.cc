@@ -2,6 +2,7 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <stdexcept>
+#include <time.h>
 
 #include "utils.hh"
 
@@ -229,4 +230,19 @@ std::string escape_string_for_c(std::string &str)
 	}
 
 	return out;
+}
+
+uint64_t get_utc_timestamp()
+{
+	time_t raw;
+	struct tm *ptm;
+	struct tm tmp;
+
+	time(&raw);
+	ptm = gmtime_r(&raw, &tmp);
+
+	if (ptm == NULL)
+		return 0;
+
+	return (uint64_t)timegm(ptm);
 }
