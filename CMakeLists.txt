@@ -32,8 +32,6 @@ if (HAVE_BFD_MULTIARCH)
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_BFD_MULTIARCH")
 endif (HAVE_BFD_MULTIARCH)
 
-set (TGT emilpro)
-
 set (CMAKE_BUILD_TYPE debug)
 
 
@@ -51,7 +49,7 @@ add_custom_target(emilpro_glade ALL
 	DEPENDS emilpro_glade.hh
 )
 
-set (${TGT}_SRCS
+set (BASE_SRCS
 	src/architecturefactory.cc
 	src/bfd-disassembly.cc
 	src/bfd-provider.cc
@@ -63,6 +61,9 @@ set (${TGT}_SRCS
 	src/symbolfactory.cc
 	src/utils.cc
 	src/xmlfactory.cc
+	)
+	
+set (GUI_SRCS
 	src/gtk/hexview.cc
 	src/gtk/infobox.cc
 	src/gtk/main.cc
@@ -81,12 +82,28 @@ include_directories(
 	${LIBXMLPP_INCLUDE_DIRS}
 	)
 
-add_executable (${TGT} ${${TGT}_SRCS})
-target_link_libraries(${TGT}
+add_executable (emilpro
+	${BASE_SRCS}
+	${GUI_SRCS}
+	)
+
+add_executable (squash-instruction-models
+	${BASE_SRCS}
+	tools/squash-instruction-models.cc
+	)
+	
+target_link_libraries(emilpro
 	${LIBELF_LIBRARIES}
 	${LIBBFD_LIBRARIES}
 	${GTKMM_LIBRARIES}
 	${GTKSOURCEVIEWMM_LIBRARIES}
+	${LIBXMLPP_LIBRARIES}
+	z
+	)
+
+target_link_libraries(squash-instruction-models
+	${LIBELF_LIBRARIES}
+	${LIBBFD_LIBRARIES}
 	${LIBXMLPP_LIBRARIES}
 	z
 	)
