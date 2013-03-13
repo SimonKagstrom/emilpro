@@ -37,14 +37,14 @@ set (TGT emilpro)
 set (CMAKE_BUILD_TYPE debug)
 
 
-add_executable (glade-to-source
+add_executable (file-to-source
 	src/utils.cc
-	tools/glade-to-source.cc
+	tools/file-to-source.cc
 )
 
 add_custom_command (OUTPUT emilpro_glade.hh
-  COMMAND ${CMAKE_BINARY_DIR}/glade-to-source ${CMAKE_SOURCE_DIR}/src/gtk/emilpro.glade ${CMAKE_BINARY_DIR}/emilpro_glade.hh 
-  DEPENDS ${CMAKE_SOURCE_DIR}/src/gtk/emilpro.glade
+  COMMAND ${CMAKE_BINARY_DIR}/file-to-source ${CMAKE_SOURCE_DIR}/src/gtk/emilpro.glade ${CMAKE_BINARY_DIR}/emilpro_glade.hh glade_file 
+  DEPENDS ${CMAKE_SOURCE_DIR}/src/gtk/emilpro.glade file-to-source
 )
 
 add_custom_target(emilpro_glade ALL

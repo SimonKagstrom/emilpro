@@ -5,9 +5,9 @@
 
 int main(int argc, const char *argv[])
 {
-	if (argc != 3) {
+	if (argc != 4) {
 		printf("Too few arguments:\n"
-				"Usage: XXX glade-file outfile.h\n"
+				"Usage: XXX infile outfile.h symbol_name\n"
 				);
 		exit(1);
 	}
@@ -21,10 +21,10 @@ int main(int argc, const char *argv[])
 
 	std::string in(p);
 	std::string out =
-			"#pragma once\n"
+			fmt("#pragma once\n"
 			"#include <string>\n"
 			"\n"
-			"std::string glade_file = \n\"";
+			"std::string %s = \n\"", argv[3]);
 	out += escape_string_for_c(in);
 	out += "\";";
 
