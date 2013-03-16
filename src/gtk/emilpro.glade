@@ -936,6 +936,7 @@
               <object class="GtkLabel" id="color_label">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="halign">start</property>
                 <property name="label" translatable="yes">History colors</property>
               </object>
               <packing>
@@ -1000,6 +1001,7 @@
               <object class="GtkLabel" id="instruction_font_label">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="halign">start</property>
                 <property name="xalign">0.50999999046325684</property>
                 <property name="label" translatable="yes">Instruction font</property>
               </object>
@@ -1014,6 +1016,7 @@
               <object class="GtkLabel" id="label1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="halign">start</property>
                 <property name="label" translatable="yes">Symbol font</property>
               </object>
               <packing>
@@ -1027,6 +1030,7 @@
               <object class="GtkLabel" id="label2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="halign">start</property>
                 <property name="label" translatable="yes">Source font</property>
               </object>
               <packing>
@@ -1040,6 +1044,7 @@
               <object class="GtkLabel" id="label3">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="halign">start</property>
                 <property name="label" translatable="yes">Register font</property>
               </object>
               <packing>
@@ -1123,6 +1128,7 @@
               <object class="GtkLabel" id="label6">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="halign">start</property>
                 <property name="label" translatable="yes">References font</property>
               </object>
               <packing>
@@ -1145,6 +1151,37 @@
               <packing>
                 <property name="left_attach">1</property>
                 <property name="top_attach">5</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label10">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">start</property>
+                <property name="label" translatable="yes">Instruction info font</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">6</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFontButton" id="instruction_info_font">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="font">Sans 11</property>
+                <property name="preview_text"/>
+                <property name="show_preview_entry">False</property>
+                <property name="font_name">Sans 11</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">6</property>
                 <property name="width">1</property>
                 <property name="height">1</property>
               </packing>
