@@ -11,6 +11,8 @@
 #include <jumptargetdisplay.hh>
 #include <hexview.hh>
 #include <infobox.hh>
+#include <instructionview.hh>
+#include <sourceview.hh>
 #include <emilpro.hh>
 
 #include <string>
@@ -57,45 +59,6 @@ public:
 	Gtk::TreeModelColumn<Gdk::Color> m_bgColor;
 };
 
-class InstructionModelColumns : public Gtk::TreeModelColumnRecord
-{
-public:
-	InstructionModelColumns(unsigned nLanes)
-	{
-		m_backward = new Gtk::TreeModelColumn<unsigned>[nLanes];
-		m_forward = new Gtk::TreeModelColumn<unsigned>[nLanes];
-
-		add(m_address);
-		add(m_instruction);
-		for (unsigned i = 0; i < nLanes; i++)
-			add(m_forward[i]);
-		add(m_target);
-
-		for (unsigned i = 0; i < nLanes; i++)
-			add(m_backward[i]);
-		add(m_rawAddress);
-		add(m_bgColor);
-		add(m_rawInstruction);
-	}
-
-	~InstructionModelColumns()
-	{
-		delete[] m_backward;
-		delete[] m_forward;
-	}
-
-	Gtk::TreeModelColumn<Glib::ustring> m_address;
-	Gtk::TreeModelColumn<unsigned> *m_backward;
-	Gtk::TreeModelColumn<Glib::ustring> m_instruction;
-	Gtk::TreeModelColumn<unsigned> *m_forward;
-	Gtk::TreeModelColumn<Glib::ustring> m_target;
-
-	// Hidden
-	Gtk::TreeModelColumn<uint64_t> m_rawAddress;
-	Gtk::TreeModelColumn<Gdk::Color> m_bgColor;
-	Gtk::TreeModelColumn<IInstruction *> m_rawInstruction;
-};
-
 class ReferenceModelColumns : public Gtk::TreeModelColumnRecord
 {
 public:
@@ -112,293 +75,19 @@ public:
 	Gtk::TreeModelColumn<uint64_t> m_rawAddress;
 };
 
-class JumpLaneCellRenderer : public Gtk::CellRenderer
-{
-public:
-    JumpLaneCellRenderer(InstructionModelColumns *columns, unsigned nLanes, bool isBackward) :
-    	Glib::ObjectBase( typeid(JumpLaneCellRenderer) ),
-    	Gtk::CellRenderer(),
-    	m_width(80),
-    	m_nLanes(nLanes),
-    	m_laneWidth(m_width / m_nLanes),
-    	m_instructionColumns(columns),
-    	m_isBackward(isBackward)
-    {
-    	m_lanes = new JumpTargetDisplay::LaneValue_t[m_nLanes];
-    	property_mode() = Gtk::CELL_RENDERER_MODE_INERT;
-    }
-
-    virtual ~JumpLaneCellRenderer()
-    {
-    	delete[] m_lanes;
-    }
-
-    void setBackwardDataFunc(Gtk::CellRenderer *renderer, const Gtk::TreeIter iter)
-    {
-    	Gtk::TreeModel::Row row = *iter;
-
-    	for (unsigned i = 0; i < m_nLanes; i++) {
-    		m_lanes[i] = (JumpTargetDisplay::LaneValue_t)(unsigned)row[m_isBackward ?
-    				m_instructionColumns->m_backward[i] : m_instructionColumns->m_forward[i]];
-    	}
-    }
-
-protected:
-    virtual void get_preferred_width_vfunc(Gtk::Widget &widget, int &minimum_width, int &natural_width) const
-    {
-    	minimum_width = m_width;
-    	natural_width = m_width;
-    }
-
-    virtual void get_preferred_height_for_width_vfunc(Gtk::Widget &widget, int width, int &minimum_height, int &natural_height) const
-    {
-    	minimum_height = 20;
-    	natural_height = 20;
-    }
-
-    virtual void get_preferred_height_vfunc(Gtk::Widget &widget, int &minimum_height, int &natural_height) const
-    {
-    	minimum_height = 20;
-    	natural_height = 20;
-    }
-
-    virtual void get_preferred_width_for_height_vfunc(Gtk::Widget &widget, int height, int &minimum_width, int &natural_width) const
-    {
-    	minimum_width = m_width;
-    	natural_width = m_width;
-    }
-
-    // Overrides
-    virtual void get_size_vfunc (Gtk::Widget& widget, const Gdk::Rectangle* cell_area,
-    		int* x_offset, int* y_offset, int* width, int* height) const
-    {
-    }
-
-    virtual void render_vfunc(const ::Cairo::RefPtr< ::Cairo::Context>& cr, Gtk::Widget& widget,
-    		const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area,
-    		Gtk::CellRendererState flags)
-    {
-    	cr->set_line_width(3.0);
-
-    	cr->set_source_rgb(0, 255, 0);
-
-    	for (unsigned lane = 0; lane < m_nLanes; lane++) {
-    		switch (m_lanes[lane])
-    		{
-    		case JumpTargetDisplay::LANE_LINE:
-    			drawLine(cr, widget, cell_area, lane);
-    			break;
-    		case JumpTargetDisplay::LANE_END_DOWN:
-    			drawArrow(cr, widget, cell_area, lane, false, !m_isBackward);
-    			break;
-    		case JumpTargetDisplay::LANE_END_UP:
-    			drawArrow(cr, widget, cell_area, lane, true, !m_isBackward);
-    			break;
-    		case JumpTargetDisplay::LANE_START_DOWN:
-    		case JumpTargetDisplay::LANE_START_UP:
-    			drawStart(cr, widget, cell_area, lane, !m_isBackward);
-    			break;
-    		case JumpTargetDisplay::LANE_START_LONG_DOWN:
-    		case JumpTargetDisplay::LANE_START_LONG_UP:
-    			drawArrowUpDown(cr, widget, cell_area, lane, !m_isBackward);
-    			break;
-    		case JumpTargetDisplay::LANE_END_LONG_DOWN:
-    			drawLongEnd(cr, widget, cell_area, lane, false, !m_isBackward);
-    			break;
-    		case JumpTargetDisplay::LANE_END_LONG_UP:
-    			drawLongEnd(cr, widget, cell_area, lane, true, !m_isBackward);
-    			break;
-    		default:
-    			break;
-    		}
-    		cr->stroke();
-    	}
-    }
-
-private:
-
-	void adjustRectangleByLane(GdkRectangle &r, unsigned lane)
-    {
-    	r.x += m_laneWidth * lane;
-    	r.width = m_laneWidth;
-    }
-
-    void drawLine(const ::Cairo::RefPtr< ::Cairo::Context>& cr,
-    		Gtk::Widget& widget,
-    		const Gdk::Rectangle& cell_area,
-    		unsigned lane)
-    {
-    	GdkRectangle r = *(cell_area.gobj());
-
-    	adjustRectangleByLane(r, lane);
-
-    	cr->move_to(r.x + r.width / 2, r.y);
-    	cr->line_to(r.x + r.width / 2, r.y + r.height);
-    }
-
-    void drawLongEnd(const ::Cairo::RefPtr< ::Cairo::Context>& cr,
-    		Gtk::Widget& widget,
-    		const Gdk::Rectangle& cell_area,
-    		unsigned lane,
-    		bool isRight,
-    		bool isUp)
-    {
-    	GdkRectangle r = *(cell_area.gobj());
-
-    	adjustRectangleByLane(r, lane);
-
-    	unsigned x = r.x + r.width / 2;
-    	unsigned startY = r.y;
-    	unsigned endY = r.y + r.height / 2;
-
-    	if (!isUp) {
-    		startY = r.y + r.height;
-    		endY = r.y + r.height / 2;
-    	}
-
-    	cr->move_to(x, startY);
-    	cr->line_to(x, endY);
-
-    	if (isRight) {
-    		unsigned endX = r.x + r.width;
-
-    		cr->line_to(endX, endY);
-    		cr->line_to(endX - 5, endY - 5);
-    		cr->line_to(endX - 5, endY + 5);
-    		cr->line_to(endX, endY);
-    	} else {
-    		unsigned endX = r.x;
-
-    		cr->line_to(endX, endY);
-    		cr->line_to(endX + 5, endY - 5);
-    		cr->line_to(endX + 5, endY + 5);
-    		cr->line_to(endX, endY);
-    	}
-    }
-
-    void drawStart(const ::Cairo::RefPtr< ::Cairo::Context>& cr,
-    		Gtk::Widget& widget,
-    		const Gdk::Rectangle& cell_area,
-    		unsigned lane,
-    		unsigned isUp)
-    {
-    	GdkRectangle r = *(cell_area.gobj());
-
-    	adjustRectangleByLane(r, lane);
-
-    	unsigned x = r.x + r.width / 2;
-    	unsigned startY = r.y + r.height / 2;
-    	unsigned endY = r.y;
-
-    	if (isUp)
-    		endY = r.y + r.height;
-
-    	cr->move_to(x, startY);
-    	cr->rectangle(x - 5, startY - 5, 10, 10);
-    	cr->fill();
-    	cr->move_to(x, startY);
-    	cr->line_to(x, endY);
-    }
-
-    virtual void drawArrow(const ::Cairo::RefPtr< ::Cairo::Context>& cr,
-    		Gtk::Widget& widget,
-    		const Gdk::Rectangle& cell_area,
-    		unsigned lane, bool isRight,
-    		bool isUp)
-    {
-    	GdkRectangle r = *(cell_area.gobj());
-
-    	adjustRectangleByLane(r, lane);
-
-    	unsigned x = r.x + r.width / 2;
-    	unsigned startY = r.y;
-    	unsigned endY = r.y + r.height / 2;
-
-    	if (!isUp) {
-    		startY = r.y + r.height;
-    		endY = r.y + r.height / 2;
-    	}
-
-    	cr->move_to(x, startY);
-    	cr->line_to(x, endY);
-
-    	if (isRight) {
-    		unsigned endX = r.x + r.width;
-
-    		cr->line_to(endX, endY);
-    		cr->line_to(endX - 5, endY - 5);
-    		cr->line_to(endX - 5, endY + 5);
-    		cr->line_to(endX, endY);
-    	} else {
-    		unsigned endX = r.x;
-
-    		cr->line_to(endX, endY);
-    		cr->line_to(endX + 5, endY - 5);
-    		cr->line_to(endX + 5, endY + 5);
-    		cr->line_to(endX, endY);
-    	}
-    }
-
-    virtual void drawArrowUpDown(const ::Cairo::RefPtr< ::Cairo::Context>& cr,
-    		Gtk::Widget& widget,
-    		const Gdk::Rectangle& cell_area,
-    		unsigned lane,
-    		bool isUp)
-    {
-    	GdkRectangle r = *(cell_area.gobj());
-
-    	adjustRectangleByLane(r, lane);
-
-    	unsigned x = r.x + r.width / 2;
-    	unsigned startY = r.y + r.height / 2;
-    	unsigned endY = startY + r.height / 3;
-
-    	if (!isUp)
-    		endY = startY - r.height / 3;
-
-    	cr->move_to(x, startY);
-    	cr->line_to(x, endY);
-
-    	if (isUp) {
-    		cr->line_to(x - 5, endY - 5);
-    		cr->line_to(x + 5, endY - 5);
-    		cr->line_to(x, endY);
-    	} else {
-    		cr->line_to(x - 5, endY + 5);
-    		cr->line_to(x + 5, endY + 5);
-    		cr->line_to(x, endY);
-    	}
-    }
-
-
-    unsigned m_width;
-    unsigned m_nLanes;
-    unsigned m_laneWidth;
-	InstructionModelColumns *m_instructionColumns;
-	JumpTargetDisplay::LaneValue_t *m_lanes;
-	bool m_isBackward;
-};
-
 
 class EmilProGui
 {
 public:
 	EmilProGui() :
-		m_nLanes(4),
-		m_fontHeight(20), // FIXME!
-		m_lastInstructionStoreSize(0)
+		m_nLanes(4)
 	{
-		m_backwardBranches = new JumpTargetDisplay(false, m_nLanes);
-		m_forwardBranches = new JumpTargetDisplay(true, m_nLanes);
 	}
 
 	~EmilProGui()
 	{
 		delete m_symbolColumns;
-		delete m_instructionColumns;
 		delete m_referenceColumns;
-		delete m_forwardBranches;
-		delete m_backwardBranches;
 	}
 
 	void init(int argc, char **argv)
@@ -418,56 +107,7 @@ public:
 		fileOpenItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onFileOpen));
 
 		m_symbolColumns = new SymbolModelColumns();
-		m_instructionColumns = new InstructionModelColumns(m_nLanes);
 		m_referenceColumns = new ReferenceModelColumns();
-
-		m_instructionListStore = Gtk::ListStore::create(*m_instructionColumns);
-		panic_if (!m_instructionListStore,
-				"Can't get instruction liststore");
-
-		m_builder->get_widget("instruction_view", m_instructionView);
-		panic_if(!m_instructionView,
-				"Can't get instruction view");
-
-
-		Gtk::FontButton *instructionFont;
-		m_builder->get_widget("instruction_font", instructionFont);
-		panic_if(!instructionFont,
-				"Can't get instruction font");
-
-		m_instructionView->override_font(Pango::FontDescription(instructionFont->get_font_name()));
-
-		m_instructionView->set_model(m_instructionListStore);
-
-		m_instructionView->append_column("Address", m_instructionColumns->m_address);
-
-		m_forwardRenderer = new JumpLaneCellRenderer(m_instructionColumns, m_nLanes, false);
-		m_backwardRenderer = new JumpLaneCellRenderer(m_instructionColumns, m_nLanes, true);
-
-		Gtk::TreeView::Column* backwardColumn = Gtk::manage( new Gtk::TreeView::Column("B", *m_backwardRenderer) );
-		backwardColumn->set_cell_data_func(*m_backwardRenderer,
-				sigc::mem_fun(*m_backwardRenderer, &JumpLaneCellRenderer::setBackwardDataFunc));
-		m_instructionView->append_column(*backwardColumn);
-
-		m_instructionView->append_column("Instruction", m_instructionColumns->m_instruction);
-		Gtk::TreeView::Column* forwardColumn = Gtk::manage( new Gtk::TreeView::Column("F", *m_forwardRenderer) );
-		forwardColumn->set_cell_data_func(*m_forwardRenderer,
-				sigc::mem_fun(*m_forwardRenderer, &JumpLaneCellRenderer::setBackwardDataFunc));
-		m_instructionView->append_column(*forwardColumn);
-
-		m_instructionView->append_column("Target", m_instructionColumns->m_target);
-
-		m_instructionView->signal_cursor_changed().connect(sigc::mem_fun(*this,
-				&EmilProGui::onInstructionCursorChanged));
-
-		Gtk::TreeViewColumn *cp;
-		Gtk::CellRenderer *cr;
-
-		cp = m_instructionView->get_column(2);
-
-		cr = cp->get_first_cell();
-		cp->add_attribute(cr->property_cell_background_gdk(), m_instructionColumns->m_bgColor);
-
 
 		Gtk::FontButton *symbolFont;
 		m_builder->get_widget("symbol_font", symbolFont);
@@ -508,32 +148,6 @@ public:
 			cp->add_attribute(cr->property_cell_background_gdk(), m_symbolColumns->m_bgColor);
 		}
 
-		Gtk::FontButton *sourceFont;
-		m_builder->get_widget("source_font", sourceFont);
-		panic_if(!sourceFont,
-				"Can't get source font");
-
-		m_builder->get_widget("source_view", m_sourceView);
-		panic_if(!m_sourceView,
-				"Can't get source view");
-		m_sourceView->override_font(Pango::FontDescription(sourceFont->get_font_name()));
-
-		m_tagTable = Gtk::TextBuffer::TagTable::create();
-		Gtk::ColorButton *historyColors[3];
-		for (unsigned i = 0; i < 3; i++) {
-			m_builder->get_widget(fmt("history_color%d", i).c_str(), historyColors[i]);
-			panic_if(!historyColors[i],
-					"Can't get history color");
-
-			m_historyColors[i] = historyColors[i]->get_color();
-
-			m_sourceTags[i] = Gtk::TextBuffer::Tag::create();
-
-
-			m_sourceTags[i]->property_paragraph_background_gdk() = m_historyColors[i];
-			m_tagTable->add(m_sourceTags[i]);
-		}
-
 		m_builder->get_widget("references_view", m_referencesView);
 		panic_if(!m_referencesView,
 				"Can't get reference view");
@@ -552,8 +166,6 @@ public:
 
 		m_referencesView->signal_row_activated().connect(sigc::mem_fun(*this,
 				&EmilProGui::onReferenceRowActivated));
-
-		m_emptyBuffer = Gsv::Buffer::create(m_tagTable);
 
 
 		Gtk::ScrolledWindow *hexView8Bit, *hexView16Bit, *hexView32Bit, *hexView64Bit;
@@ -574,12 +186,19 @@ public:
 		hexView32Bit->add(tv32);
 		hexView64Bit->add(tv64);
 
+		Gtk::FontButton *sourceFont;
+		m_builder->get_widget("source_font", sourceFont);
+		panic_if(!sourceFont,
+				"Can't get source font");
+
 		tv8.override_font(Pango::FontDescription(sourceFont->get_font_name()));
 		tv16.override_font(Pango::FontDescription(sourceFont->get_font_name()));
 		tv32.override_font(Pango::FontDescription(sourceFont->get_font_name()));
 		tv64.override_font(Pango::FontDescription(sourceFont->get_font_name()));
 
-		m_hexView.setMarkColor(m_historyColors[2]);
+		Gtk::ColorButton *historyColor;
+		m_builder->get_widget("history_color2", historyColor);
+		m_hexView.setMarkColor(historyColor->get_color());
 
 		tv8.show();
 		tv16.show();
@@ -590,6 +209,8 @@ public:
 		panic_if(!m_instructionsDataNotebook, "Can't get notebook");
 
 		m_infoBox.init(m_builder);
+		m_sourceView.init(m_builder);
+		m_instructionView.init(m_builder, &m_hexView, &m_infoBox, &m_sourceView);
 	}
 
 	void run(int argc, char *argv[])
@@ -614,101 +235,6 @@ public:
 	}
 
 protected:
-	Glib::RefPtr<Gsv::Buffer> getSourceBuffer(ILineProvider::FileLine &fileLine)
-	{
-		Glib::RefPtr<Gsv::Buffer> buffer;
-
-		if (!fileLine.m_isValid)
-			return m_emptyBuffer;
-
-		if (m_filesToBuffer.find(fileLine.m_file) != m_filesToBuffer.end())
-			return m_filesToBuffer[fileLine.m_file];
-
-		size_t sz;
-		char *p = (char *)read_file(&sz, "%s", fileLine.m_file.c_str());
-		if (!p)
-			return m_emptyBuffer;
-		std::string data(p, sz);
-		free(p);
-
-		Glib::RefPtr<Gsv::LanguageManager> manager = Gsv::LanguageManager::get_default();
-		Glib::RefPtr<Gsv::Language> language;
-
-		bool uncertain;
-		Glib::ustring content = Gio::content_type_guess(fileLine.m_file, data, uncertain);
-
-		if (uncertain)
-			content.clear();
-
-		language = manager->guess_language(fileLine.m_file, content);
-		if (!language)
-			language = manager->get_language("cpp");
-
-		buffer = Gsv::Buffer::create(m_tagTable);
-		buffer->set_language(language);
-		buffer->set_highlight_syntax(true);
-
-		buffer->begin_not_undoable_action();
-		buffer->set_text(data);
-		buffer->end_not_undoable_action();
-
-		m_filesToBuffer[fileLine.m_file] = buffer;
-
-		return buffer;
-	}
-
-	void onInstructionCursorChanged()
-	{
-		Gtk::TreeModel::Path path;
-		Gtk::TreeViewColumn *column;
-
-		m_instructionView->get_cursor(path, column);
-
-		Gtk::TreeModel::iterator iter = m_instructionListStore->get_iter(path);
-
-		if(!iter)
-			return;
-
-		if (m_instructionListStore->children().size() != m_lastInstructionStoreSize) {
-			m_lastInstructionIters.clear();
-			m_lastInstructionStoreSize = m_instructionListStore->children().size();
-		}
-
-		m_lastInstructionIters.push_back(iter);
-
-		if (m_lastInstructionIters.size() > 3) {
-			Gtk::TreeModel::iterator last = m_lastInstructionIters.front();
-			if (m_instructionListStore->iter_is_valid(last)) {
-				Gtk::TreeModel::Row lastRow = *last;
-
-				lastRow[m_instructionColumns->m_bgColor] = m_backgroundColor;
-			}
-			m_lastInstructionIters.pop_front();
-		}
-
-		unsigned i = 0;
-		for (InstructionIterList_t::iterator it = m_lastInstructionIters.begin();
-				it != m_lastInstructionIters.end();
-				++it, ++i) {
-			Gtk::TreeModel::iterator cur = *it;
-			if (m_instructionListStore->iter_is_valid(cur)) {
-				Gtk::TreeModel::Row curRow = *cur;
-
-				curRow[m_instructionColumns->m_bgColor] = m_historyColors[i];
-			}
-		}
-
-		Gtk::TreeModel::Row row = *iter;
-		uint64_t address = row[m_instructionColumns->m_rawAddress];
-		IInstruction *cur = row[m_instructionColumns->m_rawInstruction];
-
-		if (cur) {
-			m_hexView.markRange(cur->getAddress(), (size_t)cur->getSize());
-			m_infoBox.onInstructionSelected(*cur);
-		}
-
-		updateSourceView(address);
-	}
 
 	void onSymbolCursorChanged()
 	{
@@ -792,7 +318,7 @@ protected:
 		}
 
 		if (largest->getType() == ISymbol::SYM_TEXT)
-			updateInstructionView(address, largest);
+			m_instructionView.update(address, *largest);
 		else
 			updateDataView(address, largest);
 	}
@@ -837,139 +363,23 @@ protected:
 		}
 
 		if (largest->getType() == ISymbol::SYM_TEXT)
-			updateInstructionView(address, largest);
+			updateSourceView(address, largest);
 		else
 			updateDataView(address, largest);
 	}
 
-	void updateDataView(uint64_t address, const ISymbol *sym)
+	void updateSourceView(uint64_t address, const ISymbol *sym)
 	{
-		m_instructionListStore->clear();
-		m_lastInstructionIters.clear();
-
-		m_instructionsDataNotebook->set_current_page(1);
-
-
-		m_hexView.markRange(sym->getAddress(), (size_t)sym->getSize());
-	}
-
-	void updateInstructionView(uint64_t address, const ISymbol *sym)
-	{
-		Model &model = Model::instance();
-
-		m_instructionListStore->clear();
-		m_lastInstructionIters.clear();
 		m_instructionsDataNotebook->set_current_page(0);
 
-		// Disassemble and display
-		unsigned n = 0;
-		InstructionList_t insns = model.getInstructions(sym->getAddress(), sym->getAddress() + sym->getSize());
-
-		Gdk::Rectangle rect;
-		m_instructionView->get_visible_rect(rect);
-
-		// Number of visible instructions in the view
-		unsigned nVisible = rect.get_height() / m_fontHeight + 4;
-
-		Gtk::ListStore::iterator newCursor;
-
-		m_backwardBranches->calculateLanes(insns, nVisible);
-		m_forwardBranches->calculateLanes(insns, nVisible);
-		for (InstructionList_t::iterator it = insns.begin();
-				it != insns.end();
-				++it, ++n) {
-			IInstruction *cur = *it;
-
-			Gtk::ListStore::iterator rowIt = m_instructionListStore->append();
-			Gtk::TreeRow row = *rowIt;
-
-			row[m_instructionColumns->m_address] = fmt("0x%0llx", (long long)cur->getAddress()).c_str();
-			row[m_instructionColumns->m_instruction] = cur->getString();
-
-			if (cur->getBranchTargetAddress() != IInstruction::INVALID_ADDRESS) {
-				uint64_t target = cur->getBranchTargetAddress();
-				Model::SymbolList_t targetSyms = model.getSymbolExact(target);
-
-				if (targetSyms.empty() || (target >= sym->getAddress() && target < sym->getAddress() + sym->getSize())) {
-					row[m_instructionColumns->m_target] = fmt("0x%0llx", (long long)cur->getBranchTargetAddress()).c_str();
-				} else {
-					const ISymbol *targetSym = targetSyms.front();
-
-					row[m_instructionColumns->m_target] = targetSym->getName();
-				}
-			}
-			JumpTargetDisplay::LaneValue_t lanes[m_nLanes];
-
-			m_backwardBranches->getLanes(n, lanes);
-			for (unsigned i = 0; i < m_nLanes; i++)
-				row[m_instructionColumns->m_backward[i]] = lanes[i];
-			m_forwardBranches->getLanes(n, lanes);
-			for (unsigned i = 0; i < m_nLanes; i++)
-				row[m_instructionColumns->m_forward[i]] = lanes[i];
-
-			row[m_instructionColumns->m_rawAddress] = cur->getAddress();
-			row[m_instructionColumns->m_rawInstruction] = cur;
-
-			if (cur->getAddress() == address)
-				newCursor = rowIt;
-		}
-
-		m_instructionView->set_cursor(m_instructionListStore->get_path(newCursor));
+		m_instructionView.update(address, *sym);
 	}
 
-	void updateSourceView(uint64_t address)
+	void updateDataView(uint64_t address, const ISymbol *sym)
 	{
-		Model &model = Model::instance();
+		m_instructionsDataNotebook->set_current_page(1);
 
-		ILineProvider::FileLine fileLine = model.getLineByAddress(address);
-
-		Glib::RefPtr<Gsv::Buffer> buffer = getSourceBuffer(fileLine);
-
-		if (m_currentBuffer != buffer) {
-			m_sourceView->set_buffer(buffer);
-			m_lastSourceLines.clear();
-		}
-		m_currentBuffer = buffer;
-
-		// Should never happen, but anyway...
-		if (!buffer)
-			return;
-
-		unsigned int line = fileLine.m_lineNr - 1;
-
-		Gsv::Buffer::iterator it = buffer->get_iter_at_line(line);
-
-		buffer->remove_all_tags(buffer->get_iter_at_line(0), buffer->get_iter_at_line(buffer->get_line_count()));
-
-		m_lastSourceLines.push_back(line);
-		if (m_lastSourceLines.size() > 3)
-			m_lastSourceLines.pop_front();
-
-		unsigned i = 0;
-		for (SourceLineNrList_t::iterator lineIt = m_lastSourceLines.begin();
-				lineIt != m_lastSourceLines.end();
-				++lineIt, ++i) {
-			unsigned int cur = *lineIt;
-
-			Gsv::Buffer::iterator curIt = buffer->get_iter_at_line(cur);
-			Gsv::Buffer::iterator itNext = buffer->get_iter_at_line(cur + 1);
-
-			buffer->apply_tag(m_sourceTags[i], curIt, itNext);
-		}
-
-		Gtk::ScrolledWindow *sourceScrolledWindow;
-		m_builder->get_widget("source_view_scrolled_window", sourceScrolledWindow);
-
-		Glib::RefPtr<Gtk::Adjustment> adj = sourceScrolledWindow->get_vadjustment();
-
-		adj->set_value(adj->get_upper());
-
-		it = buffer->get_iter_at_line(line - 5 < 0 ? 0 : line - 5);
-		Glib::RefPtr<Gtk::TextBuffer::Mark> mark = buffer->create_mark(it);
-
-		buffer->place_cursor(it);
-		m_sourceView->scroll_to(mark);
-		buffer->delete_mark(mark);
+		m_hexView.markRange(sym->getAddress(), (size_t)sym->getSize());
 	}
 
 	void refresh()
@@ -1061,48 +471,26 @@ protected:
 
 private:
 	typedef Gtk::TreeModel::Children TreeModelChildren_t;
-	typedef std::unordered_map<std::string, Glib::RefPtr<Gsv::Buffer>> FileToBufferMap_t;
-	typedef std::list<unsigned int> SourceLineNrList_t;
 	typedef std::list<Gtk::TreeModel::iterator> InstructionIterList_t;
 
 	Gtk::Main *m_app;
 	Glib::RefPtr<Gtk::Builder> m_builder;
 	Glib::RefPtr<Gtk::ListStore> m_symbolListStore;
-	Glib::RefPtr<Gtk::ListStore> m_instructionListStore;
 	Glib::RefPtr<Gtk::ListStore> m_referencesListStore;
 	SymbolModelColumns *m_symbolColumns;
-	InstructionModelColumns *m_instructionColumns;
 	ReferenceModelColumns *m_referenceColumns;
 	Gtk::TreeView *m_symbolView;
-	Gtk::TreeView *m_instructionView;
 	Gtk::TreeView *m_referencesView;
 
-	JumpLaneCellRenderer *m_backwardRenderer;
-	JumpLaneCellRenderer *m_forwardRenderer;
-
-	JumpTargetDisplay *m_backwardBranches;
-	JumpTargetDisplay *m_forwardBranches;
 	unsigned m_nLanes;
-
-	unsigned m_fontHeight;
-
-	FileToBufferMap_t m_filesToBuffer;
-	Glib::RefPtr<Gsv::Buffer> m_emptyBuffer;
-	Gsv::View *m_sourceView;
-	Glib::RefPtr<Gsv::Buffer> m_currentBuffer;
-
-
-	Glib::RefPtr<Gtk::TextBuffer::Tag> m_sourceTags[3];
-	Glib::RefPtr<Gtk::TextBuffer::TagTable> m_tagTable;
-	SourceLineNrList_t m_lastSourceLines;
 
 	Gdk::Color m_historyColors[3];
 	Gdk::Color m_backgroundColor;
-	InstructionIterList_t m_lastInstructionIters;
-	unsigned m_lastInstructionStoreSize;
 
 	HexView m_hexView;
 	InfoBox m_infoBox;
+	InstructionView m_instructionView;
+	SourceView m_sourceView;
 
 	Gtk::Notebook *m_instructionsDataNotebook;
 };
