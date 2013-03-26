@@ -60,6 +60,7 @@ void EmilPro::destroy()
 	ArchitectureFactory::instance().destroy();
 	InstructionFactory::instance().destroy();
 	XmlFactory::instance().destroy();
+	Configuration::instance().destroy();
 
 	if (g_instance)
 		delete g_instance;
