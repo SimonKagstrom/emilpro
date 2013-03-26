@@ -14,6 +14,8 @@ namespace instruction_factory
 {
 	class instructionModelXml;
 	class modelToFromXml;
+	class timestamp;
+	class timestampDefault;
 }
 
 namespace emilpro
@@ -25,6 +27,8 @@ namespace emilpro
 	public:
 		friend class instruction_factory::instructionModelXml;
 		friend class instruction_factory::modelToFromXml;
+		friend class instruction_factory::timestamp;
+		friend class instruction_factory::timestampDefault;
 
 		class IEncodingHandler
 		{

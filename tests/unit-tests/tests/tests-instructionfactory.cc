@@ -2,6 +2,7 @@
 
 #include <xmlfactory.hh>
 #include <idisassembly.hh>
+#include <emilpro.hh>
 
 #include <utils.hh>
 
@@ -98,5 +99,63 @@ TESTSUITE(instruction_factory)
 		ASSERT_TRUE(p->m_privileged == p2->m_privileged);
 		ASSERT_TRUE(p->m_type == p2->m_type);
 		ASSERT_TRUE(p->m_timestamp == p2->m_timestamp);
+	}
+
+	TEST(timestamp)
+	{
+		InstructionFactory &insnFactory = InstructionFactory::instance();
+		XmlFactory &x = XmlFactory::instance();
+
+		std::string xml =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				"<emilpro>\n"
+				"  <InstructionModel name=\"beqz\" architecture=\"mips\" timestamp=\"1\">\n"
+				"    <type>cflow</type>\n"
+				"  </InstructionModel>\n"
+				"  <InstructionModel name=\"beqz\" architecture=\"mips\" timestamp=\"3\">\n"
+				"    <type>data_handling</type>\n"
+				"  </InstructionModel>\n"
+				"  <InstructionModel name=\"beqz\" architecture=\"mips\" timestamp=\"2\">\n"
+				"    <type>other</type>\n"
+				"  </InstructionModel>\n"
+				"</emilpro>\n";
+
+		ArchitectureFactory::instance().provideArchitecture(bfd_arch_mips);
+
+		x.parse(xml);
+		InstructionModel *p = (InstructionModel *)insnFactory.m_instructionModelByArchitecture[(unsigned)bfd_arch_mips]["beqz"];
+		ASSERT_TRUE(p);
+
+		ASSERT_TRUE(p->getType() == IInstruction::IT_DATA_HANDLING);
+		EmilPro::destroy();
+	}
+
+	TEST(timestampDefault)
+	{
+		InstructionFactory &insnFactory = InstructionFactory::instance();
+		XmlFactory &x = XmlFactory::instance();
+
+		std::string xml =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				"<emilpro>\n"
+				"  <InstructionModel name=\"beqz\" architecture=\"mips\" timestamp=\"1\">\n"
+				"    <type>cflow</type>\n"
+				"  </InstructionModel>\n"
+				"  <InstructionModel name=\"beqz\" architecture=\"mips\">\n" // No timestamp - now
+				"    <type>data_handling</type>\n"
+				"  </InstructionModel>\n"
+				"  <InstructionModel name=\"beqz\" architecture=\"mips\" timestamp=\"2\">\n"
+				"    <type>other</type>\n"
+				"  </InstructionModel>\n"
+				"</emilpro>\n";
+
+		ArchitectureFactory::instance().provideArchitecture(bfd_arch_mips);
+
+		x.parse(xml);
+		InstructionModel *p = (InstructionModel *)insnFactory.m_instructionModelByArchitecture[(unsigned)bfd_arch_mips]["beqz"];
+		ASSERT_TRUE(p);
+
+		ASSERT_TRUE(p->getType() == IInstruction::IT_DATA_HANDLING);
+		EmilPro::destroy();
 	}
 }

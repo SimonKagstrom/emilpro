@@ -434,7 +434,7 @@ bool InstructionFactory::XmlListener::onStart(const Glib::ustring& name,
 
 		std::string instructionName;
 		std::string instructionArchitecture;
-		uint64_t timestamp = 0;
+		uint64_t timestamp = get_utc_timestamp();
 
 		for(xmlpp::SaxParser::AttributeList::const_iterator it = properties.begin();
 				it != properties.end();
@@ -485,8 +485,19 @@ bool InstructionFactory::XmlListener::onEnd(const Glib::ustring& name)
 
 		InstructionModel *p = (InstructionModel *)m_currentModel;
 
-		InstructionFactory::MnemonicToModel_t &cur = m_parent->m_instructionModelByArchitecture[(unsigned)p->m_architecture];
-		cur[p->m_mnemonic] = m_currentModel;
+		InstructionFactory::MnemonicToModel_t &curMap = m_parent->m_instructionModelByArchitecture[(unsigned)p->m_architecture];
+		InstructionModel *previousModel = (InstructionModel *)curMap[p->m_mnemonic];
+
+		if (!previousModel) {
+			curMap[p->m_mnemonic] = m_currentModel;
+		} else {
+			if (p->m_timestamp >= previousModel->m_timestamp) {
+				delete previousModel;
+				curMap[p->m_mnemonic] = m_currentModel;
+			} else {
+				delete m_currentModel;
+			}
+		}
 
 		m_currentModel = NULL;
 	}
