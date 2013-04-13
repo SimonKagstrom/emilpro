@@ -97,3 +97,10 @@ int64_t string_to_integer(std::string str);
 std::string escape_string_for_c(std::string &str);
 
 uint64_t get_utc_timestamp();
+
+
+
+// Unit test stuff
+void mock_read_file(void *(*callback)(size_t *out_size, const char *path));
+
+void mock_write_file(int (*callback)(const void *data, size_t size, const char *path));

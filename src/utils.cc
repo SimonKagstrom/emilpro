@@ -6,6 +6,10 @@
 
 #include "utils.hh"
 
+static void* (*mocked_read_callback)(size_t* out_size, const char* path);
+static int (*mocked_write_callback)(const void* data, size_t size, const char* path);
+
+
 unsigned get_number_of_cores()
 {
 	return 1; // FIXME!
@@ -37,6 +41,9 @@ void *read_file(size_t *out_size, const char *fmt, ...)
 
 	panic_if (r >= 2048,
 			"Too long string!");
+
+	if (mocked_read_callback)
+		return mocked_read_callback(out_size, path);
 
 	if (lstat(path, &buf) < 0)
 		return NULL;
@@ -72,6 +79,9 @@ int write_file(const void *data, size_t len, const char *fmt, ...)
 	va_start(ap, fmt);
 	vsnprintf(path, 2048, fmt, ap);
 	va_end(ap);
+
+	if (mocked_write_callback)
+		return mocked_write_callback(data, len, path);
 
 	fp = fopen(path, "w");
 	if (!fp)
@@ -245,4 +255,15 @@ uint64_t get_utc_timestamp()
 		return 0;
 
 	return (uint64_t)timegm(ptm);
+}
+
+
+void mock_read_file(void* (*callback)(size_t* out_size, const char* path))
+{
+	mocked_read_callback = callback;
+}
+
+void mock_write_file(int (*callback)(const void* data, size_t size, const char* path))
+{
+	mocked_write_callback = callback;
 }
