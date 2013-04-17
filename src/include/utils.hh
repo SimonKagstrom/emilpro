@@ -96,6 +96,8 @@ int64_t string_to_integer(std::string str);
 
 std::string escape_string_for_c(std::string &str);
 
+std::string escape_string_for_xml(std::string &str);
+
 uint64_t get_utc_timestamp();
 
 

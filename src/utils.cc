@@ -242,6 +242,24 @@ std::string escape_string_for_c(std::string &str)
 	return out;
 }
 
+std::string escape_string_for_xml(std::string &str)
+{
+	std::string out;
+
+	for (unsigned i = 0; i < str.size(); i++) {
+		char c = str[i];
+
+		if (c == '<')
+			out += "\\<";
+		if (c == '>')
+			out += "\\>";
+		else
+			out += c;
+	}
+
+	return out;
+}
+
 uint64_t get_utc_timestamp()
 {
 	time_t raw;
