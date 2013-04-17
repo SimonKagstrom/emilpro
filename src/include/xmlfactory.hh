@@ -46,6 +46,8 @@ namespace emilpro
 
 		void registerListener(std::string elementName, IXmlListener *listener);
 
+		void unregisterListener(IXmlListener *listener);
+
 
 		static XmlFactory &instance();
 

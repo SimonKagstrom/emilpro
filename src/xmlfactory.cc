@@ -162,6 +162,25 @@ void XmlFactory::registerListener(std::string elementName,
 	m_elementListeners[elementName].push_back(listener);
 }
 
+void XmlFactory::unregisterListener(IXmlListener* listener)
+{
+	ListenerList_t &listeners = m_elementListeners[listener->m_name];
+	ListenerList_t::iterator found = listeners.end();
+
+	for (ListenerList_t::iterator it = listeners.begin();
+			it != listeners.end();
+			++it) {
+		if (*it == listener)
+			found = it;
+	}
+
+	if (found != listeners.end())
+		listeners.erase(found);
+
+	if (listeners.size() == 0)
+		m_elementListeners.erase(listener->m_name);
+}
+
 void XmlFactory::on_fatal_error(const Glib::ustring& text)
 {
 }

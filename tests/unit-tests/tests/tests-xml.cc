@@ -93,4 +93,42 @@ TESTSUITE(xml)
 			x.destroy();
 		}
 	}
+
+	TEST(unregisterListener, ListenerFixture)
+	{
+		XmlFactory &x = XmlFactory::instance();
+		bool res;
+		std::string xml =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				"<emilpro>\n"
+				"  <InstructionModel name=\"bge\" architecture=\"mips\">\n"
+				"    <type>cflow</type>\n"
+				"    <privileged>unknown</privileged>\n"
+				"    <encoding>0x??ab</encoding>\n"
+				"    <encoding>0x??cd</encoding>\n"
+				"    <description>Branch if greater or equal\n"
+				"           Yada yada."
+				"    </description>\n"
+				"  </InstructionModel>\n"
+				"</emilpro>\n";
+
+
+		x.registerListener("InstructionModel", this);
+
+		res = x.parse(xml);
+		ASSERT_TRUE(res == true);
+
+		ASSERT_TRUE(m_startElementMap["InstructionModel"] == 1U);
+		res = x.parse(xml);
+		ASSERT_TRUE(res == true);
+		ASSERT_TRUE(m_startElementMap["InstructionModel"] == 2U);
+
+		x.unregisterListener(this);
+
+		res = x.parse(xml);
+		ASSERT_TRUE(res == true);
+		ASSERT_TRUE(m_startElementMap["InstructionModel"] == 2U);
+
+		x.destroy();
+	}
 }
