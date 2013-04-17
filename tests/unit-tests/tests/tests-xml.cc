@@ -131,4 +131,32 @@ TESTSUITE(xml)
 
 		x.destroy();
 	}
+
+	TEST(invalidCharacters, ListenerFixture)
+	{
+		XmlFactory &x = XmlFactory::instance();
+		std::string description  = "Branch if greater or equal <\n";
+
+		bool res;
+
+		x.registerListener("InstructionModel", this);
+
+		res = x.parse(
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				"<emilpro>\n"
+				"  <InstructionModel name=\"bge\">\n"
+				"  </InstructionModel>\n"
+				"    <description>" + description + "</description>\n"
+				"</emilpro>");
+		ASSERT_TRUE(res == false);
+
+		res = x.parse(
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				"<emilpro>\n"
+				"  <InstructionModel name=\"bge\">\n"
+				"  </InstructionModel>\n"
+				"    <description>" + escape_string_for_xml(description) + "</description>\n"
+				"</emilpro>");
+		ASSERT_TRUE(res == true);
+	}
 }
