@@ -38,7 +38,7 @@ public:
 	std::unordered_map<std::string, std::string> m_nameToValueMap;
 };
 
-TESTSUITE(xml)
+TESTSUITE(xmlfactory)
 {
 	TEST(createAndDestroy)
 	{

@@ -49,7 +49,7 @@ set (${TGT}_SRCS
 	tests/tests-model.cc
 	tests/tests-symbol-provider.cc
 	tests/tests-utils.cc
-	tests/tests-xml.cc
+	tests/tests-xmlfactory.cc
 	)
 
 include_directories(
@@ -91,6 +91,7 @@ add_executable (${TGT} ${${TGT}_SRCS})
 target_link_libraries(${TGT}
 	${LIBELF_LIBRARIES}
 	${LIBBFD_LIBRARIES}
+	${LIBCRPCUT_HEAP_LIBRARIES}
 	${LIBCRPCUT_LIBRARIES}
 	${GTKMM_LIBRARIES}
 	${LIBXMLPP_LIBRARIES}
