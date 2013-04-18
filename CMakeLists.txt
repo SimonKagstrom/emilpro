@@ -76,6 +76,7 @@ set (BASE_SRCS
 	src/symbolfactory.cc
 	src/utils.cc
 	src/xmlfactory.cc
+	src/xmlstring.cc
 	)
 	
 set (GUI_SRCS

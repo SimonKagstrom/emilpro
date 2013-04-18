@@ -41,6 +41,7 @@ set (${TGT}_SRCS
 	../../src/symbolfactory.cc
 	../../src/utils.cc
 	../../src/xmlfactory.cc
+	../../src/xmlstring.cc
 	main.cc
 	tests/tests-disassembly.cc
 	tests/tests-hexview.cc
@@ -50,6 +51,7 @@ set (${TGT}_SRCS
 	tests/tests-symbol-provider.cc
 	tests/tests-utils.cc
 	tests/tests-xmlfactory.cc
+	tests/tests-xmlstring.cc
 	)
 
 include_directories(
