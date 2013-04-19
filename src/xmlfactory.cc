@@ -148,20 +148,6 @@ bool XmlFactory::parse(std::string str, bool isRemote)
 	return out;
 }
 
-bool XmlFactory::parseFile(std::string fileName)
-{
-	size_t sz;
-	const char *p = (const char *)read_file(&sz, "%s", fileName.c_str());
-
-	if (!p)
-		return false;
-
-	std::string str(p);
-	free((void *)p);
-
-	return parse(str);
-}
-
 void XmlFactory::registerListener(std::string elementName,
 		IXmlListener* listener)
 {

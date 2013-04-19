@@ -46,9 +46,6 @@ namespace emilpro
 
 		bool parse(std::string str, bool isRemote = false);
 
-		bool parseFile(std::string fileName);
-
-
 		void registerListener(std::string elementName, IXmlListener *listener);
 
 		void unregisterListener(IXmlListener *listener);
