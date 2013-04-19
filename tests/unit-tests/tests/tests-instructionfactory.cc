@@ -158,4 +158,43 @@ TESTSUITE(instruction_factory)
 		ASSERT_TRUE(p->getType() == IInstruction::IT_DATA_HANDLING);
 		EmilPro::destroy();
 	}
+
+	TEST(getModels)
+	{
+		InstructionFactory &insnFactory = InstructionFactory::instance();
+		XmlFactory &x = XmlFactory::instance();
+
+		std::string xml =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				"<emilpro>\n"
+				"  <InstructionModel name=\"beqz\" architecture=\"mips\" timestamp=\"0\">\n"
+				"    <type>cflow</type>\n"
+				"  </InstructionModel>\n"
+				"  <InstructionModel name=\"sub\" architecture=\"mips\" timestamp=\"3\">\n"
+				"    <type>data_handling</type>\n"
+				"  </InstructionModel>\n"
+				"  <InstructionModel name=\"addiu\" architecture=\"mips\" timestamp=\"5\">\n"
+				"    <type>other</type>\n"
+				"  </InstructionModel>\n"
+				"</emilpro>\n";
+
+		ArchitectureFactory::instance().provideArchitecture(bfd_arch_mips);
+
+		x.parse(xml);
+		InstructionFactory::InstructionModelList_t lst;
+
+		lst = insnFactory.getInstructionModels();
+		ASSERT_TRUE(lst.size() == 3U);
+		lst = insnFactory.getInstructionModels(6);
+		ASSERT_TRUE(lst.size() == 0U);
+
+		lst = insnFactory.getInstructionModels(1);
+		ASSERT_TRUE(lst.size() == 2U);
+
+		lst = insnFactory.getInstructionModels(3);
+		ASSERT_TRUE(lst.size() == 2U);
+
+		lst = insnFactory.getInstructionModels(4);
+		ASSERT_TRUE(lst.size() == 1U);
+	}
 }

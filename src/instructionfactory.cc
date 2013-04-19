@@ -522,7 +522,7 @@ InstructionFactory::IInstructionModel* InstructionFactory::createModelForInstruc
 	return out;
 }
 
-InstructionFactory::InstructionModelList_t InstructionFactory::getInstructionModels()
+InstructionFactory::InstructionModelList_t InstructionFactory::getInstructionModels(uint64_t fromTimestamp)
 {
 	InstructionFactory::InstructionModelList_t out;
 	std::map<std::string, InstructionModelList_t> byMnemonic;
@@ -537,7 +537,8 @@ InstructionFactory::InstructionModelList_t InstructionFactory::getInstructionMod
 				++itModel) {
 			InstructionModel *p = (InstructionModel *)itModel->second;
 
-			byMnemonic[p->m_mnemonic].push_back(p);
+			if (p->m_timestamp >= fromTimestamp)
+				byMnemonic[p->m_mnemonic].push_back(p);
 		}
 	}
 
