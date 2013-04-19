@@ -4,6 +4,7 @@
 
 #include <list>
 #include <unordered_map>
+#include <mutex>
 
 namespace emilpro
 {
@@ -39,7 +40,11 @@ namespace emilpro
 
 		void destroy();
 
-		bool parse(std::string str);
+
+		bool isParsingRemoteData();
+
+
+		bool parse(std::string str, bool isRemote = false);
 
 		bool parseFile(std::string fileName);
 
@@ -78,5 +83,8 @@ namespace emilpro
 		bool m_validationRun;
 		Glib::ustring m_currentName;
 		AttributeList m_currentProperties;
+
+		bool m_isRemote;
+		std::mutex m_mutex;
 	};
 }

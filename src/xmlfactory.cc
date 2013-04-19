@@ -7,7 +7,8 @@ using namespace emilpro;
 
 XmlFactory::XmlFactory() :
 		xmlpp::SaxParser(),
-		m_validationRun(true)
+		m_validationRun(true),
+		m_isRemote(false)
 {
 	set_substitute_entities(true);
 
@@ -126,8 +127,13 @@ XmlFactory& XmlFactory::instance()
 	return *g_instance;
 }
 
-bool XmlFactory::parse(std::string str)
+bool XmlFactory::parse(std::string str, bool isRemote)
 {
+	bool out = true;
+
+	m_mutex.lock();
+	m_isRemote = isRemote;
+
 	try {
 		m_validationRun = true;
 		parse_memory(str);
@@ -135,10 +141,11 @@ bool XmlFactory::parse(std::string str)
 		parse_memory(str);
 	}
 	catch(const xmlpp::exception& ex) {
-		return false;
+		out = false;
 	}
+	m_mutex.unlock();
 
-	return true;
+	return out;
 }
 
 bool XmlFactory::parseFile(std::string fileName)
@@ -183,6 +190,11 @@ void XmlFactory::unregisterListener(IXmlListener* listener)
 
 void XmlFactory::on_fatal_error(const Glib::ustring& text)
 {
+}
+
+bool XmlFactory::isParsingRemoteData()
+{
+	return m_isRemote;
 }
 
 void XmlFactory::maybePopListener(const Glib::ustring& name)
