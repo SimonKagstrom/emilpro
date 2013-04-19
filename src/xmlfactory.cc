@@ -127,7 +127,7 @@ XmlFactory& XmlFactory::instance()
 	return *g_instance;
 }
 
-bool XmlFactory::parse(std::string str, bool isRemote)
+bool XmlFactory::parse(const std::string str, bool isRemote)
 {
 	bool out = true;
 

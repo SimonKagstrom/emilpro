@@ -44,7 +44,7 @@ namespace emilpro
 		bool isParsingRemoteData();
 
 
-		bool parse(std::string str, bool isRemote = false);
+		bool parse(const std::string str, bool isRemote = false);
 
 		void registerListener(std::string elementName, IXmlListener *listener);
 
