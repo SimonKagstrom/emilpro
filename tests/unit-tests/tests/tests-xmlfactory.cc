@@ -132,6 +132,20 @@ TESTSUITE(xmlfactory)
 		x.destroy();
 	}
 
+	TEST(unregisterMultipleListeners, ListenerFixture)
+	{
+		XmlFactory &x = XmlFactory::instance();
+
+		x.registerListener("InstructionModel", this);
+		x.registerListener("ServerTimestamps", this);
+		ASSERT_TRUE(x.m_elementListeners.size() == 2U);
+
+		x.unregisterListener(this);
+		ASSERT_TRUE(x.m_elementListeners.size() == 0U);
+
+		x.destroy();
+	}
+
 	TEST(invalidCharacters, ListenerFixture)
 	{
 		XmlFactory &x = XmlFactory::instance();
