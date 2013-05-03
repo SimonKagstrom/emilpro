@@ -600,7 +600,6 @@
                                 <property name="height_request">210</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="hscrollbar_policy">never</property>
                                 <property name="window_placement_set">True</property>
                                 <property name="kinetic_scrolling">False</property>
                                 <child>
