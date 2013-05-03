@@ -41,17 +41,24 @@ namespace emilpro
 
 		void setConnectionHandler(IConnectionHandler &handler);
 
-		void connect();
+		bool connect();
 
 		bool sendXml(std::string &what);
 
 
+		void destroy();
+
 		static Server &instance();
 
 	private:
+		Server();
+
+		~Server();
+
 		typedef std::list<IListener *> Listeners_t;
 
 		IConnectionHandler *m_connectionHandler;
+		bool m_isConnected;
 		Listeners_t m_listeners;
 	};
 }

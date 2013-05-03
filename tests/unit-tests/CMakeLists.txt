@@ -39,6 +39,7 @@ set (${TGT}_SRCS
 	../../src/gtk/hexview.cc
 	../../src/jumptargetdisplay.cc
 	../../src/network-listener.cc
+	../../src/server-connection.cc
 	../../src/symbolfactory.cc
 	../../src/utils.cc
 	../../src/xmlfactory.cc
