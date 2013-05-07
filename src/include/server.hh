@@ -3,6 +3,8 @@
 #include <list>
 #include <string>
 
+class TimestampHolder;
+
 namespace emilpro
 {
 	class Server
@@ -60,5 +62,6 @@ namespace emilpro
 		IConnectionHandler *m_connectionHandler;
 		bool m_isConnected;
 		Listeners_t m_listeners;
+		TimestampHolder *m_timestampHolder;
 	};
 }

@@ -5,6 +5,95 @@
 
 using namespace emilpro;
 
+class TimestampHolder : public XmlFactory::IXmlListener
+{
+public:
+	TimestampHolder() :
+		m_instructionModelTimestamp(0)
+	{
+		XmlFactory::instance().registerListener("InstructionModel", this);
+		XmlFactory::instance().registerListener("ServerTimestamps", this);
+	}
+
+	~TimestampHolder()
+	{
+		XmlFactory::instance().unregisterListener(this);
+	}
+
+	bool sendTimestamps()
+	{
+		std::string xml = toXml();
+
+		return Server::instance().sendXml(xml);
+	}
+
+private:
+	std::string toXml()
+	{
+		return fmt(
+				"  <ServerTimestamps>\n"
+				"    <InstructionModelTimestamp>%llu</InstructionModelTimestamp>\n"
+				"  </ServerTimestamps>\n",
+				(unsigned long long)m_instructionModelTimestamp);
+	}
+
+
+	// Derived
+	bool onStart(const Glib::ustring &name, const xmlpp::SaxParser::AttributeList &properties, std::string value)
+	{
+		if (name == "InstructionModel" && XmlFactory::instance().isParsingRemoteData()) {
+			uint64_t timestamp = 0;
+
+			for(xmlpp::SaxParser::AttributeList::const_iterator it = properties.begin();
+					it != properties.end();
+					++it) {
+				if (it->name == "timestamp") {
+					if (string_is_integer(it->value))
+						timestamp = string_to_integer(it->value);
+				}
+			}
+
+			maybeUpdateTimestamp(timestamp);
+		}
+
+		return true;
+	}
+
+	bool onElement(const Glib::ustring &name, const xmlpp::SaxParser::AttributeList &properties, std::string value)
+	{
+		if (name == "InstructionModelTimestamp") {
+			uint64_t timestamp;
+
+			if (string_is_integer(value))
+				timestamp = string_to_integer(value);
+
+			// Might have been updated by incoming data
+			maybeUpdateTimestamp(timestamp);
+		}
+
+		return true;
+	}
+
+	bool onEnd(const Glib::ustring &name)
+	{
+		return true;
+	}
+
+	void maybeUpdateTimestamp(uint64_t timestamp)
+	{
+		if (timestamp == 0)
+			return;
+
+		if (timestamp <= m_instructionModelTimestamp)
+			return;
+
+		m_instructionModelTimestamp = timestamp;
+	}
+
+
+	uint64_t m_instructionModelTimestamp;
+};
+
 void Server::registerListener(IListener &listener)
 {
 	unregisterListener(listener);
@@ -35,6 +124,9 @@ bool Server::connect()
 {
 	panic_if (!m_connectionHandler,
 			"No connection handler");
+
+	panic_if (m_isConnected,
+			"Already connected");
 
 	m_isConnected = m_connectionHandler->setup();
 
@@ -76,10 +168,13 @@ Server& Server::instance()
 
 Server::Server() :
 		m_connectionHandler(NULL),
-		m_isConnected(false)
+		m_isConnected(false),
+		m_timestampHolder(NULL)
 {
+	m_timestampHolder = new TimestampHolder();
 }
 
 Server::~Server()
 {
+	delete m_timestampHolder;
 }
