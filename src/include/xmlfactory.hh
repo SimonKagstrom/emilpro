@@ -6,11 +6,19 @@
 #include <unordered_map>
 #include <mutex>
 
+// unit test stuff
+namespace xmlfactory
+{
+	class unregisterMultipleListeners;
+}
+
 namespace emilpro
 {
 	class XmlFactory : public xmlpp::SaxParser
 	{
 	public:
+		friend class xmlfactory::unregisterMultipleListeners;
+
 		class IXmlListener
 		{
 		public:
