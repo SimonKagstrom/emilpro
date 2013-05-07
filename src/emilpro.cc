@@ -6,6 +6,7 @@
 #include <idisassembly.hh>
 #include <xmlfactory.hh>
 #include <configuration.hh>
+#include <server.hh>
 #include <utils.hh>
 
 #include <sys/stat.h>
@@ -34,6 +35,7 @@ void EmilPro::init()
 	ArchitectureFactory::instance();
 	InstructionFactory::instance();
 	XmlFactory::instance();
+	Server::instance();
 
 	std::string confDir = conf.getPath(Configuration::DIR_CONFIGURATION);
 	std::string localDir = conf.getPath(Configuration::DIR_LOCAL);

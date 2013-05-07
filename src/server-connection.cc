@@ -118,6 +118,7 @@ void Server::unregisterListener(IListener& listener)
 void Server::setConnectionHandler(IConnectionHandler& handler)
 {
 	m_connectionHandler = &handler;
+
 }
 
 bool Server::connect()
@@ -129,6 +130,9 @@ bool Server::connect()
 			"Already connected");
 
 	m_isConnected = m_connectionHandler->setup();
+
+	if (m_isConnected)
+		m_thread = new std::thread(&Server::threadMain, this);
 
 	return m_isConnected;
 }
@@ -169,7 +173,8 @@ Server& Server::instance()
 Server::Server() :
 		m_connectionHandler(NULL),
 		m_isConnected(false),
-		m_timestampHolder(NULL)
+		m_timestampHolder(NULL),
+		m_thread(NULL)
 {
 	m_timestampHolder = new TimestampHolder();
 }
@@ -177,4 +182,17 @@ Server::Server() :
 Server::~Server()
 {
 	delete m_timestampHolder;
+
+	if (m_thread)
+		delete m_thread;
+}
+
+void Server::threadMain()
+{
+	/*
+	 * We'll get the instruction models in the reply.
+	 *
+	 * For now, just exit the thread after this is done.
+	 */
+	m_timestampHolder->sendTimestamps();
 }

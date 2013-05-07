@@ -2,6 +2,7 @@
 
 #include <list>
 #include <string>
+#include <thread>
 
 class TimestampHolder;
 
@@ -57,11 +58,15 @@ namespace emilpro
 
 		~Server();
 
+
+		void threadMain();
+
 		typedef std::list<IListener *> Listeners_t;
 
 		IConnectionHandler *m_connectionHandler;
 		bool m_isConnected;
 		Listeners_t m_listeners;
 		TimestampHolder *m_timestampHolder;
+		std::thread *m_thread;
 	};
 }
