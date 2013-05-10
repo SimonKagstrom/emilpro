@@ -111,6 +111,12 @@ add_executable (squash-instruction-models
 	${BASE_SRCS}
 	tools/squash-instruction-models.cc
 	)
+
+add_executable (cgi-server
+	${BASE_SRCS}
+	src/server/cgi-server.cc
+	tools/cgi-server-main.cc
+	)
 	
 target_link_libraries(emilpro
 	${LIBELF_LIBRARIES}
@@ -122,6 +128,13 @@ target_link_libraries(emilpro
 	)
 
 target_link_libraries(squash-instruction-models
+	${LIBELF_LIBRARIES}
+	${LIBBFD_LIBRARIES}
+	${LIBXMLPP_LIBRARIES}
+	z
+	)
+
+target_link_libraries(cgi-server
 	${LIBELF_LIBRARIES}
 	${LIBBFD_LIBRARIES}
 	${LIBXMLPP_LIBRARIES}

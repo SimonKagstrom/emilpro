@@ -47,6 +47,7 @@ set (${TGT}_SRCS
 	main.cc
 	tests/tests-disassembly.cc
 	tests/tests-hexview.cc
+	tests/tests-cgi-server.cc
 	tests/tests-instructionfactory.cc
 	tests/tests-jumptargetdisplay.cc
 	tests/tests-model.cc
