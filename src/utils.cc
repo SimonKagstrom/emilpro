@@ -260,6 +260,7 @@ std::string escape_string_for_xml(std::string &str)
 	return out;
 }
 
+static int64_t server_timestamp_diff;
 uint64_t get_utc_timestamp()
 {
 	time_t raw;
@@ -272,9 +273,13 @@ uint64_t get_utc_timestamp()
 	if (ptm == NULL)
 		return 0;
 
-	return (uint64_t)timegm(ptm);
+	return (uint64_t)timegm(ptm) + server_timestamp_diff;
 }
 
+void adjust_utc_timestamp(int64_t diff)
+{
+	server_timestamp_diff = diff;
+}
 
 void mock_read_file(void* (*callback)(size_t* out_size, const char* path))
 {

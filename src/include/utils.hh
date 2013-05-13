@@ -100,6 +100,8 @@ std::string escape_string_for_xml(std::string &str);
 
 uint64_t get_utc_timestamp();
 
+void adjust_utc_timestamp(int64_t diff);
+
 
 
 // Unit test stuff
