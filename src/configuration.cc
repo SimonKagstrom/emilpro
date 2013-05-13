@@ -45,6 +45,11 @@ void Configuration::destroy()
 	delete this;
 }
 
+std::string emilpro::Configuration::getServerUrl()
+{
+	return "http://www.emilpro.com/emilpro-submit.cgi";
+}
+
 Configuration& Configuration::instance()
 {
 	if (!g_instance) {

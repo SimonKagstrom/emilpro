@@ -19,6 +19,9 @@ namespace emilpro
 
 		std::string getPath(Dir_t dir);
 
+		std::string getServerUrl();
+
+
 		void destroy();
 
 		static Configuration &instance();
