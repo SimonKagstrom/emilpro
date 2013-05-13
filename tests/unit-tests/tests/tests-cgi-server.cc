@@ -7,7 +7,7 @@
 
 TESTSUITE(cgi_server)
 {
-	TEST(bad_xml)
+	TEST(brokenXML)
 	{
 		CgiServer server;
 		std::string reply;
@@ -35,7 +35,7 @@ TESTSUITE(cgi_server)
 		ASSERT_TRUE(reply == "");
 	}
 
-	TEST(good)
+	TEST(validRequest)
 	{
 		CgiServer server;
 		std::string reply;
@@ -77,5 +77,50 @@ TESTSUITE(cgi_server)
 		ASSERT_TRUE(reply.find("beqz") == std::string::npos);
 		ASSERT_TRUE(reply.find("sub") != std::string::npos);
 		ASSERT_TRUE(reply.find("addiu") != std::string::npos);
+	}
+
+	TEST(adjustTimestamp)
+	{
+		CgiServer server;
+		std::string reply;
+		std::string xml;
+
+		xml = fmt(
+				"  <ServerTimestamps>\n"
+				"    <InstructionModelTimestamp>1</InstructionModelTimestamp>\n"
+				"  </ServerTimestamps>\n"
+				);
+		server.request(xml);
+
+		reply = server.reply();
+		ASSERT_TRUE(reply != "");
+		ASSERT_TRUE(server.m_timestampAdjustment == 0);
+
+		xml = fmt(
+				"  <ServerTimestamps>\n"
+				"    <InstructionModelTimestamp>1</InstructionModelTimestamp>\n"
+				"    <Timestamp>%llu</Timestamp>"
+				"  </ServerTimestamps>\n",
+				(unsigned long long)get_utc_timestamp() - 1000 // Simulate time difference
+				);
+		server.request(xml);
+
+		reply = server.reply();
+		ASSERT_TRUE(reply != "");
+		ASSERT_TRUE(server.m_timestampAdjustment > 0);
+
+
+		xml = fmt(
+				"  <ServerTimestamps>\n"
+				"    <InstructionModelTimestamp>1</InstructionModelTimestamp>\n"
+				"    <Timestamp>%llu</Timestamp>"
+				"  </ServerTimestamps>\n",
+				(unsigned long long)get_utc_timestamp() + 1000
+				);
+		server.request(xml);
+
+		reply = server.reply();
+		ASSERT_TRUE(reply != "");
+		ASSERT_TRUE(server.m_timestampAdjustment < 0);
 	}
 }

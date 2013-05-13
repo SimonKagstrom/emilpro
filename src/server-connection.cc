@@ -32,8 +32,10 @@ private:
 	{
 		return fmt(
 				"  <ServerTimestamps>\n"
+				"    <Timestamp>%llu</Timestamp>\n"
 				"    <InstructionModelTimestamp>%llu</InstructionModelTimestamp>\n"
 				"  </ServerTimestamps>\n",
+				(unsigned long long)get_utc_timestamp(),
 				(unsigned long long)m_instructionModelTimestamp);
 	}
 
@@ -69,6 +71,11 @@ private:
 
 			// Might have been updated by incoming data
 			maybeUpdateTimestamp(timestamp);
+		} else if (name == "ServerTimestampDiff") {
+
+			// Difference between server timestmap and us
+			if (string_is_integer(value))
+				adjust_utc_timestamp(string_to_integer(value));
 		}
 
 		return true;

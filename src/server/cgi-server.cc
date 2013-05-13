@@ -10,7 +10,8 @@
 using namespace emilpro;
 
 CgiServer::CgiServer() :
-				m_timestamp(0)
+				m_timestamp(0),
+				m_timestampAdjustment(0)
 {
 	InstructionFactory::instance(); // Must be created before this
 	XmlFactory::instance().registerListener("ServerTimestamps", this);
@@ -26,6 +27,9 @@ bool CgiServer::onElement(const Glib::ustring &name, const xmlpp::SaxParser::Att
 	if (name == "InstructionModelTimestamp") {
 		if (string_is_integer(value))
 			m_timestamp = string_to_integer(value);
+	} else if (name == "Timestamp") {
+		if (string_is_integer(value))
+			m_timestampAdjustment = get_utc_timestamp() - string_to_integer(value);
 	}
 
 	return true;
@@ -60,6 +64,15 @@ std::string CgiServer::reply()
 
 	std::string out;
 
+	if (m_timestampAdjustment) {
+		out = fmt(
+				"  <ServerTimestamps>\n"
+				"    <ServerTimestampDiff>%lld</ServerTimestampDiff>\n"
+				"  </ServerTimestamps>\n",
+				(long long)m_timestampAdjustment
+				);
+	}
+
 	for (std::list<InstructionFactory::IInstructionModel *>::iterator it = models.begin();
 			it != models.end();
 			++it) {
@@ -76,8 +89,9 @@ std::string CgiServer::reply()
 
 void CgiServer::request(const std::string xml)
 {
-	// Reset timestamp before parsing
+	// Reset timestamps before parsing
 	m_timestamp = 0;
+	m_timestampAdjustment = 0;
 
 	XmlFactory::instance().parse(xml);
 }

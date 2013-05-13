@@ -6,11 +6,18 @@
 #include <fstream>
 #include <stdio.h>
 
+namespace cgi_server
+{
+	class adjustTimestamp;
+}
+
 namespace emilpro
 {
 	class CgiServer : public XmlFactory::IXmlListener
 	{
 	public:
+		friend class cgi_server::adjustTimestamp;
+
 		CgiServer();
 
 		~CgiServer();
@@ -28,6 +35,7 @@ namespace emilpro
 
 	private:
 		uint64_t m_timestamp;
+		int64_t m_timestampAdjustment;
 	};
 
 }
