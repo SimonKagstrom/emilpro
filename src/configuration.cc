@@ -5,9 +5,6 @@ using namespace emilpro;
 
 std::string Configuration::getBasePath()
 {
-	if (m_basePath == "")
-		m_basePath = get_home_directory() + "/.emilpro";
-
 	return m_basePath;
 }
 
@@ -52,10 +49,23 @@ std::string emilpro::Configuration::getServerUrl()
 
 Configuration& Configuration::instance()
 {
-	if (!g_instance) {
-		g_instance = new Configuration();
-	}
+	panic_if (!g_instance,
+			"Use-before-create");
 
 	return *g_instance;
 }
+
+void Configuration::create(const std::string base)
+{
+	g_instance = new Configuration(base);
+}
+
+Configuration::Configuration(const std::string base) :
+		m_basePath(base)
+{
+	if (m_basePath == "")
+		m_basePath = get_home_directory() + "/.emilpro";
+}
+
+
 

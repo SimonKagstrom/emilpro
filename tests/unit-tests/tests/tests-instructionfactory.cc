@@ -2,6 +2,7 @@
 
 #include <xmlfactory.hh>
 #include <idisassembly.hh>
+#include <configuration.hh>
 #include <emilpro.hh>
 
 #include <utils.hh>
@@ -103,6 +104,7 @@ TESTSUITE(instruction_factory)
 
 	TEST(timestamp)
 	{
+		Configuration::create();
 		InstructionFactory &insnFactory = InstructionFactory::instance();
 		XmlFactory &x = XmlFactory::instance();
 
@@ -132,6 +134,7 @@ TESTSUITE(instruction_factory)
 
 	TEST(timestampDefault)
 	{
+		Configuration::create();
 		InstructionFactory &insnFactory = InstructionFactory::instance();
 		XmlFactory &x = XmlFactory::instance();
 
@@ -161,6 +164,7 @@ TESTSUITE(instruction_factory)
 
 	TEST(getModels)
 	{
+		Configuration::create();
 		InstructionFactory &insnFactory = InstructionFactory::instance();
 		XmlFactory &x = XmlFactory::instance();
 

@@ -4,6 +4,7 @@
 #include <instructionfactory.hh>
 #include <idisassembly.hh>
 #include <iinstruction.hh>
+#include <configuration.hh>
 #include <emilpro.hh>
 #include <utils.hh>
 
@@ -142,6 +143,7 @@ TESTSUITE(disassembly)
 
 	TEST(otherArchs, DisassemblyFixture)
 	{
+		Configuration::create();
 		IDisassembly &dis = IDisassembly::instance();
 		ArchitectureFactory::instance().provideArchitecture(bfd_arch_powerpc);
 
@@ -200,6 +202,7 @@ TESTSUITE(disassembly)
 	{
 		ASSERT_SCOPE_HEAP_LEAK_FREE
 		{
+			Configuration::create();
 			IDisassembly &dis = IDisassembly::instance();
 			uint8_t breakpoint = 0xcc;
 
