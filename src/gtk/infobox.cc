@@ -1,6 +1,7 @@
 #include <infobox.hh>
 #include <instructionfactory.hh>
 #include <configuration.hh>
+#include <server.hh>
 #include <utils.hh>
 
 #include <sys/stat.h>
@@ -153,6 +154,7 @@ private:
 
 		write_file((void *)xml.c_str(), xml.size(),
 				"%s", fileName.c_str());
+		Server::instance().sendXml(xml);
 
 		m_dialog->hide();
 	}
