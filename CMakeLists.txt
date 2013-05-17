@@ -25,6 +25,7 @@ set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
 pkg_check_modules(GTKMM gtkmm-3.0)
 pkg_check_modules(GTKSOURCEVIEWMM gtksourceviewmm-3.0)
 pkg_check_modules(LIBXMLPP libxml++-2.6)
+pkg_check_modules(LIBCURL libcurl)
 
 set (CMAKE_CXX_FLAGS "-std=c++0x -Wall -D_GLIBCXX_USE_NANOSLEEP -DPACKAGE=emilpro -DPACKAGE_VERSION=1")
 
@@ -100,6 +101,7 @@ include_directories(
 	${GTKMM_INCLUDE_DIRS}
 	${GTKSOURCEVIEWMM_INCLUDE_DIRS}
 	${LIBXMLPP_INCLUDE_DIRS}
+	${LIBCURL_INCLUDE_DIRS}
 	)
 
 add_executable (emilpro
@@ -124,6 +126,7 @@ target_link_libraries(emilpro
 	${GTKMM_LIBRARIES}
 	${GTKSOURCEVIEWMM_LIBRARIES}
 	${LIBXMLPP_LIBRARIES}
+	${LIBCURL_LIBRARIES}
 	z
 	)
 
@@ -131,6 +134,7 @@ target_link_libraries(squash-instruction-models
 	${LIBELF_LIBRARIES}
 	${LIBBFD_LIBRARIES}
 	${LIBXMLPP_LIBRARIES}
+	${LIBCURL_LIBRARIES}
 	z
 	)
 
@@ -138,5 +142,6 @@ target_link_libraries(cgi-server
 	${LIBELF_LIBRARIES}
 	${LIBBFD_LIBRARIES}
 	${LIBXMLPP_LIBRARIES}
+	${LIBCURL_LIBRARIES}
 	z
 	)

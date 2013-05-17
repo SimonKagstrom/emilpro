@@ -19,6 +19,7 @@ find_package (PkgConfig REQUIRED)
 
 pkg_check_modules(GTKMM gtkmm-3.0)
 pkg_check_modules(LIBXMLPP libxml++-2.6)
+pkg_check_modules(LIBCURL libcurl)
 
 set (TGT ut)
 
@@ -67,6 +68,7 @@ include_directories(
 	${LIBCRPCUT_INCLUDE_DIRS}
 	${GTKMM_INCLUDE_DIRS}
 	${LIBXMLPP_INCLUDE_DIRS}
+	${LIBCURL_INCLUDE_DIRS}
 	)
 
 add_executable (test-binary
@@ -100,6 +102,7 @@ target_link_libraries(${TGT}
 	${LIBCRPCUT_LIBRARIES}
 	${GTKMM_LIBRARIES}
 	${LIBXMLPP_LIBRARIES}
+	${LIBCURL_LIBRARIES}
 	gtest
 	gmock
 	z

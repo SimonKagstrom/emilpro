@@ -1,9 +1,124 @@
 #include <server.hh>
 #include <xmlfactory.hh>
-
+#include <configuration.hh>
 #include <utils.hh>
 
+#include <curl/curl.h>
+#include <string.h>
+
 using namespace emilpro;
+
+class CurlConnectionHandler : public Server::IConnectionHandler
+{
+public:
+	CurlConnectionHandler()
+	{
+		curl_global_init(CURL_GLOBAL_ALL);
+
+		m_curl = curl_easy_init();
+
+		// Setup curl to read from memory
+		curl_easy_setopt(m_curl, CURLOPT_URL, Configuration::instance().getServerUrl().c_str());
+		curl_easy_setopt(m_curl, CURLOPT_READFUNCTION, curlReadFuncStatic);
+		curl_easy_setopt(m_curl, CURLOPT_READDATA, (void *)this);
+		curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, curlWriteFuncStatic);
+		curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, (void *)this);
+		curl_easy_setopt(m_curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+	}
+
+	~CurlConnectionHandler()
+	{
+		curl_easy_cleanup(m_curl);
+		curl_global_cleanup();
+	}
+
+
+	bool setup(void)
+	{
+		return true;
+	}
+
+	std::string talk(const std::string &xml)
+	{
+		m_bodyPos = 0;
+		m_bodySize = xml.size();
+		m_data = (void *)xml.c_str();
+
+		struct curl_httppost *formpost = NULL;
+		struct curl_httppost *lastptr = NULL;
+		CURLcode res;
+
+		curl_formadd(&formpost,
+				&lastptr,
+				CURLFORM_COPYNAME, "sendfile",
+				CURLFORM_FILE, "postit2.c",
+				CURLFORM_END);
+
+		curl_formadd(&formpost,
+				&lastptr,
+				CURLFORM_COPYNAME, "submit",
+				CURLFORM_COPYCONTENTS, "send",
+				CURLFORM_END);
+
+		curl_easy_setopt(m_curl, CURLOPT_HTTPPOST, formpost);
+
+		res = curl_easy_perform(m_curl);
+
+		curl_formfree(formpost);
+
+		if (res != CURLE_OK)
+			return "";
+
+		return ""; // FIXME!
+	}
+
+private:
+	size_t curlReadfunc(void *ptr, size_t size, size_t nmemb)
+	{
+		int available = (m_bodySize - m_bodyPos);
+
+		if (available <= 0)
+			return 0;
+
+		int written = size * nmemb;
+
+		if (written > available)
+			written = available;
+
+		memcpy(ptr, ((char*)(m_data)) + m_bodyPos, written);
+		m_bodyPos += written;
+
+		return written;
+	}
+
+	size_t curlWritefunc(void *ptr, size_t size, size_t nmemb)
+	{
+		return 0;
+	}
+
+	static size_t curlReadFuncStatic(void *ptr, size_t size, size_t nmemb, void *priv)
+	{
+		if (!priv)
+			return 0;
+
+		return ((CurlConnectionHandler *)priv)->curlReadfunc(ptr, size, nmemb);
+	}
+
+	static size_t curlWriteFuncStatic(void *ptr, size_t size, size_t nmemb, void *priv)
+	{
+		if (!priv)
+			return 0;
+
+		return ((CurlConnectionHandler *)priv)->curlWritefunc(ptr, size, nmemb);
+	}
+
+	CURL *m_curl;
+
+	int m_bodySize;
+	int m_bodyPos;
+	void *m_data;
+};
+
 
 class ClientHandler : public XmlFactory::IXmlListener
 {
@@ -124,8 +239,10 @@ void Server::unregisterListener(IListener& listener)
 
 void Server::setConnectionHandler(IConnectionHandler& handler)
 {
-	m_connectionHandler = &handler;
+	if (m_connectionHandler)
+		delete m_connectionHandler;
 
+	m_connectionHandler = &handler;
 }
 
 bool Server::connect()
@@ -184,11 +301,18 @@ Server::Server() :
 		m_thread(NULL)
 {
 	m_timestampHolder = new ClientHandler();
+
+	CurlConnectionHandler *ch = new CurlConnectionHandler();
+
+	setConnectionHandler(*ch);
 }
 
 Server::~Server()
 {
 	delete m_timestampHolder;
+
+	if (m_connectionHandler)
+		delete m_connectionHandler;
 
 	if (m_thread)
 		delete m_thread;
