@@ -4,7 +4,7 @@
 #include <string>
 #include <thread>
 
-class TimestampHolder;
+class ClientHandler;
 
 namespace emilpro
 {
@@ -66,7 +66,7 @@ namespace emilpro
 		IConnectionHandler *m_connectionHandler;
 		bool m_isConnected;
 		Listeners_t m_listeners;
-		TimestampHolder *m_timestampHolder;
+		ClientHandler *m_timestampHolder;
 		std::thread *m_thread;
 	};
 }

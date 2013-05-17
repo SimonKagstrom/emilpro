@@ -5,17 +5,17 @@
 
 using namespace emilpro;
 
-class TimestampHolder : public XmlFactory::IXmlListener
+class ClientHandler : public XmlFactory::IXmlListener
 {
 public:
-	TimestampHolder() :
+	ClientHandler() :
 		m_instructionModelTimestamp(0)
 	{
 		XmlFactory::instance().registerListener("InstructionModel", this);
 		XmlFactory::instance().registerListener("ServerTimestamps", this);
 	}
 
-	~TimestampHolder()
+	~ClientHandler()
 	{
 		XmlFactory::instance().unregisterListener(this);
 	}
@@ -183,7 +183,7 @@ Server::Server() :
 		m_timestampHolder(NULL),
 		m_thread(NULL)
 {
-	m_timestampHolder = new TimestampHolder();
+	m_timestampHolder = new ClientHandler();
 }
 
 Server::~Server()
