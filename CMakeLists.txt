@@ -26,6 +26,7 @@ pkg_check_modules(GTKMM gtkmm-3.0)
 pkg_check_modules(GTKSOURCEVIEWMM gtksourceviewmm-3.0)
 pkg_check_modules(LIBXMLPP libxml++-2.6)
 pkg_check_modules(LIBCURL libcurl)
+pkg_check_modules(CGICC cgicc)
 
 set (CMAKE_CXX_FLAGS "-std=c++0x -Wall -D_GLIBCXX_USE_NANOSLEEP -DPACKAGE=emilpro -DPACKAGE_VERSION=1")
 
@@ -119,6 +120,10 @@ add_executable (cgi-server
 	src/server/cgi-server.cc
 	tools/cgi-server-main.cc
 	)
+
+add_executable (cgi-handler
+	tools/cgi-handler.cc
+	)
 	
 target_link_libraries(emilpro
 	${LIBELF_LIBRARIES}
@@ -143,5 +148,10 @@ target_link_libraries(cgi-server
 	${LIBBFD_LIBRARIES}
 	${LIBXMLPP_LIBRARIES}
 	${LIBCURL_LIBRARIES}
+	z
+	)
+
+target_link_libraries(cgi-handler
+	${CGICC_LIBRARIES}
 	z
 	)
