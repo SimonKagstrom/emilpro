@@ -318,6 +318,12 @@ Server::~Server()
 		delete m_thread;
 }
 
+void Server::stop()
+{
+	if (m_thread)
+		m_thread->join();
+}
+
 void Server::threadMain()
 {
 	/*
