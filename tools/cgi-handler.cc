@@ -55,6 +55,7 @@ int main(int argc, const char *argv[])
 
 	std::ofstream toServerFifo(toServerFifoName);
 	toServerFifo << data;
+	toServerFifo.close();
 
 	std::ifstream fromServerFifo(fromServerFifoName);
 
@@ -63,6 +64,7 @@ int main(int argc, const char *argv[])
 
 	while (std::getline(fromServerFifo, line))
 		std::cout << line;
+	fromServerFifo.close();
 
 	return 0;
 }
