@@ -26,6 +26,9 @@ int main(int argc, const char *argv[])
 	const char *inFifoName = argv[1];
 	const char *outFifoName = argv[2];
 
+	mkfifo(inFifoName, S_IRUSR | S_IWUSR);
+	mkfifo(outFifoName, S_IRUSR | S_IWUSR);
+
 	while (1)
 	{
 		std::ifstream inFifo(inFifoName);
