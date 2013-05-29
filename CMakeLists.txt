@@ -122,6 +122,7 @@ add_executable (cgi-server
 	)
 
 add_executable (cgi-handler
+	src/utils.cc
 	tools/cgi-handler.cc
 	)
 	

@@ -6,21 +6,54 @@
 
 using namespace cgicc;
 
+void usage()
+{
+	printf(
+			"Usage: cgi-handler [file-to-read]\n"
+			"\n"
+			"If [file-to-read] is given, it's used in test-mode.\n"
+			);
+	exit(2);
+}
+
 int main(int argc, const char *argv[])
 {
-	Cgicc cgi;
+	std::string data;
+	bool testMode = false;
 
-	const_file_iterator file = cgi.getFile("userfile");
+	if (argc >= 2) {
+		testMode = true;
 
-	// Only redirect a valid file
-	if (file == cgi.getFiles().end())
-		return 0;
+		if (strcmp(argv[1], "-h") == 0)
+			usage();
+	}
+
+	if (!testMode) {
+		Cgicc cgi;
+
+		const_file_iterator file = cgi.getFile("userfile");
+
+		// Only redirect a valid file
+		if (file == cgi.getFiles().end())
+			return 1;
+
+		data = file->getData();
+	} else {
+		size_t sz;
+		const char *rawData = (const char *)read_file(&sz, "%s", argv[1]);
+
+		if (!rawData) {
+			return 1;
+		}
+
+		data = rawData;
+	}
 
 	const char *inFifoName = "";
 	const char *outFifoName = "";
 
 	std::ofstream outFifo(outFifoName);
-	file->writeToStream(outFifo);
+	outFifo << data;
 
 	std::ifstream inFifo(inFifoName);
 
