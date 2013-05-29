@@ -327,7 +327,6 @@ TESTSUITE(model)
 	{
 		ASSERT_SCOPE_HEAP_LEAK_FREE
 		{
-			Configuration::create();
 			Model &model = Model::instance();
 			size_t sz;
 			bool res;

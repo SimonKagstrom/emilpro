@@ -46,8 +46,6 @@ TESTSUITE(network_listener)
 
 	TEST(parse)
 	{
-		Configuration::create();
-
 		std::string xml =
 				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 				"<emilpro>\n"

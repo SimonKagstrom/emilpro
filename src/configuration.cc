@@ -49,15 +49,10 @@ std::string emilpro::Configuration::getServerUrl()
 
 Configuration& Configuration::instance()
 {
-	panic_if (!g_instance,
-			"Use-before-create");
+	if (!g_instance)
+		g_instance = new Configuration();
 
 	return *g_instance;
-}
-
-void Configuration::create()
-{
-	g_instance = new Configuration();
 }
 
 static std::string g_base = "";

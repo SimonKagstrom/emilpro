@@ -26,8 +26,6 @@ namespace emilpro
 
 		static Configuration &instance();
 
-		static void create();
-
 		static void setBaseDirectory(const std::string base);
 
 	private:

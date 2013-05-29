@@ -28,8 +28,6 @@ void EmilPro::init()
 	g_instance = new EmilPro();
 
 	// Create everything
-	Configuration::create();
-
 	Configuration &conf = Configuration::instance();
 	Model::instance();
 	SymbolFactory::instance();
