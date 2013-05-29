@@ -55,13 +55,20 @@ Configuration& Configuration::instance()
 	return *g_instance;
 }
 
-void Configuration::create(const std::string base)
+void Configuration::create()
 {
-	g_instance = new Configuration(base);
+	g_instance = new Configuration();
 }
 
-Configuration::Configuration(const std::string base) :
-		m_basePath(base)
+static std::string g_base = "";
+void Configuration::setBaseDirectory(const std::string base)
+{
+	g_base = base;
+}
+
+
+Configuration::Configuration() :
+		m_basePath(g_base)
 {
 	if (m_basePath == "")
 		m_basePath = get_home_directory() + "/.emilpro";
