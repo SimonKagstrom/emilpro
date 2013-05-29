@@ -9,7 +9,7 @@ using namespace cgicc;
 void usage()
 {
 	printf(
-			"Usage: cgi-handler [file-to-read]\n"
+			"Usage: cgi-handler <in-fifo> <out-fifo> [file-to-read]\n"
 			"\n"
 			"If [file-to-read] is given, it's used in test-mode.\n"
 			);
@@ -21,12 +21,13 @@ int main(int argc, const char *argv[])
 	std::string data;
 	bool testMode = false;
 
-	if (argc >= 2) {
+	if (argc >= 4) {
 		testMode = true;
+	} else if (argc < 3)
+		usage();
 
-		if (strcmp(argv[1], "-h") == 0)
-			usage();
-	}
+	if (strcmp(argv[1], "-h") == 0)
+		usage();
 
 	if (!testMode) {
 		Cgicc cgi;
@@ -40,7 +41,7 @@ int main(int argc, const char *argv[])
 		data = file->getData();
 	} else {
 		size_t sz;
-		const char *rawData = (const char *)read_file(&sz, "%s", argv[1]);
+		const char *rawData = (const char *)read_file(&sz, "%s", argv[3]);
 
 		if (!rawData) {
 			return 1;
@@ -49,8 +50,8 @@ int main(int argc, const char *argv[])
 		data = rawData;
 	}
 
-	const char *inFifoName = "";
-	const char *outFifoName = "";
+	const char *inFifoName = argv[1];
+	const char *outFifoName = argv[2];
 
 	std::ofstream outFifo(outFifoName);
 	outFifo << data;
