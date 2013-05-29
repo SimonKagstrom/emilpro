@@ -9,7 +9,7 @@ using namespace cgicc;
 void usage()
 {
 	printf(
-			"Usage: cgi-handler <in-fifo> <out-fifo> [file-to-read]\n"
+			"Usage: cgi-handler <to-server-fifo> <from-server-fifo> [file-to-read]\n"
 			"\n"
 			"If [file-to-read] is given, it's used in test-mode.\n"
 			);
@@ -50,18 +50,18 @@ int main(int argc, const char *argv[])
 		data = rawData;
 	}
 
-	const char *inFifoName = argv[1];
-	const char *outFifoName = argv[2];
+	const char *toServerFifoName = argv[1];
+	const char *fromServerFifoName = argv[2];
 
-	std::ofstream outFifo(outFifoName);
-	outFifo << data;
+	std::ofstream toServerFifo(toServerFifoName);
+	toServerFifo << data;
 
-	std::ifstream inFifo(inFifoName);
+	std::ifstream fromServerFifo(fromServerFifoName);
 
 	std::string inData;
 	std::string line;
 
-	while (std::getline(inFifo, line))
+	while (std::getline(fromServerFifo, line))
 		std::cout << line;
 
 	return 0;
