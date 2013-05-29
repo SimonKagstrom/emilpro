@@ -36,6 +36,8 @@ endif (HAVE_BFD_MULTIARCH)
 
 set (CMAKE_BUILD_TYPE debug)
 
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/tools)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/server)
 
 add_executable (file-to-source
 	src/utils.cc
@@ -110,18 +112,18 @@ add_executable (emilpro
 	${GUI_SRCS}
 	)
 
-add_executable (squash-instruction-models
+add_executable (tools/squash-instruction-models
 	${BASE_SRCS}
 	tools/squash-instruction-models.cc
 	)
 
-add_executable (cgi-server
+add_executable (server/cgi-server
 	${BASE_SRCS}
 	src/server/cgi-server.cc
 	tools/cgi-server-main.cc
 	)
 
-add_executable (cgi-handler
+add_executable (server/cgi-handler
 	src/utils.cc
 	tools/cgi-handler.cc
 	)
@@ -136,7 +138,7 @@ target_link_libraries(emilpro
 	z
 	)
 
-target_link_libraries(squash-instruction-models
+target_link_libraries(tools/squash-instruction-models
 	${LIBELF_LIBRARIES}
 	${LIBBFD_LIBRARIES}
 	${LIBXMLPP_LIBRARIES}
@@ -144,7 +146,7 @@ target_link_libraries(squash-instruction-models
 	z
 	)
 
-target_link_libraries(cgi-server
+target_link_libraries(server/cgi-server
 	${LIBELF_LIBRARIES}
 	${LIBBFD_LIBRARIES}
 	${LIBXMLPP_LIBRARIES}
@@ -152,7 +154,7 @@ target_link_libraries(cgi-server
 	z
 	)
 
-target_link_libraries(cgi-handler
+target_link_libraries(server/cgi-handler
 	${CGICC_LIBRARIES}
 	z
 	)
