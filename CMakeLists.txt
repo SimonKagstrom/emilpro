@@ -117,6 +117,11 @@ add_executable (tools/squash-instruction-models
 	tools/squash-instruction-models.cc
 	)
 
+add_executable (tools/test-remote-communication
+	${BASE_SRCS}
+	tools/test-remote-communication.cc
+	)
+
 add_executable (server/cgi-server
 	${BASE_SRCS}
 	src/server/cgi-server.cc
@@ -139,6 +144,14 @@ target_link_libraries(emilpro
 	)
 
 target_link_libraries(tools/squash-instruction-models
+	${LIBELF_LIBRARIES}
+	${LIBBFD_LIBRARIES}
+	${LIBXMLPP_LIBRARIES}
+	${LIBCURL_LIBRARIES}
+	z
+	)
+
+target_link_libraries(tools/test-remote-communication
 	${LIBELF_LIBRARIES}
 	${LIBBFD_LIBRARIES}
 	${LIBXMLPP_LIBRARIES}
