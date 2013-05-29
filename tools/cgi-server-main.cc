@@ -2,6 +2,7 @@
 #include <emilpro.hh>
 #include <instructionfactory.hh>
 #include <server/cgi-server.hh>
+#include <configuration.hh>
 
 #include <string>
 #include <fstream>
@@ -11,23 +12,25 @@ using namespace emilpro;
 
 void usage()
 {
-	printf("cgi-server <in-fifo> <out-fifo>\n");
+	printf("cgi-server <configuration-dir> <in-fifo> <out-fifo>\n");
 	exit(1);
 }
 
 int main(int argc, const char *argv[])
 {
-	InstructionFactory::instance();
-	CgiServer server;
-
-	if (argc != 3)
+	if (argc != 4)
 		usage();
 
-	const char *inFifoName = argv[1];
-	const char *outFifoName = argv[2];
+	std::string baseDirectory = argv[1];
+	const char *inFifoName = argv[2];
+	const char *outFifoName = argv[3];
 
 	mkfifo(inFifoName, S_IRUSR | S_IWUSR);
 	mkfifo(outFifoName, S_IRUSR | S_IWUSR);
+
+	Configuration::setBaseDirectory(baseDirectory);
+	InstructionFactory::instance();
+	CgiServer server;
 
 	while (1)
 	{
