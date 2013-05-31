@@ -102,7 +102,7 @@ TESTSUITE(server_connection)
 				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 				"<emilpro>\n"
 				"  <ServerTimestamps>\n"
-				"    <ServerTimestampDiff>-10000</ServerTimestampDiff>\n"
+				"    <ServerTimestampDiff>-20000</ServerTimestampDiff>\n"
 				"  </ServerTimestamps>\n"
 				"</emilpro>\n"
 				;
