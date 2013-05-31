@@ -1,6 +1,7 @@
 #include <server.hh>
 #include <xmlfactory.hh>
 #include <configuration.hh>
+#include <instructionfactory.hh>
 #include <utils.hh>
 
 #include <curl/curl.h>
@@ -137,7 +138,29 @@ public:
 
 	bool sendTimestamps()
 	{
+		m_modelsToServer.clear();
+
 		std::string xml = toXml();
+
+		return Server::instance().sendXml(xml);
+	}
+
+	bool sendServerData()
+	{
+		if (m_modelsToServer.size() == 0)
+			return true;
+
+		std::string xml;
+
+		for (InstructionFactory::InstructionModelList_t::iterator it = m_modelsToServer.begin();
+				it != m_modelsToServer.end();
+				++it) {
+			InstructionFactory::IInstructionModel *cur = *it;
+
+			xml += cur->toXml();
+		}
+
+		m_modelsToServer.clear();
 
 		return Server::instance().sendXml(xml);
 	}
@@ -191,6 +214,12 @@ private:
 			// Difference between server timestmap and us
 			if (string_is_integer(value))
 				adjust_utc_timestamp(string_to_integer(value));
+		} else if (name == "Timestamp") {
+			// Server sends timestamp, send all newer entries
+			InstructionFactory &factory = InstructionFactory::instance();
+
+			if (string_is_integer(value))
+				m_modelsToServer = factory.getInstructionModels(string_to_integer(value));
 		}
 
 		return true;
@@ -214,6 +243,7 @@ private:
 
 
 	uint64_t m_instructionModelTimestamp;
+	InstructionFactory::InstructionModelList_t m_modelsToServer;
 };
 
 void Server::registerListener(IListener &listener)
@@ -333,4 +363,5 @@ void Server::threadMain()
 	 * For now, just exit the thread after this is done.
 	 */
 	m_timestampHolder->sendTimestamps();
+	m_timestampHolder->sendServerData();
 }

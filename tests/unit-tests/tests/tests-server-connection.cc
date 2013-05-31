@@ -154,4 +154,52 @@ TESTSUITE(server_connection)
 
 		server.destroy();
 	}
+
+	TEST(serverModelRequest)
+	{
+		MockConnectionHandler *ch = new MockConnectionHandler();
+		Server &server = Server::instance();
+		bool res;
+
+		server.setConnectionHandler(*ch);
+
+		std::string xml;
+		InstructionFactory &factory = InstructionFactory::instance();
+
+		ASSERT_TRUE(factory.getInstructionModels(0).size() == 0U);
+		xml =
+				fmt(
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				"<emilpro>\n"
+				"  <InstructionModel name=\"MANNE\" architecture=\"mips\" timestamp=\"1\">\n"
+				"    <type>cflow</type>\n"
+				"  </InstructionModel>\n"
+				"  <InstructionModel name=\"KALLE\" architecture=\"mips\" timestamp=\"2\">\n"
+				"    <type>data_handling</type>\n"
+				"  </InstructionModel>\n"
+				"</emilpro>\n"
+				);
+		// Put the models in the local factory
+		XmlFactory::instance().parse(xml);
+
+		xml =
+				"  <ServerTimestamps>\n"
+				"    <Timestamp>2</Timestamp>\n"
+				"  </ServerTimestamps>\n"
+				;
+
+		ch->m_talkResults.push_back(xml);
+		res = server.connect();
+		ASSERT_TRUE(res == true);
+		server.stop();
+		ASSERT_TRUE(ch->m_talkRequests.size() == 2U);
+		ASSERT_TRUE(factory.getInstructionModels(0).size() == 2U);
+
+		std::string insns = ch->m_talkRequests.back();
+		ASSERT_TRUE(insns.find("MANNE") == std::string::npos);
+		ASSERT_TRUE(insns.find("KALLE") != std::string::npos);
+
+		server.destroy();
+
+	}
 }
