@@ -40,7 +40,6 @@ set (${TGT}_SRCS
 	../../src/gtk/hexview.cc
 	../../src/jumptargetdisplay.cc
 	../../src/network-listener.cc
-	../../src/server-connection.cc
 	../../src/symbolfactory.cc
 	../../src/utils.cc
 	../../src/xmlfactory.cc
@@ -53,6 +52,7 @@ set (${TGT}_SRCS
 	tests/tests-jumptargetdisplay.cc
 	tests/tests-model.cc
 	tests/tests-network-listener.cc
+	tests/tests-server-connection.cc
 	tests/tests-symbol-provider.cc
 	tests/tests-utils.cc
 	tests/tests-xmlfactory.cc
