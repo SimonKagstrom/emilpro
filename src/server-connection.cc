@@ -322,6 +322,7 @@ void Server::stop()
 {
 	if (m_thread)
 		m_thread->join();
+	m_isConnected = false;
 }
 
 void Server::threadMain()
