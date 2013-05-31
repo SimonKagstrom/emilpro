@@ -13,6 +13,8 @@
 using namespace emilpro;
 
 static std::string cgiHandler;
+static std::string toServerFifo;
+static std::string fromServerFifo;
 
 class LocalConnectionHandler : public Server::IConnectionHandler
 {
@@ -31,7 +33,12 @@ public:
 			exit(2);
 
 
-		FILE *fp = popen(fmt("%s /tmp/to-server.fifo /tmp/from-server.fifo %s", cgiHandler.c_str(), tmpFile.c_str()).c_str(), "r");
+		FILE *fp = popen(fmt("%s %s %s %s",
+				cgiHandler.c_str(),
+				toServerFifo.c_str(),
+				fromServerFifo.c_str(),
+				tmpFile.c_str()).c_str(),
+				"r");
 		if (!fp) {
 			unlink(tmpFile.c_str());
 			exit(3);
@@ -53,15 +60,17 @@ int main(int argc, const char *argv[])
 {
 	LocalConnectionHandler localConnectionHandler;
 
-	if (argc != 3) {
+	if (argc != 5) {
 		printf("Too few arguments:\n"
-				"Usage: test-remote-communication <conf-dir> <cgi-handler>\n"
+				"Usage: test-remote-communication <conf-dir> <cgi-handler> <to-server-fifo> <from-server-fifo>\n"
 				);
 		exit(1);
 	}
 
 	std::string dir = argv[1];
 	cgiHandler = argv[2];
+	toServerFifo = argv[3];
+	fromServerFifo = argv[4];
 
 	// Reads all models
 	Configuration::setBaseDirectory(dir);
