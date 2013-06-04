@@ -5,7 +5,6 @@
 #include <configuration.hh>
 
 #include <string>
-#include <fstream>
 #include <stdio.h>
 #include <sys/stat.h>
 
@@ -35,19 +34,20 @@ int main(int argc, const char *argv[])
 
 	while (1)
 	{
-		std::ifstream inFifo(inFifoName);
+		char *data;
+		size_t sz;
 
-		std::string inData;
-		std::string line;
+		data = (char *)read_file_timeout(&sz, 1000, "%s", inFifoName);
+		if (!data)
+			continue;
 
-		while (std::getline(inFifo, line))
-			inData += line + '\n';
+		std::string cur(data);
+		free(data);
 
-		server.request(inData);
+		server.request(cur);
 		std::string reply = server.reply();
 
-		std::ofstream outFifo(outFifoName);
-		outFifo << reply;
+		write_file_timeout(reply.c_str(), reply.size(), 1000, "%s", outFifoName);
 	}
 
 	return 0;

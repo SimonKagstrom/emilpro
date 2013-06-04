@@ -52,19 +52,21 @@ int main(int argc, const char *argv[])
 
 	const char *toServerFifoName = argv[1];
 	const char *fromServerFifoName = argv[2];
+	int rv;
 
-	std::ofstream toServerFifo(toServerFifoName);
-	toServerFifo << data;
-	toServerFifo.close();
+	rv = write_file_timeout(data.c_str(), data.size(), 1000, "%s", toServerFifoName);
+	if (rv < 0)
+		return 1;
 
-	std::ifstream fromServerFifo(fromServerFifoName);
+	char *p;
+	size_t sz;
 
-	std::string inData;
-	std::string line;
+	p = (char *)read_file_timeout(&sz, 1000, "%s", fromServerFifoName);
+	if (!p)
+		return 2;
+	printf("%s", p);
 
-	while (std::getline(fromServerFifo, line))
-		std::cout << line;
-	fromServerFifo.close();
+	free(p);
 
 	return 0;
 }
