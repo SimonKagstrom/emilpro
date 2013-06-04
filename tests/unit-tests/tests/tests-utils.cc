@@ -83,4 +83,23 @@ TESTSUITE(utils)
 		ASSERT_TRUE(res == 5);
 		ASSERT_TRUE(write_data == data);
 	}
+
+	TEST(realWrite)
+	{
+		std::string tmp = fmt("%s/kalle", crpcut::get_start_dir());
+
+		const char *data = "arne anka";
+		int rv;
+		size_t sz;
+
+		rv = write_file((const void *)data, strlen(data), "%s", tmp.c_str());
+		char *p = (char *)read_file(&sz, "%s", tmp.c_str());
+
+		unlink(tmp.c_str());
+
+		ASSERT_TRUE(rv == 0);
+		ASSERT_TRUE(sz == strlen(data));
+		ASSERT_TRUE(strcmp(p, data) == 0);
+		free(p);
+	}
 }
