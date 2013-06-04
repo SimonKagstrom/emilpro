@@ -102,4 +102,66 @@ TESTSUITE(utils)
 		ASSERT_TRUE(strcmp(p, data) == 0);
 		free(p);
 	}
+
+	TEST(realWriteTimeout)
+	{
+		std::string tmp = fmt("%s/manne", crpcut::get_start_dir());
+
+		const char *data = "arne anka";
+		int rv;
+
+		rv = mkfifo(tmp.c_str(), S_IRUSR | S_IWUSR);
+		ASSERT_TRUE(rv >= 0);
+
+		// No reader, this will timeout
+		rv = write_file_timeout((const void *)data, strlen(data), 1000, "%s", tmp.c_str());
+
+		unlink(tmp.c_str());
+
+		ASSERT_TRUE(rv == -2);
+	}
+
+	TEST(realRead)
+	{
+		uint8_t data[2049];
+		int rv;
+
+		memset(data, 0xaa, 1024);
+		memset(data + 1024, 0xbb, 1024);
+		data[2048] = 0xcc;
+
+		std::string tmp = fmt("%s/arne", crpcut::get_start_dir());
+		rv = write_file((const void *)data, sizeof(data), "%s", tmp.c_str());
+		ASSERT_TRUE(rv == 0);
+
+		size_t sz;
+		uint8_t *p;
+
+		p = (uint8_t *)read_file(&sz, "%s", tmp.c_str());
+		unlink(tmp.c_str());
+
+		rv = memcmp(data, p, sizeof(data));
+
+		ASSERT_TRUE(p != (void *)NULL);
+		ASSERT_TRUE(sz == sizeof(data));
+		ASSERT_TRUE(rv == 0);
+	}
+
+	TEST(realReadTimeout)
+	{
+		std::string tmp = fmt("%s/manneRead", crpcut::get_start_dir());
+		int rv;
+
+		rv = mkfifo(tmp.c_str(), S_IRUSR | S_IWUSR);
+		ASSERT_TRUE(rv >= 0);
+
+		// No writer, this will timeout
+		void *p;
+		size_t sz;
+
+		p = read_file_timeout(&sz, 1000, "%s", tmp.c_str());
+		unlink(tmp.c_str());
+
+		ASSERT_TRUE(p == (void *)NULL);
+	}
 }

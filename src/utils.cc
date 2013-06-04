@@ -3,6 +3,11 @@
 #include <stdlib.h>
 #include <stdexcept>
 #include <time.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/time.h>
+#include <unistd.h>
 
 #include "utils.hh"
 
@@ -23,15 +28,70 @@ bool cpu_is_little_endian()
 	return p[0] == 0x22;
 }
 
+static void *read_file_int(size_t *out_size, uint64_t timeout, const char *path)
+{
+	uint8_t *data = NULL;
+	int fd;
+	size_t pos = 0;
+	const size_t chunk = 1024;
+	fd_set rfds;
+	struct timeval tv;
+	int ret;
+	int n;
+
+	fd = open(path, O_RDONLY | O_NONBLOCK);
+	if (fd < 0 && (errno == ENXIO || errno == EWOULDBLOCK)) {
+		msleep(timeout);
+
+		fd = open(path, O_RDONLY | O_NONBLOCK);
+	}
+
+	if (fd < 0)
+		return NULL;
+
+	tv.tv_sec = timeout / 1000;
+	tv.tv_usec = (timeout % 1000) * 10;
+
+	FD_ZERO(&rfds);
+	FD_SET(fd, &rfds);
+
+	do {
+		ret = select(fd + 1, &rfds, NULL, NULL, &tv);
+		if (ret == -1) {
+			close(fd);
+			free(data);
+
+			return NULL;
+		} else if (ret == 0) { // Timeout
+			close(fd);
+			free(data);
+
+			return NULL;
+		}
+		data = (uint8_t *)xrealloc(data, pos + chunk);
+
+		n = read(fd, data + pos, chunk);
+		if (n < 0) {
+			close(fd);
+			free(data);
+
+			return NULL;
+		}
+
+		pos += n;
+	} while (n == (int)chunk);
+
+	*out_size = pos;
+
+	close(fd);
+
+	return data;
+}
 
 void *read_file(size_t *out_size, const char *fmt, ...)
 {
-	struct stat buf;
 	char path[2048];
 	va_list ap;
-	void *data;
-	size_t size;
-	FILE *f;
 	int r;
 
 	/* Create the filename */
@@ -45,35 +105,89 @@ void *read_file(size_t *out_size, const char *fmt, ...)
 	if (mocked_read_callback)
 		return mocked_read_callback(out_size, path);
 
-	if (lstat(path, &buf) < 0)
-		return NULL;
+	return read_file_int(out_size, 0, path);
+}
 
-	size = buf.st_size;
-	data = xmalloc(size + 2); /* NULL-terminate, if used as string */
-	f = fopen(path, "r");
-	if (!f)
-	{
-		free(data);
-		return NULL;
+
+void *read_file_timeout(size_t *out_size, uint64_t timeout_ms, const char *fmt, ...)
+{
+	char path[2048];
+	va_list ap;
+	int r;
+
+	/* Create the filename */
+	va_start(ap, fmt);
+	r = vsnprintf(path, 2048, fmt, ap);
+	va_end(ap);
+
+	panic_if (r >= 2048,
+			"Too long string!");
+
+	if (mocked_read_callback)
+		return mocked_read_callback(out_size, path);
+
+	return read_file_int(out_size, timeout_ms, path);
+}
+
+
+void msleep(uint64_t ms)
+{
+	struct timespec ts;
+	uint64_t ns = ms * 1000 * 1000;
+
+	ts.tv_sec = ns / (1000 * 1000 * 1000);
+	ts.tv_nsec = ns % (1000 * 1000 * 1000);
+
+	nanosleep(&ts, NULL);
+}
+
+
+static int write_file_int(const void *data, size_t len, uint64_t timeout, const char *path)
+{
+	int fd;
+	fd_set wfds;
+	struct timeval tv;
+	int ret = 0;
+
+	tv.tv_sec = timeout / 1000;
+	tv.tv_usec = (timeout % 1000) * 10;
+
+	fd = open(path, O_WRONLY | O_CREAT | O_NONBLOCK, S_IWUSR | S_IRUSR);
+	if (fd < 0 && (errno == ENXIO || errno == EWOULDBLOCK)) {
+		msleep(timeout);
+
+		fd = open(path, O_WRONLY | O_CREAT | O_NONBLOCK, S_IWUSR | S_IRUSR);
+		if (fd < 0 && (errno == ENXIO || errno == EWOULDBLOCK))
+			return -2;
 	}
-	if (fread(data, 1, size, f) != size)
-	{
-		free(data);
-		data = NULL;
+	if (fd < 0)
+		return fd;
+
+	FD_ZERO(&wfds);
+	FD_SET(fd, &wfds);
+
+	ret = select(fd + 1, NULL, &wfds, NULL, &tv);
+	if (ret == -1) {
+		close(fd);
+
+		return ret;
+	} else if (ret == 0) { // Timeout
+		close(fd);
+
+		return -2;
 	}
-	fclose(f);
 
-	*out_size = size;
+	write(fd, data, len);
 
-	return data;
+	close(fd);
+
+	return 0;
 }
 
 int write_file(const void *data, size_t len, const char *fmt, ...)
 {
 	char path[2048];
 	va_list ap;
-	FILE *fp;
-	int ret = 0;
 
 	/* Create the filename */
 	va_start(ap, fmt);
@@ -83,15 +197,23 @@ int write_file(const void *data, size_t len, const char *fmt, ...)
 	if (mocked_write_callback)
 		return mocked_write_callback(data, len, path);
 
-	fp = fopen(path, "w");
-	if (!fp)
-		return -1;
+	return write_file_int(data, len, 0, path);
+}
 
-	if (fwrite(data, sizeof(uint8_t), len, fp) != len)
-		ret = -1;
-	fclose(fp);
+int write_file_timeout(const void *data, size_t len, uint64_t timeout, const char *fmt, ...)
+{
+	char path[2048];
+	va_list ap;
 
-	return ret;
+	/* Create the filename */
+	va_start(ap, fmt);
+	vsnprintf(path, 2048, fmt, ap);
+	va_end(ap);
+
+	if (mocked_write_callback)
+		return mocked_write_callback(data, len, path);
+
+	return write_file_int(data, len, timeout, path);
 }
 
 std::string fmt(const char *fmt, ...)

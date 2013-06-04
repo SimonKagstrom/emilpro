@@ -72,9 +72,22 @@ static inline void *xmalloc(size_t sz)
   return out;
 }
 
+static inline void *xrealloc(void *p, size_t sz)
+{
+  void *out = realloc(p, sz);
+
+  panic_if(!out, "realloc failed");
+
+  return out;
+}
+
 unsigned get_number_of_cores();
 
 void *read_file(size_t *out_size, const char *fmt, ...);
+
+void *read_file_timeout(size_t *out_size, uint64_t timeout_ms, const char *fmt, ...);
+
+int write_file_timeout(const void *data, size_t len, uint64_t timeout_ms, const char *fmt, ...);
 
 int write_file(const void *data, size_t len, const char *fmt, ...);
 
@@ -102,6 +115,7 @@ uint64_t get_utc_timestamp();
 
 void adjust_utc_timestamp(int64_t diff);
 
+void msleep(uint64_t ms);
 
 
 // Unit test stuff
