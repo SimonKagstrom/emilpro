@@ -1,0 +1,17 @@
+*** Settings ***
+Library           OperatingSystem
+
+*** Variables ***
+${cgi_server}           %{WORKSPACE}/build/server/cgi-server
+${remote_comm_test}     %{WORKSPACE}/build/tools/test-remote-communication
+
+*** Test Cases ***
+cgi-server-too-few-arguments
+    ${rc}=    Run and return RC    ${cgi_server} kalle
+    Should be equal as integers    ${rc}    1
+
+cgi-server-quit
+    ${rc}=    Run and return RC    ${cgi_server} tmp-dir tmp-dir/in.fifo tmp-dir/out.fifo -q
+    Should be equal as integers    ${rc}    0
+    ${output}=    Run              echo quit > tmp-dir/in.fifo
+    # Should really check that the process exited here...
