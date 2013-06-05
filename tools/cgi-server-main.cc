@@ -38,7 +38,9 @@ int main(int argc, const char *argv[])
 		foreground = true;
 
 	Configuration::setBaseDirectory(baseDirectory);
-	InstructionFactory::instance();
+	Configuration::instance().setReadStoredModels(false);
+
+	EmilPro::init();
 	CgiServer server;
 
 	if (!foreground) {
