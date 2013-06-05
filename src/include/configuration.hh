@@ -21,6 +21,12 @@ namespace emilpro
 
 		std::string getServerUrl();
 
+		bool readStoredModels();
+
+
+		// Setters
+		void setReadStoredModels(bool readStoredModels);
+
 
 		void destroy();
 
@@ -32,5 +38,6 @@ namespace emilpro
 		Configuration();
 
 		std::string m_basePath;
+		bool m_readStoredModels;
 	};
 }

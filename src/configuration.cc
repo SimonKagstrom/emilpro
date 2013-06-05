@@ -62,8 +62,19 @@ void Configuration::setBaseDirectory(const std::string base)
 }
 
 
+bool Configuration::readStoredModels()
+{
+	return m_readStoredModels;
+}
+
+void Configuration::setReadStoredModels(bool readStoredModels)
+{
+	m_readStoredModels = readStoredModels;
+}
+
 Configuration::Configuration() :
-		m_basePath(g_base)
+		m_basePath(g_base),
+		m_readStoredModels(true)
 {
 	if (m_basePath == "")
 		m_basePath = get_home_directory() + "/.emilpro";
