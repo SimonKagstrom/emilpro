@@ -49,6 +49,13 @@ public:
 		while(fgets(buf, sizeof(buf), fp)!=NULL)
 			out += buf;
 
+		res = pclose(fp);
+		if (res != 0) {
+			printf("Error returned from cgi-handler\n");
+			exit(2);
+		}
+
+
 		unlink(tmpFile.c_str());
 		printf("Sent\n------------\n%s\n------------\n\nReceived\n------------%s\n------------\n", xml.c_str(), out.c_str());
 
