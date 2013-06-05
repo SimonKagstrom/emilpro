@@ -3,6 +3,7 @@ Library           OperatingSystem
 
 *** Variables ***
 ${cgi_server}           %{WORKSPACE}/build/server/cgi-server
+${cgi_handler}          %{WORKSPACE}/build/server/cgi-handler
 ${remote_comm_test}     %{WORKSPACE}/build/tools/test-remote-communication
 
 *** Test Cases ***
@@ -15,3 +16,7 @@ cgi-server-quit
     Should be equal as integers    ${rc}    0
     ${output}=    Run              echo quit > tmp-dir/in.fifo
     # Should really check that the process exited here...
+
+remote-communication-no-server
+    ${rc}=    Run and return RC    ${remote_comm_test} client-conf-dir ${cgi_handler} tmp-dir/in.fifo tmp-dir/out.fifo
+    Should be equal as integers    ${rc}    2
