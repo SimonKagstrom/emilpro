@@ -122,3 +122,7 @@ void msleep(uint64_t ms);
 void mock_read_file(void *(*callback)(size_t *out_size, const char *path));
 
 void mock_write_file(int (*callback)(const void *data, size_t size, const char *path));
+
+
+void mock_utc_timestamp(uint64_t ts);
+

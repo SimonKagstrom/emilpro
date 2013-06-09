@@ -382,9 +382,16 @@ std::string escape_string_for_xml(std::string &str)
 	return out;
 }
 
+static const uint64_t TIMESTAMP_MOCKED = 0xffffffffffffffffULL;
+
 static int64_t server_timestamp_diff;
+static uint64_t mocked_timestamp = TIMESTAMP_MOCKED;
+
 uint64_t get_utc_timestamp()
 {
+	if (mocked_timestamp != TIMESTAMP_MOCKED)
+		return mocked_timestamp;
+
 	time_t raw;
 	struct tm *ptm;
 	struct tm tmp;
@@ -401,6 +408,11 @@ uint64_t get_utc_timestamp()
 void adjust_utc_timestamp(int64_t diff)
 {
 	server_timestamp_diff = diff;
+}
+
+void mock_utc_timestamp(uint64_t ts)
+{
+	mocked_timestamp = ts;
 }
 
 void mock_read_file(void* (*callback)(size_t* out_size, const char* path))

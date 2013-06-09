@@ -50,6 +50,18 @@ TESTSUITE(utils)
 		ASSERT_TRUE(after < before);
 	}
 
+	TEST(mockedTimestamp)
+	{
+		uint64_t before, after;
+
+		before = get_utc_timestamp();
+		ASSERT_TRUE(before > 12U);
+
+		mock_utc_timestamp(5);
+		after = get_utc_timestamp();
+		ASSERT_TRUE(after == 5U);
+	}
+
 	TEST(mockRead)
 	{
 		size_t sz;
