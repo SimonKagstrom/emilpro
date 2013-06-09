@@ -32,10 +32,12 @@ int main(int argc, const char *argv[])
 	const char *inFifoName = argv[2];
 	const char *outFifoName = argv[3];
 
-	if (argc > 4 && strcmp(argv[4], "-q") == 0)
-		honorQuit = true;
-	if (argc > 5 && strcmp(argv[5], "-f") == 0)
-		foreground = true;
+	for (int i = 4; i < argc; i++) {
+		if (strcmp(argv[i], "-q") == 0)
+			honorQuit = true;
+		if (strcmp(argv[i], "-f") == 0)
+			foreground = true;
+	}
 
 	Configuration::setBaseDirectory(baseDirectory);
 	Configuration::instance().setReadStoredModels(false);
