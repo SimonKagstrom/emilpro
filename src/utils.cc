@@ -69,6 +69,7 @@ static void *read_file_int(size_t *out_size, uint64_t timeout, const char *path)
 			return NULL;
 		}
 		data = (uint8_t *)xrealloc(data, pos + chunk);
+		memset(data + pos, 0, chunk);
 
 		n = read(fd, data + pos, chunk);
 		if (n < 0) {
