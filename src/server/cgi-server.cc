@@ -10,7 +10,7 @@
 using namespace emilpro;
 
 CgiServer::CgiServer() :
-				m_timestamp(0),
+				m_timestamp(0xffffffffffffffffULL),
 				m_timestampAdjustment(0)
 {
 	InstructionFactory::instance(); // Must be created before this
@@ -47,7 +47,7 @@ bool CgiServer::onEnd(const Glib::ustring &name)
 
 std::string CgiServer::reply()
 {
-	if (m_timestamp == 0)
+	if (m_timestamp == 0xffffffffffffffffULL)
 		return "";
 
 	InstructionFactory::InstructionModelList_t lst = InstructionFactory::instance().getInstructionModels();
@@ -90,7 +90,7 @@ std::string CgiServer::reply()
 void CgiServer::request(const std::string xml)
 {
 	// Reset timestamps before parsing
-	m_timestamp = 0;
+	m_timestamp = 0xffffffffffffffffULL;
 	m_timestampAdjustment = 0;
 
 	XmlFactory::instance().parse(xml);
