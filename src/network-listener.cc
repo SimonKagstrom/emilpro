@@ -4,6 +4,9 @@
 #include <configuration.hh>
 #include <utils.hh>
 
+#include <sys/stat.h>
+#include <sys/types.h>
+
 using namespace emilpro;
 
 class InstructionModelListener : public XmlFactory::IXmlListener
@@ -54,8 +57,10 @@ public:
 			std::string remoteDir = conf.getPath(Configuration::DIR_REMOTE);
 
 			std::string xml = m_xmlString.getString();
-			write_file(xml.c_str(), xml.size(), "%s/%s/%s.xml",
-					remoteDir.c_str(), m_currentArchitecture.c_str(), m_currentName.c_str());
+			std::string archPath = fmt("%s/%s", remoteDir.c_str(), m_currentArchitecture.c_str());
+			mkdir(archPath.c_str(), 0700);
+			write_file(xml.c_str(), xml.size(), "%s/%s.xml",
+					archPath.c_str(), m_currentName.c_str());
 		}
 
 		return true;
