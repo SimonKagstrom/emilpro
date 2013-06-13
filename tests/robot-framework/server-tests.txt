@@ -2,6 +2,7 @@
 Library           OperatingSystem
 
 *** Variables ***
+${kcov}                 kcov
 ${cgi_server}           %{WORKSPACE}/build/server/cgi-server
 ${cgi_handler}          %{WORKSPACE}/build/server/cgi-handler
 ${remote_comm_test}     %{WORKSPACE}/build/tools/test-remote-communication
@@ -16,7 +17,19 @@ cgi-server-quit
     Should be equal as integers    ${rc}    0
     ${output}=    Run              echo quit > tmp-dir/in.fifo
     # Should really check that the process exited here...
+    Run                            rm -rf tmp-dir
 
 remote-communication-no-server
     ${rc}=    Run and return RC    ${remote_comm_test} client-conf-dir ${cgi_handler} tmp-dir/in.fifo tmp-dir/out.fifo
     Should be equal as integers    ${rc}    2
+
+server-has-newer
+	Run                            install -d srv/local
+    Run                            cp -rap %{WORKSPACE}/data/basic/* srv/local
+    ${rc}=    Run and return RC    ${cgi_server} srv srv/to-server.fifo srv/from-server.fifo -q -t 5
+    Should be equal as integers    ${rc}    0
+    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
+    Run                            echo quit > srv/to-server.fifo
+    ${rc}=    Run and return RC    grep -rq "bge" client/
+    Run                            rm -rf client srv
+    Should be equal as integers    ${rc}    0
