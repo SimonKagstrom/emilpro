@@ -3,6 +3,7 @@
 #include <configuration.hh>
 #include <instructionfactory.hh>
 #include <utils.hh>
+#include <network-listener.hh>
 
 #include <curl/curl.h>
 #include <string.h>
@@ -334,12 +335,15 @@ Server::Server() :
 
 	CurlConnectionHandler *ch = new CurlConnectionHandler();
 
+	m_networkListener = new NetworkListener();
+
 	setConnectionHandler(*ch);
 }
 
 Server::~Server()
 {
 	delete m_timestampHolder;
+	delete m_networkListener;
 
 	if (m_connectionHandler)
 		delete m_connectionHandler;

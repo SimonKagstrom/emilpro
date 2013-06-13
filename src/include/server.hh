@@ -8,6 +8,7 @@ class ClientHandler;
 
 namespace emilpro
 {
+	class NetworkListener;
 	class Server
 	{
 	public:
@@ -70,5 +71,6 @@ namespace emilpro
 		Listeners_t m_listeners;
 		ClientHandler *m_timestampHolder;
 		std::thread *m_thread;
+		NetworkListener *m_networkListener;
 	};
 }
