@@ -63,21 +63,42 @@ public:
 	}
 };
 
+static void usage()
+{
+	printf(
+			"Usage: test-remote-communication <conf-dir> <cgi-handler> <to-server-fifo> <from-server-fifo> [-t TIMESTAMP]\n"
+	);
+	exit(1);
+}
+
 int main(int argc, const char *argv[])
 {
 	LocalConnectionHandler localConnectionHandler;
 
-	if (argc != 5) {
-		printf("Too few arguments:\n"
-				"Usage: test-remote-communication <conf-dir> <cgi-handler> <to-server-fifo> <from-server-fifo>\n"
-				);
-		exit(1);
-	}
+	if (argc < 5)
+		usage();
 
 	std::string dir = argv[1];
 	cgiHandler = argv[2];
 	toServerFifo = argv[3];
 	fromServerFifo = argv[4];
+
+	uint64_t mocked_timestamp = 0xffffffffffffffffULL;
+
+	for (int i = 5; i < argc; i++) {
+		if (strcmp(argv[i], "-t") == 0) {
+			i++;
+
+			std::string arg = argv[i];
+
+			if (!string_is_integer(arg))
+				usage();
+			mocked_timestamp = string_to_integer(arg);
+		}
+	}
+
+	if (mocked_timestamp != 0xffffffffffffffffULL)
+		mock_utc_timestamp(mocked_timestamp);
 
 	// Reads all models
 	Configuration::setBaseDirectory(dir);
