@@ -10,7 +10,6 @@ namespace emilpro
 		typedef enum
 		{
 			DIR_LOCAL,
-			DIR_INSTALLED,
 			DIR_REMOTE,
 			DIR_CONFIGURATION,
 		} Dir_t;

@@ -17,9 +17,6 @@ std::string Configuration::getPath(Dir_t dir)
 	case DIR_LOCAL:
 		out = getBasePath() + "/local";
 		break;
-	case DIR_INSTALLED:
-		out = "../../../emilpro/"; // FIXME!
-		break;
 	case DIR_REMOTE:
 		out = getBasePath() + "/remote";
 		break;
