@@ -77,6 +77,7 @@ set (BASE_SRCS
 	src/instructionfactory.cc
 	src/jumptargetdisplay.cc
 	src/model.cc
+	src/network-listener.cc
 	src/server-connection.cc
 	src/symbolfactory.cc
 	src/utils.cc
