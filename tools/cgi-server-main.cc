@@ -14,9 +14,10 @@ using namespace emilpro;
 void usage()
 {
 	printf(
-			"cgi-server <configuration-dir> <in-fifo> <out-fifo> [-q] [-f]\n"
-			"   -q  Accept quit command\n"
-			"   -f  Run in foreground\n"
+			"cgi-server <configuration-dir> <in-fifo> <out-fifo> [-q] [-f] [-t TIMESTAMP]\n"
+			"   -q              Accept quit command\n"
+			"   -f              Run in foreground\n"
+			"   -t  TIMESTAMP   Set time to TIMESTAMP\n"
 			);
 	exit(1);
 }
@@ -31,13 +32,26 @@ int main(int argc, const char *argv[])
 	std::string baseDirectory = argv[1];
 	const char *inFifoName = argv[2];
 	const char *outFifoName = argv[3];
+	uint64_t mocked_timestamp = 0xffffffffffffffffULL;
 
 	for (int i = 4; i < argc; i++) {
-		if (strcmp(argv[i], "-q") == 0)
+		if (strcmp(argv[i], "-t") == 0) {
+			i++;
+
+			std::string arg = argv[i];
+
+			if (!string_is_integer(arg))
+				usage();
+			mocked_timestamp = string_to_integer(arg);
+		}
+		else if (strcmp(argv[i], "-q") == 0)
 			honorQuit = true;
-		if (strcmp(argv[i], "-f") == 0)
+		else if (strcmp(argv[i], "-f") == 0)
 			foreground = true;
 	}
+
+	if (mocked_timestamp != 0xffffffffffffffffULL)
+		mock_utc_timestamp(mocked_timestamp);
 
 	Configuration::setBaseDirectory(baseDirectory);
 	Configuration::instance().setReadStoredModels(false);
