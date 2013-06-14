@@ -146,6 +146,33 @@ TESTSUITE(xmlfactory)
 		x.destroy();
 	}
 
+	TEST(runMultipleListeners, ListenerFixture)
+	{
+		XmlFactory &x = XmlFactory::instance();
+		bool res;
+		std::string xml =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				"<emilpro>\n"
+				"  <ServerTimestamps>\n"
+				"    <ServerTimestampDiff>0</ServerTimestampDiff>\n"
+				"  </ServerTimestamps>\n"
+				"  <InstructionModel name=\"bge\" architecture=\"mips\">\n"
+				"    <type>cflow</type>\n"
+				"  </InstructionModel>\n"
+				"</emilpro>\n";
+
+		x.registerListener("ServerTimestamps", this);
+		x.registerListener("InstructionModel", this);
+
+		res = x.parse(xml);
+		ASSERT_TRUE(res == true);
+
+		ASSERT_TRUE(m_startElementMap["InstructionModel"] == 1U);
+		ASSERT_TRUE(m_startElementMap["ServerTimestamps"] == 1U);
+
+		x.destroy();
+	}
+
 	TEST(invalidCharacters, ListenerFixture)
 	{
 		XmlFactory &x = XmlFactory::instance();
