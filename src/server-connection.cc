@@ -240,6 +240,21 @@ private:
 			return;
 
 		m_instructionModelTimestamp = timestamp;
+
+		Configuration &conf = Configuration::instance();
+
+		std::string fileName = conf.getPath(Configuration::DIR_REMOTE) + "/serverTimestamp.xml";
+		std::string xml = fmt(
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				"<emilpro>\n"
+				"  <ServerTimestamps>\n"
+				"     <InstructionModelTimestamp>%llu</InstructionModelTimestamp>\n"
+				"  </ServerTimestamps>\n"
+				"</emilpro>\n",
+				(unsigned long long)m_instructionModelTimestamp
+				);
+
+		write_file(xml.c_str(), xml.size(), "%s", fileName.c_str());
 	}
 
 
