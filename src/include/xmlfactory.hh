@@ -35,10 +35,22 @@ namespace emilpro
 
 			void setName(std::string &name)
 			{
-				m_name = name;
+				m_names.push_back(name);
 			}
 
-			std::string m_name;
+			bool hasName(const std::string &name)
+			{
+				for (std::list<std::string>::iterator it = m_names.begin();
+						it != m_names.end();
+						++it) {
+					if (name == *it)
+						return true;
+				}
+
+				return false;
+			}
+
+			std::list<std::string > m_names;
 		};
 
 
@@ -81,6 +93,7 @@ namespace emilpro
 		typedef std::unordered_map<std::string, ListenerList_t> ElementToListenerMap_t;
 
 		void maybePopListener(const Glib::ustring& name);
+		void unregisterListenerName(IXmlListener *listener, const std::string &name);
 
 		ElementToListenerMap_t m_elementListeners;
 		ListenerStack_t m_listenerStack;

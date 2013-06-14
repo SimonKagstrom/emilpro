@@ -88,7 +88,7 @@ void XmlFactory::on_characters(const Glib::ustring& characters)
 				++itListener) {
 			XmlFactory::IXmlListener *cur = *itListener;
 
-			if (cur->m_name == m_currentName)
+			if (cur->hasName(m_currentName))
 				cur->onStart(m_currentName, m_currentProperties, characters);
 			else
 				cur->onElement(m_currentName, m_currentProperties, characters);
@@ -157,7 +157,15 @@ void XmlFactory::registerListener(std::string elementName,
 
 void XmlFactory::unregisterListener(IXmlListener* listener)
 {
-	ListenerList_t &listeners = m_elementListeners[listener->m_name];
+	for (std::list<std::string>::iterator it = listener->m_names.begin();
+			it != listener->m_names.end();
+			++it)
+		unregisterListenerName(listener, *it);
+}
+
+void XmlFactory::unregisterListenerName(IXmlListener *listener, const std::string &name)
+{
+	ListenerList_t &listeners = m_elementListeners[name];
 	ListenerList_t::iterator found = listeners.end();
 
 	for (ListenerList_t::iterator it = listeners.begin();
@@ -171,8 +179,9 @@ void XmlFactory::unregisterListener(IXmlListener* listener)
 		listeners.erase(found);
 
 	if (listeners.size() == 0)
-		m_elementListeners.erase(listener->m_name);
+		m_elementListeners.erase(name);
 }
+
 
 void XmlFactory::on_fatal_error(const Glib::ustring& text)
 {
@@ -193,7 +202,7 @@ void XmlFactory::maybePopListener(const Glib::ustring& name)
 	panic_if (p->empty(),
 			"Listener stack list can't be empty");
 
-	if (p->front()->m_name == name)
+	if (p->front()->hasName(name))
 		m_listenerStack.pop_back();
 }
 
