@@ -25,7 +25,7 @@ remote-communication-no-server
 
 server-has-newer
 	Run                            install -d srv/local
-    Run                            cp -rap %{WORKSPACE}/data/basic/* srv/local
+    Run                            cp -rap %{WORKSPACE}/tests/data/basic/* srv/local
     ${rc}=    Run and return RC    ${cgi_server} srv srv/to-server.fifo srv/from-server.fifo -q -t 5
     Should be equal as integers    ${rc}    0
     ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
