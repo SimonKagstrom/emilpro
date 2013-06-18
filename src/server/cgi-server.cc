@@ -52,6 +52,7 @@ std::string CgiServer::reply()
 
 	InstructionFactory::InstructionModelList_t lst = InstructionFactory::instance().getInstructionModels();
 	std::list<InstructionFactory::IInstructionModel *> models;
+	uint64_t highestTimestamp = 1;
 
 	for (InstructionFactory::InstructionModelList_t::iterator it = lst.begin();
 			it != lst.end();
@@ -60,6 +61,9 @@ std::string CgiServer::reply()
 
 		if (cur->getTimeStamp() > m_timestamp)
 			models.push_back(cur);
+
+		if (cur->getTimeStamp() > highestTimestamp)
+			highestTimestamp = cur->getTimeStamp();
 	}
 
 	std::string out;
@@ -72,6 +76,13 @@ std::string CgiServer::reply()
 				(long long)m_timestampAdjustment
 				);
 	}
+
+	out += fmt(
+			"  <ServerTimestamps>\n"
+			"    <Timestamp>%lld</Timestamp>\n"
+			"  </ServerTimestamps>\n",
+			(unsigned long long)highestTimestamp
+			);
 
 	for (std::list<InstructionFactory::IInstructionModel *>::iterator it = models.begin();
 			it != models.end();
