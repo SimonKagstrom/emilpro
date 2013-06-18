@@ -172,3 +172,13 @@ target_link_libraries(server/cgi-handler
 	${CGICC_LIBRARIES}
 	z
 	)
+
+add_custom_command (OUTPUT tools/setup-conf-dir.sh
+  COMMAND cp ${CMAKE_SOURCE_DIR}/tools/setup-conf-dir.sh ${CMAKE_BINARY_DIR}/tools/setup-conf-dir.sh
+  DEPENDS
+	${CMAKE_SOURCE_DIR}/tools/setup-conf-dir.sh
+)
+
+add_custom_target(setup_conf_dir ALL
+	DEPENDS tools/setup-conf-dir.sh
+)

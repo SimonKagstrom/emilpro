@@ -6,6 +6,7 @@ ${kcov}                 kcov
 ${cgi_server}           %{WORKSPACE}/build/server/cgi-server
 ${cgi_handler}          %{WORKSPACE}/build/server/cgi-handler
 ${remote_comm_test}     %{WORKSPACE}/build/tools/test-remote-communication
+${setup_conf}           %{WORKSPACE}/build/tools/setup-conf-dir.sh
 
 *** Test Cases ***
 cgi-server-too-few-arguments
@@ -24,8 +25,7 @@ remote-communication-no-server
     Should be equal as integers    ${rc}    2
 
 server-has-newer
-	Run                            install -d srv/local
-    Run                            cp -rap %{WORKSPACE}/tests/data/basic/* srv/local
+	Run                            ${setup_conf} srv remote 0 bge 4
     ${rc}=    Run and return RC    ${cgi_server} srv srv/to-server.fifo srv/from-server.fifo -q -t 5
     Should be equal as integers    ${rc}    0
     ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
