@@ -55,6 +55,6 @@ client-has-newer
     Should be equal as integers    ${rc}    0
     ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
     Run                            echo quit > srv/to-server.fifo
-    ${rc}=    Run and return RC    grep -rq "bge" srv
+    ${rc}=    Run and return RC    grep -rq "bge" srv/remote
     Run                            rm -rf client srv
     Should be equal as integers    ${rc}    0
