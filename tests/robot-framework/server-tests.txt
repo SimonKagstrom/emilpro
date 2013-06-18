@@ -33,3 +33,14 @@ server-has-newer
     ${rc}=    Run and return RC    grep -rq "bge" client/
     Run                            rm -rf client srv
     Should be equal as integers    ${rc}    0
+
+client-already-has-server-data
+	Run                            ${setup_conf} srv remote 0 bge 4
+	Run                            ${setup_conf} client local 4
+    ${rc}=    Run and return RC    ${cgi_server} srv srv/to-server.fifo srv/from-server.fifo -q -t 5
+    Should be equal as integers    ${rc}    0
+    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
+    Run                            echo quit > srv/to-server.fifo
+    ${rc}=    Run and return RC    grep -rq "bge" client/
+    Run                            rm -rf client srv
+    Should be equal as integers    ${rc}    1
