@@ -25,6 +25,7 @@ remote-communication-no-server
     Should be equal as integers    ${rc}    2
 
 server-has-newer
+	Run                            rm -rf client srv
 	Run                            ${setup_conf} srv remote 0 bge 4
     ${rc}=    Run and return RC    ${cgi_server} srv srv/to-server.fifo srv/from-server.fifo -q -t 5
     Should be equal as integers    ${rc}    0
@@ -35,6 +36,7 @@ server-has-newer
     Should be equal as integers    ${rc}    0
 
 client-already-has-server-data
+	Run                            rm -rf client srv
 	Run                            ${setup_conf} srv remote 0 bge 4
 	Run                            ${setup_conf} client local 4
     ${rc}=    Run and return RC    ${cgi_server} srv srv/to-server.fifo srv/from-server.fifo -q -t 5
