@@ -93,5 +93,5 @@ void CgiServer::request(const std::string xml)
 	m_timestamp = 0xffffffffffffffffULL;
 	m_timestampAdjustment = 0;
 
-	XmlFactory::instance().parse(xml);
+	XmlFactory::instance().parse(xml, true);
 }
