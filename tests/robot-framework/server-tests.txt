@@ -26,52 +26,52 @@ remote-communication-no-server
 
 server-has-newer
 	Run                            rm -rf client srv
-	Run                            ${setup_conf} srv remote 0 bge 4
+	Run                            ${setup_conf} srv remote 0 KALLE 4
     ${rc}=    Run and return RC    ${cgi_server} srv srv/to-server.fifo srv/from-server.fifo -q -t 5
     Should be equal as integers    ${rc}    0
     ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
     Run                            echo quit > srv/to-server.fifo
-    ${rc}=    Run and return RC    grep -rq "bge" client/
+    ${rc}=    Run and return RC    grep -rq "KALLE" client/
     Run                            rm -rf client srv
     Should be equal as integers    ${rc}    0
 
 client-already-has-server-data
 	Run                            rm -rf client srv
-	Run                            ${setup_conf} srv remote 0 bge 4
+	Run                            ${setup_conf} srv remote 0 KALLE 4
 	Run                            ${setup_conf} client local 4
     ${rc}=    Run and return RC    ${cgi_server} srv srv/to-server.fifo srv/from-server.fifo -q -t 5
     Should be equal as integers    ${rc}    0
     ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
     Run                            echo quit > srv/to-server.fifo
-    ${rc}=    Run and return RC    grep -rq "bge" client/
+    ${rc}=    Run and return RC    grep -rq "KALLE" client/
     Run                            rm -rf client srv
     Should be equal as integers    ${rc}    1
 
 client-has-newer
     Run                            rm -rf client srv
 	Run                            ${setup_conf} srv remote 0
-	Run                            ${setup_conf} client local 3 bge 4
+	Run                            ${setup_conf} client local 3 KALLE 4
     ${rc}=    Run and return RC    ${cgi_server} srv srv/to-server.fifo srv/from-server.fifo -q -t 3
     Should be equal as integers    ${rc}    0
     ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
     Run                            echo quit > srv/to-server.fifo
-    ${rc}=    Run and return RC    grep -rq "bge" srv/remote
+    ${rc}=    Run and return RC    grep -rq "KALLE" srv/remote
     Run                            rm -rf client srv
     Should be equal as integers    ${rc}    0
 
 second-client-gets-update
     Run                            rm -rf client client2 srv
     Run                            ${setup_conf} srv remote 0
-    Run                            ${setup_conf} client local 3 bge 4
+    Run                            ${setup_conf} client local 3 KALLE 4
     Run                            ${setup_conf} client2 local 3
     ${rc}=    Run and return RC    ${cgi_server} srv srv/to-server.fifo srv/from-server.fifo -q -t 3
     Should be equal as integers    ${rc}    0
     ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
-    ${rc}=    Run and return RC    grep -rq "bge" client2/remote
+    ${rc}=    Run and return RC    grep -rq "KALLE" client2/remote
     Should be equal as integers    ${rc}    1
     ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
     ${rc}=    Run and return RC    ${remote_comm_test} client2 ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
     Run                            echo quit > srv/to-server.fifo
-    ${rc}=    Run and return RC    grep -rq "bge" client2/remote
+    ${rc}=    Run and return RC    grep -rq "KALLE" client2/remote
     Run                            rm -rf client client2 srv
     Should be equal as integers    ${rc}    0
