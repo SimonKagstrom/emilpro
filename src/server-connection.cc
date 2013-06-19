@@ -151,7 +151,9 @@ public:
 		if (m_modelsToServer.size() == 0)
 			return true;
 
-		std::string xml;
+		std::string xml =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				"<emilpro>\n";
 
 		for (InstructionFactory::InstructionModelList_t::iterator it = m_modelsToServer.begin();
 				it != m_modelsToServer.end();
@@ -162,6 +164,9 @@ public:
 		}
 
 		m_modelsToServer.clear();
+
+		xml +=
+				"</emilpro>\n";
 
 		return Server::instance().sendXml(xml);
 	}
