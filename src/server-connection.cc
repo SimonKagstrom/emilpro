@@ -306,6 +306,11 @@ bool Server::connect()
 
 	m_isConnected = m_connectionHandler->setup();
 
+	m_stoppedMutex.lock();
+	m_threadStopped = false;
+	m_stoppedMutex.unlock();
+	m_threadSemaphore.notify();
+
 	if (m_isConnected)
 		m_thread = new std::thread(&Server::threadMain, this);
 
@@ -349,7 +354,8 @@ Server::Server() :
 		m_connectionHandler(NULL),
 		m_isConnected(false),
 		m_timestampHolder(NULL),
-		m_thread(NULL)
+		m_thread(NULL),
+		m_threadStopped(true)
 {
 	m_timestampHolder = new ClientHandler();
 
@@ -374,6 +380,11 @@ Server::~Server()
 
 void Server::stop()
 {
+	m_stoppedMutex.lock();
+	m_threadStopped = true;
+	m_stoppedMutex.unlock();
+	m_threadSemaphore.notify();
+
 	if (m_thread)
 		m_thread->join();
 	m_isConnected = false;
@@ -381,11 +392,22 @@ void Server::stop()
 
 void Server::threadMain()
 {
-	/*
-	 * We'll get the instruction models in the reply.
-	 *
-	 * For now, just exit the thread after this is done.
-	 */
-	m_timestampHolder->sendTimestamps();
-	m_timestampHolder->sendServerData();
+	while (1) {
+		m_threadSemaphore.wait();
+
+		/*
+		 * We'll get the instruction models in the reply.
+		 *
+		 */
+		m_timestampHolder->sendTimestamps();
+		m_timestampHolder->sendServerData();
+
+		bool quit;
+		m_stoppedMutex.lock();
+		quit = m_threadStopped;
+		m_stoppedMutex.unlock();
+
+		if (quit)
+			break;
+	}
 }

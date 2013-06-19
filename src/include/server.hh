@@ -3,6 +3,8 @@
 #include <list>
 #include <string>
 #include <thread>
+#include <condition_variable>
+#include <mutex>
 
 class ClientHandler;
 
@@ -57,6 +59,36 @@ namespace emilpro
 		static Server &instance();
 
 	private:
+		// From http://stackoverflow.com/questions/4792449/c0x-has-no-semaphores-how-to-synchronize-threads
+		class Semaphore
+		{
+		private:
+			std::mutex m_mutex;
+			std::condition_variable m_condition;
+			unsigned long m_count;
+
+		public:
+			Semaphore()
+			: m_count()
+			{}
+
+			void notify()
+			{
+				std::lock_guard<std::mutex> lock(m_mutex);
+				++m_count;
+				m_condition.notify_one();
+			}
+
+			void wait()
+			{
+				std::unique_lock<std::mutex> lock(m_mutex);
+				while(!m_count)
+					m_condition.wait(lock);
+				--m_count;
+			}
+		};
+
+
 		Server();
 
 		~Server();
@@ -72,5 +104,9 @@ namespace emilpro
 		ClientHandler *m_timestampHolder;
 		std::thread *m_thread;
 		NetworkListener *m_networkListener;
+
+		bool m_threadStopped;
+		std::mutex m_stoppedMutex;
+		Semaphore m_threadSemaphore;
 	};
 }
