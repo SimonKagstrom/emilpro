@@ -52,7 +52,7 @@ std::string CgiServer::reply()
 
 	InstructionFactory::InstructionModelList_t lst = InstructionFactory::instance().getInstructionModels();
 	std::list<InstructionFactory::IInstructionModel *> models;
-	uint64_t highestTimestamp = 1;
+	uint64_t highestTimestamp = 0;
 
 	for (InstructionFactory::InstructionModelList_t::iterator it = lst.begin();
 			it != lst.end();
