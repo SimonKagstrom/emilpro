@@ -49,6 +49,8 @@ namespace emilpro
 
 		bool connect();
 
+		void sendAndReceive();
+
 		void stop();
 
 		bool sendXml(std::string &what);

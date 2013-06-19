@@ -154,7 +154,7 @@ private:
 
 		write_file((void *)xml.c_str(), xml.size(),
 				"%s", fileName.c_str());
-		Server::instance().sendXml(xml);
+		Server::instance().sendAndReceive();
 
 		m_dialog->hide();
 	}

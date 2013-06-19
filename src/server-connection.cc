@@ -390,6 +390,15 @@ void Server::stop()
 	m_isConnected = false;
 }
 
+void Server::sendAndReceive()
+{
+	if (!m_isConnected)
+		return;
+
+	// Wakeup the thread
+	m_threadSemaphore.notify();
+}
+
 void Server::threadMain()
 {
 	while (1) {
