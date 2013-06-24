@@ -14,6 +14,7 @@
 #include <instructionview.hh>
 #include <sourceview.hh>
 #include <emilpro.hh>
+#include <server.hh>
 
 #include <string>
 #include <vector>
@@ -502,6 +503,8 @@ int main(int argc, char **argv)
 	EmilProGui gui;
 
 	gui.init(argc, argv);
+
+	Server::instance().connect();
 
 	gui.run(argc, argv);
 
