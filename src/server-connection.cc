@@ -18,11 +18,10 @@ public:
 		curl_global_init(CURL_GLOBAL_ALL);
 
 		m_curl = curl_easy_init();
+		curl_easy_setopt(m_curl, CURLOPT_VERBOSE, 1);
 
 		// Setup curl to read from memory
 		curl_easy_setopt(m_curl, CURLOPT_URL, Configuration::instance().getServerUrl().c_str());
-		curl_easy_setopt(m_curl, CURLOPT_READFUNCTION, curlReadFuncStatic);
-		curl_easy_setopt(m_curl, CURLOPT_READDATA, (void *)this);
 		curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, curlWriteFuncStatic);
 		curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, (void *)this);
 		curl_easy_setopt(m_curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
@@ -42,6 +41,8 @@ public:
 
 	std::string talk(const std::string &xml)
 	{
+		m_writtenData = "";
+
 		m_bodyPos = 0;
 		m_bodySize = xml.size();
 		m_data = (void *)xml.c_str();
@@ -52,8 +53,10 @@ public:
 
 		curl_formadd(&formpost,
 				&lastptr,
-				CURLFORM_COPYNAME, "sendfile",
-				CURLFORM_FILE, "postit2.c",
+				CURLFORM_COPYNAME, "userfile",
+				CURLFORM_BUFFER, "postit2.c",
+				CURLFORM_BUFFERPTR, (void *)xml.c_str(),
+				CURLFORM_BUFFERLENGTH, xml.size(),
 				CURLFORM_END);
 
 		curl_formadd(&formpost,
@@ -68,42 +71,21 @@ public:
 
 		curl_formfree(formpost);
 
+		printf("Returned %d, %s\n", res, m_writtenData.c_str());
 		if (res != CURLE_OK)
 			return "";
 
-		return ""; // FIXME!
+		return m_writtenData;
 	}
 
 private:
-	size_t curlReadfunc(void *ptr, size_t size, size_t nmemb)
-	{
-		int available = (m_bodySize - m_bodyPos);
-
-		if (available <= 0)
-			return 0;
-
-		int written = size * nmemb;
-
-		if (written > available)
-			written = available;
-
-		memcpy(ptr, ((char*)(m_data)) + m_bodyPos, written);
-		m_bodyPos += written;
-
-		return written;
-	}
-
 	size_t curlWritefunc(void *ptr, size_t size, size_t nmemb)
 	{
-		return 0;
-	}
+		const char *p = (char *)ptr;
 
-	static size_t curlReadFuncStatic(void *ptr, size_t size, size_t nmemb, void *priv)
-	{
-		if (!priv)
-			return 0;
+		m_writtenData.append(p, size * nmemb);
 
-		return ((CurlConnectionHandler *)priv)->curlReadfunc(ptr, size, nmemb);
+		return size * nmemb;
 	}
 
 	static size_t curlWriteFuncStatic(void *ptr, size_t size, size_t nmemb, void *priv)
@@ -119,6 +101,8 @@ private:
 	int m_bodySize;
 	int m_bodyPos;
 	void *m_data;
+
+	std::string m_writtenData;
 };
 
 
