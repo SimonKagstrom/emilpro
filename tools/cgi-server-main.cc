@@ -14,7 +14,7 @@ using namespace emilpro;
 void usage()
 {
 	printf(
-			"cgi-server <configuration-dir> <in-fifo> <out-fifo> [-q] [-f] [-t TIMESTAMP]\n"
+			"cgi-server <configuration-dir> [-q] [-f] [-t TIMESTAMP]\n"
 			"   -q              Accept quit command\n"
 			"   -f              Run in foreground\n"
 			"   -t  TIMESTAMP   Set time to TIMESTAMP\n"
@@ -24,17 +24,17 @@ void usage()
 
 int main(int argc, const char *argv[])
 {
-	if (argc < 4)
+	if (argc < 2)
 		usage();
 
 	bool honorQuit = false;
 	bool foreground = false;
 	std::string baseDirectory = argv[1];
-	const char *inFifoName = argv[2];
-	const char *outFifoName = argv[3];
+	std::string inFifoName = baseDirectory + "/to-server.fifo";
+	std::string outFifoName = baseDirectory + "/from-server.fifo";
 	uint64_t mocked_timestamp = 0xffffffffffffffffULL;
 
-	for (int i = 4; i < argc; i++) {
+	for (int i = 2; i < argc; i++) {
 		if (strcmp(argv[i], "-t") == 0) {
 			i++;
 
@@ -88,15 +88,15 @@ int main(int argc, const char *argv[])
 	}
 
 	mkdir(baseDirectory.c_str(), 0755);
-	mkfifo(inFifoName, S_IRUSR | S_IWUSR);
-	mkfifo(outFifoName, S_IRUSR | S_IWUSR);
+	mkfifo(inFifoName.c_str(), S_IRUSR | S_IWUSR);
+	mkfifo(outFifoName.c_str(), S_IRUSR | S_IWUSR);
 
 	while (1)
 	{
 		char *data;
 		size_t sz;
 
-		data = (char *)read_file_timeout(&sz, 1000, "%s", inFifoName);
+		data = (char *)read_file_timeout(&sz, 1000, "%s", inFifoName.c_str());
 		if (!data)
 			continue;
 
@@ -109,7 +109,7 @@ int main(int argc, const char *argv[])
 		server.request(cur);
 		std::string reply = server.reply();
 
-		write_file_timeout(reply.c_str(), reply.size(), 1000, "%s", outFifoName);
+		write_file_timeout(reply.c_str(), reply.size(), 1000, "%s", outFifoName.c_str());
 	}
 
 	return 0;
