@@ -72,5 +72,6 @@ TESTSUITE(network_listener)
 
 		ASSERT_TRUE(bge.find("cflow") != std::string::npos);
 		ASSERT_TRUE(addiu.find("arithmetic_logic") != std::string::npos);
+		ASSERT_TRUE(addiu.find("cflow") == std::string::npos);
 	}
 }
