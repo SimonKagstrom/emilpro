@@ -20,6 +20,14 @@ cgi-server-quit
     # Should really check that the process exited here...
     Run                            rm -rf tmp-dir
 
+cgi-server-pidfile-works
+    ${rc}=    Run and return RC    ${cgi_server} srv
+    Should be equal as integers    ${rc}    0
+    ${output}=    Run              cat srv/server.pid
+    ${rc}=    Run and return RC    kill ${output}
+    Should be equal as integers    ${rc}    0
+    Run                            rm -rf srv
+
 remote-communication-no-server
     ${rc}=    Run and return RC    ${remote_comm_test} client-conf-dir ${cgi_handler} tmp-dir/in.fifo tmp-dir/out.fifo
     Should be equal as integers    ${rc}    2

@@ -22,6 +22,17 @@ void usage()
 	exit(1);
 }
 
+std::string baseDirectory;
+
+static void on_term(int sig)
+{
+	std::string pidFile = baseDirectory + "/server.pid";
+
+	unlink(pidFile.c_str());
+
+	exit(0);
+}
+
 int main(int argc, const char *argv[])
 {
 	if (argc < 2)
@@ -29,7 +40,7 @@ int main(int argc, const char *argv[])
 
 	bool honorQuit = false;
 	bool foreground = false;
-	std::string baseDirectory = argv[1];
+	baseDirectory = argv[1];
 	std::string inFifoName = baseDirectory + "/to-server.fifo";
 	std::string outFifoName = baseDirectory + "/from-server.fifo";
 	uint64_t mocked_timestamp = 0xffffffffffffffffULL;
@@ -91,6 +102,16 @@ int main(int argc, const char *argv[])
 	mkfifo(inFifoName.c_str(), S_IRUSR | S_IWUSR);
 	mkfifo(outFifoName.c_str(), S_IRUSR | S_IWUSR);
 
+	std::string pidString = fmt("%d\n", (int)getpid());
+	std::string pidFile = baseDirectory + "/server.pid";
+
+	signal(SIGINT, on_term);
+	signal(SIGTERM, on_term);
+
+	write_file((void *)pidString.c_str(), pidString.size(), "%s", pidFile.c_str());
+
+	int ret = 0;
+
 	while (1)
 	{
 		char *data;
@@ -103,8 +124,10 @@ int main(int argc, const char *argv[])
 		std::string cur(data);
 		free(data);
 
-		if (honorQuit && cur.substr(0, 4) == "quit")
-			return 2;
+		if (honorQuit && cur.substr(0, 4) == "quit") {
+			ret = 2;
+			break;
+		}
 
 		server.request(cur);
 		std::string reply = server.reply();
@@ -112,5 +135,7 @@ int main(int argc, const char *argv[])
 		write_file_timeout(reply.c_str(), reply.size(), 1000, "%s", outFifoName.c_str());
 	}
 
-	return 0;
+	unlink(pidFile.c_str());
+
+	return ret;
 }
