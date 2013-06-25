@@ -77,6 +77,10 @@ std::string CgiServer::reply()
 				);
 	}
 
+	// We want one newer than this
+	if (highestTimestamp > 0)
+		highestTimestamp++;
+
 	out += fmt(
 			"  <ServerTimestamps>\n"
 			"    <Timestamp>%lld</Timestamp>\n"

@@ -59,6 +59,18 @@ client-has-newer
     Run                            rm -rf client srv
     Should be equal as integers    ${rc}    0
 
+client-has-equal
+    Run                            rm -rf client srv
+	Run                            ${setup_conf} srv remote 4 MANNE 4
+	Run                            ${setup_conf} client local 3 KALLE 4
+    ${rc}=    Run and return RC    ${cgi_server} srv srv/to-server.fifo srv/from-server.fifo -q -t 4
+    Should be equal as integers    ${rc}    0
+    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
+    Run                            echo quit > srv/to-server.fifo
+    ${rc}=    Run and return RC    grep -rq "KALLE" srv/remote
+    Run                            rm -rf client srv
+    Should be equal as integers    ${rc}    1
+
 server-gets-default-data
     Run                            rm -rf client srv
 	Run                            ${setup_conf} srv remote 0
