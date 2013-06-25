@@ -61,6 +61,8 @@ public:
 			mkdir(archPath.c_str(), 0700);
 			write_file(xml.c_str(), xml.size(), "%s/%s.xml",
 					archPath.c_str(), m_currentName.c_str());
+		} else {
+			m_xmlString.clear();
 		}
 
 		return true;
