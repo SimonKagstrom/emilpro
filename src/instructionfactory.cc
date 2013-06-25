@@ -324,6 +324,8 @@ InstructionFactory::InstructionFactory() :
 IInstruction* InstructionFactory::create(uint64_t startAddress, uint64_t pc, std::vector<std::string> encodingVector,
 		std::string& encoding, uint8_t *data, size_t size)
 {
+	std::lock_guard<std::mutex> lock(m_mutex);
+
 	if (encodingVector.size() == 0)
 		return NULL;
 
@@ -367,6 +369,7 @@ IInstruction* InstructionFactory::create(uint64_t startAddress, uint64_t pc, std
 static InstructionFactory *g_instance;
 void InstructionFactory::destroy()
 {
+	m_mutex.lock();
 	g_instance = NULL;
 	for (InstructionFactory::ArchitectureToEncoding_t::iterator it = m_encodingMap.begin();
 			it != m_encodingMap.end();
@@ -389,19 +392,27 @@ void InstructionFactory::destroy()
 
 	delete m_genericEncodingHandler;
 
+	m_mutex.unlock();
+
 	delete this;
 }
 
 InstructionFactory& InstructionFactory::instance()
 {
+	static std::mutex instanceMutex;
+
+	instanceMutex.lock();
 	if (!g_instance)
 		g_instance = new InstructionFactory();
+	instanceMutex.unlock();
 
 	return *g_instance;
 }
 
 void InstructionFactory::onArchitectureDetected(ArchitectureFactory::Architecture_t arch)
 {
+	std::lock_guard<std::mutex> lock(m_mutex);
+
 	InstructionFactory::ArchitectureToEncoding_t::iterator it = m_encodingMap.find((unsigned)arch);
 
 	if (it == m_encodingMap.end())
@@ -428,6 +439,8 @@ InstructionFactory::XmlListener::~XmlListener()
 bool InstructionFactory::XmlListener::onStart(const Glib::ustring& name,
 		const xmlpp::SaxParser::AttributeList& properties, std::string value)
 {
+	std::lock_guard<std::mutex> lock(m_parent->m_mutex);
+
 	if (name == "InstructionModel") {
 		if (m_currentModel)
 			delete m_currentModel;
@@ -462,6 +475,8 @@ bool InstructionFactory::XmlListener::onStart(const Glib::ustring& name,
 bool InstructionFactory::XmlListener::onElement(const Glib::ustring& name,
 		const xmlpp::SaxParser::AttributeList& properties, std::string value)
 {
+	std::lock_guard<std::mutex> lock(m_parent->m_mutex);
+
 	if (!m_currentModel)
 		return false;
 
@@ -479,6 +494,8 @@ bool InstructionFactory::XmlListener::onElement(const Glib::ustring& name,
 
 bool InstructionFactory::XmlListener::onEnd(const Glib::ustring& name)
 {
+	std::lock_guard<std::mutex> lock(m_parent->m_mutex);
+
 	if (name == "InstructionModel") {
 		if (!m_currentModel)
 			return false;
@@ -506,6 +523,8 @@ bool InstructionFactory::XmlListener::onEnd(const Glib::ustring& name)
 
 InstructionFactory::IInstructionModel* InstructionFactory::getModelFromInstruction(IInstruction &insn)
 {
+	std::lock_guard<std::mutex> lock(m_mutex);
+
 	InstructionFactory::MnemonicToModel_t &archModel = m_instructionModelByArchitecture[(unsigned)m_currentArchitecture];
 
 	return archModel[insn.getMnemonic()];
@@ -513,6 +532,8 @@ InstructionFactory::IInstructionModel* InstructionFactory::getModelFromInstructi
 
 InstructionFactory::IInstructionModel* InstructionFactory::createModelForInstruction(IInstruction& insn)
 {
+	std::lock_guard<std::mutex> lock(m_mutex);
+
 	InstructionFactory::IInstructionModel *out = new InstructionModel(insn.getMnemonic(),
 			ArchitectureFactory::instance().getNameFromArchitecture(m_currentArchitecture));
 
@@ -524,6 +545,8 @@ InstructionFactory::IInstructionModel* InstructionFactory::createModelForInstruc
 
 InstructionFactory::InstructionModelList_t InstructionFactory::getInstructionModels(uint64_t fromTimestamp)
 {
+	std::lock_guard<std::mutex> lock(m_mutex);
+
 	InstructionFactory::InstructionModelList_t out;
 	std::map<std::string, InstructionModelList_t> byMnemonic;
 
@@ -536,6 +559,10 @@ InstructionFactory::InstructionModelList_t InstructionFactory::getInstructionMod
 				itModel != cur.end();
 				++itModel) {
 			InstructionModel *p = (InstructionModel *)itModel->second;
+
+			// Instructions found in the file, but no model for these
+			if (!p)
+				continue;
 
 			if (p->m_timestamp >= fromTimestamp)
 				byMnemonic[p->m_mnemonic].push_back(p);

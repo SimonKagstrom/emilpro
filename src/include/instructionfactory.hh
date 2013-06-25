@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <string>
+#include <mutex>
 
 #include <unordered_map>
 
@@ -148,5 +149,7 @@ namespace emilpro
 
 		ArchitectureFactory::Architecture_t m_currentArchitecture;
 		XmlListener m_xmlListener;
+
+		std::mutex m_mutex;
 	};
 }
