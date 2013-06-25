@@ -71,7 +71,7 @@ public:
 
 		curl_formfree(formpost);
 
-		printf("Returned %d, %s\n", res, m_writtenData.c_str());
+		printf("Sent %s\n\nReturned %d, %s\n", xml.c_str(), res, m_writtenData.c_str());
 		if (res != CURLE_OK)
 			return "";
 
