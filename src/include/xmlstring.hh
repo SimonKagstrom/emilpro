@@ -20,6 +20,8 @@ namespace emilpro
 		 */
 		std::string getString();
 
+		void clear();
+
 	private:
 		virtual bool onStart(const Glib::ustring &name, const xmlpp::SaxParser::AttributeList &properties, std::string value);
 

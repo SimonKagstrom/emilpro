@@ -64,6 +64,11 @@ std::string XmlString::handleProperties(const xmlpp::SaxParser::AttributeList& p
 	return out;
 }
 
+void emilpro::XmlString::clear()
+{
+	m_string = "";
+}
+
 void XmlString::indent()
 {
 	for (unsigned i = 0; i < m_level * 4; i++)
