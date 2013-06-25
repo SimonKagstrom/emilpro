@@ -192,7 +192,7 @@ private:
 	bool onElement(const Glib::ustring &name, const xmlpp::SaxParser::AttributeList &properties, std::string value)
 	{
 		if (name == "InstructionModelTimestamp") {
-			uint64_t timestamp;
+			uint64_t timestamp = 0;
 
 			if (string_is_integer(value))
 				timestamp = string_to_integer(value);
