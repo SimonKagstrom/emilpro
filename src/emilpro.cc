@@ -8,6 +8,7 @@
 #include <configuration.hh>
 #include <server.hh>
 #include <utils.hh>
+#include <preferences.hh>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -36,6 +37,7 @@ void EmilPro::init()
 	InstructionFactory::instance();
 	XmlFactory::instance();
 	Server::instance();
+	Preferences::instance();
 
 	std::string confDir = conf.getPath(Configuration::DIR_CONFIGURATION);
 	std::string localDir = conf.getPath(Configuration::DIR_LOCAL);
@@ -54,6 +56,7 @@ void EmilPro::init()
 	}
 	g_instance->parseDirectory(localDir);
 	g_instance->parseDirectory(remoteDir);
+	g_instance->parseDirectory(confDir);
 }
 
 void EmilPro::destroy()
