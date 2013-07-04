@@ -5,23 +5,6 @@
   <object class="GtkAction" id="action1"/>
   <object class="GtkAction" id="action2"/>
   <object class="GtkAction" id="action3"/>
-  <object class="GtkListStore" id="edit_instruction_privileged_liststore">
-    <columns>
-      <!-- column-name privileged_columns -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">No</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Yes</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Unknown</col>
-      </row>
-    </data>
-  </object>
   <object class="GtkDialog" id="edit_instruction_dialog">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -195,6 +178,23 @@
       <action-widget response="0">instruction_dialog_ok_button</action-widget>
     </action-widgets>
   </object>
+  <object class="GtkListStore" id="edit_instruction_privileged_liststore">
+    <columns>
+      <!-- column-name privileged_columns -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">No</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Yes</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Unknown</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkListStore" id="edit_instruction_type_liststore">
     <columns>
       <!-- column-name type -->
@@ -297,67 +297,6 @@
       <!-- column-name instruction_view_target_data -->
       <column type="gchararray"/>
     </columns>
-  </object>
-  <object class="GtkDialog" id="instruction_model_dialog">
-    <property name="can_focus">False</property>
-    <property name="border_width">5</property>
-    <property name="default_width">320</property>
-    <property name="type_hint">dialog</property>
-    <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox4">
-        <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area4">
-            <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="button1">
-                <property name="label">gtk-ok</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-                <property name="image_position">top</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel" id="label11">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="ypad">5</property>
-            <property name="label" translatable="yes">EmilPRO uses collaborative instruction model editing. This means that your edits will be sent to a server and shared with other EmilPRO users.
-
-You will also receive new edits from other users, thus improving the instruction support incrementally.
-
-
-This message is only shown once. </property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="0">button1</action-widget>
-    </action-widgets>
   </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">False</property>
@@ -938,6 +877,67 @@ This message is only shown once. </property>
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkDialog" id="network_warning_dialog">
+    <property name="can_focus">False</property>
+    <property name="border_width">5</property>
+    <property name="default_width">320</property>
+    <property name="type_hint">dialog</property>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="dialog-vbox4">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="dialog-action_area4">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="network_dialog_ok_button">
+                <property name="label">gtk-ok</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+                <property name="image_position">top</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label11">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="ypad">5</property>
+            <property name="label" translatable="yes">EmilPRO uses collaborative instruction model editing. This means that your edits will be sent to a server and shared with other EmilPRO users.
+
+You will also receive new edits from other users, thus improving the instruction support incrementally.
+
+
+This message is only shown once. </property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="0">network_dialog_ok_button</action-widget>
+    </action-widgets>
   </object>
   <object class="GtkDialog" id="preferences_dialog">
     <property name="can_focus">False</property>

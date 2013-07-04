@@ -1,12 +1,13 @@
 #pragma once
 
 #include <iinstruction.hh>
+#include <preferences.hh>
 
 #include <gtkmm.h>
 
 class EditDialog;
 
-class InfoBox
+class InfoBox : public emilpro::Preferences::IListener
 {
 public:
 	InfoBox();
@@ -18,11 +19,18 @@ public:
 private:
 	void onEditButtonClicked();
 
+	void onNetworkDialogOKClicked();
+
+	virtual void onPreferencesChanged(const std::string &key,
+			const std::string &oldValue, const std::string &newValue);
+
 	Gtk::Label *m_label;
 	Gtk::TextView *m_textView;
-	Gtk::Button *m_editButton;
 	EditDialog *m_dialog;
+	Gtk::Dialog *m_networkDialog;
 
 	Glib::RefPtr<Gtk::TextBuffer> m_textBuffer;
 	Glib::RefPtr<Gtk::TextBuffer::TagTable> m_tagTable;
+
+	bool m_networkDialogShown;
 };

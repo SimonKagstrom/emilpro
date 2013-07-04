@@ -2,6 +2,7 @@
 #include <instructionfactory.hh>
 #include <configuration.hh>
 #include <server.hh>
+#include <preferences.hh>
 #include <utils.hh>
 
 #include <sys/stat.h>
@@ -181,28 +182,39 @@ private:
 
 };
 
-InfoBox::InfoBox()
+InfoBox::InfoBox() :
+		m_networkDialogShown(false)
 {
 	m_dialog = new EditDialog();
+
+	Preferences::instance().registerListener("NetworkDialogWarningShown", this);
 }
 
 void InfoBox::init(Glib::RefPtr<Gtk::Builder> builder)
 {
+	Gtk::Button *editButton;
+	Gtk::Button *networkDialogOKButton;
+
 	m_dialog->init(builder);
 
 	builder->get_widget("info_box_text_view", m_textView);
 	panic_if(!m_textView,	"Can't get view");
-	builder->get_widget("edit_instruction_model_button", m_editButton);
-	panic_if(!m_editButton, "Can't get button");
+	builder->get_widget("edit_instruction_model_button", editButton);
+	panic_if(!editButton, "Can't get button");
 	builder->get_widget("instruction_label", m_label);
 	panic_if(!m_label, "Can't get label");
+	builder->get_widget("network_warning_dialog", m_networkDialog);
+	panic_if(!m_networkDialog,	"Can't get network dialog");
+	builder->get_widget("network_dialog_ok_button", networkDialogOKButton);
+	panic_if(!networkDialogOKButton, "Can't get button");
 
 	m_tagTable = Gtk::TextBuffer::TagTable::create();
 	m_textBuffer = Gtk::TextBuffer::create(m_tagTable);
 	m_textView->set_buffer(m_textBuffer);
 	m_textView->set_wrap_mode(Gtk::WRAP_WORD);
 
-	m_editButton->signal_clicked().connect(sigc::mem_fun(*this,	&InfoBox::onEditButtonClicked));
+	editButton->signal_clicked().connect(sigc::mem_fun(*this, &InfoBox::onEditButtonClicked));
+	networkDialogOKButton->signal_clicked().connect(sigc::mem_fun(*this, &InfoBox::onNetworkDialogOKClicked));
 }
 
 void InfoBox::onInstructionSelected(IInstruction &insn)
@@ -262,4 +274,26 @@ void InfoBox::onInstructionSelected(IInstruction &insn)
 void InfoBox::onEditButtonClicked()
 {
 	m_dialog->show();
+
+	if (!m_networkDialogShown) {
+		m_networkDialog->show();
+		Preferences::instance().setValue("NetworkDialogWarningShown", "yes");
+	}
+}
+
+void InfoBox::onNetworkDialogOKClicked()
+{
+	m_networkDialog->hide();
+}
+
+void InfoBox::onPreferencesChanged(const std::string &key,
+			const std::string &oldValue, const std::string &newValue)
+{
+	if (key != "NetworkDialogWarningShown")
+		return;
+
+	if (newValue == "yes")
+		m_networkDialogShown = true;
+	else
+		m_networkDialogShown = false;
 }
