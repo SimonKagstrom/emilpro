@@ -40,9 +40,6 @@ void Preferences::unregisterListener(IListener* listener)
 		if (foundIt != cur.end())
 			cur.erase(foundIt);
 	}
-
-	// FIXME! Implement
-	//m_listeners.erase(listener);
 }
 
 void Preferences::setValue(const std::string& key,
