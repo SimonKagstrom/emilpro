@@ -1,5 +1,7 @@
 #include <preferences.hh>
 #include <xmlfactory.hh>
+#include <configuration.hh>
+#include <utils.hh>
 
 using namespace emilpro;
 
@@ -58,6 +60,12 @@ void Preferences::setValue(const std::string& key,
 
 		p->onPreferencesChanged(key, old, value);
 	}
+
+
+	std::string preferencesFileName = Configuration::instance().getPath(Configuration::DIR_CONFIGURATION) + "/preferences.xml";
+	std::string xml = toXml();
+
+	write_file(xml.c_str(), xml.size(), "%s", preferencesFileName.c_str());
 }
 
 bool Preferences::onStart(const Glib::ustring &name,
