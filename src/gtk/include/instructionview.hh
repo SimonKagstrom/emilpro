@@ -27,6 +27,8 @@ private:
 
 	void onCursorChanged();
 
+	void onRowActivated(const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn* column);
+
 	unsigned m_nLanes;
 	unsigned m_fontHeight;
 

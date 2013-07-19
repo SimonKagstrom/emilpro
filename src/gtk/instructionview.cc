@@ -397,6 +397,8 @@ void InstructionView::init(Glib::RefPtr<Gtk::Builder> builder, HexView* hv, Info
 
 	m_treeView->signal_cursor_changed().connect(sigc::mem_fun(*this,
 			&InstructionView::onCursorChanged));
+	m_treeView->signal_row_activated().connect(sigc::mem_fun(*this,
+			&InstructionView::onRowActivated));
 
 	Gtk::TreeViewColumn *cp;
 	Gtk::CellRenderer *cr;
@@ -521,4 +523,44 @@ void InstructionView::onCursorChanged()
 	}
 
 	m_sourceView->update(address);
+}
+
+void InstructionView::onRowActivated(const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn* column)
+{
+	Gtk::TreeModel::iterator iter = m_instructionListStore->get_iter(path);
+	Gtk::TreeModel::Row row = *iter;
+	IInstruction *cur = row[m_instructionColumns->m_rawInstruction];
+
+	if (!cur)
+		return;
+
+	if (cur->getType() != IInstruction::IT_CFLOW)
+		return;
+
+	uint64_t target = cur->getBranchTargetAddress();
+
+	if (target == IInstruction::INVALID_ADDRESS)
+		return;
+
+	Model &model = Model::instance();
+
+	// Lookup symbol for this instruction
+	const Model::SymbolList_t syms = model.getNearestSymbol(cur->getAddress());
+	if (syms.size() == 0)
+		return;
+
+	for (Model::SymbolList_t::const_iterator sIt = syms.begin();
+			sIt != syms.end();
+			++sIt) {
+		const ISymbol *sym = syms.front();
+
+		if (sym->getType() != ISymbol::SYM_TEXT)
+			continue;
+
+		// FIXME!
+		if (target >= sym->getAddress() && target < sym->getAddress() + sym->getSize())
+			printf("Jump within function\n");
+		else
+			printf("Jump to other function\n");
+	}
 }
