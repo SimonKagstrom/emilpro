@@ -356,6 +356,8 @@ protected:
 			if (type != ISymbol::SYM_TEXT && type != ISymbol::SYM_DATA)
 				continue;
 
+			highlightSymbol(cur);
+
 			if (largest->getType() != ISymbol::SYM_TEXT && largest->getType() != ISymbol::SYM_DATA)
 				largest = cur;
 
@@ -367,6 +369,16 @@ protected:
 			updateSourceView(address, largest);
 		else
 			updateDataView(address, largest);
+	}
+
+	void highlightSymbol(const ISymbol *sym)
+	{
+		if (m_symbolRowIterByAddress.find(sym->getAddress()) == m_symbolRowIterByAddress.end())
+			return;
+
+		Gtk::ListStore::iterator rowIt = m_symbolRowIterByAddress[sym->getAddress()];
+
+		m_symbolView->set_cursor(m_symbolListStore->get_path(rowIt));
 	}
 
 	void updateSourceView(uint64_t address, const ISymbol *sym)
@@ -388,6 +400,7 @@ protected:
 		Model::instance().parseAll();
 
 		m_symbolListStore->clear();
+		m_symbolRowIterByAddress.clear();
 		m_hexView.clearData();
 
 		const Model::SymbolList_t &syms = Model::instance().getSymbols();
@@ -407,6 +420,8 @@ protected:
 
 			Gtk::ListStore::iterator rowIt = m_symbolListStore->append();
 			Gtk::TreeRow row = *rowIt;
+
+			m_symbolRowIterByAddress[cur->getAddress()] = rowIt;
 
 			const char *r = " ";
 			const char *w = cur->isWriteable() ? "W" : " ";
@@ -473,10 +488,12 @@ protected:
 private:
 	typedef Gtk::TreeModel::Children TreeModelChildren_t;
 	typedef std::list<Gtk::TreeModel::iterator> InstructionIterList_t;
+	typedef std::unordered_map<uint64_t, Gtk::ListStore::iterator> SymbolRowIterByAddressMap_t;
 
 	Gtk::Main *m_app;
 	Glib::RefPtr<Gtk::Builder> m_builder;
 	Glib::RefPtr<Gtk::ListStore> m_symbolListStore;
+	SymbolRowIterByAddressMap_t m_symbolRowIterByAddress;
 	Glib::RefPtr<Gtk::ListStore> m_referencesListStore;
 	SymbolModelColumns *m_symbolColumns;
 	ReferenceModelColumns *m_referenceColumns;
