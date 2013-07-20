@@ -68,6 +68,7 @@ public:
 		ASSERT_TRUE(removeLeadingSpaces(cur) == removeLeadingSpaces(s));
 
 		m_expected->pop_front();
+		m_xmlString->clear();
 
 		return true;
 	}
