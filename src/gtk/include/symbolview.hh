@@ -19,7 +19,7 @@ public:
 
 	void init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, HexView *hv);
 
-	void highlightSymbol(const emilpro::ISymbol *sym);
+	void update(uint64_t address);
 
 	void refreshSymbols();
 

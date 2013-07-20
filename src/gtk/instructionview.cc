@@ -1,4 +1,5 @@
 #include <instructionview.hh>
+#include <symbolview.hh>
 #include <iinstruction.hh>
 #include <hexview.hh>
 #include <infobox.hh>
@@ -340,13 +341,14 @@ InstructionView::~InstructionView()
 }
 
 
-void InstructionView::init(Glib::RefPtr<Gtk::Builder> builder, HexView* hv, InfoBox* ib, SourceView *sv)
+void InstructionView::init(Glib::RefPtr<Gtk::Builder> builder, HexView* hv, InfoBox* ib, SourceView *sv, SymbolView *symv)
 {
 	m_instructionColumns = new InstructionModelColumns(4);
 
 	m_hexView = hv;
 	m_infoBox = ib;
 	m_sourceView = sv;
+	m_symbolView = symv;
 
 	// FIXME! Get this from properties instead!
 	m_backgroundColor = Gdk::Color("white");
@@ -561,6 +563,6 @@ void InstructionView::onRowActivated(const Gtk::TreeModel::Path& path, Gtk::Tree
 		if (target >= sym->getAddress() && target < sym->getAddress() + sym->getSize())
 			printf("Jump within function\n");
 		else
-			printf("Jump to other function\n");
+			m_symbolView->update(target);
 	}
 }

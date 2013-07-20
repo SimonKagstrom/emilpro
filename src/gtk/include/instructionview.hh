@@ -8,6 +8,7 @@
 class HexView;
 class InfoBox;
 class SourceView;
+class SymbolView;
 class InstructionModelColumns;
 class JumpLaneCellRenderer;
 
@@ -18,7 +19,7 @@ public:
 
 	~InstructionView();
 
-	void init(Glib::RefPtr<Gtk::Builder> builder, HexView *hv, InfoBox *ib, SourceView *sv);
+	void init(Glib::RefPtr<Gtk::Builder> builder, HexView *hv, InfoBox *ib, SourceView *sv, SymbolView *symv);
 
 	void update(uint64_t address, const emilpro::ISymbol &sym);
 
@@ -42,6 +43,7 @@ private:
 	HexView *m_hexView;
 	InfoBox *m_infoBox;
 	SourceView *m_sourceView;
+	SymbolView *m_symbolView;
 
 	Gdk::Color m_historyColors[3];
 	Gdk::Color m_backgroundColor;

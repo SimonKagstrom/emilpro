@@ -139,16 +139,6 @@ void SymbolView::init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, H
 	panic_if(!m_instructionsDataNotebook, "Can't get notebook");
 }
 
-void SymbolView::highlightSymbol(const emilpro::ISymbol* sym)
-{
-	if (m_symbolRowIterByAddress.find(sym->getAddress()) == m_symbolRowIterByAddress.end())
-		return;
-
-	Gtk::ListStore::iterator rowIt = m_symbolRowIterByAddress[sym->getAddress()];
-
-	m_symbolView->set_cursor(m_symbolListStore->get_path(rowIt));
-}
-
 void SymbolView::onCursorChanged()
 {
 	Gtk::TreeModel::Path path;
@@ -202,39 +192,10 @@ void SymbolView::onRowActivated(const Gtk::TreeModel::Path& path,
 	if(!iter)
 		return;
 
-	Model &model = Model::instance();
-
 	Gtk::TreeModel::Row row = *iter;
 	uint64_t address = row[m_symbolColumns->m_rawAddress];
 
-	Model::SymbolList_t syms = model.getSymbolExact(address);
-	if (syms.empty()) {
-		warning("Can't get symbol\n");
-		return;
-	}
-
-	const ISymbol *largest = syms.front();
-
-	for (Model::SymbolList_t::iterator it = syms.begin();
-			it != syms.end();
-			++it) {
-		const ISymbol *cur = *it;
-		enum ISymbol::SymbolType type = cur->getType();
-
-		if (type != ISymbol::SYM_TEXT && type != ISymbol::SYM_DATA)
-			continue;
-
-		if (largest->getType() != ISymbol::SYM_TEXT && largest->getType() != ISymbol::SYM_DATA)
-			largest = cur;
-
-		if (cur->getSize() > largest->getSize())
-			largest = cur;
-	}
-
-	if (largest->getType() == ISymbol::SYM_TEXT)
-		m_instructionView->update(address, *largest);
-	else
-		updateDataView(address, largest);
+	update(address);
 }
 
 void SymbolView::onReferenceRowActivated(const Gtk::TreeModel::Path& path,
@@ -245,44 +206,13 @@ void SymbolView::onReferenceRowActivated(const Gtk::TreeModel::Path& path,
 	if(!iter)
 		return;
 
-	Model &model = Model::instance();
-
 	Gtk::TreeModel::Row row = *iter;
 	uint64_t address = row[m_referenceColumns->m_rawAddress];
 
 	if (address == IInstruction::INVALID_ADDRESS)
 		return;
 
-	Model::SymbolList_t syms = model.getNearestSymbol(address);
-	if (syms.empty()) {
-		warning("Can't get symbol\n");
-		return;
-	}
-
-	const ISymbol *largest = syms.front();
-
-	for (Model::SymbolList_t::iterator it = syms.begin();
-			it != syms.end();
-			++it) {
-		const ISymbol *cur = *it;
-		enum ISymbol::SymbolType type = cur->getType();
-
-		if (type != ISymbol::SYM_TEXT && type != ISymbol::SYM_DATA)
-			continue;
-
-		highlightSymbol(cur);
-
-		if (largest->getType() != ISymbol::SYM_TEXT && largest->getType() != ISymbol::SYM_DATA)
-			largest = cur;
-
-		if (cur->getSize() > largest->getSize())
-			largest = cur;
-	}
-
-	if (largest->getType() == ISymbol::SYM_TEXT)
-		updateSourceView(address, largest);
-	else
-		updateDataView(address, largest);
+	update(address);
 }
 
 void SymbolView::updateSourceView(uint64_t address, const emilpro::ISymbol* sym)
@@ -341,6 +271,65 @@ void SymbolView::refreshSymbols()
 
 		row[m_symbolColumns->m_rawAddress] = cur->getAddress();
 	}
+}
+
+void SymbolView::update(uint64_t address)
+{
+	Model &model = Model::instance();
+
+	const Model::SymbolList_t nearestSyms = model.getNearestSymbol(address);
+
+	if (nearestSyms.empty())
+		return;
+
+	uint64_t symbolAddress = IInstruction::INVALID_ADDRESS;
+
+	for (Model::SymbolList_t::const_iterator sIt = nearestSyms.begin();
+			sIt != nearestSyms.end();
+			++sIt) {
+		ISymbol *sym = *sIt;
+
+		if (sym->getType() != ISymbol::SYM_TEXT && sym->getType() != ISymbol::SYM_DATA)
+			continue;
+
+		// Found a "meaningful" symbol
+		symbolAddress = sym->getAddress();
+		break;
+	}
+
+	if (m_symbolRowIterByAddress.find(symbolAddress) == m_symbolRowIterByAddress.end())
+		return;
+	Gtk::ListStore::iterator rowIt = m_symbolRowIterByAddress[symbolAddress];
+	m_symbolView->set_cursor(m_symbolListStore->get_path(rowIt));
+
+	Model::SymbolList_t syms = model.getSymbolExact(symbolAddress);
+	if (syms.empty()) {
+		warning("Can't get symbol\n");
+		return;
+	}
+
+	const ISymbol *largest = syms.front();
+
+	for (Model::SymbolList_t::iterator it = syms.begin();
+			it != syms.end();
+			++it) {
+		const ISymbol *cur = *it;
+		enum ISymbol::SymbolType type = cur->getType();
+
+		if (type != ISymbol::SYM_TEXT && type != ISymbol::SYM_DATA)
+			continue;
+
+		if (largest->getType() != ISymbol::SYM_TEXT && largest->getType() != ISymbol::SYM_DATA)
+			largest = cur;
+
+		if (cur->getSize() > largest->getSize())
+			largest = cur;
+	}
+
+	if (largest->getType() == ISymbol::SYM_TEXT)
+		m_instructionView->update(address, *largest);
+	else
+		updateDataView(address, largest);
 }
 
 void SymbolView::updateDataView(uint64_t address, const emilpro::ISymbol* sym)
