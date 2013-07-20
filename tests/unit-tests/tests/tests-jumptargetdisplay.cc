@@ -128,6 +128,8 @@ public:
 		for (InstructionList_t::iterator it = m_insns.begin();
 				it != m_insns.end();
 				++it, ++i) {
+			printf("%3d:  ", i);
+
 			MockInstruction *cur = (MockInstruction *)*it;
 			JumpTargetDisplay::LaneValue_t lanes[nLanes];
 
@@ -238,7 +240,7 @@ TESTSUITE(jumptarget)
 
 	TEST(fillLanes, JumpTargetFixture)
 	{
-			unsigned nLanes = 3;
+			unsigned nLanes = 4;
 			JumpTargetDisplay *p = new JumpTargetDisplay(false, nLanes);
 
 			uint64_t a = addInstruction();
@@ -254,8 +256,8 @@ TESTSUITE(jumptarget)
 			p->calculateLanes(m_insns, 10);
 
 			print(p, nLanes);
-			ASSERT_FALSE(laneHasValue(p, 6, nLanes, JumpTargetDisplay::LANE_START_UP));
-			ASSERT_FALSE(laneHasValue(p, 8, nLanes, JumpTargetDisplay::LANE_START_UP));
+			ASSERT_FALSE(laneHasValue(p, 4, nLanes, JumpTargetDisplay::LANE_START_UP));
+			ASSERT_TRUE(laneHasValue(p, 7, nLanes, JumpTargetDisplay::LANE_START_UP));
 
 			cleanup();
 			delete p;
