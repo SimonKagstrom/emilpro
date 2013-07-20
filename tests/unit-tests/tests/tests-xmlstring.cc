@@ -28,17 +28,17 @@ std::string removeLeadingSpaces(const std::string str)
 	return out;
 }
 
-class ListenerFixture : public XmlFactory::IXmlListener
+class XmlStringListenerFixture : public XmlFactory::IXmlListener
 {
 public:
-	ListenerFixture(XmlString *p) :
+	XmlStringListenerFixture(XmlString *p) :
 		m_xmlString(p)
 	{
 		m_expected = new std::list<const char*>();
 		XmlFactory::instance().registerListener("InstructionModel", this);
 	}
 
-	~ListenerFixture()
+	~XmlStringListenerFixture()
 	{
 		XmlFactory::instance().unregisterListener(this);
 		delete m_expected;
@@ -125,7 +125,7 @@ TESTSUITE(xmlstring)
 
 		XmlString xmlString("InstructionModel");
 
-		ListenerFixture *lf = new ListenerFixture(&xmlString);
+		XmlStringListenerFixture *lf = new XmlStringListenerFixture(&xmlString);
 
 		lf->addExpected(
 				"  <InstructionModel name=\"bge\" architecture=\"mips\">\n"
