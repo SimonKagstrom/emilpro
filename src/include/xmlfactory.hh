@@ -66,7 +66,7 @@ namespace emilpro
 
 		bool parse(const std::string str, bool isRemote = false);
 
-		void registerListener(std::string elementName, IXmlListener *listener);
+		void registerListener(std::string elementName, IXmlListener *listener, bool prioritized = false);
 
 		void unregisterListener(IXmlListener *listener);
 

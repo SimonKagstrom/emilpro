@@ -149,10 +149,14 @@ bool XmlFactory::parse(const std::string str, bool isRemote)
 }
 
 void XmlFactory::registerListener(std::string elementName,
-		IXmlListener* listener)
+		IXmlListener* listener, bool prioritized)
 {
 	listener->setName(elementName);
-	m_elementListeners[elementName].push_back(listener);
+
+	if (prioritized)
+		m_elementListeners[elementName].push_front(listener);
+	else
+		m_elementListeners[elementName].push_back(listener);
 }
 
 void XmlFactory::unregisterListener(IXmlListener* listener)
