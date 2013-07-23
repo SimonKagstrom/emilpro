@@ -7,7 +7,7 @@ XmlString::XmlString(const std::string& tag) :
 		m_string(""),
 		m_tag(tag)
 {
-	XmlFactory::instance().registerListener(tag, this);
+	XmlFactory::instance().registerListener(tag, this, true);
 }
 
 XmlString::~XmlString()
