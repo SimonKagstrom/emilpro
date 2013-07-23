@@ -44,6 +44,11 @@ public:
 		delete m_expected;
 	}
 
+	void setXmlString(XmlString *p)
+	{
+		m_xmlString = p;
+	}
+
 	void addExpected(const char *str)
 	{
 		m_expected->push_back(str);
@@ -145,5 +150,50 @@ TESTSUITE(xmlstring)
 		XmlFactory::instance().parse(xml);
 
 		delete lf;
+	}
+
+	TEST(orderIndependence)
+	{
+		std::string xml =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				"<emilpro>\n"
+				"  <InstructionModel name=\"bge\" architecture=\"mips\">\n"
+				"    <type>cflow</type>\n"
+				"  </InstructionModel>\n"
+				"</emilpro>\n";
+
+		XmlString *p;
+		XmlStringListenerFixture *lf;
+
+		// XmlString first
+		p = new XmlString("InstructionModel");
+		lf = new XmlStringListenerFixture(p);
+
+		lf->addExpected(
+				"  <InstructionModel name=\"bge\" architecture=\"mips\">\n"
+				"    <type>cflow</type>\n"
+				"  </InstructionModel>\n"
+				);
+
+		XmlFactory::instance().parse(xml);
+
+		delete lf;
+		delete p;
+
+
+		// XmlString after
+		lf = new XmlStringListenerFixture(NULL);
+		p = new XmlString("InstructionModel");
+
+		lf->setXmlString(p);
+		lf->addExpected(
+				"  <InstructionModel name=\"bge\" architecture=\"mips\">\n"
+				"    <type>cflow</type>\n"
+				"  </InstructionModel>\n"
+				);
+		XmlFactory::instance().parse(xml);
+
+		delete lf;
+		delete p;
 	}
 }
