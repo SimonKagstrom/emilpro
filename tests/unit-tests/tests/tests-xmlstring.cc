@@ -61,6 +61,9 @@ public:
 
 	bool onEnd(const Glib::ustring &name)
 	{
+		if (name != "InstructionModel")
+			return true;
+
 		std::string cur = m_expected->front();
 
 		std::string s = m_xmlString->getString();
