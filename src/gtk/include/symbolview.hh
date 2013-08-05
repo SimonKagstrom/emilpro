@@ -35,6 +35,8 @@ private:
 	void updateDataView(uint64_t address, const emilpro::ISymbol *sym);
 
 
+	void onEntryActivated();
+
 	typedef std::unordered_map<uint64_t, Gtk::ListStore::iterator> SymbolRowIterByAddressMap_t;
 
 	Glib::RefPtr<Gtk::ListStore> m_symbolListStore;
@@ -46,6 +48,7 @@ private:
 
 	Gtk::TreeView *m_symbolView;
 	Gtk::TreeView *m_referencesView;
+	Gtk::Entry *m_lookupEntry;
 	InstructionView *m_instructionView;
 	HexView *m_hexView;
 };

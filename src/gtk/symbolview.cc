@@ -137,6 +137,12 @@ void SymbolView::init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, H
 
 	builder->get_widget("instructions_data_notebook", m_instructionsDataNotebook);
 	panic_if(!m_instructionsDataNotebook, "Can't get notebook");
+
+	builder->get_widget("symbol_lookup_entry", m_lookupEntry);
+	panic_if(!m_lookupEntry, "Can't get entry");
+
+	m_lookupEntry->signal_activate().connect(sigc::mem_fun(*this,
+			&SymbolView::onEntryActivated));
 }
 
 void SymbolView::onCursorChanged()
@@ -338,3 +344,17 @@ void SymbolView::updateDataView(uint64_t address, const emilpro::ISymbol* sym)
 
 	m_hexView->markRange(sym->getAddress(), (size_t)sym->getSize());
 }
+
+void SymbolView::onEntryActivated()
+{
+	std::string text = m_lookupEntry->get_text();
+
+	if (string_is_integer(text)) {
+		uint64_t address = string_to_integer(text);
+
+		update(address);
+	} else {
+		printf("Find by name, not yet implemented\n");
+	}
+}
+
