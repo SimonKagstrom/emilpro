@@ -380,4 +380,17 @@ TESTSUITE(model)
 			free(data);
 		}
 	}
+
+	TEST(empty)
+	{
+		Model &model = Model::instance();
+
+		Model::SymbolList_t l;
+
+		l = model.getNearestSymbol(0);
+		ASSERT_TRUE(l.empty());
+
+		l = model.getSymbolExact(0);
+		ASSERT_TRUE(l.empty());
+	}
 }
