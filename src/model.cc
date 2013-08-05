@@ -302,6 +302,9 @@ const Model::SymbolList_t Model::getNearestSymbolLocked(uint64_t address)
 	SymbolOrderedMap_t::iterator it = m_orderedSymbols.lower_bound(address);
 	Model::SymbolList_t out;
 
+	if (it == m_orderedSymbols.end())
+		return out;
+
 	--it;
 
 	// Above the last symbol
