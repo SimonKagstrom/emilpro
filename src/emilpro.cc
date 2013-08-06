@@ -64,8 +64,10 @@ void EmilPro::destroy()
 	Model::instance().destroy();
 	SymbolFactory::instance().destroy();
 	IDisassembly::instance().destroy();
-	ArchitectureFactory::instance().destroy();
 	InstructionFactory::instance().destroy();
+	ArchitectureFactory::instance().destroy();
+	//Server::instance().destroy();
+	Preferences::instance().destroy();
 	XmlFactory::instance().destroy();
 	Configuration::instance().destroy();
 
