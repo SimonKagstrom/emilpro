@@ -83,6 +83,7 @@ NetworkListener::NetworkListener()
 
 NetworkListener::~NetworkListener()
 {
+	delete m_modelListener;
 }
 
 
