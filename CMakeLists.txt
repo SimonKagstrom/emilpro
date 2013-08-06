@@ -69,6 +69,7 @@ add_custom_target(emilpro_built_in_instruction_models ALL
 )
 
 set (BASE_SRCS
+	src/addresshistory.cc
 	src/architecturefactory.cc
 	src/bfd-disassembly.cc
 	src/bfd-provider.cc

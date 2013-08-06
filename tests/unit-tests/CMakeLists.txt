@@ -32,6 +32,7 @@ endif (HAVE_BFD_MULTIARCH)
 set (CMAKE_BUILD_TYPE debug)
 
 set (${TGT}_SRCS
+	../../src/addresshistory.cc
 	../../src/architecturefactory.cc
 	../../src/bfd-disassembly.cc
 	../../src/bfd-provider.cc
@@ -46,9 +47,10 @@ set (${TGT}_SRCS
 	../../src/xmlfactory.cc
 	../../src/xmlstring.cc
 	main.cc
+	tests/tests-addresshistory.cc
+	tests/tests-cgi-server.cc
 	tests/tests-disassembly.cc
 	tests/tests-hexview.cc
-	tests/tests-cgi-server.cc
 	tests/tests-instructionfactory.cc
 	tests/tests-jumptargetdisplay.cc
 	tests/tests-model.cc
