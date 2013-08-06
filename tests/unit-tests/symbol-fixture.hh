@@ -17,13 +17,6 @@ public:
 		factory.registerListener(this);
 	}
 
-	virtual ~SymbolFixture()
-	{
-		SymbolFactory &factory = SymbolFactory::instance();
-
-		factory.destroy();
-	}
-
 	void onSymbol(ISymbol &sym)
 	{
 		m_symbolNames[sym.getName()] = &sym;
