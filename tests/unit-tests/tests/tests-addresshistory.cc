@@ -46,14 +46,14 @@ TESTSUITE(address_history)
 			res = h.maybeAddEntry(1);
 			ASSERT_TRUE(res);
 
-			AddressHistory::Entry &e = h.current();
+			const AddressHistory::Entry &e = h.current();
 			ASSERT_TRUE(e.isValid());
 			ASSERT_TRUE(e.getAddress() == 1U);
 
-			AddressHistory::Entry &eb = h.back();
+			const AddressHistory::Entry &eb = h.back();
 			ASSERT_FALSE(eb.isValid());
 
-			AddressHistory::Entry &ef = h.forward();
+			const AddressHistory::Entry &ef = h.forward();
 			ASSERT_FALSE(ef.isValid());
 
 			EmilPro::destroy();
@@ -79,29 +79,29 @@ TESTSUITE(address_history)
 			res = h.maybeAddEntry(1);
 			ASSERT_TRUE(res);
 
-			AddressHistory::Entry &e = h.current();
+			const AddressHistory::Entry &e = h.current();
 			ASSERT_TRUE(e.isValid());
 			ASSERT_TRUE(e.getAddress() == 1U);
 
 			res = h.maybeAddEntry(3);
 			ASSERT_TRUE(res);
 
-			AddressHistory::Entry &e2 = h.current();
+			const AddressHistory::Entry &e2 = h.current();
 			ASSERT_TRUE(e2.isValid());
 			ASSERT_TRUE(e2.getAddress() == 3U);
 
-			AddressHistory::Entry &eb = h.back();
+			const AddressHistory::Entry &eb = h.back();
 			ASSERT_TRUE(eb.isValid());
 			ASSERT_TRUE(eb.getAddress() == 1U);
 
-			AddressHistory::Entry &eb2 = h.back();
+			const AddressHistory::Entry &eb2 = h.back();
 			ASSERT_FALSE(eb2.isValid());
 
-			AddressHistory::Entry &ef = h.forward();
+			const AddressHistory::Entry &ef = h.forward();
 			ASSERT_TRUE(ef.isValid());
 			ASSERT_TRUE(ef.getAddress() == 3U);
 
-			AddressHistory::Entry &ef2 = h.forward();
+			const AddressHistory::Entry &ef2 = h.forward();
 			ASSERT_FALSE(ef2.isValid());
 
 			EmilPro::destroy();
@@ -133,11 +133,11 @@ TESTSUITE(address_history)
 			res = h.maybeAddEntry(6);
 			ASSERT_TRUE(res);
 
-			AddressHistory::Entry &e = h.current();
+			const AddressHistory::Entry &e = h.current();
 			ASSERT_TRUE(e.isValid());
 			ASSERT_TRUE(e.getAddress() == 6U);
 
-			AddressHistory::Entry &eb = h.back();
+			const AddressHistory::Entry &eb = h.back();
 			ASSERT_TRUE(eb.isValid());
 			ASSERT_TRUE(eb.getAddress() == 3U);
 
@@ -145,7 +145,7 @@ TESTSUITE(address_history)
 			res = h.maybeAddEntry(9);
 			ASSERT_TRUE(res);
 
-			AddressHistory::Entry &ec = h.current();
+			const AddressHistory::Entry &ec = h.current();
 			ASSERT_TRUE(ec.isValid());
 			ASSERT_TRUE(ec.getAddress() == 3U);
 

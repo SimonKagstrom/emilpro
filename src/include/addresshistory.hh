@@ -15,12 +15,12 @@ namespace emilpro
 			{
 			}
 
-			virtual std::string getName() = 0;
+			virtual std::string getName() const = 0;
 
-			virtual uint64_t getAddress() = 0;
+			virtual uint64_t getAddress() const = 0;
 
 
-			virtual bool isValid() = 0;
+			virtual bool isValid() const = 0;
 		};
 
 		AddressHistory();
@@ -33,11 +33,11 @@ namespace emilpro
 		void clear();
 
 
-		Entry &current();
+		const Entry &current();
 
-		Entry &back();
+		const Entry &back();
 
-		Entry &forward();
+		const Entry &forward();
 
 	private:
 		typedef std::vector<Entry *> EntryVector_t;

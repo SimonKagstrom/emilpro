@@ -13,17 +13,17 @@ public:
 	{
 	}
 
-	std::string getName()
+	std::string getName() const
 	{
 		return m_name;
 	}
 
-	uint64_t getAddress()
+	uint64_t getAddress() const
 	{
 		return m_address;
 	}
 
-	bool isValid()
+	bool isValid() const
 	{
 		return m_valid;
 	}
@@ -79,7 +79,7 @@ bool AddressHistory::maybeAddEntry(uint64_t address)
 	return true;
 }
 
-AddressHistory::Entry& AddressHistory::current()
+const AddressHistory::Entry& AddressHistory::current()
 {
 	if (m_currentEntry == -1)
 		return *m_sentinel;
@@ -87,7 +87,7 @@ AddressHistory::Entry& AddressHistory::current()
 	return *m_entries[m_currentEntry];
 }
 
-AddressHistory::Entry& AddressHistory::back()
+const AddressHistory::Entry& AddressHistory::back()
 {
 	if (m_entries.size() == 0)
 		return *m_sentinel;
@@ -100,7 +100,7 @@ AddressHistory::Entry& AddressHistory::back()
 	return *m_entries[m_currentEntry];
 }
 
-AddressHistory::Entry& AddressHistory::forward()
+const AddressHistory::Entry& AddressHistory::forward()
 {
 	if (m_entries.size() == 0)
 		return *m_sentinel;
