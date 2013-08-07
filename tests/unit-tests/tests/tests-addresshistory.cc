@@ -94,6 +94,9 @@ TESTSUITE(address_history)
 			ASSERT_TRUE(eb.isValid());
 			ASSERT_TRUE(eb.getAddress() == 1U);
 
+			AddressHistory::Entry &eb2 = h.back();
+			ASSERT_FALSE(eb2.isValid());
+
 			AddressHistory::Entry &ef = h.forward();
 			ASSERT_TRUE(ef.isValid());
 			ASSERT_TRUE(ef.getAddress() == 3U);
