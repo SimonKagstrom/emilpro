@@ -326,7 +326,8 @@ InstructionView::InstructionView() :
 		m_treeView(NULL),
 		m_hexView(NULL),
 		m_infoBox(NULL),
-		m_sourceView(NULL)
+		m_sourceView(NULL),
+		m_historyDisabled(false)
 {
 	m_backwardBranches = new JumpTargetDisplay(false, m_nLanes);
 	m_forwardBranches = new JumpTargetDisplay(true, m_nLanes);
@@ -341,7 +342,7 @@ InstructionView::~InstructionView()
 }
 
 
-void InstructionView::init(Glib::RefPtr<Gtk::Builder> builder, HexView* hv, InfoBox* ib, SourceView *sv, SymbolView *symv)
+void InstructionView::init(Glib::RefPtr<Gtk::Builder> builder, HexView* hv, InfoBox* ib, SourceView *sv, SymbolView *symv, emilpro::AddressHistory *ah)
 {
 	m_instructionColumns = new InstructionModelColumns(4);
 
@@ -349,6 +350,7 @@ void InstructionView::init(Glib::RefPtr<Gtk::Builder> builder, HexView* hv, Info
 	m_infoBox = ib;
 	m_sourceView = sv;
 	m_symbolView = symv;
+	m_addressHistory = ah;
 
 	// FIXME! Get this from properties instead!
 	m_backgroundColor = Gdk::Color("white");
@@ -471,6 +473,8 @@ void InstructionView::update(uint64_t address, const emilpro::ISymbol& sym)
 			newCursor = rowIt;
 	}
 
+	if (!m_historyDisabled)
+		m_addressHistory->maybeAddEntry(address);
 	m_treeView->set_cursor(m_instructionListStore->get_path(newCursor));
 }
 
@@ -527,6 +531,16 @@ void InstructionView::onCursorChanged()
 	m_sourceView->update(address);
 }
 
+void InstructionView::disableHistory()
+{
+	m_historyDisabled = true;
+}
+
+void InstructionView::enableHistory()
+{
+	m_historyDisabled = false;
+}
+
 void InstructionView::onRowActivated(const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn* column)
 {
 	Gtk::TreeModel::iterator iter = m_instructionListStore->get_iter(path);
@@ -559,6 +573,8 @@ void InstructionView::onRowActivated(const Gtk::TreeModel::Path& path, Gtk::Tree
 		if (sym->getType() != ISymbol::SYM_TEXT)
 			continue;
 
+		if (!m_historyDisabled)
+			m_addressHistory->maybeAddEntry(cur->getAddress());
 		// FIXME!
 		if (target >= sym->getAddress() && target < sym->getAddress() + sym->getSize())
 			printf("Jump within function\n");

@@ -46,11 +46,17 @@ public:
 		m_builder = Gtk::Builder::create_from_string(glade_file);
 
 		Gtk::ImageMenuItem *fileOpenItem;
+		Gtk::ImageMenuItem *viewForwardItem;
+		Gtk::ImageMenuItem *viewBackwardItem;
 		m_builder->get_widget("file_menu_open", fileOpenItem);
-
-		panic_if (!fileOpenItem,
-				"Can't get file_menu_open");
+		m_builder->get_widget("view_menu_forward", viewForwardItem);
+		m_builder->get_widget("view_menu_backward", viewBackwardItem);
+		panic_if (!(fileOpenItem && viewForwardItem && viewBackwardItem),
+				"Can't get menu items");
 		fileOpenItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onFileOpen));
+
+		viewForwardItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onViewForward));
+		viewBackwardItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onViewBackward));
 
 		// FIXME! Get this from properties instead!
 		m_backgroundColor = Gdk::Color("white");
@@ -93,9 +99,17 @@ public:
 		tv32.show();
 		tv64.show();
 
+		Gtk::Entry *lookupEntry;
+		m_builder->get_widget("symbol_lookup_entry", lookupEntry);
+		panic_if(!lookupEntry, "Can't get entry");
+
+		lookupEntry->signal_activate().connect(sigc::mem_fun(*this,
+				&EmilProGui::onEntryActivated));
+
+
 		m_infoBox.init(m_builder);
 		m_sourceView.init(m_builder);
-		m_instructionView.init(m_builder, &m_hexView, &m_infoBox, &m_sourceView, &m_symbolView);
+		m_instructionView.init(m_builder, &m_hexView, &m_infoBox, &m_sourceView, &m_symbolView, &m_addressHistory);
 		m_symbolView.init(m_builder, &m_instructionView, &m_hexView);
 	}
 
@@ -165,6 +179,33 @@ protected:
 		refresh();
 	}
 
+	void onViewBackward()
+	{
+		updateHistoryEntry(m_addressHistory.back());
+	}
+
+	void onViewForward()
+	{
+		updateHistoryEntry(m_addressHistory.forward());
+	}
+
+	void updateHistoryEntry(const AddressHistory::Entry &e)
+	{
+		if (!e.isValid())
+			return;
+
+		m_instructionView.disableHistory();
+		m_symbolView.update(e.getAddress());
+		m_instructionView.enableHistory();
+
+	}
+
+	void onEntryActivated()
+	{
+		m_addressHistory.clear();
+	}
+
+
 private:
 	typedef Gtk::TreeModel::Children TreeModelChildren_t;
 	typedef std::list<Gtk::TreeModel::iterator> InstructionIterList_t;
@@ -182,6 +223,7 @@ private:
 	InstructionView m_instructionView;
 	SymbolView m_symbolView;
 	SourceView m_sourceView;
+	AddressHistory m_addressHistory;
 };
 
 int main(int argc, char **argv)

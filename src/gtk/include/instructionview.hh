@@ -2,6 +2,7 @@
 
 #include <isymbol.hh>
 #include <jumptargetdisplay.hh>
+#include <addresshistory.hh>
 
 #include <gtkmm.h>
 
@@ -19,9 +20,13 @@ public:
 
 	~InstructionView();
 
-	void init(Glib::RefPtr<Gtk::Builder> builder, HexView *hv, InfoBox *ib, SourceView *sv, SymbolView *symv);
+	void init(Glib::RefPtr<Gtk::Builder> builder, HexView *hv, InfoBox *ib, SourceView *sv, SymbolView *symv, emilpro::AddressHistory *ah);
 
 	void update(uint64_t address, const emilpro::ISymbol &sym);
+
+	void disableHistory();
+
+	void enableHistory();
 
 private:
 	typedef std::list<Gtk::TreeModel::iterator> InstructionIterList_t;
@@ -52,4 +57,7 @@ private:
 	JumpLaneCellRenderer *m_forwardRenderer;
 	emilpro::JumpTargetDisplay *m_backwardBranches;
 	emilpro::JumpTargetDisplay *m_forwardBranches;
+	emilpro::AddressHistory *m_addressHistory;
+
+	bool m_historyDisabled;
 };
