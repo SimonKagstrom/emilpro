@@ -107,8 +107,11 @@ const AddressHistory::Entry& AddressHistory::forward()
 
 	m_currentEntry++;
 
-	if (m_currentEntry >= (int)m_entries.size())
+	if (m_currentEntry >= (int)m_entries.size()) {
+		m_currentEntry = m_entries.size() - 1;
+
 		return *m_sentinel;
+	}
 
 	return *m_entries[m_currentEntry];
 }
