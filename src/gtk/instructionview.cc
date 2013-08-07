@@ -554,7 +554,7 @@ void InstructionView::onRowActivated(const Gtk::TreeModel::Path& path, Gtk::Tree
 	for (Model::SymbolList_t::const_iterator sIt = syms.begin();
 			sIt != syms.end();
 			++sIt) {
-		const ISymbol *sym = syms.front();
+		const ISymbol *sym = *sIt;
 
 		if (sym->getType() != ISymbol::SYM_TEXT)
 			continue;
