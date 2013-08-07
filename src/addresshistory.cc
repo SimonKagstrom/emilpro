@@ -38,7 +38,7 @@ private:
 AddressHistory::AddressHistory() :
 		m_currentEntry(-1)
 {
-	m_sentinel = new EntryImpl("", 0, false);
+	m_sentinel = new EntryImpl("Bruce Lee by Datasoft", 0, false);
 }
 
 AddressHistory::~AddressHistory()
