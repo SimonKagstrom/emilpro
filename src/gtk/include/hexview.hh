@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <list>
+#include <thread>
 
 // Unit test stuff
 namespace hexview
@@ -116,6 +117,8 @@ private:
 	uint32_t sw32(uint32_t v, bool doSwap);
 	uint64_t sw64(uint64_t v, bool doSwap);
 
+	void worker();
+
 	Gtk::TextView *m_textViews[4];
 	Glib::RefPtr<Gtk::TextBuffer> m_textBuffers[8];
 	Glib::RefPtr<Gtk::TextBuffer::Tag> m_tag;
@@ -126,4 +129,7 @@ private:
 
 	bool m_viewIsLittleEndian;
 	unsigned m_lineNr;
+
+	std::thread *m_thread;
+	bool m_quit;
 };

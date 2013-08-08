@@ -4,12 +4,21 @@
 
 HexView::HexView() :
 	m_viewIsLittleEndian(cpu_is_little_endian()),
-	m_lineNr(0)
+	m_lineNr(0),
+	m_thread(NULL),
+	m_quit(false)
 {
 }
 
 HexView::~HexView()
 {
+	m_quit = true;
+
+	if (m_thread) {
+		m_thread->join();
+
+		delete m_thread;
+	}
 }
 
 void HexView::clearData()
@@ -29,32 +38,13 @@ void HexView::addData(void* data, uint64_t baseAddress, size_t size)
 
 void HexView::update()
 {
-	m_lineNr = 0;
+	if (m_thread) {
+		m_thread->join();
 
-	std::string s8LE = handleAllData(8, true, true);
-	std::string s16LE = handleAllData(16, true);
-	std::string s32LE = handleAllData(32, true);
-	std::string s64LE = handleAllData(64, true);
+		delete m_thread;
+	}
 
-	std::string s8BE = handleAllData(8, false);
-	std::string s16BE = handleAllData(16, false);
-	std::string s32BE = handleAllData(32, false);
-	std::string s64BE = handleAllData(64, false);
-
-	m_textBuffers[0]->set_text(s8LE);
-	m_textBuffers[1]->set_text(s16LE);
-	m_textBuffers[2]->set_text(s32LE);
-	m_textBuffers[3]->set_text(s64LE);
-
-	m_textBuffers[4]->set_text(s8BE);
-	m_textBuffers[5]->set_text(s16BE);
-	m_textBuffers[6]->set_text(s32BE);
-	m_textBuffers[7]->set_text(s64BE);
-
-	unsigned viewOff = m_viewIsLittleEndian ? 0 : 4;
-
-	for (unsigned i = 0; i < 4; i++)
-		m_textViews[i]->set_buffer(m_textBuffers[viewOff + i]);
+	m_thread = new std::thread(&HexView::worker, this);
 }
 
 Gtk::TextView &HexView::getTextView(unsigned width)
@@ -166,6 +156,9 @@ std::string HexView::handleData(Data* p, unsigned width, bool littleEndian, bool
 		size_t left = p->m_size - off;
 		uint64_t curAddress = p->m_base + off;
 
+		if (m_quit)
+			break;
+
 		// Skip incomplete lines. Fix this in the future...
 		if (left < 16)
 			break;
@@ -215,6 +208,9 @@ std::string HexView::handleAllData(unsigned width, bool littleEndian, bool updat
 			it != m_data.end();
 			++it, ++n) {
 		Data *cur = &it->second;
+
+		if (m_quit)
+			break;
 
 		out = out + handleData(cur, width, littleEndian, updateLineMap);
 		if (n < m_data.size() - 1) {
@@ -409,8 +405,35 @@ uint64_t HexView::sw64(uint64_t v, bool doSwap)
 	return out;
 }
 
+void HexView::worker()
+{
+	m_lineNr = 0;
 
+	std::string s8LE = handleAllData(8, true, true);
+	std::string s16LE = handleAllData(16, true);
+	std::string s32LE = handleAllData(32, true);
+	std::string s64LE = handleAllData(64, true);
 
+	std::string s8BE = handleAllData(8, false);
+	std::string s16BE = handleAllData(16, false);
+	std::string s32BE = handleAllData(32, false);
+	std::string s64BE = handleAllData(64, false);
 
+	if (m_quit)
+		return;
 
+	m_textBuffers[0]->set_text(s8LE);
+	m_textBuffers[1]->set_text(s16LE);
+	m_textBuffers[2]->set_text(s32LE);
+	m_textBuffers[3]->set_text(s64LE);
 
+	m_textBuffers[4]->set_text(s8BE);
+	m_textBuffers[5]->set_text(s16BE);
+	m_textBuffers[6]->set_text(s32BE);
+	m_textBuffers[7]->set_text(s64BE);
+
+	unsigned viewOff = m_viewIsLittleEndian ? 0 : 4;
+
+	for (unsigned i = 0; i < 4; i++)
+		m_textViews[i]->set_buffer(m_textBuffers[viewOff + i]);
+}
