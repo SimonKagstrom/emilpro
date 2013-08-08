@@ -40,7 +40,7 @@ server-has-newer
     ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv -t 4
     Run                            echo quit > srv/to-server.fifo
     ${rc}=    Run and return RC    grep -rq "KALLE" client/
-    #Run                            rm -rf client srv
+    Run                            rm -rf client srv
     Should be equal as integers    ${rc}    0
 
 client-already-has-server-data
