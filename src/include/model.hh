@@ -112,5 +112,6 @@ namespace emilpro
 
 		std::thread **m_threads;
 		SymbolList_t *m_workQueues;
+		bool m_quit;
 	};
 }

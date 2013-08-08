@@ -37,7 +37,8 @@ private:
 
 
 Model::Model() :
-		m_memory(NULL)
+		m_memory(NULL),
+		m_quit(false)
 {
 	unsigned cores = get_number_of_cores();
 
@@ -53,6 +54,8 @@ Model::Model() :
 Model::~Model()
 {
 	unsigned cores = get_number_of_cores();
+
+	m_quit = true;
 
 	for (unsigned i = 0; i < cores; i++) {
 		if (m_threads[i])
@@ -157,7 +160,7 @@ void Model::worker(unsigned queueNr)
 {
 	SymbolQueue_t *queue = &m_workQueues[queueNr];
 
-	while (queue->size() != 0) {
+	while (queue->size() != 0 && !m_quit) {
 		ISymbol *cur = queue->front();
 
 		fillCacheWithSymbol(cur);
