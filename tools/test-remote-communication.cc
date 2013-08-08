@@ -13,8 +13,7 @@
 using namespace emilpro;
 
 static std::string cgiHandler;
-static std::string toServerFifo;
-static std::string fromServerFifo;
+static std::string baseDir;
 
 class LocalConnectionHandler : public Server::IConnectionHandler
 {
@@ -33,10 +32,9 @@ public:
 			exit(2);
 
 
-		FILE *fp = popen(fmt("%s %s %s %s",
+		FILE *fp = popen(fmt("%s %s %s",
 				cgiHandler.c_str(),
-				toServerFifo.c_str(),
-				fromServerFifo.c_str(),
+				baseDir.c_str(),
 				tmpFile.c_str()).c_str(),
 				"r");
 		if (!fp) {
@@ -75,17 +73,16 @@ int main(int argc, const char *argv[])
 {
 	LocalConnectionHandler localConnectionHandler;
 
-	if (argc < 5)
+	if (argc < 4)
 		usage();
 
 	std::string dir = argv[1];
 	cgiHandler = argv[2];
-	toServerFifo = argv[3];
-	fromServerFifo = argv[4];
+	baseDir = argv[3];
 
 	uint64_t mocked_timestamp = 0xffffffffffffffffULL;
 
-	for (int i = 5; i < argc; i++) {
+	for (int i = 4; i < argc; i++) {
 		if (strcmp(argv[i], "-t") == 0) {
 			i++;
 

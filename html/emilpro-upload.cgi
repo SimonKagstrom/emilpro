@@ -17,4 +17,4 @@ if [ $? -ne 0 ] ; then
 	/home/ska/emilpro/cgi-server $DIR
 fi
 
-exec /www/emilpro/cgi-bin/emilpro-upload.cgi.real $DIR/to-server.fifo $DIR/from-server.fifo
+exec /www/emilpro/cgi-bin/emilpro-upload.cgi.real $DIR

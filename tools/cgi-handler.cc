@@ -9,7 +9,7 @@ using namespace cgicc;
 void usage()
 {
 	printf(
-			"Usage: cgi-handler <to-server-fifo> <from-server-fifo> [file-to-read]\n"
+			"Usage: cgi-handler <configuration-dir> [file-to-read]\n"
 			"\n"
 			"If [file-to-read] is given, it's used in test-mode.\n"
 			);
@@ -21,13 +21,15 @@ int main(int argc, const char *argv[])
 	std::string data;
 	bool testMode = false;
 
-	if (argc >= 4) {
+	if (argc >= 3) {
 		testMode = true;
-	} else if (argc < 3)
+	} else if (argc < 2)
 		usage();
 
 	if (strcmp(argv[1], "-h") == 0)
 		usage();
+
+	std::string baseDir = argv[1];
 
 	if (!testMode) {
 		Cgicc cgi;
@@ -41,7 +43,7 @@ int main(int argc, const char *argv[])
 		data = file->getData();
 	} else {
 		size_t sz;
-		const char *rawData = (const char *)read_file(&sz, "%s", argv[3]);
+		const char *rawData = (const char *)read_file(&sz, "%s", argv[2]);
 
 		if (!rawData) {
 			return 1;
@@ -50,18 +52,18 @@ int main(int argc, const char *argv[])
 		data = rawData;
 	}
 
-	const char *toServerFifoName = argv[1];
-	const char *fromServerFifoName = argv[2];
+	std::string toServerFifoName = baseDir + "/to-server.fifo";
+	std::string fromServerFifoName = baseDir + "/from-server.fifo";
 	int rv;
 
-	rv = write_file_timeout(data.c_str(), data.size(), 1000, "%s", toServerFifoName);
+	rv = write_file_timeout(data.c_str(), data.size(), 1000, "%s", toServerFifoName.c_str());
 	if (rv < 0)
 		return 1;
 
 	char *p;
 	size_t sz;
 
-	p = (char *)read_file_timeout(&sz, 1000, "%s", fromServerFifoName);
+	p = (char *)read_file_timeout(&sz, 1000, "%s", fromServerFifoName.c_str());
 	if (!p)
 		return 2;
 	printf("%s", p);

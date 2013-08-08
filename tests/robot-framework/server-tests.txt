@@ -29,7 +29,7 @@ cgi-server-pidfile-works
     Run                            rm -rf srv
 
 remote-communication-no-server
-    ${rc}=    Run and return RC    ${remote_comm_test} client-conf-dir ${cgi_handler} tmp-dir/in.fifo tmp-dir/out.fifo
+    ${rc}=    Run and return RC    ${remote_comm_test} client-conf-dir ${cgi_handler} tmp-dir
     Should be equal as integers    ${rc}    2
 
 server-has-newer
@@ -37,10 +37,10 @@ server-has-newer
 	Run                            ${setup_conf} srv remote 0 KALLE 4
     ${rc}=    Run and return RC    ${cgi_server} srv -q -t 5
     Should be equal as integers    ${rc}    0
-    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
+    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv -t 4
     Run                            echo quit > srv/to-server.fifo
     ${rc}=    Run and return RC    grep -rq "KALLE" client/
-    Run                            rm -rf client srv
+    #Run                            rm -rf client srv
     Should be equal as integers    ${rc}    0
 
 client-already-has-server-data
@@ -49,7 +49,7 @@ client-already-has-server-data
 	Run                            ${setup_conf} client local 4
     ${rc}=    Run and return RC    ${cgi_server} srv -q -t 5
     Should be equal as integers    ${rc}    0
-    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
+    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv -t 4
     Run                            echo quit > srv/to-server.fifo
     ${rc}=    Run and return RC    grep -rq "KALLE" client/
     Run                            rm -rf client srv
@@ -61,7 +61,7 @@ client-has-newer
 	Run                            ${setup_conf} client local 3 KALLE 4
     ${rc}=    Run and return RC    ${cgi_server} srv -q -t 3
     Should be equal as integers    ${rc}    0
-    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
+    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv -t 4
     Run                            echo quit > srv/to-server.fifo
     ${rc}=    Run and return RC    grep -rq "KALLE" srv/remote
     Run                            rm -rf client srv
@@ -73,7 +73,7 @@ client-has-equal
 	Run                            ${setup_conf} client local 3 KALLE 4
     ${rc}=    Run and return RC    ${cgi_server} srv -q -t 4
     Should be equal as integers    ${rc}    0
-    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
+    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv -t 4
     Run                            echo quit > srv/to-server.fifo
     ${rc}=    Run and return RC    grep -rq "KALLE" srv/remote
     Run                            rm -rf client srv
@@ -84,7 +84,7 @@ server-gets-default-data
 	Run                            ${setup_conf} srv remote 0
     ${rc}=    Run and return RC    ${cgi_server} srv -q -t 3
     Should be equal as integers    ${rc}    0
-    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
+    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv -t 4
     Run                            echo quit > srv/to-server.fifo
     ${rc}=    Run and return RC    grep -rq "int3" srv/remote
     Run                            rm -rf client srv
@@ -95,7 +95,7 @@ server-already-has-default
 	Run                            ${setup_conf} srv remote 0 KALLE 1
     ${rc}=    Run and return RC    ${cgi_server} srv -q -t 3
     Should be equal as integers    ${rc}    0
-    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
+    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv -t 4
     Run                            echo quit > srv/to-server.fifo
     ${rc}=    Run and return RC    grep -rq "int3" srv/remote
     Run                            rm -rf client srv
@@ -108,11 +108,11 @@ second-client-gets-update
     Run                            ${setup_conf} client2 local 3
     ${rc}=    Run and return RC    ${cgi_server} srv -q -t 3
     Should be equal as integers    ${rc}    0
-    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
+    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv -t 4
     ${rc}=    Run and return RC    grep -rq "KALLE" client2/remote
     Should be equal as integers    ${rc}    1
-    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
-    ${rc}=    Run and return RC    ${remote_comm_test} client2 ${cgi_handler} srv/to-server.fifo srv/from-server.fifo -t 4
+    ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv -t 4
+    ${rc}=    Run and return RC    ${remote_comm_test} client2 ${cgi_handler} srv -t 4
     Run                            echo quit > srv/to-server.fifo
     ${rc}=    Run and return RC    grep -rq "KALLE" client2/remote
     Run                            rm -rf client client2 srv
