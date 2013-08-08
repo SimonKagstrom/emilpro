@@ -3,6 +3,9 @@
 #include <cgicc/Cgicc.h>
 #include <string>
 #include <fstream>
+#include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
 
 using namespace cgicc;
 
@@ -18,8 +21,12 @@ void usage()
 
 int main(int argc, const char *argv[])
 {
+	struct flock fl = {F_WRLCK, SEEK_SET,      0,      0,    0};
+                    // l_type   l_whence  l_start  l_len  l_pid
+	int lockFd;
 	std::string data;
 	bool testMode = false;
+	int ret = 0;
 
 	if (argc >= 3) {
 		testMode = true;
@@ -29,7 +36,21 @@ int main(int argc, const char *argv[])
 	if (strcmp(argv[1], "-h") == 0)
 		usage();
 
+	fl.l_pid = getpid();
+
 	std::string baseDir = argv[1];
+	std::string lockFile = baseDir + "/cgi-handler.lock";
+	std::string toServerFifoName = baseDir + "/to-server.fifo";
+	std::string fromServerFifoName = baseDir + "/from-server.fifo";
+	int rv;
+
+	lockFd = open(lockFile.c_str(), O_RDWR | O_CREAT, 0600);
+
+	panic_if (lockFd < 0,
+			"Can't open lock file %s\n", lockFile.c_str());
+
+	panic_if (fcntl(lockFd, F_SETLKW, &fl) == -1,
+			"fcntl failed\n");
 
 	if (!testMode) {
 		Cgicc cgi;
@@ -37,8 +58,10 @@ int main(int argc, const char *argv[])
 		const_file_iterator file = cgi.getFile("userfile");
 
 		// Only redirect a valid file
-		if (file == cgi.getFiles().end())
-			return 1;
+		if (file == cgi.getFiles().end()) {
+			ret = 1;
+			goto out;
+		}
 
 		data = file->getData();
 	} else {
@@ -46,29 +69,36 @@ int main(int argc, const char *argv[])
 		const char *rawData = (const char *)read_file(&sz, "%s", argv[2]);
 
 		if (!rawData) {
-			return 1;
+			ret = 1;
+			goto out;
 		}
 
 		data = rawData;
 	}
 
-	std::string toServerFifoName = baseDir + "/to-server.fifo";
-	std::string fromServerFifoName = baseDir + "/from-server.fifo";
-	int rv;
-
 	rv = write_file_timeout(data.c_str(), data.size(), 1000, "%s", toServerFifoName.c_str());
-	if (rv < 0)
-		return 1;
+	if (rv < 0) {
+		ret = 1;
+		goto out;
+	}
 
 	char *p;
 	size_t sz;
 
 	p = (char *)read_file_timeout(&sz, 1000, "%s", fromServerFifoName.c_str());
-	if (!p)
-		return 2;
+	if (!p) {
+		ret = 2;
+		goto out;
+	}
 	printf("%s", p);
 
 	free(p);
+out:
+	fl.l_type = F_UNLCK;
 
-	return 0;
+	panic_if (fcntl(lockFd, F_SETLK, &fl) == -1,
+			"fcntl unlock failed");
+	close(lockFd);
+
+	return ret;
 }
