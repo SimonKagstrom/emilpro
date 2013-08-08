@@ -230,13 +230,15 @@ int main(int argc, char **argv)
 {
 	EmilPro::init();
 
-	EmilProGui gui;
+	EmilProGui *gui = new EmilProGui();
 
-	gui.init(argc, argv);
+	gui->init(argc, argv);
 
 	Server::instance().connect();
 
-	gui.run(argc, argv);
+	gui->run(argc, argv);
+
+	delete gui;
 
 	EmilPro::destroy();
 
