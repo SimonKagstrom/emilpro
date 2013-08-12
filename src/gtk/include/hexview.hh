@@ -106,6 +106,7 @@ private:
 
 	std::string handleData(Data *p, unsigned width, bool littleEndian, bool updateLineMap = false);
 
+	// Only for unit tests now
 	std::string getLine8(uint8_t *data);
 	std::string getLine16(uint16_t *data, bool littleEndian);
 	std::string getLine32(uint32_t *data, bool littleEndian);

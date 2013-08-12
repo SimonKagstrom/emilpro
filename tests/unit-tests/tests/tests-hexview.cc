@@ -190,13 +190,17 @@ TESTSUITE(hexview)
 		h.addData((void *)data, 0x1000, sizeof(data));
 
 		std::string s8LE = h.handleAllData(8, true, true);
+		std::string s8BE = h.handleAllData(8, false, false);
+		std::string s16LE = h.handleAllData(16, true, false);
 		std::string s16BE = h.handleAllData(16, false, false);
 		std::string s32BE = h.handleAllData(32, false, false);
 		std::string s64BE = h.handleAllData(64, false, false);
 
+		ASSERT_TRUE(s8LE == s8BE);
 		ASSERT_TRUE(s8LE ==  "0x0000000000001000  00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff  ..\"3DUfw........\n");
 		ASSERT_TRUE(h.m_addressToLineMap[0x1000] == 0ULL);
 
+		ASSERT_TRUE(s16LE != s16BE);
 		ASSERT_TRUE(s16BE == "0x0000000000001000  0011 2233 4455 6677 8899 aabb ccdd eeff          ..\"3DUfw........\n");
 		ASSERT_TRUE(s32BE == "0x0000000000001000  00112233 44556677 8899aabb ccddeeff              ..\"3DUfw........\n");
 		ASSERT_TRUE(s64BE == "0x0000000000001000  0011223344556677 8899aabbccddeeff                ..\"3DUfw........\n");

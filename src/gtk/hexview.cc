@@ -148,8 +148,11 @@ uint32_t HexView::sw32(uint32_t v, bool doSwap)
 std::string HexView::handleData(Data* p, unsigned width, bool littleEndian, bool updateLineMap)
 {
 	size_t off;
+	size_t strOff = 0;
 
-	std::string out;
+	// Size for 8-bits
+	std::string out(((p->m_size + 16) / 16) * (18 + 16 * 2 + 16 + 16 + 4 + 2),
+			' ');
 
 	for (off = 0; off < p->m_size; off += 16) {
 		uint8_t *curLine = p->m_p + off;
@@ -169,32 +172,53 @@ std::string HexView::handleData(Data* p, unsigned width, bool littleEndian, bool
 			m_lineNr++;
 		}
 
-		std::string hex;
+		bool swp = !(cpu_is_little_endian() && littleEndian);
+		char dst[256];
+		char *p = dst;
+		uint8_t *d8 = curLine;
+		uint16_t *d16 = (uint16_t *)curLine;
+		uint32_t *d32 = (uint32_t *)curLine;
+		uint64_t *d64 = (uint64_t *)curLine;
+
+		p += sprintf(p, "0x%016llx  ", (unsigned long long)curAddress);
 
 		switch (width)
 		{
 		case 8:
-			hex = getLine8(curLine);
+			p += sprintf(p, "%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x  ",
+					d8[0], d8[1], d8[2], d8[3], d8[4], d8[5], d8[6], d8[7], d8[8], d8[9], d8[10], d8[11], d8[12], d8[13], d8[14], d8[15]);
 			break;
 		case 16:
-			hex = getLine16((uint16_t *)curLine, littleEndian);
+			p += sprintf(p, "%04x %04x %04x %04x %04x %04x %04x %04x          ",
+					sw16(d16[0], swp), sw16(d16[1], swp), sw16(d16[2], swp),
+					sw16(d16[3], swp), sw16(d16[4], swp), sw16(d16[5], swp),
+					sw16(d16[6], swp), sw16(d16[7], swp));
 			break;
 		case 32:
-			hex = getLine32((uint32_t *)curLine, littleEndian);
+			p += sprintf(p, "%08x %08x %08x %08x              ",
+					sw32(d32[0], swp), sw32(d32[1], swp), sw32(d32[2], swp), sw32(d32[3], swp));
 			break;
 		case 64:
-			hex = getLine64((uint64_t *)curLine, littleEndian);
+			p += sprintf(p, "%016llx %016llx                ",
+			(unsigned long long)sw64(d64[0], swp), (unsigned long long)sw64(d64[1], swp));
 			break;
 		default:
 			panic("Wrong width");
 			break;
 		}
 
-		std::string ascii = getAscii(curLine);
+		for (unsigned i = 0; i < 16; i++) {
+			*p = isprint(d8[i]) ? d8[i] : '.';
+			p++;
+		}
+		*p++ = '\n';
+		*p = '\0';
 
-		out  =  out + fmt("0x%016llx  %-47s  %s\n",
-				(unsigned long long)curAddress, hex.c_str(), ascii.c_str());
+		out.replace(strOff, strlen(dst) + 1, dst); // Include the \0
+		strOff += strlen(dst);
 	}
+
+	out.resize(strOff);
 
 	return out;
 }
@@ -410,30 +434,31 @@ void HexView::worker()
 	m_lineNr = 0;
 
 	std::string s8LE = handleAllData(8, true, true);
-	std::string s16LE = handleAllData(16, true);
-	std::string s32LE = handleAllData(32, true);
-	std::string s64LE = handleAllData(64, true);
+	m_textBuffers[0]->set_text(s8LE);
+	m_textBuffers[4]->set_text(s8LE); // The same
 
-	std::string s8BE = handleAllData(8, false);
+	std::string s16LE = handleAllData(16, true);
+	m_textBuffers[1]->set_text(s16LE);
+
+	std::string s32LE = handleAllData(32, true);
+	m_textBuffers[2]->set_text(s32LE);
+
+	std::string s64LE = handleAllData(64, true);
+	m_textBuffers[3]->set_text(s64LE);
+
+
 	std::string s16BE = handleAllData(16, false);
+	m_textBuffers[5]->set_text(s16BE);
+
 	std::string s32BE = handleAllData(32, false);
+	m_textBuffers[6]->set_text(s32BE);
+
 	std::string s64BE = handleAllData(64, false);
+	m_textBuffers[7]->set_text(s64BE);
 
 	if (m_quit)
 		return;
 
-	m_textBuffers[0]->set_text(s8LE);
-	m_textBuffers[1]->set_text(s16LE);
-	m_textBuffers[2]->set_text(s32LE);
-	m_textBuffers[3]->set_text(s64LE);
-
-	m_textBuffers[4]->set_text(s8BE);
-	m_textBuffers[5]->set_text(s16BE);
-	m_textBuffers[6]->set_text(s32BE);
-	m_textBuffers[7]->set_text(s64BE);
-
-	unsigned viewOff = m_viewIsLittleEndian ? 0 : 4;
-
-	for (unsigned i = 0; i < 4; i++)
-		m_textViews[i]->set_buffer(m_textBuffers[viewOff + i]);
+	// Setup the view
+	setViewLittleEndian(m_viewIsLittleEndian);
 }
