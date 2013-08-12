@@ -188,4 +188,25 @@ TESTSUITE(symbol_provider)
 		ASSERT_TRUE(sym->getSize() == 128U);
 		ASSERT_TRUE(sym->getType() == ISymbol::SYM_TEXT);
 	}
+
+	TEST(cppDemangling, SymbolFixture)
+	{
+		SymbolFactory &factory = SymbolFactory::instance();
+		unsigned res;
+
+		size_t sz;
+		void *data = read_file(&sz, "%s/test-binary", crpcut::get_start_dir());
+		ASSERT_TRUE(data != (void *)NULL);
+
+		res = factory.parseBestProvider(data, sz);
+		ASSERT_TRUE(res > ISymbolProvider::NO_MATCH);
+
+		ISymbol *sym;
+
+		sym = m_symbolNames["_ZN2ai2Ai14setSearchDepthEj"];
+		ASSERT_TRUE(sym);
+
+		std::string demangled = sym->getMangledName();
+		ASSERT_TRUE(demangled == "ai::Ai::setSearchDepth(unsigned int)");
+	}
 }

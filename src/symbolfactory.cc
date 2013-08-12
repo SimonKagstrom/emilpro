@@ -4,9 +4,31 @@
 
 #include <string>
 
+#include <bfd.h>
+#include <demangle.h>
+
 #include "providers.hh"
 
 using namespace emilpro;
+
+static std::string demangleName(const std::string &name)
+{
+	// Use what c++filt uses...
+	int demangle_flags = DMGL_PARAMS | DMGL_ANSI | DMGL_VERBOSE;
+
+	char *demangled = cplus_demangle(name.c_str(), demangle_flags);
+
+	std::string out;
+
+	if (demangled)
+		out = demangled;
+	else
+		out = name;
+
+	free(demangled);
+
+	return out;
+}
 
 class Symbol : public ISymbol
 {
@@ -28,6 +50,7 @@ public:
 				m_isAllocated(isAllocated),
 				m_isWriteable(isWriteable)
 	{
+		m_mangledName = demangleName(m_name);
 	}
 
 	enum ISymbol::LinkageType getLinkage() const
@@ -53,6 +76,11 @@ public:
 	const char *getName() const
 	{
 		return m_name.c_str();
+	}
+
+	std::string getMangledName() const
+	{
+		return m_mangledName;
 	}
 
 	void *getDataPtr() const
@@ -82,6 +110,7 @@ private:
 	uint64_t m_address;
 	uint64_t m_size;
 	std::string m_name;
+	std::string m_mangledName;
 	bool m_isAllocated;
 	bool m_isWriteable;
 };

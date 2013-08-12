@@ -20,3 +20,24 @@ extern "C" void knatte(void)
 {
 	kalle();
 }
+
+
+namespace ai
+{
+	class Ai
+	{
+	public:
+		void setSearchDepth(unsigned depth);
+	};
+
+	void Ai::setSearchDepth(unsigned depth)
+	{
+	}
+}
+
+ai::Ai b;
+
+extern "C" void bruce_lee(void)
+{
+	b.setSearchDepth(4);
+}

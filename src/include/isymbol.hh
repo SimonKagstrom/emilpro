@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <list>
+#include <string>
 
 namespace emilpro
 {
@@ -37,6 +38,8 @@ namespace emilpro
 		virtual bool isWriteable() const = 0;
 
 		virtual const char *getName() const = 0;
+
+		virtual std::string getMangledName() const = 0;
 
 		virtual void *getDataPtr() const = 0;
 
