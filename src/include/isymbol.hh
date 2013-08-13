@@ -39,8 +39,6 @@ namespace emilpro
 
 		virtual std::string getName() const = 0;
 
-		virtual std::string getMangledName() const = 0;
-
 		virtual void *getDataPtr() const = 0;
 
 		virtual uint64_t getAddress() const = 0;

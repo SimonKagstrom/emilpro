@@ -1,7 +1,6 @@
 #include <symbolfactory.hh>
 #include <isymbolprovider.hh>
 #include <isymbol.hh>
-#include <namemangler.hh>
 
 #include <string>
 
@@ -30,7 +29,6 @@ public:
 				m_isAllocated(isAllocated),
 				m_isWriteable(isWriteable)
 	{
-		m_mangledName = NameMangler::instance().mangle(m_name);
 	}
 
 	enum ISymbol::LinkageType getLinkage() const
@@ -56,11 +54,6 @@ public:
 	std::string getName() const
 	{
 		return m_name.c_str();
-	}
-
-	std::string getMangledName() const
-	{
-		return m_mangledName;
 	}
 
 	void *getDataPtr() const
@@ -90,7 +83,6 @@ private:
 	uint64_t m_address;
 	uint64_t m_size;
 	std::string m_name;
-	std::string m_mangledName;
 	bool m_isAllocated;
 	bool m_isWriteable;
 };
