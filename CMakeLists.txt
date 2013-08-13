@@ -93,6 +93,7 @@ set (GUI_SRCS
 	src/gtk/infobox.cc
 	src/gtk/instructionview.cc
 	src/gtk/main.cc
+	src/gtk/namemanglerview.cc
 	src/gtk/sourceview.cc
 	src/gtk/symbolview.cc
 	)

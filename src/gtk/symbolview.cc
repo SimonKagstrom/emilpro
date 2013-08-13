@@ -84,6 +84,8 @@ void SymbolView::init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, H
 	panic_if(!symbolFont,
 			"Can't get instruction view");
 
+	NameManglerView::instance().registerListener(this);
+
 	builder->get_widget("symbol_view", m_symbolView);
 	panic_if(!m_symbolView,
 			"Can't get symbol view");
@@ -159,6 +161,7 @@ void SymbolView::onCursorChanged()
 	if(!iter)
 		return;
 	Model &model = Model::instance();
+	NameManglerView &mv = NameManglerView::instance();
 
 	Gtk::TreeModel::Row row = *iter;
 	uint64_t address = row[m_symbolColumns->m_rawAddress];
@@ -182,8 +185,9 @@ void SymbolView::onCursorChanged()
 					sIt != syms.end();
 					++sIt) {
 				ISymbol *sym = *sIt;
+				std::string name = mv.mangle(sym->getName());
 
-				row[m_referenceColumns->m_symbol] = fmt("%s+0x%llx", sym->getName().c_str(), (long long)(cur - sym->getAddress()));
+				row[m_referenceColumns->m_symbol] = fmt("%s+0x%llx", name.c_str(), (long long)(cur - sym->getAddress()));
 				row[m_referenceColumns->m_rawAddress] = cur;
 			}
 		}
@@ -230,6 +234,9 @@ void SymbolView::updateSourceView(uint64_t address, const emilpro::ISymbol* sym)
 
 void SymbolView::refreshSymbols()
 {
+	NameManglerView &mv = NameManglerView::instance();
+
+	m_symbolListStore->clear();
 	m_symbolRowIterByAddress.clear();
 
 	const Model::SymbolList_t &syms = Model::instance().getSymbols();
@@ -252,6 +259,7 @@ void SymbolView::refreshSymbols()
 
 		m_symbolRowIterByAddress[cur->getAddress()] = rowIt;
 
+		std::string name = mv.mangle(cur->getName());
 		const char *r = " ";
 		const char *w = cur->isWriteable() ? "W" : " ";
 		const char *x = " ";
@@ -273,7 +281,7 @@ void SymbolView::refreshSymbols()
 		row[m_symbolColumns->m_x] = x;
 		row[m_symbolColumns->m_a] = a;
 		row[m_symbolColumns->m_name] = fmt("%s%s",
-				cur->getType() == ISymbol::SYM_SECTION ? "Section " : "", cur->getName().c_str());
+				cur->getType() == ISymbol::SYM_SECTION ? "Section " : "", name.c_str());
 
 		row[m_symbolColumns->m_rawAddress] = cur->getAddress();
 	}
@@ -356,5 +364,10 @@ void SymbolView::onEntryActivated()
 	} else {
 		printf("Find by name, not yet implemented\n");
 	}
+}
+
+void SymbolView::onManglingChanged()
+{
+	refreshSymbols();
 }
 

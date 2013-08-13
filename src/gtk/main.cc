@@ -16,6 +16,7 @@
 #include <sourceview.hh>
 #include <emilpro.hh>
 #include <server.hh>
+#include <namemanglerview.hh>
 
 #include <string>
 #include <vector>
@@ -44,6 +45,8 @@ public:
 		m_hexView.init();
 
 		m_builder = Gtk::Builder::create_from_string(glade_file);
+
+		NameManglerView::instance().init(m_builder);
 
 		Gtk::ImageMenuItem *fileOpenItem;
 		Gtk::ImageMenuItem *viewForwardItem;

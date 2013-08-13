@@ -5,6 +5,46 @@
   <object class="GtkAction" id="action1"/>
   <object class="GtkAction" id="action2"/>
   <object class="GtkAction" id="action3"/>
+  <object class="GtkListStore" id="edit_instruction_privileged_liststore">
+    <columns>
+      <!-- column-name privileged_columns -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">No</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Yes</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Unknown</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="edit_instruction_type_liststore">
+    <columns>
+      <!-- column-name type -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Unknown</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Control flow</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Data handling</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Arithmetic/logic</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Other</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkDialog" id="edit_instruction_dialog">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -177,46 +217,6 @@
       <action-widget response="0">instruction_dialog_cancel_button</action-widget>
       <action-widget response="0">instruction_dialog_ok_button</action-widget>
     </action-widgets>
-  </object>
-  <object class="GtkListStore" id="edit_instruction_privileged_liststore">
-    <columns>
-      <!-- column-name privileged_columns -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">No</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Yes</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Unknown</col>
-      </row>
-    </data>
-  </object>
-  <object class="GtkListStore" id="edit_instruction_type_liststore">
-    <columns>
-      <!-- column-name type -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">Unknown</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Control flow</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Data handling</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Arithmetic/logic</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Other</col>
-      </row>
-    </data>
   </object>
   <object class="GtkFileChooserDialog" id="file_chooser">
     <property name="can_focus">False</property>
@@ -469,6 +469,22 @@
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <accelerator key="Left" signal="activate" modifiers="GDK_MOD1_MASK"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorMenuItem" id="&lt;separator&gt;">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckMenuItem" id="view_menu_mangle">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Mangle e.g., C++ symbols</property>
+                        <property name="label" translatable="yes">Mangle names</property>
+                        <property name="use_underline">True</property>
+                        <property name="active">True</property>
                       </object>
                     </child>
                   </object>

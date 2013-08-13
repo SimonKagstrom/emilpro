@@ -1,6 +1,7 @@
 #pragma once
 
 #include <isymbol.hh>
+#include <namemanglerview.hh>
 
 #include <gtkmm.h>
 #include <unordered_map>
@@ -10,7 +11,7 @@ class HexView;
 class SymbolModelColumns;
 class ReferenceModelColumns;
 
-class SymbolView
+class SymbolView : public NameManglerView::IListener
 {
 public:
 	SymbolView();
@@ -36,6 +37,9 @@ private:
 
 
 	void onEntryActivated();
+
+	// From NameManglerView::IListener
+	void onManglingChanged();
 
 	typedef std::unordered_map<uint64_t, Gtk::ListStore::iterator> SymbolRowIterByAddressMap_t;
 
