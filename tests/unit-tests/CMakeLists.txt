@@ -40,6 +40,7 @@ set (${TGT}_SRCS
 	../../src/emilpro.cc
 	../../src/gtk/hexview.cc
 	../../src/jumptargetdisplay.cc
+	../../src/namemangler.cc
 	../../src/network-listener.cc
 	../../src/preferences.cc
 	../../src/symbolfactory.cc
@@ -54,6 +55,7 @@ set (${TGT}_SRCS
 	tests/tests-instructionfactory.cc
 	tests/tests-jumptargetdisplay.cc
 	tests/tests-model.cc
+	tests/tests-namemangler.cc
 	tests/tests-network-listener.cc
 	tests/tests-preferences.cc
 	tests/tests-server-connection.cc

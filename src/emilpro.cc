@@ -9,6 +9,7 @@
 #include <server.hh>
 #include <utils.hh>
 #include <preferences.hh>
+#include <namemangler.hh>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -38,6 +39,7 @@ void EmilPro::init()
 	XmlFactory::instance();
 	Server::instance();
 	Preferences::instance();
+	NameMangler::instance();
 
 	std::string confDir = conf.getPath(Configuration::DIR_CONFIGURATION);
 	std::string localDir = conf.getPath(Configuration::DIR_LOCAL);
@@ -70,6 +72,7 @@ void EmilPro::destroy()
 	Preferences::instance().destroy();
 	XmlFactory::instance().destroy();
 	Configuration::instance().destroy();
+	NameMangler::instance().destroy();
 
 	if (g_instance)
 		delete g_instance;

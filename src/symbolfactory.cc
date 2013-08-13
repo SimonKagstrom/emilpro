@@ -1,34 +1,14 @@
 #include <symbolfactory.hh>
 #include <isymbolprovider.hh>
 #include <isymbol.hh>
+#include <namemangler.hh>
 
 #include <string>
-
-#include <bfd.h>
-#include <demangle.h>
 
 #include "providers.hh"
 
 using namespace emilpro;
 
-static std::string demangleName(const std::string &name)
-{
-	// Use what c++filt uses...
-	int demangle_flags = DMGL_PARAMS | DMGL_ANSI | DMGL_VERBOSE;
-
-	char *demangled = cplus_demangle(name.c_str(), demangle_flags);
-
-	std::string out;
-
-	if (demangled)
-		out = demangled;
-	else
-		out = name;
-
-	free(demangled);
-
-	return out;
-}
 
 class Symbol : public ISymbol
 {
@@ -50,7 +30,7 @@ public:
 				m_isAllocated(isAllocated),
 				m_isWriteable(isWriteable)
 	{
-		m_mangledName = demangleName(m_name);
+		m_mangledName = NameMangler::instance().mangle(m_name);
 	}
 
 	enum ISymbol::LinkageType getLinkage() const
