@@ -305,7 +305,7 @@ TESTSUITE(model)
 					++it) {
 				ISymbol *sym = *it;
 
-				if (strcmp(sym->getName(), "main") != 0)
+				if (sym->getName() != "main")
 					continue;
 
 				lst = model.getInstructions(sym->getAddress(), sym->getAddress() + sym->getSize());

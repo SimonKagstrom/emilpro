@@ -183,7 +183,7 @@ void SymbolView::onCursorChanged()
 					++sIt) {
 				ISymbol *sym = *sIt;
 
-				row[m_referenceColumns->m_symbol] = fmt("%s+0x%llx", sym->getName(), (long long)(cur - sym->getAddress()));
+				row[m_referenceColumns->m_symbol] = fmt("%s+0x%llx", sym->getName().c_str(), (long long)(cur - sym->getAddress()));
 				row[m_referenceColumns->m_rawAddress] = cur;
 			}
 		}
@@ -273,7 +273,7 @@ void SymbolView::refreshSymbols()
 		row[m_symbolColumns->m_x] = x;
 		row[m_symbolColumns->m_a] = a;
 		row[m_symbolColumns->m_name] = fmt("%s%s",
-				cur->getType() == ISymbol::SYM_SECTION ? "Section " : "", cur->getName());
+				cur->getType() == ISymbol::SYM_SECTION ? "Section " : "", cur->getName().c_str());
 
 		row[m_symbolColumns->m_rawAddress] = cur->getAddress();
 	}

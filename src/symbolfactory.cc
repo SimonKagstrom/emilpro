@@ -53,7 +53,7 @@ public:
 		return m_isAllocated;
 	}
 
-	const char *getName() const
+	std::string getName() const
 	{
 		return m_name.c_str();
 	}

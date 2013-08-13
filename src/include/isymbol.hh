@@ -37,7 +37,7 @@ namespace emilpro
 
 		virtual bool isWriteable() const = 0;
 
-		virtual const char *getName() const = 0;
+		virtual std::string getName() const = 0;
 
 		virtual std::string getMangledName() const = 0;
 
