@@ -304,7 +304,7 @@
     <property name="default_width">1020</property>
     <property name="default_height">760</property>
     <child>
-      <object class="GtkBox" id="box1">
+      <object class="GtkBox" id="main_box">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
@@ -727,6 +727,9 @@
                                   <object class="GtkTextView" id="info_box_text_view">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
+                                    <property name="editable">False</property>
+                                    <property name="cursor_visible">False</property>
+                                    <property name="accepts_tab">False</property>
                                   </object>
                                 </child>
                               </object>
