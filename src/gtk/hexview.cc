@@ -6,7 +6,8 @@ HexView::HexView() :
 	m_viewIsLittleEndian(cpu_is_little_endian()),
 	m_lineNr(0),
 	m_thread(NULL),
-	m_quit(false)
+	m_quit(false),
+	m_workerFinished(false)
 {
 }
 
@@ -264,6 +265,9 @@ bool HexView::getViewLittleEndian()
 
 void HexView::markRange(uint64_t address, size_t size)
 {
+	if (!m_workerFinished)
+		return;
+
 	AddressToLineNr_t::iterator aIt = m_addressToLineMap.find(address & ~15);
 
 	if (aIt == m_addressToLineMap.end())
@@ -461,4 +465,6 @@ void HexView::worker()
 
 	// Setup the view
 	setViewLittleEndian(m_viewIsLittleEndian);
+
+	m_workerFinished = true;
 }

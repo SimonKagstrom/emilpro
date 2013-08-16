@@ -109,6 +109,13 @@ public:
 		lookupEntry->signal_activate().connect(sigc::mem_fun(*this,
 				&EmilProGui::onEntryActivated));
 
+		m_builder->get_widget("instructions_data_notebook", m_instructionsDataNotebook);
+		panic_if(!m_instructionsDataNotebook, "Can't get notebook");
+
+		Gtk::MenuItem *viewToggleInstructionsDataItem;
+		m_builder->get_widget("view_toggle_instructions_data", viewToggleInstructionsDataItem);
+		viewToggleInstructionsDataItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onToggleInstructionsData));
+
 
 		m_infoBox.init(m_builder);
 		m_sourceView.init(m_builder);
@@ -182,6 +189,7 @@ protected:
 		refresh();
 	}
 
+private:
 	void onViewBackward()
 	{
 		updateHistoryEntry(m_addressHistory.back());
@@ -208,8 +216,13 @@ protected:
 		m_addressHistory.clear();
 	}
 
+	void onToggleInstructionsData()
+	{
+		m_instructionsDataNotebook->set_current_page(!m_instructionsDataNotebook->get_current_page());
 
-private:
+	}
+
+
 	typedef Gtk::TreeModel::Children TreeModelChildren_t;
 	typedef std::list<Gtk::TreeModel::iterator> InstructionIterList_t;
 
@@ -227,6 +240,7 @@ private:
 	SymbolView m_symbolView;
 	SourceView m_sourceView;
 	AddressHistory m_addressHistory;
+	Gtk::Notebook *m_instructionsDataNotebook;
 };
 
 int main(int argc, char **argv)

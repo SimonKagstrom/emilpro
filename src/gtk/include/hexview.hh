@@ -133,4 +133,5 @@ private:
 
 	std::thread *m_thread;
 	bool m_quit;
+	bool m_workerFinished;
 };
