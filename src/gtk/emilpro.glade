@@ -5,46 +5,6 @@
   <object class="GtkAction" id="action1"/>
   <object class="GtkAction" id="action2"/>
   <object class="GtkAction" id="action3"/>
-  <object class="GtkListStore" id="edit_instruction_privileged_liststore">
-    <columns>
-      <!-- column-name privileged_columns -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">No</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Yes</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Unknown</col>
-      </row>
-    </data>
-  </object>
-  <object class="GtkListStore" id="edit_instruction_type_liststore">
-    <columns>
-      <!-- column-name type -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">Unknown</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Control flow</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Data handling</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Arithmetic/logic</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Other</col>
-      </row>
-    </data>
-  </object>
   <object class="GtkDialog" id="edit_instruction_dialog">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -217,6 +177,46 @@
       <action-widget response="0">instruction_dialog_cancel_button</action-widget>
       <action-widget response="0">instruction_dialog_ok_button</action-widget>
     </action-widgets>
+  </object>
+  <object class="GtkListStore" id="edit_instruction_privileged_liststore">
+    <columns>
+      <!-- column-name privileged_columns -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">No</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Yes</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Unknown</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="edit_instruction_type_liststore">
+    <columns>
+      <!-- column-name type -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Unknown</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Control flow</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Data handling</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Arithmetic/logic</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Other</col>
+      </row>
+    </data>
   </object>
   <object class="GtkFileChooserDialog" id="file_chooser">
     <property name="can_focus">False</property>
@@ -544,8 +544,8 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="invisible_char">●</property>
-            <accelerator key="j" signal="grab-focus" modifiers="GDK_CONTROL_MASK"/>
             <accelerator key="l" signal="grab-focus" modifiers="GDK_CONTROL_MASK"/>
+            <accelerator key="j" signal="grab-focus" modifiers="GDK_CONTROL_MASK"/>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -663,13 +663,13 @@
                               <object class="GtkScrolledWindow" id="source_view_scrolled_window">
                                 <property name="height_request">210</property>
                                 <property name="visible">True</property>
-                                <property name="can_focus">True</property>
+                                <property name="can_focus">False</property>
                                 <property name="window_placement_set">True</property>
                                 <property name="kinetic_scrolling">False</property>
                                 <child>
                                   <object class="GtkSourceView" id="source_view">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
+                                    <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
                                     <property name="editable">False</property>
                                     <property name="left_margin">2</property>
@@ -720,7 +720,7 @@
                                   <object class="GtkButton" id="edit_instruction_model_button">
                                     <property name="label">gtk-edit</property>
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
+                                    <property name="can_focus">False</property>
                                     <property name="receives_default">True</property>
                                     <property name="use_stock">True</property>
                                   </object>
@@ -741,12 +741,12 @@
                               <object class="GtkScrolledWindow" id="info_box_scrolled_window">
                                 <property name="width_request">300</property>
                                 <property name="visible">True</property>
-                                <property name="can_focus">True</property>
+                                <property name="can_focus">False</property>
                                 <property name="shadow_type">in</property>
                                 <child>
                                   <object class="GtkTextView" id="info_box_text_view">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
+                                    <property name="can_focus">False</property>
                                     <property name="editable">False</property>
                                     <property name="cursor_visible">False</property>
                                     <property name="accepts_tab">False</property>
