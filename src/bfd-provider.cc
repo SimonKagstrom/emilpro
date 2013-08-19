@@ -402,8 +402,8 @@ private:
 					it->second,
 					(uint64_t)bfd_section_vma(m_bfd, section),
 					(uint64_t)bfd_section_size(m_bfd, section),
-					false,
-					false
+					section->flags & SEC_ALLOC,
+					!(section->flags & SEC_READONLY)
 					);
 
 			m_listener->onSymbol(sym);
