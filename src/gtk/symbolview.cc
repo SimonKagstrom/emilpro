@@ -297,11 +297,17 @@ void SymbolView::update(uint64_t address)
 		return;
 
 	uint64_t symbolAddress = IInstruction::INVALID_ADDRESS;
+	uint64_t sectionAddress = IInstruction::INVALID_ADDRESS;
 
 	for (Model::SymbolList_t::const_iterator sIt = nearestSyms.begin();
 			sIt != nearestSyms.end();
 			++sIt) {
 		ISymbol *sym = *sIt;
+
+		if (sym->getType() == ISymbol::SYM_SECTION) {
+			sectionAddress = sym->getAddress();
+			continue;
+		}
 
 		if (sym->getType() != ISymbol::SYM_TEXT && sym->getType() != ISymbol::SYM_DATA)
 			continue;
@@ -310,6 +316,10 @@ void SymbolView::update(uint64_t address)
 		symbolAddress = sym->getAddress();
 		break;
 	}
+
+	// No text/data symbol found, just use the section
+	if (symbolAddress == IInstruction::INVALID_ADDRESS)
+		symbolAddress = sectionAddress;
 
 	if (m_symbolRowIterByAddress.find(symbolAddress) == m_symbolRowIterByAddress.end())
 		return;
