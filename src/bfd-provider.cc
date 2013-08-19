@@ -305,7 +305,7 @@ private:
 				size = bfd_section_size (m_bfd, cur->section);
 				p = (bfd_byte *) xmalloc (size);
 				if (! bfd_get_section_contents (m_bfd, cur->section, p, 0, size)) {
-					free((void *)size);
+					free((void *)p);
 					continue;
 				}
 
