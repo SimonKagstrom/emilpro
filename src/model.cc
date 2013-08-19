@@ -146,6 +146,10 @@ void Model::fillCacheWithSymbol(ISymbol *sym)
 			++it) {
 		IInstruction *cur = *it;
 
+		// We can have multiple overlapping symbols (typically sections/normal syms)
+		if (m_instructionCache[cur->getAddress()])
+			continue;
+
 		m_instructionCache[cur->getAddress()] = cur;
 
 		if (cur->getBranchTargetAddress() != IInstruction::INVALID_ADDRESS)
@@ -196,7 +200,7 @@ void Model::parseAll()
 		if (curCore == cores)
 			curCore = 0;
 
-		if (cur->getType() != ISymbol::SYM_TEXT)
+		if (!cur->isExecutable())
 			continue;
 
 		m_workQueues[curCore].push_back(cur);
