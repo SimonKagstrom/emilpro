@@ -66,6 +66,9 @@ void SourceView::update(uint64_t address)
 
 	Gsv::Buffer::iterator it = buffer->get_iter_at_line(line);
 
+	if (it == buffer->end())
+		return;
+
 	buffer->remove_all_tags(buffer->get_iter_at_line(0), buffer->get_iter_at_line(buffer->get_line_count()));
 
 	m_lastSourceLines.push_back(line);
