@@ -304,6 +304,7 @@ private:
 
 				size = bfd_section_size (m_bfd, cur->section);
 				p = (bfd_byte *) xmalloc (size);
+
 				if (! bfd_get_section_contents (m_bfd, cur->section, p, 0, size)) {
 					free((void *)p);
 					continue;
@@ -369,12 +370,30 @@ private:
 		}
 
 		// Provide section symbols
-		for (BfdSectionContents_t::iterator it = m_sectionContents.begin();
-				it != m_sectionContents.end();
-				++it) {
-			asection *section = it->first;
-
+		asection *section;
+		for (section = m_bfd->sections; section != NULL; section = section->next) {
 			m_sectionByAddress[(uint64_t)bfd_section_vma(m_bfd, section)] = section;
+
+			// Skip non-allocated sections
+			if ((section->flags & SEC_ALLOC) == 0)
+				continue;
+
+			BfdSectionContents_t::iterator it = m_sectionContents.find(section);
+			if (it == m_sectionContents.end()) {
+				bfd_size_type size;
+				bfd_byte *p;
+
+				size = bfd_section_size (m_bfd, section);
+				p = (bfd_byte *) xmalloc (size);
+
+				if (! bfd_get_section_contents (m_bfd, section, p, 0, size)) {
+					free((void *)p);
+					continue;
+				}
+
+				m_sectionContents[section] = p;
+				it = m_sectionContents.find(section);
+			}
 
 			ISymbol &sym = SymbolFactory::instance().createSymbol(
 					ISymbol::LINK_NORMAL,
