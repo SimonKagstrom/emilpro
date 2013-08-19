@@ -260,19 +260,10 @@ void SymbolView::refreshSymbols()
 		m_symbolRowIterByAddress[cur->getAddress()] = rowIt;
 
 		std::string name = mv.mangle(cur->getName());
-		const char *r = " ";
+		const char *r = "R";
 		const char *w = cur->isWriteable() ? "W" : " ";
-		const char *x = " ";
+		const char *x = cur->isExecutable() ? "X" : " ";
 		const char *a = cur->isAllocated() ? "A" : " ";
-
-		ISymbol::SymbolType type = cur->getType();
-		if (type == ISymbol::SYM_TEXT) {
-			r = "R";
-			x = "X";
-			w = " ";
-		} else if (type == ISymbol::SYM_DATA) {
-			r = "R";
-		}
 
 		row[m_symbolColumns->m_address] = fmt("0x%llx", (long long)cur->getAddress()).c_str();
 		row[m_symbolColumns->m_size] = fmt("0x%08llx", (long long)cur->getSize()).c_str();
