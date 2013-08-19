@@ -48,7 +48,7 @@ public:
 
 	bool isWriteable() const
 	{
-		return m_isAllocated;
+		return m_isWriteable;
 	}
 
 	std::string getName() const

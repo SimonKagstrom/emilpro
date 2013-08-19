@@ -25,6 +25,7 @@ TESTSUITE(symbol_provider)
 			ASSERT_TRUE(sym->getType() == ISymbol::SYM_TEXT);
 			ASSERT_TRUE(sym->getSize() > 1U);
 			ASSERT_TRUE(sym->getDataPtr() != (void *)NULL);
+			ASSERT_TRUE(sym->isWriteable() == false);
 			IDisassembly &dis = IDisassembly::instance();
 
 			// Disassemble main()
@@ -37,6 +38,7 @@ TESTSUITE(symbol_provider)
 			ASSERT_TRUE(sym != (void *)NULL);
 			ASSERT_TRUE(sym->getSize() == sizeof(uint32_t));
 			ASSERT_TRUE(sym->getType() == ISymbol::SYM_DATA);
+			ASSERT_TRUE(sym->isWriteable() == true);
 			ASSERT_TRUE(memcmp(sym->getDataPtr(), &v, sizeof(v)) == 0);
 
 			v = 0;
@@ -44,6 +46,7 @@ TESTSUITE(symbol_provider)
 			ASSERT_TRUE(sym != (void *)NULL);
 			ASSERT_TRUE(sym->getSize() == sizeof(uint32_t));
 			ASSERT_TRUE(sym->getType() == ISymbol::SYM_DATA);
+			ASSERT_TRUE(sym->isWriteable() == true);
 			ASSERT_TRUE(memcmp(sym->getDataPtr(), &v, sizeof(v)) == 0);
 		}
 	};
