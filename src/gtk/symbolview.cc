@@ -341,7 +341,7 @@ void SymbolView::update(uint64_t address)
 			largest = cur;
 	}
 
-	if (largest->getType() == ISymbol::SYM_TEXT)
+	if (largest->isExecutable())
 		m_instructionView->update(address, *largest);
 	else
 		updateDataView(address, largest);
