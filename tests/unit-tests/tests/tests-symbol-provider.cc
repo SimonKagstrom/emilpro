@@ -26,6 +26,7 @@ TESTSUITE(symbol_provider)
 			ASSERT_TRUE(sym->getSize() > 1U);
 			ASSERT_TRUE(sym->getDataPtr() != (void *)NULL);
 			ASSERT_TRUE(sym->isWriteable() == false);
+			ASSERT_TRUE(sym->isExecutable() == true);
 			IDisassembly &dis = IDisassembly::instance();
 
 			// Disassemble main()
@@ -39,6 +40,7 @@ TESTSUITE(symbol_provider)
 			ASSERT_TRUE(sym->getSize() == sizeof(uint32_t));
 			ASSERT_TRUE(sym->getType() == ISymbol::SYM_DATA);
 			ASSERT_TRUE(sym->isWriteable() == true);
+			ASSERT_TRUE(sym->isExecutable() == false);
 			ASSERT_TRUE(memcmp(sym->getDataPtr(), &v, sizeof(v)) == 0);
 
 			v = 0;
@@ -47,6 +49,7 @@ TESTSUITE(symbol_provider)
 			ASSERT_TRUE(sym->getSize() == sizeof(uint32_t));
 			ASSERT_TRUE(sym->getType() == ISymbol::SYM_DATA);
 			ASSERT_TRUE(sym->isWriteable() == true);
+			ASSERT_TRUE(sym->isExecutable() == false);
 			ASSERT_TRUE(memcmp(sym->getDataPtr(), &v, sizeof(v)) == 0);
 		}
 	};
@@ -85,6 +88,19 @@ TESTSUITE(symbol_provider)
 		ASSERT_TRUE(sym != (void *)NULL);
 		ASSERT_TRUE(sym->getType() == ISymbol::SYM_SECTION);
 		ASSERT_TRUE(sym->getAddress() != 0U);
+		ASSERT_TRUE(sym->isAllocated() == true);
+		ASSERT_TRUE(sym->isWriteable() == false);
+		ASSERT_TRUE(sym->isExecutable() == true);
+		ASSERT_TRUE(sym->getSize() > 0U);
+
+		ASSERT_TRUE(m_symbolNames.find(".data") != m_symbolNames.end());
+		sym = m_symbolNames[".data"];
+		ASSERT_TRUE(sym != (void *)NULL);
+		ASSERT_TRUE(sym->getType() == ISymbol::SYM_SECTION);
+		ASSERT_TRUE(sym->getAddress() != 0U);
+		ASSERT_TRUE(sym->isAllocated() == true);
+		ASSERT_TRUE(sym->isWriteable() == true);
+		ASSERT_TRUE(sym->isExecutable() == false);
 		ASSERT_TRUE(sym->getSize() > 0U);
 
 		ASSERT_TRUE(m_symbolNames.find("file") != m_symbolNames.end());

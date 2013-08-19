@@ -37,6 +37,8 @@ namespace emilpro
 
 		virtual bool isWriteable() const = 0;
 
+		virtual bool isExecutable() const = 0;
+
 		virtual std::string getName() const = 0;
 
 		virtual void *getDataPtr() const = 0;

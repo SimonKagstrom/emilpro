@@ -43,7 +43,8 @@ namespace emilpro
 				uint64_t address,
 				uint64_t size,
 				bool isAllocated,
-				bool isWriteable);
+				bool isWriteable,
+				bool isExecutable);
 
 		static SymbolFactory &instance();
 

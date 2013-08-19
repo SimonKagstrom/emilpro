@@ -19,7 +19,8 @@ public:
 			uint64_t size,
 			const char *name,
 			bool isAllocated,
-			bool isWriteable) :
+			bool isWriteable,
+			bool isExecutable) :
 				m_type(type),
 				m_linkage(linkage),
 				m_data(data),
@@ -27,7 +28,8 @@ public:
 				m_size(size),
 				m_name(name),
 				m_isAllocated(isAllocated),
-				m_isWriteable(isWriteable)
+				m_isWriteable(isWriteable),
+				m_isExecutable(isExecutable)
 	{
 	}
 
@@ -49,6 +51,11 @@ public:
 	bool isWriteable() const
 	{
 		return m_isWriteable;
+	}
+
+	bool isExecutable() const
+	{
+		return m_isExecutable;
 	}
 
 	std::string getName() const
@@ -85,6 +92,7 @@ private:
 	std::string m_name;
 	bool m_isAllocated;
 	bool m_isWriteable;
+	bool m_isExecutable;
 };
 
 
@@ -119,9 +127,10 @@ ISymbol &SymbolFactory::createSymbol(enum ISymbol::LinkageType linkage,
 		uint64_t address,
 		uint64_t size,
 		bool isAllocated,
-		bool isWriteable)
+		bool isWriteable,
+		bool isExecutable)
 {
-	Symbol *cur = new Symbol(type, linkage, data, address, size, name, isAllocated, isWriteable);
+	Symbol *cur = new Symbol(type, linkage, data, address, size, name, isAllocated, isWriteable, isExecutable);
 
 	m_symbols.push_back(cur);
 

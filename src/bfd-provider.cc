@@ -212,6 +212,7 @@ public:
 				0,
 				dataSize,
 				false,
+				false,
 				false
 		);
 
@@ -336,7 +337,8 @@ private:
 					symAddr,
 					size,
 					cur->section->flags & SEC_ALLOC,
-					!(cur->section->flags & SEC_READONLY)
+					!(cur->section->flags & SEC_READONLY),
+					cur->section->flags & SEC_CODE
 					);
 			symbolsByAddress[symAddr].push_back(&sym);
 			sectionEndAddresses[&sym] = bfd_section_vma(m_bfd, cur->section) + bfd_section_size(m_bfd, cur->section);
@@ -403,7 +405,8 @@ private:
 					(uint64_t)bfd_section_vma(m_bfd, section),
 					(uint64_t)bfd_section_size(m_bfd, section),
 					section->flags & SEC_ALLOC,
-					!(section->flags & SEC_READONLY)
+					!(section->flags & SEC_READONLY),
+					section->flags & SEC_CODE
 					);
 
 			m_listener->onSymbol(sym);

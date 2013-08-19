@@ -36,6 +36,7 @@ public:
 				start,
 				end - start,
 				true,
+				true,
 				true);
 
 		m_listener->onSymbol(p);
