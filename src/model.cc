@@ -191,6 +191,7 @@ void Model::parseAll()
 {
 	unsigned cores = get_number_of_cores();
 	unsigned curCore = 0;
+	SymbolList_t sectionSyms;
 
 	// Fill work queues
 	(void)getSymbols();
@@ -205,7 +206,21 @@ void Model::parseAll()
 		if (!cur->isExecutable())
 			continue;
 
+		if (cur->getType() == ISymbol::SYM_SECTION) {
+			sectionSyms.push_back(cur);
+			continue;
+		}
+
 		m_workQueues[curCore].push_back(cur);
+	}
+
+	// Place section symbols last (takes a long time to disassemble)
+	for (SymbolList_t::iterator it = sectionSyms.begin();
+			it != sectionSyms.end();
+			++it) {
+		ISymbol *cur = *it;
+
+		m_workQueues[0].push_back(cur);
 	}
 
 	// Create threads for all queues
