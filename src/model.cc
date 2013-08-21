@@ -167,7 +167,9 @@ void Model::worker(unsigned queueNr)
 	while (queue->size() != 0 && !m_quit) {
 		ISymbol *cur = queue->front();
 
+		m_mutex.lock();
 		fillCacheWithSymbol(cur);
+		m_mutex.unlock();
 
 		queue->pop_front();
 	}
