@@ -2,16 +2,18 @@
 
 #include <isymbol.hh>
 #include <namemanglerview.hh>
+#include <symbolfactory.hh>
 
 #include <gtkmm.h>
 #include <unordered_map>
+#include <mutex>
 
 class InstructionView;
 class HexView;
 class SymbolModelColumns;
 class ReferenceModelColumns;
 
-class SymbolView : public NameManglerView::IListener
+class SymbolView : public NameManglerView::IListener, public emilpro::ISymbolListener
 {
 public:
 	SymbolView();
@@ -25,6 +27,8 @@ public:
 	void refreshSymbols();
 
 private:
+	void onSymbol(emilpro::ISymbol &sym);
+
 	void onCursorChanged();
 
 	void onRowActivated(const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn* column);
@@ -55,4 +59,6 @@ private:
 	Gtk::Entry *m_lookupEntry;
 	InstructionView *m_instructionView;
 	HexView *m_hexView;
+
+	std::mutex m_mutex;
 };

@@ -145,10 +145,14 @@ void SymbolView::init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, H
 
 	m_lookupEntry->signal_activate().connect(sigc::mem_fun(*this,
 			&SymbolView::onEntryActivated));
+
+	Model::instance().registerSymbolListener(this);
 }
 
 void SymbolView::onCursorChanged()
 {
+	std::lock_guard<std::mutex> lock(m_mutex);
+
 	Gtk::TreeModel::Path path;
 	Gtk::TreeViewColumn *column;
 
@@ -197,13 +201,20 @@ void SymbolView::onCursorChanged()
 void SymbolView::onRowActivated(const Gtk::TreeModel::Path& path,
 		Gtk::TreeViewColumn* column)
 {
-	Gtk::TreeModel::iterator iter = m_symbolListStore->get_iter(path);
+	uint64_t address;
 
-	if(!iter)
-		return;
+	// Update takes the lock as well
+	{
+		std::lock_guard<std::mutex> lock(m_mutex);
 
-	Gtk::TreeModel::Row row = *iter;
-	uint64_t address = row[m_symbolColumns->m_rawAddress];
+		Gtk::TreeModel::iterator iter = m_symbolListStore->get_iter(path);
+
+		if(!iter)
+			return;
+
+		Gtk::TreeModel::Row row = *iter;
+		address = row[m_symbolColumns->m_rawAddress];
+	}
 
 	update(address);
 }
@@ -211,16 +222,23 @@ void SymbolView::onRowActivated(const Gtk::TreeModel::Path& path,
 void SymbolView::onReferenceRowActivated(const Gtk::TreeModel::Path& path,
 		Gtk::TreeViewColumn* column)
 {
-	Gtk::TreeModel::iterator iter = m_referencesListStore->get_iter(path);
+	uint64_t address;
 
-	if(!iter)
-		return;
+	// Ditto
+	{
+		std::lock_guard<std::mutex> lock(m_mutex);
 
-	Gtk::TreeModel::Row row = *iter;
-	uint64_t address = row[m_referenceColumns->m_rawAddress];
+		Gtk::TreeModel::iterator iter = m_referencesListStore->get_iter(path);
 
-	if (address == IInstruction::INVALID_ADDRESS)
-		return;
+		if(!iter)
+			return;
+
+		Gtk::TreeModel::Row row = *iter;
+		address = row[m_referenceColumns->m_rawAddress];
+
+		if (address == IInstruction::INVALID_ADDRESS)
+			return;
+	}
 
 	update(address);
 }
@@ -234,117 +252,92 @@ void SymbolView::updateSourceView(uint64_t address, const emilpro::ISymbol* sym)
 
 void SymbolView::refreshSymbols()
 {
-	NameManglerView &mv = NameManglerView::instance();
-
+	m_mutex.lock();
 	m_symbolListStore->clear();
 	m_symbolRowIterByAddress.clear();
+	m_mutex.unlock();
 
-	const Model::SymbolList_t &syms = Model::instance().getSymbols();
-
-	for (Model::SymbolList_t::const_iterator it = syms.begin();
-			it != syms.end();
-			++it) {
-		ISymbol *cur = *it;
-
-		// Skip the file symbol
-		if (cur->getType() == ISymbol::SYM_FILE)
-			continue;
-
-		if (cur->getType() == ISymbol::SYM_SECTION
-				&& cur->getSize() > 0)
-			m_hexView->addData(cur->getDataPtr(), cur->getAddress(), cur->getSize());
-
-		Gtk::ListStore::iterator rowIt = m_symbolListStore->append();
-		Gtk::TreeRow row = *rowIt;
-
-		m_symbolRowIterByAddress[cur->getAddress()] = rowIt;
-
-		std::string name = mv.mangle(cur->getName());
-		const char *r = "R";
-		const char *w = cur->isWriteable() ? "W" : " ";
-		const char *x = cur->isExecutable() ? "X" : " ";
-		const char *a = cur->isAllocated() ? "A" : " ";
-
-		row[m_symbolColumns->m_address] = fmt("0x%llx", (long long)cur->getAddress()).c_str();
-		row[m_symbolColumns->m_size] = fmt("0x%08llx", (long long)cur->getSize()).c_str();
-		row[m_symbolColumns->m_r] = r;
-		row[m_symbolColumns->m_w] = w;
-		row[m_symbolColumns->m_x] = x;
-		row[m_symbolColumns->m_a] = a;
-		row[m_symbolColumns->m_name] = fmt("%s%s",
-				cur->getType() == ISymbol::SYM_SECTION ? "Section " : "", name.c_str());
-
-		row[m_symbolColumns->m_rawAddress] = cur->getAddress();
-	}
+	// The onSymbol callback will handle this
+	Model::instance().parseAll();
 }
 
 void SymbolView::update(uint64_t address)
 {
-	Model &model = Model::instance();
+	Gtk::TreeModel::Path path;
 
-	const Model::SymbolList_t nearestSyms = model.getNearestSymbol(address);
+	/* set_cursor results in a call to onCursorChanged, so release the lock
+	   until then */
+	{
+		std::lock_guard<std::mutex> lock(m_mutex);
 
-	if (nearestSyms.empty())
-		return;
+		Model &model = Model::instance();
 
-	uint64_t symbolAddress = IInstruction::INVALID_ADDRESS;
-	uint64_t sectionAddress = IInstruction::INVALID_ADDRESS;
+		const Model::SymbolList_t nearestSyms = model.getNearestSymbol(address);
 
-	for (Model::SymbolList_t::const_iterator sIt = nearestSyms.begin();
-			sIt != nearestSyms.end();
-			++sIt) {
-		ISymbol *sym = *sIt;
+		if (nearestSyms.empty())
+			return;
 
-		if (sym->getType() == ISymbol::SYM_SECTION) {
-			sectionAddress = sym->getAddress();
-			continue;
+		uint64_t symbolAddress = IInstruction::INVALID_ADDRESS;
+		uint64_t sectionAddress = IInstruction::INVALID_ADDRESS;
+
+		for (Model::SymbolList_t::const_iterator sIt = nearestSyms.begin();
+				sIt != nearestSyms.end();
+				++sIt) {
+			ISymbol *sym = *sIt;
+
+			if (sym->getType() == ISymbol::SYM_SECTION) {
+				sectionAddress = sym->getAddress();
+				continue;
+			}
+
+			if (sym->getType() != ISymbol::SYM_TEXT && sym->getType() != ISymbol::SYM_DATA)
+				continue;
+
+			// Found a "meaningful" symbol
+			symbolAddress = sym->getAddress();
+			break;
 		}
 
-		if (sym->getType() != ISymbol::SYM_TEXT && sym->getType() != ISymbol::SYM_DATA)
-			continue;
+		// No text/data symbol found, just use the section
+		if (symbolAddress == IInstruction::INVALID_ADDRESS)
+			symbolAddress = sectionAddress;
 
-		// Found a "meaningful" symbol
-		symbolAddress = sym->getAddress();
-		break;
+		if (m_symbolRowIterByAddress.find(symbolAddress) == m_symbolRowIterByAddress.end())
+			return;
+		Gtk::ListStore::iterator rowIt = m_symbolRowIterByAddress[symbolAddress];
+		path = m_symbolListStore->get_path(rowIt);
+
+		Model::SymbolList_t syms = model.getSymbolExact(symbolAddress);
+		if (syms.empty()) {
+			warning("Can't get symbol\n");
+			return;
+		}
+
+		const ISymbol *largest = syms.front();
+
+		for (Model::SymbolList_t::iterator it = syms.begin();
+				it != syms.end();
+				++it) {
+			const ISymbol *cur = *it;
+			enum ISymbol::SymbolType type = cur->getType();
+
+			if (type != ISymbol::SYM_TEXT && type != ISymbol::SYM_DATA)
+				continue;
+
+			if (largest->getType() != ISymbol::SYM_TEXT && largest->getType() != ISymbol::SYM_DATA)
+				largest = cur;
+
+			if (cur->getSize() > largest->getSize())
+				largest = cur;
+		}
+
+		if (largest->isExecutable())
+			m_instructionView->update(address, *largest);
+		else
+			updateDataView(address, largest);
 	}
 
-	// No text/data symbol found, just use the section
-	if (symbolAddress == IInstruction::INVALID_ADDRESS)
-		symbolAddress = sectionAddress;
-
-	if (m_symbolRowIterByAddress.find(symbolAddress) == m_symbolRowIterByAddress.end())
-		return;
-	Gtk::ListStore::iterator rowIt = m_symbolRowIterByAddress[symbolAddress];
-	m_symbolView->set_cursor(m_symbolListStore->get_path(rowIt));
-
-	Model::SymbolList_t syms = model.getSymbolExact(symbolAddress);
-	if (syms.empty()) {
-		warning("Can't get symbol\n");
-		return;
-	}
-
-	const ISymbol *largest = syms.front();
-
-	for (Model::SymbolList_t::iterator it = syms.begin();
-			it != syms.end();
-			++it) {
-		const ISymbol *cur = *it;
-		enum ISymbol::SymbolType type = cur->getType();
-
-		if (type != ISymbol::SYM_TEXT && type != ISymbol::SYM_DATA)
-			continue;
-
-		if (largest->getType() != ISymbol::SYM_TEXT && largest->getType() != ISymbol::SYM_DATA)
-			largest = cur;
-
-		if (cur->getSize() > largest->getSize())
-			largest = cur;
-	}
-
-	if (largest->isExecutable())
-		m_instructionView->update(address, *largest);
-	else
-		updateDataView(address, largest);
+	m_symbolView->set_cursor(path);
 }
 
 void SymbolView::updateDataView(uint64_t address, const emilpro::ISymbol* sym)
@@ -365,6 +358,42 @@ void SymbolView::onEntryActivated()
 	} else {
 		printf("Find by name, not yet implemented\n");
 	}
+}
+
+void SymbolView::onSymbol(ISymbol& sym)
+{
+	std::lock_guard<std::mutex> lock(m_mutex);
+	NameManglerView &mv = NameManglerView::instance();
+
+	// Skip the file symbol
+	if (sym.getType() == ISymbol::SYM_FILE)
+		return;
+
+	if (sym.getType() == ISymbol::SYM_SECTION
+			&& sym.getSize() > 0)
+		m_hexView->addData(sym.getDataPtr(), sym.getAddress(), sym.getSize());
+
+	Gtk::ListStore::iterator rowIt = m_symbolListStore->append();
+	Gtk::TreeRow row = *rowIt;
+
+	m_symbolRowIterByAddress[sym.getAddress()] = rowIt;
+
+	std::string name = mv.mangle(sym.getName());
+	const char *r = "R";
+	const char *w = sym.isWriteable() ? "W" : " ";
+	const char *x = sym.isExecutable() ? "X" : " ";
+	const char *a = sym.isAllocated() ? "A" : " ";
+
+	row[m_symbolColumns->m_address] = fmt("0x%llx", (long long)sym.getAddress()).c_str();
+	row[m_symbolColumns->m_size] = fmt("0x%08llx", (long long)sym.getSize()).c_str();
+	row[m_symbolColumns->m_r] = r;
+	row[m_symbolColumns->m_w] = w;
+	row[m_symbolColumns->m_x] = x;
+	row[m_symbolColumns->m_a] = a;
+	row[m_symbolColumns->m_name] = fmt("%s%s",
+			sym.getType() == ISymbol::SYM_SECTION ? "Section " : "", name.c_str());
+
+	row[m_symbolColumns->m_rawAddress] = sym.getAddress();
 }
 
 void SymbolView::onManglingChanged()
