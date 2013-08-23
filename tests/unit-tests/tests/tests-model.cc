@@ -263,10 +263,13 @@ TESTSUITE(model)
 		ASSERT_TRUE(mainSym);
 		ASSERT_TRUE(!model.m_instructionCache[mainSym->getAddress()]);
 
+		ASSERT_TRUE(!model.parsingComplete());
+
 		model.parseAll();
 		while (!model.parsingComplete())
 			;
 
+		ASSERT_TRUE(model.parsingComplete());
 		ASSERT_TRUE(model.m_instructionCache[mainSym->getAddress()]);
 	}
 

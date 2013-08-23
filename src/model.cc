@@ -38,6 +38,7 @@ private:
 
 Model::Model() :
 		m_memory(NULL),
+		m_parsingComplete(false),
 		m_quit(false)
 {
 	unsigned cores = get_number_of_cores();
@@ -177,18 +178,28 @@ void Model::worker(unsigned queueNr)
 
 		queue->pop_front();
 	}
+
+	unsigned cores = get_number_of_cores();
+	bool parsingComplete = true;
+
+	m_mutex.lock();
+	for (unsigned i = 0; i < cores; i++) {
+		if (m_workQueues[i].size() != 0)
+			parsingComplete = false;
+	}
+	m_parsingComplete = parsingComplete;
+	m_mutex.unlock();
 }
 
 bool Model::parsingComplete()
 {
-	unsigned cores = get_number_of_cores();
+	bool out;
 
-	for (unsigned i = 0; i < cores; i++) {
-		if (!m_workQueues[i].empty())
-			return false;
-	}
+	m_mutex.lock();
+	out = m_parsingComplete;
+	m_mutex.unlock();
 
-	return true;
+	return out;
 }
 
 void Model::parseAll()
