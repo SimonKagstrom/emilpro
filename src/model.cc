@@ -202,6 +202,25 @@ bool Model::parsingComplete()
 	return out;
 }
 
+
+bool Model::parsingOngoing()
+{
+	unsigned cores = get_number_of_cores();
+	bool out = false;
+
+	m_mutex.lock();
+	for (unsigned i = 0; i < cores; i++) {
+		if (m_workQueues[i].size() != 0)
+			out = true;
+	}
+	if (m_parsingComplete && !out)
+		out = false;
+
+	m_mutex.unlock();
+
+	return out;
+}
+
 void Model::parseAll()
 {
 	unsigned cores = get_number_of_cores();

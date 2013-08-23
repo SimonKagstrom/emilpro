@@ -87,6 +87,8 @@ namespace emilpro
 		Model();
 		virtual ~Model();
 
+		bool parsingOngoing();
+
 		void fillCacheWithSymbol(ISymbol *sym);
 
 		const ILineProvider::FileLine getLineByAddressLocked(uint64_t addr);

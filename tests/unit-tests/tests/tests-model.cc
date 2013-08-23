@@ -264,11 +264,14 @@ TESTSUITE(model)
 		ASSERT_TRUE(!model.m_instructionCache[mainSym->getAddress()]);
 
 		ASSERT_TRUE(!model.parsingComplete());
+		ASSERT_FALSE(model.parsingOngoing());
 
 		model.parseAll();
+		ASSERT_TRUE(model.parsingOngoing()); // Slight race, but should be OK
 		while (!model.parsingComplete())
 			;
 
+		ASSERT_FALSE(model.parsingOngoing());
 		ASSERT_TRUE(model.parsingComplete());
 		ASSERT_TRUE(model.m_instructionCache[mainSym->getAddress()]);
 	}
