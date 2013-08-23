@@ -31,6 +31,8 @@ int main(int argc, const char *argv[])
 		InstructionFactory::IInstructionModel *cur = *it;
 		std::string arch = ArchitectureFactory::instance().getNameFromArchitecture(cur->getArchitecture());
 
+		cur->setTimeStamp(0);
+
 		archToXml[arch] += cur->toXml();
 	}
 
