@@ -74,7 +74,7 @@ TESTSUITE(disassembly)
 		p = m[0x1000 + 16]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getString().find("call") != std::string::npos);
 		ASSERT_TRUE(p->getMnemonic() == "call");
-		ASSERT_TRUE(p->getType() == IInstruction::IT_CFLOW);
+		ASSERT_TRUE(p->getType() == IInstruction::IT_CALL);
 		ASSERT_TRUE(p->isPrivileged() == T_false);
 		ASSERT_TRUE(p->getBranchTargetAddress() == 0x1000 + 28U);
 
