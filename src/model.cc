@@ -230,13 +230,28 @@ void Model::parseAll()
 	// Fill work queues
 	(void)getSymbols();
 
+	if (parsingOngoing()) {
+		for (SymbolList_t::iterator it = m_symbols.begin();
+				it != m_symbols.end();
+				++it, ++curCore) {
+			ISymbol *cur = *it;
+
+			for (SymbolListeners_t::iterator it = m_symbolListeners.begin();
+					it != m_symbolListeners.end();
+					++it) {
+				ISymbolListener *curListener = *it;
+
+				curListener->onSymbol(*cur);
+			}
+		}
+
+		return;
+	}
+
 	for (SymbolList_t::iterator it = m_symbols.begin();
 			it != m_symbols.end();
 			++it, ++curCore) {
 		ISymbol *cur = *it;
-
-		if (curCore == cores)
-			curCore = 0;
 
 		for (SymbolListeners_t::iterator it = m_symbolListeners.begin();
 				it != m_symbolListeners.end();
@@ -246,6 +261,10 @@ void Model::parseAll()
 			curListener->onSymbol(*cur);
 		}
 
+		// No need to reparse these then, but signal the listeners
+		if (parsingComplete())
+			continue;
+
 		if (!cur->isExecutable())
 			continue;
 
@@ -254,8 +273,14 @@ void Model::parseAll()
 			continue;
 		}
 
+		if (curCore >= cores)
+			curCore = 0;
+
 		m_workQueues[curCore].push_back(cur);
 	}
+
+	if (parsingComplete())
+		return;
 
 	// Place section symbols last (takes a long time to disassemble)
 	for (SymbolList_t::iterator it = sectionSyms.begin();
