@@ -155,6 +155,8 @@ public:
 	{
 		if (typeStr == "cflow")
 			m_type = IInstruction::IT_CFLOW;
+		else if (typeStr == "call")
+			m_type = IInstruction::IT_CALL;
 		else if (typeStr == "data_handling")
 			m_type = IInstruction::IT_DATA_HANDLING;
 		else if (typeStr == "arithmetic_logic")
@@ -253,6 +255,8 @@ public:
 		{
 		case IInstruction::IT_CFLOW:
 			return "cflow";
+		case IInstruction::IT_CALL:
+			return "call";
 		case IInstruction::IT_DATA_HANDLING:
 			return "data_handling";
 		case IInstruction::IT_ARITHMETIC_LOGIC:

@@ -53,6 +53,7 @@ namespace emilpro
 		{
 			IT_UNKNOWN,
 			IT_CFLOW,
+			IT_CALL,
 			IT_DATA_HANDLING,
 			IT_ARITHMETIC_LOGIC,
 			IT_OTHER,

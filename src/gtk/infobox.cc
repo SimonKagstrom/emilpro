@@ -237,6 +237,9 @@ void InfoBox::onInstructionSelected(IInstruction &insn)
 		case IInstruction::IT_CFLOW:
 			type = "Control flow";
 			break;
+		case IInstruction::IT_CALL:
+			type = "Call";
+			break;
 		case IInstruction::IT_DATA_HANDLING:
 			type = "Data handling";
 			break;

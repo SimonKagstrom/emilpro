@@ -550,7 +550,7 @@ void InstructionView::onRowActivated(const Gtk::TreeModel::Path& path, Gtk::Tree
 	if (!cur)
 		return;
 
-	if (cur->getType() != IInstruction::IT_CFLOW)
+	if (cur->getType() != IInstruction::IT_CFLOW && cur->getType() != IInstruction::IT_CALL)
 		return;
 
 	uint64_t target = cur->getBranchTargetAddress();

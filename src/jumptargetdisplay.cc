@@ -65,7 +65,7 @@ void JumpTargetDisplay::calculateLanes(InstructionList_t &insns, unsigned nVisib
 		insnMap[cur->getAddress()] = cur;
 		m_insnNrs[cur] = nr;
 
-		if (cur->getType() == IInstruction::IT_CFLOW)
+		if (cur->getType() == IInstruction::IT_CFLOW || cur->getType() == IInstruction::IT_CALL)
 			srcs.push_back(cur);
 		nr++;
 	}

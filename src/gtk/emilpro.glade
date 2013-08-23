@@ -208,6 +208,9 @@
         <col id="0" translatable="yes">Control flow</col>
       </row>
       <row>
+        <col id="0" translatable="yes">Call</col>
+      </row>
+      <row>
         <col id="0" translatable="yes">Data handling</col>
       </row>
       <row>

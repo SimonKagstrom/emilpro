@@ -308,7 +308,7 @@ Model::BasicBlockList_t Model::getBasicBlocksFromInstructions(const InstructionL
 			++it) {
 		IInstruction *cur = *it;
 
-		if (cur->getType() != IInstruction::IT_CFLOW)
+		if (cur->getType() != IInstruction::IT_CFLOW && cur->getType() != IInstruction::IT_CALL)
 			continue;
 
 		targets[cur->getAddress()] = cur;
