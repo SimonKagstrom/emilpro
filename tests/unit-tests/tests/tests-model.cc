@@ -8,10 +8,24 @@
 #include <configuration.hh>
 #include <emilpro.hh>
 
+#include <list>
+
 using namespace emilpro;
 
 #include "assembly-dumps.h"
 #include "../mock-symbol-provider.hh"
+
+class ModelSymbolFixture : public ISymbolListener
+{
+public:
+	void onSymbol(ISymbol &sym)
+	{
+		m_symbols.push_back(&sym);
+	}
+
+	std::list<ISymbol *> m_symbols;
+};
+
 
 TESTSUITE(model)
 {
@@ -281,6 +295,39 @@ TESTSUITE(model)
 		syms = model.getSymbolExact(m_symbolNames["knatte"]->getAddress());
 		ASSERT_TRUE(syms.size() == 1U);
 		ASSERT_TRUE(model.getReferences(syms.front()->getAddress()).size() == 0U);
+	}
+
+	TEST(fileWithSymbols, ModelSymbolFixture)
+	{
+		// I'd like to run this with ASSERT_SCOPE_HEAP_LEAK_FREE, but I run into
+		// glib memleaks that way...
+
+		Model &model = Model::instance();
+		size_t sz;
+		bool res;
+
+		void *data = read_file(&sz, "%s/test-binary", crpcut::get_start_dir());
+		ASSERT_TRUE(data != (void *)NULL);
+
+		res = model.addData(data, sz);
+		ASSERT_TRUE(res == true);
+
+		model.registerSymbolListener(this);
+
+		model.parseAll();
+
+		// Busy wait until everything has been read
+		while (!model.parsingComplete())
+			;
+
+		const Model::SymbolList_t &syms = model.getSymbols();
+
+		ASSERT_TRUE(syms.size() > 0U);
+		ASSERT_TRUE(syms.size() <= m_symbols.size());
+
+		EmilPro::destroy();
+
+		free((void *)data);
 	}
 
 	TEST(memLeaks)

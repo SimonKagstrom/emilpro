@@ -56,6 +56,8 @@ namespace emilpro
 
 		const SymbolList_t &getSymbols();
 
+		void registerSymbolListener(ISymbolListener *listener);
+
 		const SymbolList_t getSymbolExact(uint64_t address);
 
 		const SymbolList_t getNearestSymbol(uint64_t address);
@@ -78,6 +80,7 @@ namespace emilpro
 		typedef std::unordered_map<uint64_t, SymbolList_t> SymbolMap_t;
 		typedef std::unordered_map<uint64_t, ILineProvider::FileLine> AddressFileLineMap_t;
 		typedef std::list<ISymbol *> SymbolQueue_t;
+		typedef std::list<ISymbolListener *> SymbolListeners_t;
 
 		typedef std::unordered_map<uint64_t, CrossReferenceList_t> CrossReferenceMap_t;
 
@@ -109,6 +112,7 @@ namespace emilpro
 		uint8_t *m_memory;
 		CrossReferenceMap_t m_crossReferences;
 		CrossReferenceList_t m_emptyReferenceList;
+		SymbolListeners_t m_symbolListeners;
 
 		std::thread **m_threads;
 		SymbolList_t *m_workQueues;

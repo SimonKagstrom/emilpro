@@ -199,6 +199,7 @@ void Model::parseAll()
 
 	// Fill work queues
 	(void)getSymbols();
+
 	for (SymbolList_t::iterator it = m_symbols.begin();
 			it != m_symbols.end();
 			++it, ++curCore) {
@@ -206,6 +207,14 @@ void Model::parseAll()
 
 		if (curCore == cores)
 			curCore = 0;
+
+		for (SymbolListeners_t::iterator it = m_symbolListeners.begin();
+				it != m_symbolListeners.end();
+				++it) {
+			ISymbolListener *curListener = *it;
+
+			curListener->onSymbol(*cur);
+		}
 
 		if (!cur->isExecutable())
 			continue;
@@ -272,6 +281,11 @@ Model::BasicBlockList_t Model::getBasicBlocksFromInstructions(const InstructionL
 	return out;
 }
 
+
+void Model::registerSymbolListener(ISymbolListener* listener)
+{
+	m_symbolListeners.push_back(listener);
+}
 
 void Model::onSymbol(ISymbol &sym)
 {
