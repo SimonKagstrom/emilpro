@@ -60,6 +60,8 @@ Model::~Model()
 	for (unsigned i = 0; i < cores; i++) {
 		if (m_threads[i])
 			m_threads[i]->join();
+
+		delete m_threads[i];
 	}
 
 	delete[] m_threads;
@@ -147,8 +149,10 @@ void Model::fillCacheWithSymbol(ISymbol *sym)
 		IInstruction *cur = *it;
 
 		// We can have multiple overlapping symbols (typically sections/normal syms)
-		if (m_instructionCache[cur->getAddress()])
+		if (m_instructionCache[cur->getAddress()]) {
+			delete cur;
 			continue;
+		}
 
 		m_instructionCache[cur->getAddress()] = cur;
 
