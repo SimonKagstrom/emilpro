@@ -9,6 +9,7 @@
 #include <emilpro.hh>
 
 #include <list>
+#include <unordered_map>
 
 using namespace emilpro;
 
@@ -21,9 +22,17 @@ public:
 	void onSymbol(ISymbol &sym)
 	{
 		m_symbols.push_back(&sym);
+		m_symbolsByName[sym.getName()] = &sym;
 	}
 
-	std::list<ISymbol *> m_symbols;
+	void clear()
+	{
+		m_symbols.clear();
+		m_symbolsByName.clear();
+	}
+
+	Model::SymbolList_t m_symbols;
+	std::unordered_map<std::string, ISymbol *> m_symbolsByName;
 };
 
 
@@ -334,6 +343,62 @@ TESTSUITE(model)
 		EmilPro::destroy();
 
 		free((void *)data);
+	}
+
+	TEST(fileWithoutSymbols, ModelSymbolFixture)
+	{
+		Model &model = Model::instance();
+		size_t sz;
+		bool res;
+		void *data;
+
+		data = read_file(&sz, "%s/test-binary", crpcut::get_start_dir());
+		res = model.addData(data, sz);
+		ASSERT_TRUE(res == true);
+
+		model.registerSymbolListener(this);
+
+		// Parse and wait
+		model.parseAll();
+		while (!model.parsingComplete())
+			;
+
+		ISymbol *mainSym = m_symbolsByName["main"];
+		ASSERT_TRUE(mainSym);
+		uint64_t mainAddr = mainSym->getAddress();
+		ASSERT_TRUE(mainAddr != 0U);
+
+		EmilPro::destroy();
+		free((void *)data);
+		clear();
+
+		// Recreate the model
+		Model &model2 = Model::instance();
+
+		data = read_file(&sz, "%s/test-binary-stripped", crpcut::get_start_dir());
+		res = model2.addData(data, sz);
+		ASSERT_TRUE(res == true);
+
+		model2.registerSymbolListener(this);
+
+		// Parse and wait
+		model2.parseAll();
+		while (!model2.parsingComplete())
+			;
+
+		bool foundMain = false;
+		for (Model::SymbolList_t::iterator it = m_symbols.begin();
+				it != m_symbols.end();
+				++it) {
+			ISymbol *cur = *it;
+
+			if (cur->getAddress() == mainAddr) {
+				printf("Found derived main at 0x%llx with name %s\n",
+						(unsigned long long)cur->getAddress(), cur->getName().c_str());
+				foundMain = true;
+			}
+		}
+		ASSERT_TRUE(foundMain);
 	}
 
 	TEST(memLeaks)

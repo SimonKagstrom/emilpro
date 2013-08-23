@@ -77,10 +77,6 @@ include_directories(
 	${LIBCURL_INCLUDE_DIRS}
 	)
 
-add_executable (test-binary
-	elf-assembly.S
-	elf-example-source.cc)
-
 add_executable (file-to-source
 	../../src/utils.cc
 	../../tools/file-to-source.cc
@@ -116,6 +112,16 @@ target_link_libraries(${TGT}
 	dl
 	)
 
+
+set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
+set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)
+set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS) 
+set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS) 
+    
+add_executable (test-binary
+	elf-assembly.S
+	elf-example-source.cc)
+
 add_custom_target (test-binary-asm-only ALL
   COMMAND ${CMAKE_C_COMPILER} -nostdlib ${CMAKE_CURRENT_SOURCE_DIR}/elf-assembly-start.S -o ${CMAKE_BINARY_DIR}/test-binary-asm-only
 )
@@ -132,3 +138,9 @@ add_custom_target (test-binary-asm-only-32 ALL
 #  DEPENDS test-binary
 #  COMMAND objcopy -O mach-o-i386 ${CMAKE_BINARY_DIR}/test-binary ${CMAKE_BINARY_DIR}/test-binary.mach-o
 #)
+
+
+add_custom_target (test-binary-stripped ALL
+  DEPENDS test-binary
+  COMMAND strip -o ${CMAKE_BINARY_DIR}/test-binary-stripped ${CMAKE_BINARY_DIR}/test-binary
+)
