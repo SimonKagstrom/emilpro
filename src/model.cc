@@ -491,4 +491,3 @@ Model &Model::instance()
 
 	return *g_instance;
 }
-
