@@ -1,5 +1,5 @@
   <InstructionModel name="call" architecture="i386" timestamp="0">
-    <type>cflow</type>
+    <type>call</type>
     <privileged>false</privileged>
     <description>Call function.
 
@@ -17,6 +17,11 @@ Does not affect the CF flag.
     <type>other</type>
     <privileged>true</privileged>
     <description>Halt the processor.</description>
+  </InstructionModel>
+  <InstructionModel name="inc" architecture="i386" timestamp="0">
+    <type>arithmetic_logic</type>
+    <privileged>false</privileged>
+    <description>Increment register/memory location with 1</description>
   </InstructionModel>
   <InstructionModel name="int3" architecture="i386" timestamp="0">
     <type>other</type>
@@ -43,6 +48,11 @@ eflags register.
     <privileged>false</privileged>
     <description>Branch if equal</description>
   </InstructionModel>
+  <InstructionModel name="jle" architecture="i386" timestamp="0">
+    <type>cflow</type>
+    <privileged>false</privileged>
+    <description>Jump if less then or equal.</description>
+  </InstructionModel>
   <InstructionModel name="jmp" architecture="i386" timestamp="0">
     <type>cflow</type>
     <privileged>false</privileged>
@@ -65,6 +75,11 @@ eflags register.
 
 The number of bytes depends on the destination size.</description>
   </InstructionModel>
+  <InstructionModel name="push" architecture="i386" timestamp="0">
+    <type>data_handling</type>
+    <privileged>false</privileged>
+    <description>Push register contents or contents from a memory location on the stack.</description>
+  </InstructionModel>
   <InstructionModel name="shr" architecture="i386" timestamp="0">
     <type>arithmetic_logic</type>
     <privileged>false</privileged>
@@ -75,6 +90,13 @@ The number of bytes depends on the destination size.</description>
     <type>arithmetic_logic</type>
     <privileged>false</privileged>
     <description>Subtract value from register or memory location.</description>
+  </InstructionModel>
+  <InstructionModel name="test" architecture="i386" timestamp="0">
+    <type>arithmetic_logic</type>
+    <privileged>false</privileged>
+    <description>Compare operands.
+
+Sets EFLAGS for use with branch instructions.</description>
   </InstructionModel>
   <InstructionModel name="xor" architecture="i386" timestamp="0">
     <type>arithmetic_logic</type>

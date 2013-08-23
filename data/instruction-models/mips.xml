@@ -1,3 +1,8 @@
+  <InstructionModel name="beqz" architecture="mips" timestamp="0">
+    <type>cflow</type>
+    <privileged>unknown</privileged>
+    <description></description>
+  </InstructionModel>
   <InstructionModel name="bge" architecture="mips" timestamp="0">
     <type>cflow</type>
     <privileged>false</privileged>
