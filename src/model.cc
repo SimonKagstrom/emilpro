@@ -344,10 +344,13 @@ void Model::registerSymbolListener(ISymbolListener* listener)
 
 void Model::onSymbol(ISymbol &sym)
 {
-	m_mutex.lock();
+	bool locked;
+
+	locked = m_mutex.try_lock();
 	m_symbolsByAddress[sym.getAddress()].push_back(&sym);
 	m_orderedSymbols[sym.getAddress()].push_back(&sym);
-	m_mutex.unlock();
+	if (locked)
+		m_mutex.unlock();
 }
 
 const Model::SymbolList_t &Model::getSymbolsLocked()
