@@ -76,6 +76,8 @@ void EmilPro::destroy()
 
 	if (g_instance)
 		delete g_instance;
+
+	g_instance = NULL;
 }
 
 std::string EmilPro::parseDirectory(std::string& dirName)
