@@ -91,6 +91,10 @@ namespace emilpro
 
 		void fillCacheWithSymbol(ISymbol *sym);
 
+		void deriveSymbols(ISymbol *sym, InstructionList_t &lst);
+
+		void addDerivedSymbol(uint64_t address, int64_t size, void *data);
+
 		const ILineProvider::FileLine getLineByAddressLocked(uint64_t addr);
 
 		const SymbolList_t &getSymbolsLocked();

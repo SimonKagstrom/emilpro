@@ -5,6 +5,7 @@
 #include <utils.hh>
 
 #include <unordered_map>
+#include <map>
 
 using namespace emilpro;
 
@@ -143,6 +144,7 @@ const InstructionList_t Model::getInstructions(uint64_t start, uint64_t end)
 void Model::fillCacheWithSymbol(ISymbol *sym)
 {
 	InstructionList_t lst = IDisassembly::instance().execute(sym->getDataPtr(), sym->getSize(), sym->getAddress());
+	InstructionList_t cleanupList;
 
 	for (InstructionList_t::iterator it = lst.begin();
 			it != lst.end();
@@ -151,7 +153,8 @@ void Model::fillCacheWithSymbol(ISymbol *sym)
 
 		// We can have multiple overlapping symbols (typically sections/normal syms)
 		if (m_instructionCache[cur->getAddress()]) {
-			delete cur;
+			cleanupList.push_back(cur);
+
 			continue;
 		}
 
@@ -162,6 +165,88 @@ void Model::fillCacheWithSymbol(ISymbol *sym)
 
 		// Fill the file:line cache with this instruction
 		getLineByAddressLocked(cur->getAddress());
+	}
+
+	if (sym->getType() == ISymbol::SYM_SECTION)
+		deriveSymbols(sym, lst);
+
+	// Cleanup overlapped insns
+	for (InstructionList_t::iterator it = cleanupList.begin();
+			it != cleanupList.end();
+			++it) {
+		delete *it;
+	}
+}
+
+void Model::deriveSymbols(ISymbol *sym, InstructionList_t &lst)
+{
+	typedef std::map<uint64_t, bool> PossibleSiteMap_t;
+	PossibleSiteMap_t possibleSites;
+	uint64_t lastInsnAddr = 0;
+	uint8_t *p = (uint8_t *)sym->getDataPtr();
+
+	for (InstructionList_t::iterator it = lst.begin();
+			it != lst.end();
+			++it) {
+		IInstruction *cur = *it;
+		uint64_t endAddr = cur->getAddress() + cur->getSize();
+
+		if (endAddr > lastInsnAddr)
+			lastInsnAddr = endAddr;
+
+		if (cur->getType() != IInstruction::IT_CALL)
+			continue;
+
+		uint64_t tgt = cur->getBranchTargetAddress();
+		if (tgt != IInstruction::INVALID_ADDRESS) {
+			if (m_symbolsByAddress[tgt].empty())
+				possibleSites[tgt] = true;
+		}
+	}
+
+	PossibleSiteMap_t::iterator lastIt = possibleSites.end();
+
+	for (PossibleSiteMap_t::iterator it = possibleSites.begin();
+			it != possibleSites.end();
+			++it) {
+		// Update size
+		if (lastIt != possibleSites.end()) {
+			uint64_t cur = it->first;
+			uint64_t last = lastIt->first;
+
+			addDerivedSymbol(last, cur - last, p + last);
+		}
+
+		lastIt = it;
+	}
+
+	if (lastIt == possibleSites.end())
+		return;
+
+	// Add the final entry
+	uint64_t startLast = lastIt->first;
+	uint64_t endLast = lastInsnAddr;
+
+	addDerivedSymbol(startLast, endLast - startLast, p + startLast);
+}
+
+void Model::addDerivedSymbol(uint64_t address, int64_t size, void *data)
+{
+	if (size <= 0)
+		return;
+
+	ISymbol &sym = SymbolFactory::instance().createSymbol(ISymbol::LINK_NORMAL,
+			ISymbol::SYM_TEXT,
+			fmt("fn_0x%llx_0x%llx", (unsigned long long)address, (unsigned long long)(address + size)).c_str(),
+			data, address, size, true, false, true);
+
+	onSymbol(sym);
+	for (SymbolListeners_t::iterator it = m_symbolListeners.begin();
+			it != m_symbolListeners.end();
+			++it) {
+		ISymbolListener *curListener = *it;
+
+		curListener->onSymbol(sym);
 	}
 }
 

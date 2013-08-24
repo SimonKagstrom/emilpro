@@ -347,6 +347,8 @@ TESTSUITE(model)
 
 	TEST(fileWithoutSymbols, ModelSymbolFixture)
 	{
+		EmilPro::init();
+
 		Model &model = Model::instance();
 		size_t sz;
 		bool res;
@@ -363,16 +365,19 @@ TESTSUITE(model)
 		while (!model.parsingComplete())
 			;
 
-		ISymbol *mainSym = m_symbolsByName["main"];
-		ASSERT_TRUE(mainSym);
-		uint64_t mainAddr = mainSym->getAddress();
-		ASSERT_TRUE(mainAddr != 0U);
+		std::string fnName = "kalle";
+		ISymbol *fnSym = m_symbolsByName[fnName];
+		ASSERT_TRUE(fnSym);
+		uint64_t fnAddr = fnSym->getAddress();
+		uint64_t fnSize = fnSym->getSize();
+		ASSERT_TRUE(fnAddr != 0U);
 
 		EmilPro::destroy();
 		free((void *)data);
 		clear();
 
 		// Recreate the model
+		EmilPro::init();
 		Model &model2 = Model::instance();
 
 		data = read_file(&sz, "%s/test-binary-stripped", crpcut::get_start_dir());
@@ -386,19 +391,20 @@ TESTSUITE(model)
 		while (!model2.parsingComplete())
 			;
 
-		bool foundMain = false;
+		bool foundFn = false;
 		for (Model::SymbolList_t::iterator it = m_symbols.begin();
 				it != m_symbols.end();
 				++it) {
 			ISymbol *cur = *it;
 
-			if (cur->getAddress() == mainAddr) {
-				printf("Found derived main at 0x%llx with name %s\n",
-						(unsigned long long)cur->getAddress(), cur->getName().c_str());
-				foundMain = true;
+			if (cur->getAddress() == fnAddr) {
+				printf("Found derived function at 0x%llx with name %s and size %lld, original %s/%lld\n",
+						(unsigned long long)cur->getAddress(), cur->getName().c_str(), (long long)cur->getSize(),
+						fnName.c_str(), (long long)fnSize);
+				foundFn = true;
 			}
 		}
-		ASSERT_TRUE(foundMain);
+		ASSERT_TRUE(foundFn);
 	}
 
 	TEST(memLeaks)
