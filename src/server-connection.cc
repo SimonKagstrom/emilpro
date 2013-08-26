@@ -13,7 +13,10 @@ using namespace emilpro;
 class CurlConnectionHandler : public Server::IConnectionHandler
 {
 public:
-	CurlConnectionHandler()
+	CurlConnectionHandler() :
+		m_bodySize(0),
+		m_bodyPos(0),
+		m_data(NULL)
 	{
 		struct curl_slist *headerlist=NULL;
 		static const char buf[] = "Expect:";
