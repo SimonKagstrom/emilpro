@@ -176,4 +176,13 @@ TESTSUITE(utils)
 
 		ASSERT_TRUE(p == (void *)NULL);
 	}
+
+	TEST(strIsInteger)
+	{
+		int64_t negative;
+
+		ASSERT_TRUE(string_is_integer("0xfffffffffffffec4"));
+		negative = string_to_integer("0xfffffffffffffec4");
+		ASSERT_TRUE(negative == -316);
+	}
 }

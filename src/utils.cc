@@ -330,9 +330,13 @@ bool string_is_integer(std::string str)
 
 	try
 	{
-		stoll(str, &pos, 0);
+		stoull(str, &pos, 0);
 	}
 	catch(std::invalid_argument &e)
+	{
+		return false;
+	}
+	catch(std::out_of_range &e)
 	{
 		return false;
 	}
@@ -344,7 +348,7 @@ int64_t string_to_integer(std::string str)
 {
 	size_t pos;
 
-	return (int64_t)stoll(str, &pos, 0);
+	return (int64_t)stoull(str, &pos, 0);
 }
 
 std::string escape_string_for_c(std::string &str)
