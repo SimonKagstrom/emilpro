@@ -15,6 +15,12 @@ class CurlConnectionHandler : public Server::IConnectionHandler
 public:
 	CurlConnectionHandler()
 	{
+		struct curl_slist *headerlist=NULL;
+		static const char buf[] = "Expect:";
+
+		// Workaround proxy problems
+		headerlist = curl_slist_append(headerlist, buf);
+
 		curl_global_init(CURL_GLOBAL_ALL);
 
 		m_curl = curl_easy_init();
@@ -25,6 +31,7 @@ public:
 		curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, curlWriteFuncStatic);
 		curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, (void *)this);
 		curl_easy_setopt(m_curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+		curl_easy_setopt(m_curl, CURLOPT_HTTPHEADER, headerlist); // Proxy issues
 	}
 
 	~CurlConnectionHandler()
