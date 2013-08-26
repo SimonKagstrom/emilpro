@@ -88,10 +88,15 @@ std::string CgiServer::reply()
 			(unsigned long long)highestTimestamp
 			);
 
+	uint64_t now = get_utc_timestamp();
 	for (std::list<InstructionFactory::IInstructionModel *>::iterator it = models.begin();
 			it != models.end();
 			++it) {
 		InstructionFactory::IInstructionModel *cur = *it;
+
+		// Not newer than now, please! It's an attempt to subvert the server!
+		if (cur->getTimeStamp() > now)
+			cur->setTimeStamp(now);
 
 		out += cur->toXml();
 	}

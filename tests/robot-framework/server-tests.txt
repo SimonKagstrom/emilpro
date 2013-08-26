@@ -106,7 +106,7 @@ second-client-gets-update
     Run                            ${setup_conf} srv remote 0
     Run                            ${setup_conf} client local 3 KALLE 4
     Run                            ${setup_conf} client2 local 3
-    ${rc}=    Run and return RC    ${cgi_server} srv -q -t 3
+    ${rc}=    Run and return RC    ${cgi_server} srv -q -t 4
     Should be equal as integers    ${rc}    0
     ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv -t 4
     ${rc}=    Run and return RC    grep -rq "KALLE" client2/remote
@@ -115,5 +115,5 @@ second-client-gets-update
     ${rc}=    Run and return RC    ${remote_comm_test} client2 ${cgi_handler} srv -t 4
     Run                            echo quit > srv/to-server.fifo
     ${rc}=    Run and return RC    grep -rq "KALLE" client2/remote
-    Run                            rm -rf client client2 srv
+    #Run                            rm -rf client client2 srv
     Should be equal as integers    ${rc}    0
