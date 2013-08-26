@@ -77,6 +77,30 @@ TESTSUITE(cgi_server)
 		ASSERT_TRUE(reply.find("beqz") == std::string::npos);
 		ASSERT_TRUE(reply.find("sub") != std::string::npos);
 		ASSERT_TRUE(reply.find("addiu") != std::string::npos);
+
+
+		xml =   "  <ServerTimestamps>\n"
+				"    <InstructionModelTimestamp>5</InstructionModelTimestamp>\n"
+				"  </ServerTimestamps>\n";
+		server.request(xml);
+
+		reply = server.reply();
+		ASSERT_TRUE(reply != "");
+		ASSERT_TRUE(reply.find("beqz") == std::string::npos);
+		ASSERT_TRUE(reply.find("sub") == std::string::npos);
+		ASSERT_TRUE(reply.find("addiu") == std::string::npos);
+
+
+		xml =   "  <ServerTimestamps>\n"
+				"    <InstructionModelTimestamp>4</InstructionModelTimestamp>\n"
+				"  </ServerTimestamps>\n";
+		server.request(xml);
+
+		reply = server.reply();
+		ASSERT_TRUE(reply != "");
+		ASSERT_TRUE(reply.find("beqz") == std::string::npos);
+		ASSERT_TRUE(reply.find("sub") == std::string::npos);
+		ASSERT_TRUE(reply.find("addiu") != std::string::npos);
 	}
 
 	TEST(adjustTimestamp)
