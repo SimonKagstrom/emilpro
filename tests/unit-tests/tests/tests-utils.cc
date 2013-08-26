@@ -179,10 +179,21 @@ TESTSUITE(utils)
 
 	TEST(strIsInteger)
 	{
+		std::string neg = "0xfffffffffffffec4";
+		std::string neg2 = "-9";
+		std::string invalid = "invalid";
+		std::string tooBig = "0xfffffffffffffec4ffffffffffffffffffffff";
 		int64_t negative;
 
-		ASSERT_TRUE(string_is_integer("0xfffffffffffffec4"));
-		negative = string_to_integer("0xfffffffffffffec4");
+		ASSERT_TRUE(string_is_integer(neg));
+		negative = string_to_integer(neg);
 		ASSERT_TRUE(negative == -316);
+
+		ASSERT_TRUE(string_is_integer(neg2));
+		negative = string_to_integer(neg2);
+		ASSERT_TRUE(negative == -9);
+
+		ASSERT_FALSE(string_is_integer(invalid));
+		ASSERT_FALSE(string_is_integer(tooBig));
 	}
 }
