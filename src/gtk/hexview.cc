@@ -209,7 +209,9 @@ std::string HexView::handleData(Data* p, unsigned width, bool littleEndian, bool
 		}
 
 		for (unsigned i = 0; i < 16; i++) {
-			*p = isprint(d8[i]) ? d8[i] : '.';
+			char cur = d8[i];
+
+			*p = isascii(cur) ? cur : '.';
 			p++;
 		}
 		*p++ = '\n';
