@@ -147,6 +147,8 @@ void SymbolView::init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, H
 			&SymbolView::onEntryActivated));
 
 	Model::instance().registerSymbolListener(this);
+
+	m_symbolView->set_search_column(6);
 }
 
 void SymbolView::onCursorChanged()

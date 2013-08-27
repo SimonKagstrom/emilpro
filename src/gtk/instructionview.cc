@@ -411,6 +411,8 @@ void InstructionView::init(Glib::RefPtr<Gtk::Builder> builder, HexView* hv, Info
 
 	cr = cp->get_first_cell();
 	cp->add_attribute(cr->property_cell_background_gdk(), m_instructionColumns->m_bgColor);
+
+	m_treeView->set_search_column(1);
 }
 
 void InstructionView::update(uint64_t address, const emilpro::ISymbol& sym)
