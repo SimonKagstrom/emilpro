@@ -152,7 +152,7 @@ std::string HexView::handleData(Data* p, unsigned width, bool littleEndian, bool
 	size_t strOff = 0;
 
 	// Size for 8-bits
-	std::string out(((p->m_size + 16) / 16) * (18 + 16 * 2 + 16 + 16 + 4 + 2),
+	std::string out(((p->m_size + 16) / 16) * 100,
 			' ');
 
 	for (off = 0; off < p->m_size; off += 16) {
@@ -211,7 +211,7 @@ std::string HexView::handleData(Data* p, unsigned width, bool littleEndian, bool
 		for (unsigned i = 0; i < 16; i++) {
 			char cur = d8[i];
 
-			*p = isascii(cur) ? cur : '.';
+			*p = cur >= 0x20 && cur <= 0x7e ? cur : '.';
 			p++;
 		}
 		*p++ = '\n';
