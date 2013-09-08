@@ -37,7 +37,7 @@ public:
 
 	~HexView();
 
-	void init();
+	void init(Glib::RefPtr<Gtk::Builder> builder);
 
 	void clearData();
 
@@ -54,6 +54,12 @@ public:
 	void markRange(uint64_t address, size_t size);
 
 	Gtk::TextView &getTextView(unsigned width);
+
+	Gtk::TextView &getEncodingTextView();
+
+
+	void updateInstructionEncoding(uint64_t offset, size_t size);
+
 
 private:
 	class Data
@@ -106,24 +112,25 @@ private:
 
 	std::string handleData(Data *p, unsigned width, bool littleEndian, bool updateLineMap = false);
 
-	// Only for unit tests now
-	std::string getLine8(uint8_t *data);
-	std::string getLine16(uint16_t *data, bool littleEndian);
-	std::string getLine32(uint32_t *data, bool littleEndian);
-	std::string getLine64(uint64_t *data, bool littleEndian);
+	std::string getLine8(const uint8_t *data);
+	std::string getLine16(const uint16_t *data, bool littleEndian);
+	std::string getLine32(const uint32_t *data, bool littleEndian);
+	std::string getLine64(const uint64_t *data, bool littleEndian);
 
-	std::string getAscii(uint8_t *data);
+	std::string getAscii(const uint8_t *data);
 
 	uint16_t sw16(uint16_t v, bool doSwap);
 	uint32_t sw32(uint32_t v, bool doSwap);
 	uint64_t sw64(uint64_t v, bool doSwap);
-
 	void worker();
 
 	Gtk::TextView *m_textViews[4];
 	Glib::RefPtr<Gtk::TextBuffer> m_textBuffers[8];
 	Glib::RefPtr<Gtk::TextBuffer::Tag> m_tag;
 	Glib::RefPtr<Gtk::TextBuffer::TagTable> m_tagTable;
+
+	Gtk::TextView* m_encodingView;
+	Glib::RefPtr<Gtk::TextBuffer> m_encodingBuffer;
 
 	AddressToLineNr_t m_addressToLineMap;
 	DataMap_t m_data;

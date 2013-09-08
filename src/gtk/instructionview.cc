@@ -528,6 +528,7 @@ void InstructionView::onCursorChanged()
 	if (cur) {
 		m_hexView->markRange(cur->getAddress(), (size_t)cur->getSize());
 		m_infoBox->onInstructionSelected(*cur);
+		m_hexView->updateInstructionEncoding(cur->getAddress(), (size_t)cur->getSize());
 	}
 
 	m_sourceView->update(address);

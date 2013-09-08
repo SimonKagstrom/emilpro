@@ -42,9 +42,9 @@ public:
 		m_app = new Gtk::Main(argc, argv);
 		Gsv::init();
 
-		m_hexView.init();
-
 		m_builder = Gtk::Builder::create_from_string(glade_file);
+
+		m_hexView.init(m_builder);
 
 		NameManglerView::instance().init(m_builder);
 
@@ -77,6 +77,7 @@ public:
 		Gtk::TextView &tv16 = m_hexView.getTextView(16);
 		Gtk::TextView &tv32 = m_hexView.getTextView(32);
 		Gtk::TextView &tv64 = m_hexView.getTextView(64);
+		Gtk::TextView &tvEnc = m_hexView.getEncodingTextView();
 
 		hexView8Bit->add(tv8);
 		hexView16Bit->add(tv16);
@@ -92,6 +93,7 @@ public:
 		tv16.override_font(Pango::FontDescription(sourceFont->get_font_name()));
 		tv32.override_font(Pango::FontDescription(sourceFont->get_font_name()));
 		tv64.override_font(Pango::FontDescription(sourceFont->get_font_name()));
+		tvEnc.override_font(Pango::FontDescription(sourceFont->get_font_name()));
 
 		Gtk::ColorButton *historyColor;
 		m_builder->get_widget("history_color2", historyColor);
@@ -101,6 +103,7 @@ public:
 		tv16.show();
 		tv32.show();
 		tv64.show();
+		tvEnc.show();
 
 		Gtk::Entry *lookupEntry;
 		m_builder->get_widget("symbol_lookup_entry", lookupEntry);

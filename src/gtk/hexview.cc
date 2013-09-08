@@ -1,6 +1,7 @@
 #include <hexview.hh>
 #include <ctype.h>
 #include <utils.hh>
+#include <model.hh>
 
 HexView::HexView() :
 	m_viewIsLittleEndian(cpu_is_little_endian()),
@@ -68,13 +69,13 @@ Gtk::TextView &HexView::getTextView(unsigned width)
 	return *m_textViews[0];
 }
 
-std::string HexView::getLine8(uint8_t* d)
+std::string HexView::getLine8(const uint8_t* d)
 {
 	return fmt("%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x",
 			d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], d[10], d[11], d[12], d[13], d[14], d[15]);
 }
 
-std::string HexView::getLine16(uint16_t* d, bool littleEndian)
+std::string HexView::getLine16(const uint16_t* d, bool littleEndian)
 {
 	bool swp = !(cpu_is_little_endian() && littleEndian);
 
@@ -84,7 +85,7 @@ std::string HexView::getLine16(uint16_t* d, bool littleEndian)
 			sw16(d[6], swp), sw16(d[7], swp));
 }
 
-std::string HexView::getLine32(uint32_t* d, bool littleEndian)
+std::string HexView::getLine32(const uint32_t* d, bool littleEndian)
 {
 	bool swp = !(cpu_is_little_endian() && littleEndian);
 
@@ -92,7 +93,7 @@ std::string HexView::getLine32(uint32_t* d, bool littleEndian)
 			sw32(d[0], swp), sw32(d[1], swp), sw32(d[2], swp), sw32(d[3], swp));
 }
 
-std::string HexView::getLine64(uint64_t* d, bool littleEndian)
+std::string HexView::getLine64(const uint64_t* d, bool littleEndian)
 {
 	bool swp = !(cpu_is_little_endian() && littleEndian);
 
@@ -100,7 +101,7 @@ std::string HexView::getLine64(uint64_t* d, bool littleEndian)
 			(unsigned long long)sw64(d[0], swp), (unsigned long long)sw64(d[1], swp));
 }
 
-std::string HexView::getAscii(uint8_t* data)
+std::string HexView::getAscii(const uint8_t* data)
 {
 	char str[17];
 
@@ -111,7 +112,7 @@ std::string HexView::getAscii(uint8_t* data)
 	return std::string(str);
 }
 
-void HexView::init()
+void HexView::init(Glib::RefPtr<Gtk::Builder> builder)
 {
 	m_tagTable = Gtk::TextBuffer::TagTable::create();
 	m_tag = Gtk::TextBuffer::Tag::create();
@@ -120,6 +121,14 @@ void HexView::init()
 
 	for (unsigned i = 0; i < 4; i++)
 		m_textViews[i] = new Gtk::TextView();
+
+
+	builder->get_widget("instruction_encoding_text_view", m_encodingView);
+	panic_if(!m_encodingView,
+			"Can't get encoding view");
+
+	m_encodingBuffer = Gtk::TextBuffer::create(m_tagTable);
+	m_encodingView->set_buffer(m_encodingBuffer);
 
 	clearData();
 }
@@ -433,6 +442,50 @@ uint64_t HexView::sw64(uint64_t v, bool doSwap)
 		((uint64_t)pV[3] << 32ULL) | ((uint64_t)pV[2] << 40ULL) | ((uint64_t)pV[1] << 48ULL) | ((uint64_t)pV[0] << 56ULL);
 
 	return out;
+}
+
+void HexView::updateInstructionEncoding(uint64_t addrIn, size_t size)
+{
+	emilpro::Model &model = emilpro::Model::instance();
+	uint64_t addr = addrIn & ~15;
+
+	m_encodingBuffer->remove_all_tags(m_encodingBuffer->get_iter_at_line(0),
+			m_encodingBuffer->get_iter_at_line(m_encodingBuffer->get_line_count()));
+
+	const uint8_t *p = model.getData(addr, 16);
+	if (!p) {
+		m_encodingBuffer->set_text("No instruction");
+		return;
+	}
+
+	std::string line = fmt("0x%016llx  %s  %s", (unsigned long long)addr, getLine8(p).c_str(), getAscii(p).c_str());
+
+	HexView::LineOffsetList_t regions = getMarkRegionsLine(0, addrIn, size, 8);
+
+	m_encodingBuffer->set_text(line);
+
+	for (HexView::LineOffsetList_t::iterator it = regions.begin();
+			it != regions.end();
+			++it) {
+		HexView::LineOffset *cur = &(*it);
+
+		Gtk::TextBuffer::iterator lIt = m_encodingBuffer->get_iter_at_line(cur->m_line);
+		if (lIt == m_encodingBuffer->end())
+			continue;
+
+		Gtk::TextBuffer::iterator start = m_encodingBuffer->get_iter_at_offset(lIt.get_offset() + cur->m_offset);
+		Gtk::TextBuffer::iterator end = m_encodingBuffer->get_iter_at_offset(lIt.get_offset() + cur->m_offset + cur->m_count);
+
+		if (start == m_encodingBuffer->end())
+			continue;
+
+		m_encodingBuffer->apply_tag(m_tag, start, end);
+	}
+}
+
+Gtk::TextView& HexView::getEncodingTextView()
+{
+	return *m_encodingView;
 }
 
 void HexView::worker()
