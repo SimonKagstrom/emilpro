@@ -25,7 +25,7 @@
 
 using namespace emilpro;
 
-class EmilProGui
+class EmilProGui : public emilpro::Preferences::IListener
 {
 public:
 	EmilProGui() :
@@ -124,6 +124,9 @@ public:
 		m_sourceView.init(m_builder);
 		m_instructionView.init(m_builder, &m_hexView, &m_infoBox, &m_sourceView, &m_symbolView, &m_addressHistory);
 		m_symbolView.init(m_builder, &m_instructionView, &m_hexView);
+
+		m_builder->get_widget("main_window", m_window);
+		Preferences::instance().registerListener("MainWindowSize", this);
 	}
 
 	void run(int argc, char *argv[])
@@ -141,10 +144,10 @@ public:
 			refresh();
 		}
 
-		Gtk::Window * mainWindow = NULL;
-		m_builder->get_widget("main_window", mainWindow);
+		m_app->run(*m_window);
 
-		m_app->run(*mainWindow);
+		// Save preferences on quit
+		updatePreferences();
 	}
 
 protected:
@@ -225,6 +228,36 @@ private:
 
 	}
 
+	void onPreferencesChanged(const std::string &key,
+			const std::string &oldValue, const std::string &newValue)
+	{
+		if (key != "MainWindowSize")
+			return;
+
+		size_t comma = newValue.find(",");
+		// Malformed, fix it
+		if (comma == std::string::npos) {
+			updatePreferences();
+			return;
+		}
+
+		std::string w = newValue.substr(0, comma);
+		std::string h = newValue.substr(comma + 1, newValue.size());
+
+		if (!string_is_integer(w) || !string_is_integer(h)) {
+			updatePreferences();
+			return;
+		}
+
+		m_window->resize(string_to_integer(w), string_to_integer(h));
+	}
+
+	void updatePreferences()
+	{
+		Preferences::instance().setValue("MainWindowSize",
+				fmt("%d,%d", m_window->get_width(), m_window->get_height()));
+	}
+
 
 	typedef Gtk::TreeModel::Children TreeModelChildren_t;
 	typedef std::list<Gtk::TreeModel::iterator> InstructionIterList_t;
@@ -244,6 +277,7 @@ private:
 	SourceView m_sourceView;
 	AddressHistory m_addressHistory;
 	Gtk::Notebook *m_instructionsDataNotebook;
+	Gtk::Window *m_window;
 };
 
 int main(int argc, char **argv)
