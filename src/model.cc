@@ -38,7 +38,6 @@ private:
 
 
 Model::Model() :
-		m_memory(NULL),
 		m_parsingComplete(false),
 		m_quit(false)
 {
@@ -75,6 +74,14 @@ Model::~Model()
 		IInstruction *p = it->second;
 
 		delete p;
+	}
+
+	for (DataMap_t::iterator it = m_data.begin();
+			it != m_data.end();
+			++it) {
+		DataChunk *cur = it->second;
+
+		delete cur;
 	}
 }
 
@@ -432,6 +439,11 @@ void Model::onSymbol(ISymbol &sym)
 	bool locked;
 
 	locked = m_mutex.try_lock();
+	if (sym.getType() == ISymbol::SYM_SECTION) {
+		m_data[sym.getAddress()] = new DataChunk(sym.getAddress(),
+						0, sym.getSize(), (uint8_t *)sym.getDataPtr());
+	}
+
 	m_symbolsByAddress[sym.getAddress()].push_back(&sym);
 	m_orderedSymbols[sym.getAddress()].push_back(&sym);
 	if (locked)
@@ -578,4 +590,27 @@ Model &Model::instance()
 		g_instance = new Model();
 
 	return *g_instance;
+}
+
+const uint8_t* Model::getData(uint64_t start, size_t size)
+{
+	DataMap_t::iterator it = m_data.lower_bound(start);
+
+	if (it == m_data.end())
+		return NULL;
+
+	if (it == m_data.begin())
+		return NULL;
+
+	--it;
+
+	DataChunk *cur = it->second;
+
+	if (cur->m_address > start)
+		return NULL;
+
+	if (start - cur->m_address + size > cur->m_size)
+		return NULL;
+
+	return cur->m_data + (start - cur->m_address);
 }

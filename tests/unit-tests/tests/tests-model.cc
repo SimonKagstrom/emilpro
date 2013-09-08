@@ -477,4 +477,48 @@ TESTSUITE(model)
 		l = model.getSymbolExact(0);
 		ASSERT_TRUE(l.empty());
 	}
+
+	TEST(dataContents, ModelSymbolFixture)
+	{
+		EmilPro::init();
+
+		Model &model = Model::instance();
+		size_t sz;
+		bool res;
+		void *data;
+
+		data = read_file(&sz, "%s/test-binary", crpcut::get_start_dir());
+		res = model.addData(data, sz);
+		ASSERT_TRUE(res == true);
+
+		model.registerSymbolListener(this);
+
+		// Parse and wait
+		model.parseAll();
+		while (!model.parsingComplete())
+			;
+
+		std::string dataName = "global_data";
+		ISymbol *dataSym = m_symbolsByName[dataName];
+		ASSERT_TRUE(dataSym);
+		uint64_t addr = dataSym->getAddress();
+		uint64_t size = dataSym->getSize();
+		ASSERT_TRUE(addr != 0U);
+		ASSERT_TRUE(size == sizeof(uint32_t));
+
+		const uint8_t *p = model.getData(addr, size);
+		ASSERT_TRUE(p);
+		const uint32_t *asInt = (const uint32_t *)p;
+
+		ASSERT_TRUE(*asInt == 5U);
+
+		// Out-of-bounds
+		p = model.getData(addr, size + 10 * 1024 * 1024);
+		ASSERT_FALSE(p);
+
+		p = model.getData(0, 4);
+		ASSERT_FALSE(p);
+
+		EmilPro::destroy();
+	}
 }
