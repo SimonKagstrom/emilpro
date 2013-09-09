@@ -106,7 +106,7 @@ std::string HexView::getAscii(const uint8_t* data)
 	char str[17];
 
 	for (unsigned i = 0; i < 16; i++)
-		str[i] = isprint(data[i]) ? data[i] : '.';
+		str[i] = data[i] >= 0x20 && data[i] <= 0x7e ? data[i] : '.';
 	str[16] = '\0';
 
 	return std::string(str);
