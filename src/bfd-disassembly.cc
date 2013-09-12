@@ -82,6 +82,9 @@ public:
 			m_instructionVector.clear();
 			count = m_disassembler(pc, &m_info);
 
+			if (count < 0)
+				break;
+
 			IInstruction *insn = factory.create(m_startAddress, pc, m_instructionVector,
 					m_instructionStr, (uint8_t *)p + pc, count);
 
