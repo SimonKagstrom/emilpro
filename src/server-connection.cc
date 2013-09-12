@@ -27,7 +27,6 @@ public:
 		curl_global_init(CURL_GLOBAL_ALL);
 
 		m_curl = curl_easy_init();
-		curl_easy_setopt(m_curl, CURLOPT_VERBOSE, 1);
 
 		// Setup curl to read from memory
 		curl_easy_setopt(m_curl, CURLOPT_URL, Configuration::instance().getServerUrl().c_str());
@@ -81,7 +80,6 @@ public:
 
 		curl_formfree(formpost);
 
-		printf("Sent %s\n\nReturned %d, %s\n", xml.c_str(), res, m_writtenData.c_str());
 		if (res != CURLE_OK)
 			return "";
 
