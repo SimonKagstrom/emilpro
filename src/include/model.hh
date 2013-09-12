@@ -139,6 +139,8 @@ namespace emilpro
 		CrossReferenceList_t m_emptyReferenceList;
 		SymbolListeners_t m_symbolListeners;
 
+		SymbolList_t m_pendingListenerSymbols;
+
 		std::thread **m_threads;
 		SymbolList_t *m_workQueues;
 		bool m_parsingComplete;

@@ -248,13 +248,7 @@ void Model::addDerivedSymbol(uint64_t address, int64_t size, void *data)
 			data, address, size, true, false, true);
 
 	onSymbol(sym);
-	for (SymbolListeners_t::iterator it = m_symbolListeners.begin();
-			it != m_symbolListeners.end();
-			++it) {
-		ISymbolListener *curListener = *it;
-
-		curListener->onSymbol(sym);
-	}
+	m_pendingListenerSymbols.push_back(&sym);
 }
 
 void Model::worker(unsigned queueNr)
@@ -281,6 +275,20 @@ void Model::worker(unsigned queueNr)
 	}
 	m_parsingComplete = parsingComplete;
 	m_mutex.unlock();
+
+	for (SymbolList_t::iterator it = m_pendingListenerSymbols.begin();
+			parsingComplete && it != m_pendingListenerSymbols.end();
+			++it) {
+		ISymbol &sym = **it;
+
+		for (SymbolListeners_t::iterator lIt = m_symbolListeners.begin();
+				lIt != m_symbolListeners.end();
+				++lIt) {
+			ISymbolListener *curListener = *lIt;
+
+			curListener->onSymbol(sym);
+		}
+	}
 }
 
 bool Model::parsingComplete()
@@ -340,6 +348,7 @@ void Model::parseAll()
 		return;
 	}
 
+	m_pendingListenerSymbols.clear();
 	for (SymbolList_t::iterator it = m_symbols.begin();
 			it != m_symbols.end();
 			++it, ++curCore) {
