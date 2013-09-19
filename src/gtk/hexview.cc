@@ -452,7 +452,7 @@ void HexView::updateInstructionEncoding(uint64_t addrIn, size_t size)
 	m_encodingBuffer->remove_all_tags(m_encodingBuffer->get_iter_at_line(0),
 			m_encodingBuffer->get_iter_at_line(m_encodingBuffer->get_line_count()));
 
-	const uint8_t *p = model.getData(addr, 16);
+	const uint8_t *p = model.getData(addr, 16, NULL, NULL);
 	if (!p) {
 		m_encodingBuffer->set_text("No instruction");
 		return;

@@ -48,7 +48,8 @@ namespace emilpro
 		/**
 		 * Return pointer to memory (instructions or data). Should not be free:d.
 		 */
-		const uint8_t *getData(uint64_t start, size_t size);
+		const uint8_t *getData(uint64_t start, size_t size,
+				uint64_t *returnedAddr, size_t *returnedSize);
 
 		const InstructionList_t getInstructions(uint64_t start, uint64_t end);
 

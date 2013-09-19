@@ -604,7 +604,8 @@ Model &Model::instance()
 	return *g_instance;
 }
 
-const uint8_t* Model::getData(uint64_t start, size_t size)
+const uint8_t* Model::getData(uint64_t start, size_t size,
+		uint64_t *returnedAddr, size_t *returnedSize)
 {
 	DataMap_t::iterator it = m_data.lower_bound(start);
 
