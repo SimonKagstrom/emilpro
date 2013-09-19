@@ -608,10 +608,8 @@ const uint8_t* Model::getData(uint64_t start, size_t size)
 	if (it == m_data.end())
 		return NULL;
 
-	if (it == m_data.begin())
-		return NULL;
-
-	--it;
+	if (it != m_data.begin())
+		--it;
 
 	DataChunk *cur = it->second;
 
