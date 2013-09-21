@@ -610,7 +610,7 @@ const uint8_t* Model::getData(uint64_t start, size_t size,
 	DataMap_t::iterator it = m_data.lower_bound(start);
 
 	if (it == m_data.end())
-		return NULL;
+		--it;
 
 	if (it != m_data.begin())
 		--it;
@@ -622,6 +622,11 @@ const uint8_t* Model::getData(uint64_t start, size_t size,
 
 	if (start - cur->m_address + size > cur->m_size)
 		return NULL;
+
+	if (returnedAddr)
+		*returnedAddr = start;
+	if (returnedSize)
+		*returnedSize = size;
 
 	return cur->m_data + (start - cur->m_address);
 }
