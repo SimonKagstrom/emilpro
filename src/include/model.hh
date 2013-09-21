@@ -17,6 +17,7 @@ namespace model
 	class disassembleInstructions;
 	class sourceLines;
 	class workerThreads;
+	class getSurroundingData;
 }
 
 namespace emilpro
@@ -37,6 +38,7 @@ namespace emilpro
 		friend class model::disassembleInstructions;
 		friend class model::sourceLines;
 		friend class model::workerThreads;
+		friend class model::getSurroundingData;
 
 		typedef std::list<IBasicBlock *> BasicBlockList_t;
 		typedef std::list<ISymbol *> SymbolList_t;
@@ -50,6 +52,13 @@ namespace emilpro
 		 */
 		const uint8_t *getData(uint64_t start, size_t size,
 				uint64_t *returnedAddr, size_t *returnedSize);
+
+		/**
+		 * Return [addr - size / 2, addr + size / 2], or whatever
+		 * chunk is possible to return.
+		 */
+		const uint8_t *getSurroundingData(uint64_t address, size_t size,
+				uint64_t *returnedStart, uint64_t *returnedEnd);
 
 		const InstructionList_t getInstructions(uint64_t start, uint64_t end);
 

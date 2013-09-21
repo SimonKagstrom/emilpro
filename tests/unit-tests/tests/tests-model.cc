@@ -521,4 +521,81 @@ TESTSUITE(model)
 
 		EmilPro::destroy();
 	}
+
+	TEST(getSurroundingData)
+	{
+		EmilPro::init();
+
+		Model &model = Model::instance();
+
+		uint8_t d1[8192];
+		uint8_t d2[8192];
+
+		uint64_t base = 0x10000;
+
+		memset(d1, 'A', sizeof(d1));
+		memset(d2, 'B', sizeof(d2));
+
+		ISymbol &s1 = SymbolFactory::instance().createSymbol(ISymbol::LINK_NORMAL,
+				ISymbol::SYM_SECTION,
+				"D1\n",
+				(void *)d1,
+				base,
+				sizeof(d1),
+				true,
+				false,
+				true);
+
+		// Create with a gap between
+		ISymbol &s2 = SymbolFactory::instance().createSymbol(ISymbol::LINK_NORMAL,
+				ISymbol::SYM_SECTION,
+				"D2\n",
+				(void *)d2,
+				base + sizeof(d1) + 1024,
+				sizeof(d2),
+				true,
+				false,
+				true);
+
+		// Add to the model
+		model.onSymbol(s1);
+		model.onSymbol(s2);
+
+		const uint8_t *p;
+		uint64_t addr = 0;
+		uint64_t end = 0;
+
+		p = model.getSurroundingData(base, 4096, &addr, &end);
+		ASSERT_TRUE(p);
+		ASSERT_TRUE(addr == base);
+		ASSERT_TRUE(end == base + 2048U);
+
+		p = model.getSurroundingData(base + 1024, 4096, &addr, &end);
+		ASSERT_TRUE(p);
+		ASSERT_TRUE(addr == base);
+		ASSERT_TRUE(end == base + 1024U + 2048U);
+
+		p = model.getSurroundingData(base + 8192 - 1024, 4096, &addr, &end);
+		ASSERT_TRUE(p);
+		ASSERT_TRUE(addr == base + 8192U - 4096U + 1024U);
+		ASSERT_TRUE(end == base + 8192U);
+
+		// Second area
+		p = model.getSurroundingData(base + 8192 + 2048, 4096, &addr, &end);
+		ASSERT_TRUE(p);
+		ASSERT_TRUE(addr == base + 8192U + 1024U);
+		ASSERT_TRUE(end == base + 8192U + 1024U + 2048U + 1024U);
+
+		// Before
+		p = model.getSurroundingData(0, 4096, &addr, &end);
+		ASSERT_FALSE(p);
+		// Above
+		p = model.getSurroundingData(base + 8192 + 1024 + 8192 + 10, 4096, &addr, &end);
+		ASSERT_FALSE(p);
+		// Between
+		p = model.getSurroundingData(base + 8192 + 10, 4096, &addr, &end);
+		ASSERT_FALSE(p);
+
+		EmilPro::destroy();
+	}
 }

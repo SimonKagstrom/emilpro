@@ -630,3 +630,34 @@ const uint8_t* Model::getData(uint64_t start, size_t size,
 
 	return cur->m_data + (start - cur->m_address);
 }
+
+const uint8_t* Model::getSurroundingData(uint64_t address, size_t size,
+		uint64_t* returnedStart, uint64_t* returnedEnd)
+{
+	DataMap_t::iterator it = m_data.lower_bound(address);
+
+	if (it != m_data.begin())
+		--it;
+
+	DataChunk *cur = it->second;
+	uint64_t start = address - size / 2;
+	uint64_t end = address + size / 2;
+
+	if (address > cur->m_address + cur->m_size)
+		return NULL;
+
+	if (end < cur->m_address)
+		return NULL;
+
+	if (start < cur->m_address)
+		start = cur->m_address;
+	if (end >= cur->m_address + cur->m_size)
+		end = cur->m_address + cur->m_size;
+
+	if (returnedStart)
+		*returnedStart = start;
+	if (returnedEnd)
+		*returnedEnd = end;
+
+	return cur->m_data + (start - cur->m_address);
+}
