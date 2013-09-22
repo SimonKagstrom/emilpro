@@ -9,6 +9,22 @@
 
 TESTSUITE(hexview)
 {
+	class UpdateFinder : public HexView
+	{
+	public:
+		UpdateFinder()
+		{
+			m_updated = false;
+		}
+
+		void updateData(uint64_t address)
+		{
+			m_updated = true;
+		}
+
+		bool m_updated;
+	};
+
 	class MarkFixture
 	{
 	public:
@@ -248,5 +264,41 @@ TESTSUITE(hexview)
 		s = verify("000000000000000000  0000 0000 0000 0000 0000 0000 0000 00XX          ...............x\n"
 				   "000000000000000010  XXXX 0000 0000 0000 0000 0000 0000 0000          xx..............\n", 16);
 		ASSERT_TRUE(s == "");
+	}
+
+	TEST(maybeUpdateData)
+	{
+		UpdateFinder hv;
+
+		hv.m_data = HexView::Data(0x1000, NULL, 1024);
+
+		hv.m_updated = false;
+		hv.maybeUpdateData(0x1200);
+		ASSERT_FALSE(hv.m_updated);
+		hv.m_updated = false;
+		hv.maybeUpdateData(0x1100);
+		ASSERT_FALSE(hv.m_updated);
+		hv.m_updated = false;
+		hv.maybeUpdateData(0x1300);
+		ASSERT_FALSE(hv.m_updated);
+
+		hv.m_updated = false;
+		hv.maybeUpdateData(0x1301);
+		ASSERT_TRUE(hv.m_updated);
+		hv.m_updated = false;
+		hv.maybeUpdateData(0x10ff);
+		ASSERT_TRUE(hv.m_updated);
+		hv.m_updated = false;
+		hv.maybeUpdateData(0x0fff);
+		ASSERT_TRUE(hv.m_updated);
+		hv.m_updated = false;
+		hv.maybeUpdateData(0x1401);
+		ASSERT_TRUE(hv.m_updated);
+
+
+		hv.m_updated = false;
+		hv.m_data.m_valid = false;
+		hv.maybeUpdateData(0x1200);
+		ASSERT_TRUE(hv.m_updated);
 	}
 }

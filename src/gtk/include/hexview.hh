@@ -19,6 +19,7 @@ namespace hexview
 	class mark;
 	class markSelfTest;
 	class MarkFixture;
+	class maybeUpdateData;
 }
 
 class HexView
@@ -32,6 +33,7 @@ public:
 	friend class hexview::mark;
 	friend class hexview::markSelfTest;
 	friend class hexview::MarkFixture;
+	friend class hexview::maybeUpdateData;
 
 	HexView();
 
@@ -56,6 +58,9 @@ public:
 
 	void updateInstructionEncoding(uint64_t offset, size_t size);
 
+protected:
+	// Just for the unit test, ignore this otherwise
+	virtual void updateData(uint64_t address);
 
 private:
 	class Data
@@ -100,8 +105,6 @@ private:
 	typedef std::list<LineOffset> LineOffsetList_t;
 
 	void maybeUpdateData(uint64_t address);
-
-	void updateData(uint64_t address);
 
 	void markRangeInBuffer(uint64_t address, size_t size, Glib::RefPtr<Gtk::TextBuffer> buffer, unsigned viewIdx);
 
