@@ -33,7 +33,7 @@ void HexView::clearData()
 	m_data.clear();
 }
 
-void HexView::addData(void* data, uint64_t baseAddress, size_t size)
+void HexView::setData(void* data, uint64_t baseAddress, size_t size)
 {
 	m_data[baseAddress] = Data(baseAddress, data, size);
 }

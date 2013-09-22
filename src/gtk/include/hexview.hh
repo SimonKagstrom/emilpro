@@ -41,7 +41,7 @@ public:
 
 	void clearData();
 
-	void addData(void *data, uint64_t baseAddress, size_t size);
+	void setData(void *data, uint64_t baseAddress, size_t size);
 
 	void update();
 
