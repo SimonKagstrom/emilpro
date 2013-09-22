@@ -4,23 +4,14 @@
 #include <model.hh>
 
 HexView::HexView() :
+	m_encodingView(NULL),
 	m_viewIsLittleEndian(cpu_is_little_endian()),
-	m_lineNr(0),
-	m_thread(NULL),
-	m_quit(false),
-	m_workerFinished(false)
+	m_lineNr(0)
 {
 }
 
 HexView::~HexView()
 {
-	m_quit = true;
-
-	if (m_thread) {
-		m_thread->join();
-
-		delete m_thread;
-	}
 }
 
 void HexView::clearData()
@@ -30,23 +21,7 @@ void HexView::clearData()
 	for (unsigned i = 0; i < 4; i++)
 		m_textViews[i]->set_buffer(m_textBuffers[i]);
 
-	m_data.clear();
-}
-
-void HexView::setData(void* data, uint64_t baseAddress, size_t size)
-{
-	m_data[baseAddress] = Data(baseAddress, data, size);
-}
-
-void HexView::update()
-{
-	if (m_thread) {
-		m_thread->join();
-
-		delete m_thread;
-	}
-
-	m_thread = new std::thread(&HexView::worker, this);
+	m_data.m_valid = false;
 }
 
 Gtk::TextView &HexView::getTextView(unsigned width)
@@ -165,12 +140,9 @@ std::string HexView::handleData(Data* p, unsigned width, bool littleEndian, bool
 			' ');
 
 	for (off = 0; off < p->m_size; off += 16) {
-		uint8_t *curLine = p->m_p + off;
+		const uint8_t *curLine = p->m_p + off;
 		size_t left = p->m_size - off;
 		uint64_t curAddress = p->m_base + off;
-
-		if (m_quit)
-			break;
 
 		// Skip incomplete lines. Fix this in the future...
 		if (left < 16)
@@ -185,7 +157,7 @@ std::string HexView::handleData(Data* p, unsigned width, bool littleEndian, bool
 		bool swp = !(cpu_is_little_endian() && littleEndian);
 		char dst[256];
 		char *p = dst;
-		uint8_t *d8 = curLine;
+		const uint8_t *d8 = curLine;
 		uint16_t *d16 = (uint16_t *)curLine;
 		uint32_t *d32 = (uint32_t *)curLine;
 		uint64_t *d64 = (uint64_t *)curLine;
@@ -237,25 +209,7 @@ std::string HexView::handleData(Data* p, unsigned width, bool littleEndian, bool
 
 std::string HexView::handleAllData(unsigned width, bool littleEndian, bool updateLineMap)
 {
-	unsigned n = 0;
-	std::string out;
-
-	for (DataMap_t::iterator it = m_data.begin();
-			it != m_data.end();
-			++it, ++n) {
-		Data *cur = &it->second;
-
-		if (m_quit)
-			break;
-
-		out = out + handleData(cur, width, littleEndian, updateLineMap);
-		if (n < m_data.size() - 1) {
-			out = out + "...\n";
-			m_lineNr++;
-		}
-	}
-
-	return out;
+	return handleData(&m_data, width, littleEndian, updateLineMap);
 }
 
 void HexView::setViewLittleEndian(bool littleEndian)
@@ -276,7 +230,9 @@ bool HexView::getViewLittleEndian()
 
 void HexView::markRange(uint64_t address, size_t size)
 {
-	if (!m_workerFinished)
+	maybeUpdateData(address);
+
+	if (!m_data.m_valid)
 		return;
 
 	AddressToLineNr_t::iterator aIt = m_addressToLineMap.find(address & ~15);
@@ -488,7 +444,40 @@ Gtk::TextView& HexView::getEncodingTextView()
 	return *m_encodingView;
 }
 
-void HexView::worker()
+void HexView::updateData(uint64_t address)
+{
+	emilpro::Model &model = emilpro::Model::instance();
+
+	m_data.m_valid = false;
+
+	uint64_t start, end;
+	const uint8_t *p = model.getSurroundingData(address, 4096, &start, &end);
+
+	if (!p)
+		return;
+
+	m_data = Data(start, p, end - start);
+
+	computeBuffers();
+}
+
+void HexView::maybeUpdateData(uint64_t address)
+{
+	if (!m_data.m_valid) {
+		updateData(address);
+
+		return;
+	}
+
+	int64_t diffStart = address - m_data.m_base;
+	int64_t diffEnd = address - (m_data.m_base + m_data.m_size);
+
+	if (diffStart < 256 ||
+			diffEnd > -256)
+		updateData(address);
+}
+
+void HexView::computeBuffers()
 {
 	m_lineNr = 0;
 
@@ -515,11 +504,6 @@ void HexView::worker()
 	std::string s64BE = handleAllData(64, false);
 	m_textBuffers[7]->set_text(s64BE);
 
-	if (m_quit)
-		return;
-
 	// Setup the view
 	setViewLittleEndian(m_viewIsLittleEndian);
-
-	m_workerFinished = true;
 }

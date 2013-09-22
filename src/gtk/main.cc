@@ -158,8 +158,6 @@ protected:
 
 		m_hexView.clearData();
 		m_symbolView.refreshSymbols();
-
-		m_hexView.update();
 	}
 
 	void onFileOpen()

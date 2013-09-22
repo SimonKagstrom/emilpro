@@ -371,10 +371,6 @@ void SymbolView::onSymbol(ISymbol& sym)
 	if (sym.getType() == ISymbol::SYM_FILE)
 		return;
 
-	if (sym.getType() == ISymbol::SYM_SECTION
-			&& sym.getSize() > 0)
-		m_hexView->setData(sym.getDataPtr(), sym.getAddress(), sym.getSize());
-
 	Gtk::ListStore::iterator rowIt = m_symbolListStore->append();
 	Gtk::TreeRow row = *rowIt;
 

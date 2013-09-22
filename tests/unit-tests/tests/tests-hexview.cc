@@ -187,7 +187,8 @@ TESTSUITE(hexview)
 	{
 		HexView h;
 
-		h.setData((void *)data, 0x1000, sizeof(data));
+		// Setup data
+		h.m_data = HexView::Data(0x1000, data, sizeof(data));
 
 		std::string s8LE = h.handleAllData(8, true, true);
 		std::string s8BE = h.handleAllData(8, false, false);

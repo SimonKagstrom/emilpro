@@ -41,10 +41,6 @@ public:
 
 	void clearData();
 
-	void setData(void *data, uint64_t baseAddress, size_t size);
-
-	void update();
-
 	void setMarkColor(Gdk::Color color);
 
 	void setViewLittleEndian(bool littleEndian);
@@ -66,18 +62,19 @@ private:
 	{
 	public:
 		Data() :
-			m_base(0), m_p(0), m_size(0)
+			m_base(0), m_p(0), m_size(0), m_valid(false)
 		{
 		}
 
-		Data(uint64_t base, void *ptr, size_t size) :
-			m_base(base), m_p((uint8_t *)ptr), m_size(size)
+		Data(uint64_t base, const uint8_t *ptr, size_t size) :
+			m_base(base), m_p(ptr), m_size(size), m_valid(true)
 		{
 		}
 
 		uint64_t m_base;
-		uint8_t *m_p;
+		const uint8_t *m_p;
 		size_t m_size;
+		bool m_valid;
 	};
 
 	class LineOffset
@@ -102,6 +99,10 @@ private:
 	typedef std::map<uint64_t, Data> DataMap_t;
 	typedef std::list<LineOffset> LineOffsetList_t;
 
+	void maybeUpdateData(uint64_t address);
+
+	void updateData(uint64_t address);
+
 	void markRangeInBuffer(uint64_t address, size_t size, Glib::RefPtr<Gtk::TextBuffer> buffer, unsigned viewIdx);
 
 	LineOffsetList_t getMarkRegions(uint64_t address, size_t size, unsigned width);
@@ -122,7 +123,7 @@ private:
 	uint16_t sw16(uint16_t v, bool doSwap);
 	uint32_t sw32(uint32_t v, bool doSwap);
 	uint64_t sw64(uint64_t v, bool doSwap);
-	void worker();
+	void computeBuffers();
 
 	Gtk::TextView *m_textViews[4];
 	Glib::RefPtr<Gtk::TextBuffer> m_textBuffers[8];
@@ -133,12 +134,8 @@ private:
 	Glib::RefPtr<Gtk::TextBuffer> m_encodingBuffer;
 
 	AddressToLineNr_t m_addressToLineMap;
-	DataMap_t m_data;
+	Data m_data;
 
 	bool m_viewIsLittleEndian;
 	unsigned m_lineNr;
-
-	std::thread *m_thread;
-	bool m_quit;
-	bool m_workerFinished;
 };
