@@ -274,13 +274,17 @@ void Model::worker(unsigned queueNr)
 			parsingComplete = false;
 	}
 	m_parsingComplete = parsingComplete;
+	SymbolList_t cpy;
+
+	if (parsingComplete)
+		cpy = m_pendingListenerSymbols;
 	m_mutex.unlock();
 
 	if (!parsingComplete)
 		return;
 
-	for (SymbolList_t::iterator it = m_pendingListenerSymbols.begin();
-			it != m_pendingListenerSymbols.end();
+	for (SymbolList_t::iterator it = cpy.begin();
+			it != cpy.end();
 			++it) {
 		ISymbol &sym = **it;
 
