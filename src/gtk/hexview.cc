@@ -463,6 +463,9 @@ void HexView::updateData(uint64_t address)
 
 void HexView::maybeUpdateData(uint64_t address)
 {
+	// Even out address to 16 bytes
+	address = address & ~15;
+
 	if (!m_data.m_valid) {
 		updateData(address);
 
