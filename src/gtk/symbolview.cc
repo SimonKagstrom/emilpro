@@ -353,8 +353,8 @@ void SymbolView::onEntryActivated()
 {
 	std::string text = m_lookupEntry->get_text();
 
-	if (string_is_integer(text)) {
-		uint64_t address = string_to_integer(text);
+	if (string_is_integer(text, 16)) {
+		uint64_t address = string_to_integer(text, 16);
 
 		update(address);
 	} else {
