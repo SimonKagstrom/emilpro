@@ -324,13 +324,13 @@ std::string get_home_directory()
 	return home;
 }
 
-bool string_is_integer(std::string str)
+bool string_is_integer(std::string str, unsigned base)
 {
 	size_t pos;
 
 	try
 	{
-		stoull(str, &pos, 0);
+		stoull(str, &pos, base);
 	}
 	catch(std::invalid_argument &e)
 	{
@@ -344,11 +344,11 @@ bool string_is_integer(std::string str)
 	return pos == str.size();
 }
 
-int64_t string_to_integer(std::string str)
+int64_t string_to_integer(std::string str, unsigned base)
 {
 	size_t pos;
 
-	return (int64_t)stoull(str, &pos, 0);
+	return (int64_t)stoull(str, &pos, base);
 }
 
 std::string escape_string_for_c(std::string &str)
