@@ -6,6 +6,7 @@
 #include <stdarg.h>
 
 #include <string>
+#include <list>
 
 #define error(x...) do \
 { \
@@ -126,3 +127,4 @@ void mock_write_file(int (*callback)(const void *data, size_t size, const char *
 
 void mock_utc_timestamp(uint64_t ts);
 
+std::list<std::string> split_string(const std::string &s, const char *delims);

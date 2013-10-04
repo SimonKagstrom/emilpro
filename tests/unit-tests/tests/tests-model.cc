@@ -598,4 +598,80 @@ TESTSUITE(model)
 
 		EmilPro::destroy();
 	}
+
+	TEST(lookupAddresses)
+	{
+		EmilPro::init();
+
+		Model &model = Model::instance();
+		uint64_t base = 0xa000;
+
+		ISymbol &s1 = SymbolFactory::instance().createSymbol(ISymbol::LINK_NORMAL,
+				ISymbol::SYM_SECTION,
+				"kalle",
+				NULL,
+				base,
+				0x1000,
+				true,
+				false,
+				true);
+
+		// Create with a gap between
+		ISymbol &s2 = SymbolFactory::instance().createSymbol(ISymbol::LINK_NORMAL,
+				ISymbol::SYM_SECTION,
+				"svenne",
+				NULL,
+				base + 0x2000,
+				0x1000,
+				true,
+				false,
+				true);
+
+
+		ISymbol &s3 = SymbolFactory::instance().createSymbol(ISymbol::LINK_NORMAL,
+				ISymbol::SYM_SECTION,
+				"konny",
+				NULL,
+				base + 0x3000,
+				0x1000,
+				true,
+				false,
+				true);
+
+		// Add to the model
+		model.onSymbol(s1);
+		model.onSymbol(s2);
+		model.onSymbol(s3);
+
+		Model::AddressList_t lst;
+
+		lst = model.lookupAddressesByText("0x0");
+		ASSERT_TRUE(lst.empty());
+		lst = model.lookupAddressesByText("0xa000u"); // Will look like a name
+		ASSERT_TRUE(lst.empty());
+		lst = model.lookupAddressesByText("0xa000");
+		ASSERT_TRUE(lst.size() == 1U);
+		ASSERT_TRUE(lst.front() == 0xa000ULL);
+
+		lst = model.lookupAddressesByText("0xa040 0xc030");
+		ASSERT_TRUE(lst.size() == 2U);
+		ASSERT_TRUE(lst.front() == 0xa040ULL);
+		ASSERT_TRUE(lst.back() == 0xc030ULL);
+
+		lst = model.lookupAddressesByText("kalle");
+		ASSERT_TRUE(lst.size() == 1u);
+		ASSERT_TRUE(lst.front() == 0xa000u);
+
+		lst = model.lookupAddressesByText("kalle svenne+30");
+		ASSERT_TRUE(lst.size() == 2u);
+		ASSERT_TRUE(lst.front() == 0xa000u);
+		ASSERT_TRUE(lst.back() == 0xc030u);
+
+		lst = model.lookupAddressesByText("konny+0x24/96 konny+0xpalle");
+		ASSERT_TRUE(lst.size() == 2u);
+		ASSERT_TRUE(lst.front() == 0xd024u);
+		ASSERT_TRUE(lst.back() == 0xd000u);
+
+		EmilPro::destroy();
+	}
 }

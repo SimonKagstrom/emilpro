@@ -71,10 +71,11 @@ SymbolView::~SymbolView()
 	delete m_referenceColumns;
 }
 
-void SymbolView::init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, HexView *hv)
+void SymbolView::init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, HexView *hv, emilpro::AddressHistory *ah)
 {
 	m_instructionView = iv;
 	m_hexView = hv;
+	m_addressHistory = ah;
 
 	m_symbolColumns = new SymbolModelColumns();
 	m_referenceColumns = new ReferenceModelColumns();
@@ -353,12 +354,13 @@ void SymbolView::onEntryActivated()
 {
 	std::string text = m_lookupEntry->get_text();
 
-	if (string_is_integer(text, 16)) {
-		uint64_t address = string_to_integer(text, 16);
+	m_addressHistory->clear();
+	Model::AddressList_t lst = Model::instance().lookupAddressesByText(text);
 
-		update(address);
-	} else {
-		printf("Find by name, not yet implemented\n");
+	for (Model::AddressList_t::iterator it = lst.begin();
+			it != lst.end();
+			++it) {
+		update(*it);
 	}
 }
 

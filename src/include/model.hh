@@ -18,6 +18,7 @@ namespace model
 	class sourceLines;
 	class workerThreads;
 	class getSurroundingData;
+	class lookupAddresses;
 }
 
 namespace emilpro
@@ -39,7 +40,9 @@ namespace emilpro
 		friend class model::sourceLines;
 		friend class model::workerThreads;
 		friend class model::getSurroundingData;
+		friend class model::lookupAddresses;
 
+		typedef std::list<uint64_t> AddressList_t;
 		typedef std::list<IBasicBlock *> BasicBlockList_t;
 		typedef std::list<ISymbol *> SymbolList_t;
 		typedef std::list<uint64_t> CrossReferenceList_t;
@@ -67,6 +70,8 @@ namespace emilpro
 		const SymbolList_t &getSymbols();
 
 		void registerSymbolListener(ISymbolListener *listener);
+
+		const AddressList_t lookupAddressesByText(const std::string &str);
 
 		const SymbolList_t getSymbolExact(uint64_t address);
 
@@ -106,6 +111,7 @@ namespace emilpro
 
 		typedef std::map<uint64_t, SymbolList_t> SymbolOrderedMap_t;
 		typedef std::unordered_map<uint64_t, SymbolList_t> SymbolMap_t;
+		typedef std::map<std::string, SymbolList_t> SymbolsByNameMap_t;
 		typedef std::unordered_map<uint64_t, ILineProvider::FileLine> AddressFileLineMap_t;
 		typedef std::list<ISymbol *> SymbolQueue_t;
 		typedef std::list<ISymbolListener *> SymbolListeners_t;
@@ -126,11 +132,17 @@ namespace emilpro
 
 		const ILineProvider::FileLine getLineByAddressLocked(uint64_t addr);
 
+		const SymbolList_t getSymbolsByName(const std::string &name);
+
 		const SymbolList_t &getSymbolsLocked();
 
 		const SymbolList_t getSymbolExactLocked(uint64_t address);
 
 		const SymbolList_t getNearestSymbolLocked(uint64_t address);
+
+		uint64_t lookupOneSymbol(const std::string &str);
+
+		uint64_t lookupOneSymbolByName(const std::string &name);
 
 		void worker(unsigned queueNr);
 
@@ -142,6 +154,7 @@ namespace emilpro
 		InstructionMap_t m_instructionCache;
 		SymbolOrderedMap_t m_orderedSymbols;
 		SymbolMap_t m_symbolsByAddress;
+		SymbolsByNameMap_t m_symbolsByName;
 		SymbolList_t m_symbols;
 		AddressFileLineMap_t m_fileLineCache;
 		DataMap_t m_data;

@@ -3,6 +3,7 @@
 #include <isymbol.hh>
 #include <namemanglerview.hh>
 #include <symbolfactory.hh>
+#include <addresshistory.hh>
 
 #include <gtkmm.h>
 #include <unordered_map>
@@ -20,7 +21,7 @@ public:
 
 	~SymbolView();
 
-	void init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, HexView *hv);
+	void init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, HexView *hv, emilpro::AddressHistory *ah);
 
 	void update(uint64_t address);
 
@@ -59,6 +60,7 @@ private:
 	Gtk::Entry *m_lookupEntry;
 	InstructionView *m_instructionView;
 	HexView *m_hexView;
+	emilpro::AddressHistory *m_addressHistory;
 
 	std::mutex m_mutex;
 };

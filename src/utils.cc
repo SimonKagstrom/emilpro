@@ -11,6 +11,8 @@
 
 #include "utils.hh"
 
+#include <sstream>
+
 static void* (*mocked_read_callback)(size_t* out_size, const char* path);
 static int (*mocked_write_callback)(const void* data, size_t size, const char* path);
 
@@ -428,4 +430,27 @@ void mock_read_file(void* (*callback)(size_t* out_size, const char* path))
 void mock_write_file(int (*callback)(const void* data, size_t size, const char* path))
 {
 	mocked_write_callback = callback;
+}
+
+// http://stackoverflow.com/questions/236129/how-to-split-a-string-in-c
+static std::list<std::string> &split(const std::string &s, char delim,
+		std::list<std::string> &elems)
+{
+    std::stringstream ss(s);
+    std::string item;
+
+    while (std::getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+
+    return elems;
+}
+
+
+std::list<std::string> split_string(const std::string &s, const char *delims)
+{
+    std::list<std::string> elems;
+    split(s, *delims, elems);
+
+    return elems;
 }

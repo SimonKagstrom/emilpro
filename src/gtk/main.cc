@@ -123,7 +123,7 @@ public:
 		m_infoBox.init(m_builder);
 		m_sourceView.init(m_builder);
 		m_instructionView.init(m_builder, &m_hexView, &m_infoBox, &m_sourceView, &m_symbolView, &m_addressHistory);
-		m_symbolView.init(m_builder, &m_instructionView, &m_hexView);
+		m_symbolView.init(m_builder, &m_instructionView, &m_hexView, &m_addressHistory);
 
 		m_builder->get_widget("main_window", m_window);
 		Preferences::instance().registerListener("MainWindowSize", this);

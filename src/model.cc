@@ -462,6 +462,7 @@ void Model::onSymbol(ISymbol &sym)
 
 	m_symbolsByAddress[sym.getAddress()].push_back(&sym);
 	m_orderedSymbols[sym.getAddress()].push_back(&sym);
+	m_symbolsByName[sym.getName()].push_back(&sym);
 	if (locked)
 		m_mutex.unlock();
 }
@@ -551,6 +552,21 @@ const Model::SymbolList_t Model::getNearestSymbol(uint64_t address)
 {
 	m_mutex.lock();
 	const Model::SymbolList_t out = getNearestSymbolLocked(address);
+	m_mutex.unlock();
+
+	return out;
+}
+
+const Model::SymbolList_t Model::getSymbolsByName(const std::string& name)
+{
+	Model::SymbolList_t out;
+
+	m_mutex.lock();
+	Model::SymbolsByNameMap_t::iterator it = m_symbolsByName.find(name);
+
+	if (it != m_symbolsByName.end())
+		out = it->second;
+
 	m_mutex.unlock();
 
 	return out;
@@ -664,4 +680,89 @@ const uint8_t* Model::getSurroundingData(uint64_t address, size_t size,
 		*returnedEnd = end;
 
 	return cur->m_data + (start - cur->m_address);
+}
+
+const Model::AddressList_t Model::lookupAddressesByText(const std::string& str)
+{
+	AddressList_t out;
+
+	std::list<std::string> parts = split_string(str, " ,\t");
+
+	for (std::list<std::string>::iterator it = parts.begin();
+			it != parts.end();
+			++it) {
+		uint64_t addr = lookupOneSymbol(*it);
+
+		if (addr != IInstruction::INVALID_ADDRESS)
+			out.push_back(addr);
+	}
+
+	return out;
+}
+
+uint64_t Model::lookupOneSymbolByName(const std::string& str)
+{
+	uint64_t out = IInstruction::INVALID_ADDRESS;
+
+	// By name, split out Linux addresses
+	std::list<std::string> nameOffset = split_string(str, "+");
+
+	panic_if(nameOffset.empty(),
+			"String splitting is broken");
+
+	uint64_t offset = 0;
+	std::string &name = nameOffset.front();
+
+	if (nameOffset.size() == 2U)
+	{
+		std::list<std::string> offsetSize = split_string(nameOffset.back(), "/");
+
+		panic_if(offsetSize.empty(),
+				"String splitting is broken");
+		if (string_is_integer(offsetSize.front(), 16))
+			offset = string_to_integer(offsetSize.front(), 16);
+	}
+
+	const SymbolList_t lst = getSymbolsByName(name);
+
+	ISymbol *p = lst.empty() ? NULL : lst.front();
+
+	for (SymbolList_t::const_iterator it = lst.begin();
+			it != lst.end();
+			++it) {
+		ISymbol *cur = *it;
+
+		if (offset >= cur->getSize())
+			continue;
+
+		if ( (cur->getType() == ISymbol::SYM_TEXT ||
+				cur->getType() == ISymbol::SYM_DATA))
+			p = cur;
+	}
+
+	if (p) {
+		if (offset < p->getSize())
+			out = p->getAddress() + offset;
+	}
+
+	return out;
+}
+
+
+uint64_t Model::lookupOneSymbol(const std::string& str)
+{
+	uint64_t out = IInstruction::INVALID_ADDRESS;
+
+	if (string_is_integer(str, 16)) {
+		uint64_t address = string_to_integer(str, 16);
+
+		const SymbolList_t lst = getNearestSymbolLocked(address);
+
+		if (!lst.empty())
+			return address;
+	} else {
+		out = lookupOneSymbolByName(str);
+	}
+
+	return out;
 }
