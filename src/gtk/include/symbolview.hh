@@ -48,6 +48,7 @@ private:
 
 	typedef std::unordered_map<uint64_t, Gtk::ListStore::iterator> SymbolRowIterByAddressMap_t;
 
+	Glib::RefPtr<Gtk::ListStore> m_addressHistoryListStore;
 	Glib::RefPtr<Gtk::ListStore> m_symbolListStore;
 	SymbolRowIterByAddressMap_t m_symbolRowIterByAddress;
 	Glib::RefPtr<Gtk::ListStore> m_referencesListStore;

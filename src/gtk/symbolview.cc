@@ -119,6 +119,9 @@ void SymbolView::init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, H
 		cp->add_attribute(cr->property_cell_background_gdk(), m_symbolColumns->m_bgColor);
 	}
 
+	Glib::RefPtr<Glib::Object> obj = builder->get_object("address_history_liststore");
+	m_addressHistoryListStore = Glib::RefPtr<Gtk::ListStore>::cast_static(obj);
+
 	builder->get_widget("references_view", m_referencesView);
 	panic_if(!m_referencesView,
 			"Can't get reference view");
@@ -355,6 +358,7 @@ void SymbolView::onEntryActivated()
 	std::string text = m_lookupEntry->get_text();
 
 	m_addressHistory->clear();
+	m_addressHistoryListStore->clear();
 	Model::AddressList_t lst = Model::instance().lookupAddressesByText(text);
 
 	for (Model::AddressList_t::iterator it = lst.begin();

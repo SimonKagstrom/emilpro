@@ -49,6 +49,19 @@ public:
 	Gtk::TreeModelColumn<IInstruction *> m_rawInstruction;
 };
 
+class AddressHistoryColumns : public Gtk::TreeModelColumnRecord
+{
+public:
+	AddressHistoryColumns()
+	{
+		add(m_address);
+		add(m_symbol);
+	}
+
+	Gtk::TreeModelColumn<Glib::ustring> m_address;
+	Gtk::TreeModelColumn<Glib::ustring> m_symbol;
+};
+
 
 class JumpLaneCellRenderer : public Gtk::CellRenderer
 {
@@ -324,6 +337,8 @@ InstructionView::InstructionView() :
 		m_lastInstructionStoreSize(m_nLanes),
 		m_instructionColumns(NULL),
 		m_treeView(NULL),
+		m_addressHistoryColumns(NULL),
+		m_addressHistoryTreeView(NULL),
 		m_hexView(NULL),
 		m_infoBox(NULL),
 		m_sourceView(NULL),
@@ -339,6 +354,9 @@ InstructionView::~InstructionView()
 	delete m_forwardBranches;
 	if (m_instructionColumns)
 		delete m_instructionColumns;
+
+	if (m_addressHistoryColumns)
+		delete m_addressHistoryColumns;
 }
 
 
@@ -371,8 +389,8 @@ void InstructionView::init(Glib::RefPtr<Gtk::Builder> builder, HexView* hv, Info
 
 	builder->get_widget("instruction_view", m_treeView);
 	panic_if(!m_treeView,
-			"Can't get instruction view");
-
+			"Can't get view");
+	m_addressHistoryColumns = new AddressHistoryColumns();
 
 	Gtk::FontButton *instructionFont;
 	builder->get_widget("instruction_font", instructionFont);
@@ -382,6 +400,17 @@ void InstructionView::init(Glib::RefPtr<Gtk::Builder> builder, HexView* hv, Info
 	m_treeView->override_font(Pango::FontDescription(instructionFont->get_font_name()));
 	m_treeView->set_model(m_instructionListStore);
 	m_treeView->append_column("Address", m_instructionColumns->m_address);
+
+	Glib::RefPtr<Glib::Object> obj = builder->get_object("address_history_liststore");
+	m_addressHistoryListStore = Glib::RefPtr<Gtk::ListStore>::cast_static(obj);
+	builder->get_widget("address_history_treeview", m_addressHistoryTreeView);
+	panic_if(!m_addressHistoryTreeView,
+			"Can't get view");
+
+	m_addressHistoryTreeView->append_column("Address", m_addressHistoryColumns->m_address);
+	m_addressHistoryTreeView->append_column("Symbol", m_addressHistoryColumns->m_symbol);
+	m_addressHistoryTreeView->set_model(m_addressHistoryListStore);
+	m_addressHistoryTreeView->override_font(Pango::FontDescription(instructionFont->get_font_name()));
 
 	m_forwardRenderer = new JumpLaneCellRenderer(m_instructionColumns, m_nLanes, false);
 	m_backwardRenderer = new JumpLaneCellRenderer(m_instructionColumns, m_nLanes, true);
@@ -476,7 +505,7 @@ void InstructionView::update(uint64_t address, const emilpro::ISymbol& sym)
 	}
 
 	if (!m_historyDisabled)
-		m_addressHistory->maybeAddEntry(address);
+		addAddressHistoryEntry(address);
 	m_treeView->set_cursor(m_instructionListStore->get_path(newCursor));
 }
 
@@ -577,11 +606,44 @@ void InstructionView::onRowActivated(const Gtk::TreeModel::Path& path, Gtk::Tree
 			continue;
 
 		if (!m_historyDisabled)
-			m_addressHistory->maybeAddEntry(cur->getAddress());
+			addAddressHistoryEntry(cur->getAddress());
 		// FIXME!
 		if (target >= sym->getAddress() && target < sym->getAddress() + sym->getSize())
 			printf("Jump within function\n");
 		else
 			m_symbolView->update(target);
 	}
+}
+
+void InstructionView::addAddressHistoryEntry(uint64_t address)
+{
+	Model &model = Model::instance();
+	bool res = m_addressHistory->maybeAddEntry(address);
+
+	if (!res)
+		return;
+
+	const Model::SymbolList_t syms = model.getNearestSymbol(address);
+
+	const ISymbol *p = NULL;
+	for (Model::SymbolList_t::const_iterator sIt = syms.begin();
+			sIt != syms.end();
+			++sIt) {
+		const ISymbol *sym = *sIt;
+
+		if (sym->getType() != ISymbol::SYM_TEXT)
+			continue;
+		p = sym;
+	}
+
+	std::string symName = "";
+
+	if (p)
+		symName = p->getName();
+
+	Gtk::ListStore::iterator rowIt = m_addressHistoryListStore->append();
+	Gtk::TreeRow row = *rowIt;
+
+	row[m_addressHistoryColumns->m_address] = fmt("0x%0llx", (long long)address).c_str();
+	row[m_addressHistoryColumns->m_symbol] = symName;
 }

@@ -11,6 +11,7 @@ class InfoBox;
 class SourceView;
 class SymbolView;
 class InstructionModelColumns;
+class AddressHistoryColumns;
 class JumpLaneCellRenderer;
 
 class InstructionView
@@ -35,6 +36,8 @@ private:
 
 	void onRowActivated(const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn* column);
 
+	void addAddressHistoryEntry(uint64_t address);
+
 	unsigned m_nLanes;
 	unsigned m_fontHeight;
 
@@ -44,6 +47,10 @@ private:
 	Glib::RefPtr<Gtk::ListStore> m_instructionListStore;
 	InstructionModelColumns *m_instructionColumns;
 	Gtk::TreeView *m_treeView;
+
+	Glib::RefPtr<Gtk::ListStore> m_addressHistoryListStore;
+	AddressHistoryColumns *m_addressHistoryColumns;
+	Gtk::TreeView *m_addressHistoryTreeView;
 
 	HexView *m_hexView;
 	InfoBox *m_infoBox;
