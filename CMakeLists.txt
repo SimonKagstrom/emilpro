@@ -49,10 +49,6 @@ add_custom_command (OUTPUT emilpro_glade.hh
   DEPENDS ${CMAKE_SOURCE_DIR}/src/gtk/emilpro.glade file-to-source
 )
 
-add_custom_target(emilpro_glade ALL
-	DEPENDS emilpro_glade.hh
-)
-
 
 add_custom_command (OUTPUT built_in_instruction_models.hh
   COMMAND ${CMAKE_BINARY_DIR}/file-to-source ${CMAKE_BINARY_DIR}/built_in_instruction_models.hh built_in_instruction_models_xml
