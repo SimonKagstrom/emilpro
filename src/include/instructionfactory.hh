@@ -39,6 +39,8 @@ namespace emilpro
 			}
 
 			virtual std::string getMnemonic(std::vector<std::string> encodingVector) = 0;
+
+			virtual const std::vector<std::string> mangleEncodingVector(std::vector<std::string> encodingVector) = 0;
 		};
 
 		class IInstructionModel
@@ -107,7 +109,7 @@ namespace emilpro
 
 		static InstructionFactory &instance();
 
-		IInstruction *create(uint64_t startAddress, uint64_t pc, std::vector<std::string> encodingVector,
+		IInstruction *create(uint64_t startAddress, uint64_t pc, std::vector<std::string> &encodingVector,
 				std::string &encoding, uint8_t *data, size_t size);
 
 		virtual void onArchitectureDetected(ArchitectureFactory::Architecture_t arch);
