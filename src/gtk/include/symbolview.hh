@@ -7,6 +7,7 @@
 
 #include <gtkmm.h>
 #include <unordered_map>
+#include <string>
 #include <mutex>
 
 class InstructionView;
@@ -23,7 +24,7 @@ public:
 
 	void init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, HexView *hv, emilpro::AddressHistory *ah);
 
-	void update(uint64_t address);
+	void update(uint64_t address, const std::string &name = "");
 
 	void refreshSymbols();
 
@@ -47,10 +48,12 @@ private:
 	void onManglingChanged();
 
 	typedef std::unordered_map<uint64_t, Gtk::ListStore::iterator> SymbolRowIterByAddressMap_t;
+	typedef std::unordered_map<std::string, Gtk::ListStore::iterator> SymbolRowIterByNameMap_t;
 
 	Glib::RefPtr<Gtk::ListStore> m_addressHistoryListStore;
 	Glib::RefPtr<Gtk::ListStore> m_symbolListStore;
 	SymbolRowIterByAddressMap_t m_symbolRowIterByAddress;
+	SymbolRowIterByNameMap_t m_symbolRowIterByName;
 	Glib::RefPtr<Gtk::ListStore> m_referencesListStore;
 	SymbolModelColumns *m_symbolColumns;
 	ReferenceModelColumns *m_referenceColumns;

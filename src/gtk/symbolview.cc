@@ -208,6 +208,7 @@ void SymbolView::onRowActivated(const Gtk::TreeModel::Path& path,
 		Gtk::TreeViewColumn* column)
 {
 	uint64_t address;
+	Glib::ustring name;
 
 	// Update takes the lock as well
 	{
@@ -220,9 +221,10 @@ void SymbolView::onRowActivated(const Gtk::TreeModel::Path& path,
 
 		Gtk::TreeModel::Row row = *iter;
 		address = row[m_symbolColumns->m_rawAddress];
+		name = row[m_symbolColumns->m_name];
 	}
 
-	update(address);
+	update(address, name);
 }
 
 void SymbolView::onReferenceRowActivated(const Gtk::TreeModel::Path& path,
@@ -261,13 +263,14 @@ void SymbolView::refreshSymbols()
 	m_mutex.lock();
 	m_symbolListStore->clear();
 	m_symbolRowIterByAddress.clear();
+	m_symbolRowIterByName.clear();
 	m_mutex.unlock();
 
 	// The onSymbol callback will handle this
 	Model::instance().parseAll();
 }
 
-void SymbolView::update(uint64_t address)
+void SymbolView::update(uint64_t address, const std::string &name)
 {
 	Gtk::TreeModel::Path path;
 
@@ -335,6 +338,15 @@ void SymbolView::update(uint64_t address)
 
 			if (cur->getSize() > largest->getSize())
 				largest = cur;
+
+			// Prioritize the selected name
+			if (cur->getName() == name) {
+				Gtk::ListStore::iterator rowIt = m_symbolRowIterByName[name];
+				path = m_symbolListStore->get_path(rowIt);
+
+				largest = cur;
+				break;
+			}
 		}
 
 		if (largest->isExecutable())
@@ -381,6 +393,7 @@ void SymbolView::onSymbol(ISymbol& sym)
 	Gtk::TreeRow row = *rowIt;
 
 	m_symbolRowIterByAddress[sym.getAddress()] = rowIt;
+	m_symbolRowIterByName[sym.getName()] = rowIt;
 
 	std::string name = mv.mangle(sym.getName());
 	const char *r = "R";
