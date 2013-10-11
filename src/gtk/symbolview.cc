@@ -342,7 +342,11 @@ void SymbolView::update(uint64_t address, const std::string &name)
 			// Prioritize the selected name
 			if (cur->getName() == name) {
 				Gtk::ListStore::iterator rowIt = m_symbolRowIterByName[name];
-				path = m_symbolListStore->get_path(rowIt);
+				Gtk::TreeRow row = *rowIt;
+
+				// ... but only if it has the same address
+				if (row[m_symbolColumns->m_rawAddress] == cur->getAddress())
+					path = m_symbolListStore->get_path(rowIt);
 
 				largest = cur;
 				break;
