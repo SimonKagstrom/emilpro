@@ -707,8 +707,9 @@ uint64_t Model::lookupOneSymbolByName(const std::string& str)
 	// By name, split out Linux addresses
 	std::list<std::string> nameOffset = split_string(str, "+");
 
-	panic_if(nameOffset.empty(),
-			"String splitting is broken");
+	// spaces gives this
+	if (nameOffset.empty())
+		return out;
 
 	uint64_t offset = 0;
 	std::string &name = nameOffset.front();
