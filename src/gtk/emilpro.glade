@@ -5,6 +5,41 @@
   <object class="GtkAction" id="action1"/>
   <object class="GtkAction" id="action2"/>
   <object class="GtkAction" id="action3"/>
+  <object class="GtkAboutDialog" id="about_dialog">
+    <property name="can_focus">False</property>
+    <property name="border_width">5</property>
+    <property name="type_hint">dialog</property>
+    <property name="program_name">EmilPRO</property>
+    <property name="version">1 - "Raketost"</property>
+    <property name="comments" translatable="yes">This application needs your help! Visit the webpage for more info and tasks to do!</property>
+    <property name="website">http://www.emilpro.com</property>
+    <property name="website_label" translatable="yes">emilpro.com</property>
+    <property name="license" translatable="yes">GPL</property>
+    <property name="authors">Simon Kågström</property>
+    <property name="license_type">gpl-2-0</property>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="aboutdialog-vbox1">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="aboutdialog-action_area1">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+  </object>
   <object class="GtkListStore" id="address_history_liststore">
     <columns>
       <!-- column-name address -->
@@ -12,6 +47,49 @@
       <!-- column-name symbol_name -->
       <column type="gchararray"/>
     </columns>
+  </object>
+  <object class="GtkListStore" id="edit_instruction_privileged_liststore">
+    <columns>
+      <!-- column-name privileged_columns -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">No</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Yes</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Unknown</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="edit_instruction_type_liststore">
+    <columns>
+      <!-- column-name type -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Unknown</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Control flow</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Call</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Data handling</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Arithmetic/logic</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Other</col>
+      </row>
+    </data>
   </object>
   <object class="GtkDialog" id="edit_instruction_dialog">
     <property name="can_focus">False</property>
@@ -185,49 +263,6 @@
       <action-widget response="0">instruction_dialog_cancel_button</action-widget>
       <action-widget response="0">instruction_dialog_ok_button</action-widget>
     </action-widgets>
-  </object>
-  <object class="GtkListStore" id="edit_instruction_privileged_liststore">
-    <columns>
-      <!-- column-name privileged_columns -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">No</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Yes</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Unknown</col>
-      </row>
-    </data>
-  </object>
-  <object class="GtkListStore" id="edit_instruction_type_liststore">
-    <columns>
-      <!-- column-name type -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">Unknown</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Control flow</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Call</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Data handling</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Arithmetic/logic</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Other</col>
-      </row>
-    </data>
   </object>
   <object class="GtkFileChooserDialog" id="file_chooser">
     <property name="can_focus">False</property>
@@ -531,7 +566,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkImageMenuItem" id="imagemenuitem10">
+                      <object class="GtkImageMenuItem" id="menu_help_about">
                         <property name="label">gtk-about</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>

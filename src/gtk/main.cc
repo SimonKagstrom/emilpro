@@ -119,6 +119,13 @@ public:
 		m_builder->get_widget("view_toggle_instructions_data", viewToggleInstructionsDataItem);
 		viewToggleInstructionsDataItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onToggleInstructionsData));
 
+		m_builder->get_widget("about_dialog", m_aboutDialog);
+		panic_if(!m_aboutDialog,
+				"No about dialog");
+
+		Gtk::MenuItem *helpAboutMenuItem;
+		m_builder->get_widget("menu_help_about", helpAboutMenuItem);
+		helpAboutMenuItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::showAbout));
 
 		m_infoBox.init(m_builder);
 		m_sourceView.init(m_builder);
@@ -220,10 +227,16 @@ private:
 		m_addressHistory.clear();
 	}
 
+	void showAbout()
+	{
+		m_aboutDialog->run();
+
+		m_aboutDialog->hide();
+	}
+
 	void onToggleInstructionsData()
 	{
 		m_instructionsDataNotebook->set_current_page(!m_instructionsDataNotebook->get_current_page());
-
 	}
 
 	void onPreferencesChanged(const std::string &key,
@@ -276,6 +289,7 @@ private:
 	AddressHistory m_addressHistory;
 	Gtk::Notebook *m_instructionsDataNotebook;
 	Gtk::Window *m_window;
+	Gtk::AboutDialog *m_aboutDialog;
 };
 
 int main(int argc, char **argv)
