@@ -161,6 +161,8 @@ protected:
 
 	void refresh()
 	{
+		Model::instance().registerSymbolListener(&m_symbolView);
+
 		Model::instance().parseAll();
 
 		m_hexView.clearData();
@@ -189,10 +191,8 @@ protected:
 		if (!data)
 			return; // FIXME! Do something
 
-		Model::instance().destroy();
-		SymbolFactory::instance().destroy();
-		IDisassembly::instance().destroy();
-		ArchitectureFactory::instance().destroy();
+		EmilPro::destroy();
+		EmilPro::init();
 
 		if (!Model::instance().addData(data, sz))
 			return;

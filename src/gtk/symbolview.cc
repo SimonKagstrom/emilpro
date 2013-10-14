@@ -150,8 +150,6 @@ void SymbolView::init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, H
 	m_lookupEntry->signal_activate().connect(sigc::mem_fun(*this,
 			&SymbolView::onEntryActivated));
 
-	Model::instance().registerSymbolListener(this);
-
 	m_symbolView->set_search_column(6);
 }
 
