@@ -111,6 +111,18 @@ TESTSUITE(symbol_provider)
 		ASSERT_TRUE(sym->getSize() == sz);
 
 		checkSymbols();
+
+		bool found = false;
+		for (std::unordered_map<std::string, ISymbol *>::iterator it = m_symbolNames.begin();
+				it != m_symbolNames.end();
+				++it) {
+			std::string name = it->first;
+
+			if (name.find("start_main@plt") != std::string::npos)
+				found = true;
+		}
+
+		ASSERT_TRUE(found);
 	}
 
 	TEST(valid32bitElf, ExecFixture)

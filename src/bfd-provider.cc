@@ -91,8 +91,9 @@ public:
 	BfdProvider() :
 		m_bfd(NULL),
 		m_listener(NULL),
-		m_symcount(0),
-		m_bfdSyms(NULL)
+		m_bfdSyms(NULL),
+		m_dynamicBfdSyms(NULL),
+		m_syntheticBfdSyms(NULL)
 	{
 	}
 
@@ -108,9 +109,30 @@ public:
 
 		if (m_bfd) {
 			free (m_bfdSyms);
+			free (m_dynamicBfdSyms);
+			free (m_syntheticBfdSyms);
 			bfd_close(m_bfd);
 			m_bfd = NULL;
 		}
+	}
+
+	bool lookupLine(ILineProvider::FileLine *lp, asection *section, asymbol **symTbl, uint64_t addr)
+	{
+		const char *fileName;
+		const char *function;
+		unsigned int lineNr;
+
+		if (bfd_find_nearest_line(m_bfd, section, symTbl, addr - section->vma,
+				&fileName, &function, &lineNr)) {
+			if (!fileName)
+				return false;
+
+			lp->m_file = fileName;
+			lp->m_lineNr = lineNr;
+			lp->m_isValid = true;
+		}
+
+		return lp->m_isValid;
 	}
 
 	// From ILineProvider
@@ -127,19 +149,11 @@ public:
 		if (!section)
 			return out;
 
-		const char *fileName;
-		const char *function;
-		unsigned int lineNr;
+		if (lookupLine(&out, section, m_bfdSyms, addr))
+			return out;
 
-		if (bfd_find_nearest_line(m_bfd, section, m_bfdSyms, addr - section->vma,
-				&fileName, &function, &lineNr)) {
-			if (!fileName)
-				return out;
-
-			out.m_file = fileName;
-			out.m_lineNr = lineNr;
-			out.m_isValid = true;
-		}
+		if (lookupLine(&out, section, m_dynamicBfdSyms, addr))
+			return out;
 
 		return out;
 	}
@@ -158,6 +172,8 @@ public:
 
 		if (m_bfd) {
 			free (m_bfdSyms);
+			free (m_dynamicBfdSyms);
+			free (m_syntheticBfdSyms);
 			bfd_close(m_bfd);
 			m_bfd = NULL;
 		}
@@ -195,13 +211,28 @@ public:
 
 		m_listener = listener;
 
-		m_symcount = bfd_read_minisymbols(m_bfd, FALSE,
-				(void **)&m_bfdSyms, &sz);
-		if (m_symcount == 0)
-			m_symcount = bfd_read_minisymbols(m_bfd, TRUE /* dynamic */,
-					(void **)&m_bfdSyms, &sz);
+		long symcount, dynsymcount, syntsymcount;
 
-		handleSymbols(m_symcount, m_bfdSyms);
+		symcount = bfd_read_minisymbols(m_bfd, FALSE,
+				(void **)&m_bfdSyms, &sz);
+
+		handleSymbols(symcount, m_bfdSyms);
+
+		dynsymcount = bfd_read_minisymbols(m_bfd, TRUE /* dynamic */,
+				(void **)&m_dynamicBfdSyms, &sz);
+		handleSymbols(dynsymcount, m_bfdSyms);
+
+		asymbol *syntheticSyms;
+		syntsymcount = bfd_get_synthetic_symtab (m_bfd, symcount, m_bfdSyms,
+				dynsymcount, m_dynamicBfdSyms, &syntheticSyms);
+
+		if (syntheticSyms) {
+			m_syntheticBfdSyms = (asymbol **)malloc(syntsymcount * sizeof(asymbol *));
+			for (unsigned i = 0; i < syntsymcount; i++)
+				m_syntheticBfdSyms[i] = &syntheticSyms[i];
+			handleSymbols(syntsymcount, m_syntheticBfdSyms);
+		}
+
 
 		// Add the file symbol
 		ISymbol &sym = SymbolFactory::instance().createSymbol(
@@ -291,6 +322,12 @@ private:
 			uint64_t symAddr;
 			uint64_t size;
 			uint8_t *section;
+
+			if (!cur)
+				continue;
+
+			symName = bfd_asymbol_name(cur);
+			symAddr = bfd_asymbol_value(cur);
 
 			// An interesting symbol?
 			if (cur->flags & (BSF_DEBUGGING | BSF_DEBUGGING_RELOC | BSF_FILE | BSF_RELC | BSF_WARNING | BSF_SRELC))
@@ -430,8 +467,9 @@ private:
 
 	struct bfd *m_bfd;
 	ISymbolListener *m_listener;
-	long m_symcount;
 	asymbol **m_bfdSyms;
+	asymbol **m_dynamicBfdSyms;
+	asymbol **m_syntheticBfdSyms;
 
 
 	BfdSectionContents_t m_sectionContents;
