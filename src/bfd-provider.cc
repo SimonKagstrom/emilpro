@@ -93,7 +93,8 @@ public:
 		m_listener(NULL),
 		m_bfdSyms(NULL),
 		m_dynamicBfdSyms(NULL),
-		m_syntheticBfdSyms(NULL)
+		m_syntheticBfdSyms(NULL),
+		m_rawSyntheticBfdSyms(NULL)
 	{
 	}
 
@@ -111,6 +112,7 @@ public:
 			free (m_bfdSyms);
 			free (m_dynamicBfdSyms);
 			free (m_syntheticBfdSyms);
+			free (m_rawSyntheticBfdSyms);
 			bfd_close(m_bfd);
 			m_bfd = NULL;
 		}
@@ -227,12 +229,54 @@ public:
 				dynsymcount, m_dynamicBfdSyms, &syntheticSyms);
 
 		if (syntheticSyms) {
+			m_rawSyntheticBfdSyms = syntheticSyms;
 			m_syntheticBfdSyms = (asymbol **)malloc(syntsymcount * sizeof(asymbol *));
 			for (unsigned i = 0; i < syntsymcount; i++)
 				m_syntheticBfdSyms[i] = &syntheticSyms[i];
 			handleSymbols(syntsymcount, m_syntheticBfdSyms);
 		}
 
+
+		// Provide section symbols
+		asection *section;
+		for (section = m_bfd->sections; section != NULL; section = section->next) {
+			m_sectionByAddress[(uint64_t)bfd_section_vma(m_bfd, section)] = section;
+
+			// Skip non-allocated sections
+			if ((section->flags & SEC_ALLOC) == 0)
+				continue;
+
+			BfdSectionContents_t::iterator it = m_sectionContents.find(section);
+			if (it == m_sectionContents.end()) {
+				bfd_size_type size;
+				bfd_byte *p;
+
+				size = bfd_section_size (m_bfd, section);
+				p = (bfd_byte *) xmalloc (size);
+
+				if (! bfd_get_section_contents (m_bfd, section, p, 0, size)) {
+					free((void *)p);
+					continue;
+				}
+
+				m_sectionContents[section] = p;
+				it = m_sectionContents.find(section);
+			}
+
+			ISymbol &sym = SymbolFactory::instance().createSymbol(
+					ISymbol::LINK_NORMAL,
+					ISymbol::SYM_SECTION,
+					bfd_section_name(m_bfd, section),
+					it->second,
+					(uint64_t)bfd_section_vma(m_bfd, section),
+					(uint64_t)bfd_section_size(m_bfd, section),
+					section->flags & SEC_ALLOC,
+					!(section->flags & SEC_READONLY),
+					section->flags & SEC_CODE
+					);
+
+			m_listener->onSymbol(sym);
+		}
 
 		// Add the file symbol
 		ISymbol &sym = SymbolFactory::instance().createSymbol(
@@ -408,47 +452,6 @@ private:
 			}
 		}
 
-		// Provide section symbols
-		asection *section;
-		for (section = m_bfd->sections; section != NULL; section = section->next) {
-			m_sectionByAddress[(uint64_t)bfd_section_vma(m_bfd, section)] = section;
-
-			// Skip non-allocated sections
-			if ((section->flags & SEC_ALLOC) == 0)
-				continue;
-
-			BfdSectionContents_t::iterator it = m_sectionContents.find(section);
-			if (it == m_sectionContents.end()) {
-				bfd_size_type size;
-				bfd_byte *p;
-
-				size = bfd_section_size (m_bfd, section);
-				p = (bfd_byte *) xmalloc (size);
-
-				if (! bfd_get_section_contents (m_bfd, section, p, 0, size)) {
-					free((void *)p);
-					continue;
-				}
-
-				m_sectionContents[section] = p;
-				it = m_sectionContents.find(section);
-			}
-
-			ISymbol &sym = SymbolFactory::instance().createSymbol(
-					ISymbol::LINK_NORMAL,
-					ISymbol::SYM_SECTION,
-					bfd_section_name(m_bfd, section),
-					it->second,
-					(uint64_t)bfd_section_vma(m_bfd, section),
-					(uint64_t)bfd_section_size(m_bfd, section),
-					section->flags & SEC_ALLOC,
-					!(section->flags & SEC_READONLY),
-					section->flags & SEC_CODE
-					);
-
-			m_listener->onSymbol(sym);
-		}
-
 		for (SymbolsByAddress_t::iterator it = symbolsByAddress.begin();
 				it != symbolsByAddress.end();
 				++it) {
@@ -470,6 +473,7 @@ private:
 	asymbol **m_bfdSyms;
 	asymbol **m_dynamicBfdSyms;
 	asymbol **m_syntheticBfdSyms;
+	asymbol *m_rawSyntheticBfdSyms;
 
 
 	BfdSectionContents_t m_sectionContents;
