@@ -220,7 +220,7 @@ public:
 
 		dynsymcount = bfd_read_minisymbols(m_bfd, TRUE /* dynamic */,
 				(void **)&m_dynamicBfdSyms, &sz);
-		handleSymbols(dynsymcount, m_bfdSyms);
+		handleSymbols(dynsymcount, m_dynamicBfdSyms);
 
 		asymbol *syntheticSyms;
 		syntsymcount = bfd_get_synthetic_symtab (m_bfd, symcount, m_bfdSyms,
