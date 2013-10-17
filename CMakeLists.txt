@@ -5,13 +5,13 @@ cmake_minimum_required (VERSION 2.6)
 # ====================================
 project (emilpro)
 
-
 set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
                         ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Dependencies
+include (${CMAKE_CURRENT_SOURCE_DIR}/cmake/BuildBinutils.cmake)
+
 find_package (LibElf REQUIRED)
-find_package (LibBfd REQUIRED)
 find_package (PkgConfig REQUIRED)
 
 set (PROJECT_VERSION_MAJOR  1)
@@ -102,7 +102,7 @@ include_directories(
 	src/include/
 	${CMAKE_BINARY_DIR}
 	${LIBELF_INCLUDE_DIRS}
-	${LIBBFD_INCLUDE_DIRS}
+	${CMAKE_BINARY_DIR}/install-binutils/include/
 	${GTKMM_INCLUDE_DIRS}
 	${GTKSOURCEVIEWMM_INCLUDE_DIRS}
 	${LIBXMLPP_INCLUDE_DIRS}
@@ -134,44 +134,44 @@ add_executable (server/cgi-handler
 	src/utils.cc
 	tools/cgi-handler.cc
 	)
-	
-target_link_libraries(emilpro
+
+set_property(TARGET emilpro APPEND PROPERTY OBJECT_DEPENDS binutils)
+set_property(TARGET tools/squash-instruction-models APPEND PROPERTY OBJECT_DEPENDS binutils)
+set_property(TARGET tools/test-remote-communication APPEND PROPERTY OBJECT_DEPENDS binutils)
+set_property(TARGET server/cgi-server APPEND PROPERTY OBJECT_DEPENDS binutils)
+
+set (BASE_LIBS
 	${LIBELF_LIBRARIES}
-	${LIBBFD_LIBRARIES}
-	${GTKMM_LIBRARIES}
-	${GTKSOURCEVIEWMM_LIBRARIES}
+	${CMAKE_BINARY_DIR}/install-binutils/lib/libopcodes.a
+	${CMAKE_BINARY_DIR}/install-binutils/lib/libbfd.a
+	${CMAKE_BINARY_DIR}/install-binutils/lib/libiberty.a
 	${LIBXMLPP_LIBRARIES}
 	${LIBCURL_LIBRARIES}
 	z
+	)
+
+
+target_link_libraries(emilpro
+	${GTKMM_LIBRARIES}
+	${GTKSOURCEVIEWMM_LIBRARIES}
+	${BASE_LIBS}
 	)
 
 target_link_libraries(tools/squash-instruction-models
-	${LIBELF_LIBRARIES}
-	${LIBBFD_LIBRARIES}
-	${LIBXMLPP_LIBRARIES}
-	${LIBCURL_LIBRARIES}
-	z
+	${BASE_LIBS}
 	)
 
 target_link_libraries(tools/test-remote-communication
-	${LIBELF_LIBRARIES}
-	${LIBBFD_LIBRARIES}
-	${LIBXMLPP_LIBRARIES}
-	${LIBCURL_LIBRARIES}
-	z
+	${BASE_LIBS}
 	)
 
 target_link_libraries(server/cgi-server
-	${LIBELF_LIBRARIES}
-	${LIBBFD_LIBRARIES}
-	${LIBXMLPP_LIBRARIES}
-	${LIBCURL_LIBRARIES}
-	z
+	${BASE_LIBS}
 	)
 
 target_link_libraries(server/cgi-handler
+	${BASE_LIBS}
 	${CGICC_LIBRARIES}
-	z
 	)
 
 add_custom_command (OUTPUT tools/setup-conf-dir.sh
