@@ -13,9 +13,9 @@ set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake)
 
 find_package (LibElf REQUIRED)
-find_package (LibBfd REQUIRED)
 find_package (LibCRPCUT REQUIRED)
 find_package (PkgConfig REQUIRED)
+include (${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/BuildBinutils.cmake)
 
 pkg_check_modules(GTKMM gtkmm-3.0)
 pkg_check_modules(LIBXMLPP libxml++-2.6)
@@ -70,7 +70,7 @@ include_directories(
 	../../src/include/
 	${CMAKE_BINARY_DIR}
 	${LIBELF_INCLUDE_DIRS}
-	${LIBBFD_INCLUDE_DIRS}
+	${CMAKE_BINARY_DIR}/install-binutils/include/
 	${LIBCRPCUT_INCLUDE_DIRS}
 	${GTKMM_INCLUDE_DIRS}
 	${LIBXMLPP_INCLUDE_DIRS}
@@ -100,17 +100,21 @@ set_property(SOURCE ../../src/emilpro.cc APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_
 add_executable (${TGT} ${${TGT}_SRCS})
 target_link_libraries(${TGT}
 	${LIBELF_LIBRARIES}
-	${LIBBFD_LIBRARIES}
-	${LIBCRPCUT_LIBRARIES}
+	${CMAKE_BINARY_DIR}/install-binutils/lib/libopcodes.a
+	${CMAKE_BINARY_DIR}/install-binutils/lib/libbfd.a
+	${CMAKE_BINARY_DIR}/install-binutils/lib/libiberty.a
 	${GTKMM_LIBRARIES}
 	${LIBXMLPP_LIBRARIES}
 	${LIBCURL_LIBRARIES}
+	crpcut
 	gtest
 	gmock
 	z
 	pthread
 	dl
 	)
+
+set_property(TARGET ${TGT} APPEND PROPERTY OBJECT_DEPENDS binutils)
 
 
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)

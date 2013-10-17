@@ -24,7 +24,6 @@ find_path (LIBCRPCUT_INCLUDE_DIRS
     NAMES
       crpcut.hpp
     PATHS
-      /home/ska/local/include
       /usr/include
       /usr/include/crpcut
       /usr/local/include
@@ -37,8 +36,6 @@ find_library (LIBCRPCUT_LIBRARIES
     NAMES
       crpcut
     PATHS
-      /home/ska/local/lib
-      /home/ska/local/lib64
       /usr/lib
       /usr/lib64
       /usr/local/lib
