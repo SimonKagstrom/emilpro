@@ -39,6 +39,7 @@ private:
 
 Model::Model() :
 		m_parsingComplete(false),
+		m_hasReportedSymbols(false),
 		m_quit(false)
 {
 	unsigned cores = get_number_of_cores();
@@ -296,6 +297,8 @@ void Model::worker(unsigned queueNr)
 			curListener->onSymbol(sym);
 		}
 	}
+
+	m_hasReportedSymbols = true;
 }
 
 bool Model::parsingComplete()
@@ -303,7 +306,7 @@ bool Model::parsingComplete()
 	bool out;
 
 	m_mutex.lock();
-	out = m_parsingComplete;
+	out = m_hasReportedSymbols;
 	m_mutex.unlock();
 
 	return out;
