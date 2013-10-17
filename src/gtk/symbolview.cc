@@ -63,6 +63,8 @@ SymbolView::SymbolView() :
 		m_instructionView(NULL),
 		m_hexView(NULL)
 {
+	m_symbolSignal.connect(sigc::mem_fun(this, &SymbolView::onSymbolSignal) );
+	m_manglingSignal.connect(sigc::mem_fun(this, &SymbolView::onManglingChangedSignal) );
 }
 
 SymbolView::~SymbolView()
@@ -73,6 +75,8 @@ SymbolView::~SymbolView()
 
 void SymbolView::init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, HexView *hv, emilpro::AddressHistory *ah)
 {
+	m_mainThreadId = std::this_thread::get_id();
+
 	m_instructionView = iv;
 	m_hexView = hv;
 	m_addressHistory = ah;
@@ -155,8 +159,6 @@ void SymbolView::init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, H
 
 void SymbolView::onCursorChanged()
 {
-	std::lock_guard<std::mutex> lock(m_mutex);
-
 	Gtk::TreeModel::Path path;
 	Gtk::TreeViewColumn *column;
 
@@ -208,19 +210,14 @@ void SymbolView::onRowActivated(const Gtk::TreeModel::Path& path,
 	uint64_t address;
 	Glib::ustring name;
 
-	// Update takes the lock as well
-	{
-		std::lock_guard<std::mutex> lock(m_mutex);
+	Gtk::TreeModel::iterator iter = m_symbolListStore->get_iter(path);
 
-		Gtk::TreeModel::iterator iter = m_symbolListStore->get_iter(path);
+	if(!iter)
+		return;
 
-		if(!iter)
-			return;
-
-		Gtk::TreeModel::Row row = *iter;
-		address = row[m_symbolColumns->m_rawAddress];
-		name = row[m_symbolColumns->m_name];
-	}
+	Gtk::TreeModel::Row row = *iter;
+	address = row[m_symbolColumns->m_rawAddress];
+	name = row[m_symbolColumns->m_name];
 
 	update(address, name);
 }
@@ -230,21 +227,16 @@ void SymbolView::onReferenceRowActivated(const Gtk::TreeModel::Path& path,
 {
 	uint64_t address;
 
-	// Ditto
-	{
-		std::lock_guard<std::mutex> lock(m_mutex);
+	Gtk::TreeModel::iterator iter = m_referencesListStore->get_iter(path);
 
-		Gtk::TreeModel::iterator iter = m_referencesListStore->get_iter(path);
+	if(!iter)
+		return;
 
-		if(!iter)
-			return;
+	Gtk::TreeModel::Row row = *iter;
+	address = row[m_referenceColumns->m_rawAddress];
 
-		Gtk::TreeModel::Row row = *iter;
-		address = row[m_referenceColumns->m_rawAddress];
-
-		if (address == IInstruction::INVALID_ADDRESS)
-			return;
-	}
+	if (address == IInstruction::INVALID_ADDRESS)
+		return;
 
 	update(address);
 }
@@ -258,11 +250,9 @@ void SymbolView::updateSourceView(uint64_t address, const emilpro::ISymbol* sym)
 
 void SymbolView::refreshSymbols()
 {
-	m_mutex.lock();
 	m_symbolListStore->clear();
 	m_symbolRowIterByAddress.clear();
 	m_symbolRowIterByName.clear();
-	m_mutex.unlock();
 
 	// The onSymbol callback will handle this
 	Model::instance().parseAll();
@@ -275,8 +265,6 @@ void SymbolView::update(uint64_t address, const std::string &name)
 	/* set_cursor results in a call to onCursorChanged, so release the lock
 	   until then */
 	{
-		std::lock_guard<std::mutex> lock(m_mutex);
-
 		Model &model = Model::instance();
 
 		const Model::SymbolList_t nearestSyms = model.getNearestSymbol(address);
@@ -382,9 +370,22 @@ void SymbolView::onEntryActivated()
 	}
 }
 
-void SymbolView::onSymbol(ISymbol& sym)
+void SymbolView::onSymbolSignal()
 {
-	std::lock_guard<std::mutex> lock(m_mutex);
+	m_mutex.lock();
+	for (Model::SymbolList_t::iterator it = m_pendingSymbols.begin();
+			it != m_pendingSymbols.end();
+			++it) {
+		ISymbol *cur = *it;
+
+		onSymbolImpl(*cur);
+	}
+	m_pendingSymbols.clear();
+	m_mutex.unlock();
+}
+
+void SymbolView::onSymbolImpl(const emilpro::ISymbol &sym)
+{
 	NameManglerView &mv = NameManglerView::instance();
 
 	// Skip the file symbol
@@ -415,8 +416,30 @@ void SymbolView::onSymbol(ISymbol& sym)
 	row[m_symbolColumns->m_rawAddress] = sym.getAddress();
 }
 
-void SymbolView::onManglingChanged()
+void SymbolView::onSymbol(ISymbol& sym)
+{
+	std::thread::id id = std::this_thread::get_id();
+
+	if (id == m_mainThreadId) {
+		onSymbolImpl(sym);
+		return;
+	}
+
+	// Pass these via IPC (these are much less common)
+	m_mutex.lock();
+	m_pendingSymbols.push_back(&sym);
+	m_mutex.unlock();
+
+	m_symbolSignal();
+}
+
+void SymbolView::onManglingChangedSignal()
 {
 	refreshSymbols();
+}
+
+void SymbolView::onManglingChanged()
+{
+	m_manglingSignal();
 }
 

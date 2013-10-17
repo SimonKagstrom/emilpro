@@ -4,8 +4,10 @@
 #include <namemanglerview.hh>
 #include <symbolfactory.hh>
 #include <addresshistory.hh>
+#include <model.hh>
 
 #include <gtkmm.h>
+#include <sigc++/sigc++.h>
 #include <unordered_map>
 #include <string>
 #include <mutex>
@@ -29,7 +31,12 @@ public:
 	void refreshSymbols();
 
 private:
+	// From ISymbolListener
 	void onSymbol(emilpro::ISymbol &sym);
+
+	void onSymbolSignal();
+
+	void onSymbolImpl(const emilpro::ISymbol &sym);
 
 	void onCursorChanged();
 
@@ -46,6 +53,9 @@ private:
 
 	// From NameManglerView::IListener
 	void onManglingChanged();
+
+	void onManglingChangedSignal();
+
 
 	typedef std::unordered_map<uint64_t, Gtk::ListStore::iterator> SymbolRowIterByAddressMap_t;
 	typedef std::unordered_map<std::string, Gtk::ListStore::iterator> SymbolRowIterByNameMap_t;
@@ -66,5 +76,10 @@ private:
 	HexView *m_hexView;
 	emilpro::AddressHistory *m_addressHistory;
 
+
 	std::mutex m_mutex;
+	emilpro::Model::SymbolList_t m_pendingSymbols;
+	Glib::Dispatcher m_symbolSignal;
+	Glib::Dispatcher m_manglingSignal;
+	std::thread::id m_mainThreadId;
 };
