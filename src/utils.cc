@@ -180,7 +180,8 @@ static int write_file_int(const void *data, size_t len, uint64_t timeout, const 
 		return -2;
 	}
 
-	write(fd, data, len);
+	if (write(fd, data, len) != (int)len)
+		return -3;
 
 	close(fd);
 
