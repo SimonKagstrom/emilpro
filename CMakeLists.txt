@@ -170,7 +170,6 @@ target_link_libraries(server/cgi-server
 	)
 
 target_link_libraries(server/cgi-handler
-	${BASE_LIBS}
 	${CGICC_LIBRARIES}
 	)
 
