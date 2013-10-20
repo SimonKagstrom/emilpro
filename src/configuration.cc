@@ -23,6 +23,9 @@ std::string Configuration::getPath(Dir_t dir)
 	case DIR_CONFIGURATION:
 		out = getBasePath() + "/configuration";
 		break;
+	case DIR_SERVER_STATISTICS:
+		out = "/www/emilpro";
+		break;
 	default:
 		break;
 	}

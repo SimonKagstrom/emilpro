@@ -13,6 +13,7 @@ set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
                         ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake)
 
 find_package (LibElf REQUIRED)
+find_package (LibGeoIP REQUIRED)
 find_package (LibCRPCUT REQUIRED)
 find_package (PkgConfig REQUIRED)
 include (${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/BuildBinutils.cmake)
@@ -43,6 +44,7 @@ set (${TGT}_SRCS
 	../../src/namemangler.cc
 	../../src/network-listener.cc
 	../../src/preferences.cc
+	../../src/server/html-generator.cc
 	../../src/symbolfactory.cc
 	../../src/utils.cc
 	../../src/xmlfactory.cc
@@ -52,6 +54,7 @@ set (${TGT}_SRCS
 	tests/tests-cgi-server.cc
 	tests/tests-disassembly.cc
 	tests/tests-hexview.cc
+	tests/tests-html-generator.cc
 	tests/tests-instructionfactory.cc
 	tests/tests-jumptargetdisplay.cc
 	tests/tests-model.cc
@@ -75,6 +78,7 @@ include_directories(
 	${GTKMM_INCLUDE_DIRS}
 	${LIBXMLPP_INCLUDE_DIRS}
 	${LIBCURL_INCLUDE_DIRS}
+	${LibGeoIP_INCLUDE_DIR}
 	)
 
 add_executable (file-to-source
@@ -106,6 +110,7 @@ target_link_libraries(${TGT}
 	${GTKMM_LIBRARIES}
 	${LIBXMLPP_LIBRARIES}
 	${LIBCURL_LIBRARIES}
+	${LibGeoIP_LIBRARY}
 	crpcut
 	gtest
 	gmock

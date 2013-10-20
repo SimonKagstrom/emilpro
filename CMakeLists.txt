@@ -12,6 +12,7 @@ set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
 include (${CMAKE_CURRENT_SOURCE_DIR}/cmake/BuildBinutils.cmake)
 
 find_package (LibElf REQUIRED)
+find_package (LibGeoIP REQUIRED)
 find_package (PkgConfig REQUIRED)
 
 set (PROJECT_VERSION_MAJOR  1)
@@ -107,6 +108,7 @@ include_directories(
 	${GTKSOURCEVIEWMM_INCLUDE_DIRS}
 	${LIBXMLPP_INCLUDE_DIRS}
 	${LIBCURL_INCLUDE_DIRS}
+	${LibGeoIP_INCLUDE_DIR}
 	)
 
 add_executable (emilpro
@@ -127,6 +129,7 @@ add_executable (tools/test-remote-communication
 add_executable (server/cgi-server
 	${BASE_SRCS}
 	src/server/cgi-server.cc
+	src/server/html-generator.cc
 	tools/cgi-server-main.cc
 	)
 
@@ -167,6 +170,7 @@ target_link_libraries(tools/test-remote-communication
 
 target_link_libraries(server/cgi-server
 	${BASE_LIBS}
+	${LibGeoIP_LIBRARY}
 	)
 
 target_link_libraries(server/cgi-handler

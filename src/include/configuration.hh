@@ -12,6 +12,7 @@ namespace emilpro
 			DIR_LOCAL,
 			DIR_REMOTE,
 			DIR_CONFIGURATION,
+			DIR_SERVER_STATISTICS,
 		} Dir_t;
 
 		std::string getBasePath();
