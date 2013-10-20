@@ -146,7 +146,14 @@ public:
 			data = read_file(&sz, "%s", file);
 			if (data) {
 				Model::instance().addData(data, sz);
+			} else {
+				error("Can't read %s, exiting", file);
+				exit(1);
 			}
+
+			// Close stderr to avoid Gtk Assertions. Yes, the alternative is to fix them.
+			if (argc < 3)
+				fclose(stderr);
 
 			refresh();
 		}
