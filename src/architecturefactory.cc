@@ -147,6 +147,8 @@ ArchitectureFactory::ArchitectureFactory() :
 	m_nameArchitectureMap["microblaze"] = (unsigned)bfd_arch_microblaze;
 	m_nameArchitectureMap["tilepro"] = (unsigned)bfd_arch_tilepro;
 	m_nameArchitectureMap["tilegx"] = (unsigned)bfd_arch_tilegx;
+
+	m_unknownArchitecture = "unknown";
 }
 
 std::string& ArchitectureFactory::getNameFromArchitecture(ArchitectureFactory::Architecture_t arch)
