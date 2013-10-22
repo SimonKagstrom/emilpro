@@ -49,14 +49,20 @@ public:
 		NameManglerView::instance().init(m_builder);
 
 		Gtk::ImageMenuItem *fileOpenItem;
+		Gtk::ImageMenuItem *fileRefresh;
+		Gtk::ImageMenuItem *fileQuit;
 		Gtk::ImageMenuItem *viewForwardItem;
 		Gtk::ImageMenuItem *viewBackwardItem;
 		m_builder->get_widget("file_menu_open", fileOpenItem);
+		m_builder->get_widget("file_menu_refresh", fileRefresh);
+		m_builder->get_widget("file_menu_quit", fileQuit);
 		m_builder->get_widget("view_menu_forward", viewForwardItem);
 		m_builder->get_widget("view_menu_backward", viewBackwardItem);
 		panic_if (!(fileOpenItem && viewForwardItem && viewBackwardItem),
 				"Can't get menu items");
 		fileOpenItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onFileOpen));
+		fileRefresh->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onFileRefresh));
+		fileQuit->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onFileQuit));
 
 		viewForwardItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onViewForward));
 		viewBackwardItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onViewBackward));
@@ -174,6 +180,17 @@ protected:
 
 		m_hexView.clearData();
 		m_symbolView.refreshSymbols();
+	}
+
+	void onFileRefresh()
+	{
+		printf("FIXME. This is buggy...\n");
+		refresh();
+	}
+
+	void onFileQuit()
+	{
+		Gtk::Main::quit();
 	}
 
 	void onFileOpen()
