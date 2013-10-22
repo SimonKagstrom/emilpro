@@ -155,6 +155,39 @@ void SymbolView::init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, H
 			&SymbolView::onEntryActivated));
 
 	m_symbolView->set_search_column(6);
+	m_symbolView->set_search_equal_func(sigc::mem_fun(*this, &SymbolView::onSearchEqual));
+}
+
+// False means match here
+bool SymbolView::onSearchEqual(const Glib::RefPtr<Gtk::TreeModel>& model, int column, const Glib::ustring& key, const Gtk::TreeModel::iterator& iter)
+{
+	Gtk::TreeModel::Row row = *iter;
+	uint64_t address = row[m_symbolColumns->m_rawAddress];
+
+	Glib::ustring name = row[m_symbolColumns->m_name];
+
+	if (name.find(key) != std::string::npos)
+		return false;
+
+	if (!string_is_integer(key, 16))
+		return true;
+
+	const Model::SymbolList_t syms = Model::instance().getNearestSymbol(address);
+	uint64_t keyAddr = string_to_integer(key, 16);
+
+	for (Model::SymbolList_t::const_iterator it = syms.begin();
+			it != syms.end();
+			++it) {
+		ISymbol *cur = *it;
+
+		if (cur->getType() != ISymbol::SYM_TEXT && cur->getType() != ISymbol::SYM_DATA)
+			continue;
+
+		if (keyAddr >= cur->getAddress() && keyAddr < cur->getAddress() + cur->getSize())
+			return false;
+	}
+
+	return true;
 }
 
 void SymbolView::onCursorChanged()

@@ -31,6 +31,8 @@ public:
 	void refreshSymbols();
 
 private:
+	bool onSearchEqual(const Glib::RefPtr<Gtk::TreeModel>& model, int column, const Glib::ustring& key, const Gtk::TreeModel::iterator& iter);
+
 	// From ISymbolListener
 	void onSymbol(emilpro::ISymbol &sym);
 
