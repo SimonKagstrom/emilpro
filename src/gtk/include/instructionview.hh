@@ -31,6 +31,7 @@ public:
 
 private:
 	typedef std::list<Gtk::TreeModel::iterator> InstructionIterList_t;
+	bool onSearchEqual(const Glib::RefPtr<Gtk::TreeModel>& model, int column, const Glib::ustring& key, const Gtk::TreeModel::iterator& iter);
 
 	void onCursorChanged();
 

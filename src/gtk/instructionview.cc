@@ -442,6 +442,7 @@ void InstructionView::init(Glib::RefPtr<Gtk::Builder> builder, HexView* hv, Info
 	cp->add_attribute(cr->property_cell_background_gdk(), m_instructionColumns->m_bgColor);
 
 	m_treeView->set_search_column(1);
+	m_treeView->set_search_equal_func(sigc::mem_fun(*this, &InstructionView::onSearchEqual));
 }
 
 void InstructionView::update(uint64_t address, const emilpro::ISymbol& sym)
@@ -646,4 +647,24 @@ void InstructionView::addAddressHistoryEntry(uint64_t address)
 
 	row[m_addressHistoryColumns->m_address] = fmt("0x%0llx", (long long)address).c_str();
 	row[m_addressHistoryColumns->m_symbol] = symName;
+}
+
+bool InstructionView::onSearchEqual(const Glib::RefPtr<Gtk::TreeModel>& model,
+		int column, const Glib::ustring& key,
+		const Gtk::TreeModel::iterator& iter)
+{
+	Gtk::TreeModel::Row row = *iter;
+	IInstruction *cur = row[m_instructionColumns->m_rawInstruction];
+
+	if (cur->getString().find(key) != std::string::npos)
+		return false;
+
+	if (!string_is_integer(key, 16))
+		return true;
+
+	uint64_t address = string_to_integer(key, 16);
+	if (address >= cur->getAddress() && address < cur->getAddress() + cur->getSize())
+		return false;
+
+	return true;
 }
