@@ -2,16 +2,19 @@
 #include <emilpro.hh>
 #include <instructionfactory.hh>
 #include <server/cgi-server.hh>
+#include <server/html-generator.hh>
 
 #include <string>
 #include <fstream>
 #include <stdio.h>
+#include <stdlib.h>
 
 using namespace emilpro;
 
 CgiServer::CgiServer() :
 				m_timestamp(0xffffffffffffffffULL),
-				m_timestampAdjustment(0)
+				m_timestampAdjustment(0),
+				m_currentArchitecture(bfd_arch_unknown)
 {
 	InstructionFactory::instance(); // Must be created before this
 	XmlFactory::instance().registerListener("ServerTimestamps", this);
@@ -30,6 +33,8 @@ bool CgiServer::onElement(const Glib::ustring &name, const xmlpp::SaxParser::Att
 	} else if (name == "Timestamp") {
 		if (string_is_integer(value))
 			m_timestampAdjustment = get_utc_timestamp() - string_to_integer(value);
+	} else if (name == "CurrentArchitecture") {
+		m_currentArchitecture = ArchitectureFactory::instance().getArchitectureFromName(value);
 	}
 
 	return true;
@@ -109,9 +114,15 @@ std::string CgiServer::reply()
 
 void CgiServer::request(const std::string xml)
 {
+	HtmlGenerator &html = HtmlGenerator::instance();
+
 	// Reset timestamps before parsing
 	m_timestamp = 0xffffffffffffffffULL;
 	m_timestampAdjustment = 0;
+	m_currentArchitecture = bfd_arch_unknown;
 
 	XmlFactory::instance().parse(xml, true);
+
+	html.addData(getenv("REMOTE_ADDR"), m_currentArchitecture);
+	html.generate();
 }

@@ -2,6 +2,7 @@
 #include <xmlfactory.hh>
 #include <configuration.hh>
 #include <instructionfactory.hh>
+#include <model.hh>
 #include <utils.hh>
 #include <network-listener.hh>
 
@@ -166,13 +167,18 @@ public:
 private:
 	std::string toXml()
 	{
+		std::string archStr = ArchitectureFactory::instance().getNameFromArchitecture(Model::instance().getArchitecture());
+
 		return fmt(
 				"  <ServerTimestamps>\n"
 				"    <Timestamp>%llu</Timestamp>\n"
 				"    <InstructionModelTimestamp>%llu</InstructionModelTimestamp>\n"
+				"    <CurrentArchitecture>%s</CurrentArchitecture>\n"
 				"  </ServerTimestamps>\n",
 				(unsigned long long)get_utc_timestamp(),
-				(unsigned long long)m_instructionModelTimestamp);
+				(unsigned long long)m_instructionModelTimestamp,
+				archStr.c_str()
+				);
 	}
 
 

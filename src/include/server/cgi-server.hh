@@ -1,6 +1,7 @@
 #pragma once
 
 #include <xmlfactory.hh>
+#include <architecturefactory.hh>
 
 #include <string>
 #include <fstream>
@@ -9,6 +10,7 @@
 namespace cgi_server
 {
 	class adjustTimestamp;
+	class validRequest;
 }
 
 namespace emilpro
@@ -17,6 +19,7 @@ namespace emilpro
 	{
 	public:
 		friend class cgi_server::adjustTimestamp;
+		friend class cgi_server::validRequest;
 
 		CgiServer();
 
@@ -36,6 +39,7 @@ namespace emilpro
 	private:
 		uint64_t m_timestamp;
 		int64_t m_timestampAdjustment;
+		ArchitectureFactory::Architecture_t m_currentArchitecture;
 	};
 
 }

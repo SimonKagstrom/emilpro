@@ -45,6 +45,7 @@ TESTSUITE(cgi_server)
 				"    <InstructionModelTimestamp>1</InstructionModelTimestamp>\n"
 				"  </ServerTimestamps>\n";
 		server.request(xml);
+		ASSERT_TRUE(server.m_currentArchitecture == bfd_arch_unknown);
 
 		reply = server.reply();
 		ASSERT_TRUE(reply != "");
@@ -68,8 +69,11 @@ TESTSUITE(cgi_server)
 
 		xml =   "  <ServerTimestamps>\n"
 				"    <InstructionModelTimestamp>1</InstructionModelTimestamp>\n"
+				"    <CurrentArchitecture>powerpc</CurrentArchitecture>\n"
+				"    <KalleAnka>Satt pa en planka</KalleAnka>\n"
 				"  </ServerTimestamps>\n";
 		server.request(xml);
+		ASSERT_TRUE(server.m_currentArchitecture == bfd_arch_powerpc);
 
 		reply = server.reply();
 		ASSERT_TRUE(reply != "");
