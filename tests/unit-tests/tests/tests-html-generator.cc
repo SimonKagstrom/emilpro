@@ -29,6 +29,7 @@ TESTSUITE(html_generator)
 		gen.addData("23.53.38.151", bfd_arch_sparc);
 		gen.addData("202.248.194.70", bfd_arch_sparc);
 		gen.addData("202.248.194.70", bfd_arch_unknown);
+		gen.addData("", bfd_arch_unknown); // Environment not set
 
 
 		mock_write_file(write_callback);
@@ -42,6 +43,7 @@ TESTSUITE(html_generator)
 		ASSERT_TRUE(path_to_data[xmlFilename].find("Sweden") != std::string::npos);
 		ASSERT_TRUE(path_to_data[xmlFilename].find("Japan") != std::string::npos);
 		ASSERT_TRUE(path_to_data[xmlFilename].find("United States") != std::string::npos);
+		ASSERT_TRUE(path_to_data[xmlFilename].find("Unknown") != std::string::npos);
 
 		ASSERT_TRUE(gen.m_countryCount["Sweden"] == 3U);
 
