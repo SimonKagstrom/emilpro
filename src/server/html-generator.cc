@@ -11,7 +11,7 @@ void HtmlGenerator::addData(const char* ip, ArchitectureFactory::Architecture_t 
 	const char *country = GeoIP_country_name_by_addr(m_gip, ip);
 
 	if (!country)
-		country = "unknown";
+		country = "Unknown";
 
 	m_countryCount[country]++;
 	m_architectureCount[arch]++;
