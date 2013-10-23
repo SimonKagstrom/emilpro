@@ -43,12 +43,15 @@ TESTSUITE(model)
 		Model &model = Model::instance();
 		bool res;
 
+
 		size_t sz;
 		void *data = read_file(&sz, "%s/test-binary", crpcut::get_start_dir());
 		ASSERT_TRUE(data != (void *)NULL);
 
+		ASSERT_TRUE(model.getArchitecture() == bfd_arch_unknown);
 		res = model.addData(data, sz);
 		ASSERT_TRUE(res == true);
+		ASSERT_TRUE(model.getArchitecture() == bfd_arch_i386);
 
 		ISymbol *sym = m_symbolNames["main"];
 		ASSERT_TRUE(sym != (void *)NULL);

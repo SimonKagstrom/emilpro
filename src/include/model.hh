@@ -3,6 +3,7 @@
 #include "iinstruction.hh"
 #include "ilineprovider.hh"
 #include "symbolfactory.hh"
+#include "architecturefactory.hh"
 #include "isymbol.hh"
 
 #include <mutex>
@@ -23,7 +24,7 @@ namespace model
 
 namespace emilpro
 {
-	class Model : private ISymbolListener
+	class Model : private ISymbolListener, private ArchitectureFactory::IArchitectureListener
 	{
 	public:
 		class IBasicBlock
@@ -81,6 +82,8 @@ namespace emilpro
 
 		const CrossReferenceList_t &getReferences(uint64_t addr) const;
 
+		virtual ArchitectureFactory::Architecture_t getArchitecture() const;
+
 		void destroy();
 
 
@@ -121,6 +124,9 @@ namespace emilpro
 
 		Model();
 		virtual ~Model();
+
+		// From ArchitectureFactory::IArchitectureListener
+		virtual void onArchitectureDetected(ArchitectureFactory::Architecture_t arch);
 
 		bool parsingOngoing();
 
@@ -169,5 +175,6 @@ namespace emilpro
 		bool m_parsingComplete;
 		bool m_hasReportedSymbols;
 		bool m_quit;
+		ArchitectureFactory::Architecture_t m_architecture;
 	};
 }

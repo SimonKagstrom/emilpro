@@ -40,7 +40,8 @@ private:
 Model::Model() :
 		m_parsingComplete(false),
 		m_hasReportedSymbols(false),
-		m_quit(false)
+		m_quit(false),
+		m_architecture(bfd_arch_unknown)
 {
 	unsigned cores = get_number_of_cores();
 
@@ -51,6 +52,7 @@ Model::Model() :
 		m_threads[i] = NULL;
 
 	SymbolFactory::instance().registerListener(this);
+	ArchitectureFactory::instance().registerListener(this);
 }
 
 Model::~Model()
@@ -630,28 +632,7 @@ Model &Model::instance()
 const uint8_t* Model::getData(uint64_t start, size_t size,
 		uint64_t *returnedAddr, size_t *returnedSize)
 {
-	DataMap_t::iterator it = m_data.lower_bound(start);
-
-	if (it == m_data.end())
-		--it;
-
-	if (it != m_data.begin())
-		--it;
-
-	DataChunk *cur = it->second;
-
-	if (cur->m_address > start)
-		return NULL;
-
-	if (start - cur->m_address + size > cur->m_size)
-		return NULL;
-
-	if (returnedAddr)
-		*returnedAddr = start;
-	if (returnedSize)
-		*returnedSize = size;
-
-	return cur->m_data + (start - cur->m_address);
+	return getSurroundingData(start + size / 2, size, returnedAddr, returnedSize);
 }
 
 const uint8_t* Model::getSurroundingData(uint64_t address, size_t size,
@@ -769,4 +750,14 @@ uint64_t Model::lookupOneSymbol(const std::string& str)
 	}
 
 	return out;
+}
+
+ArchitectureFactory::Architecture_t Model::getArchitecture() const
+{
+	return m_architecture;
+}
+
+void Model::onArchitectureDetected(ArchitectureFactory::Architecture_t arch)
+{
+	m_architecture = arch;
 }
