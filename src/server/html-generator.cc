@@ -29,20 +29,19 @@ void HtmlGenerator::generate()
 	write_file(xml.c_str(), xml.size(), "%s/server-statistics.xml", configurationPath.c_str());
 }
 
+static HtmlGenerator *g_instance;
 void HtmlGenerator::destroy()
 {
+	g_instance = NULL;
 	delete this;
 }
 
-
 HtmlGenerator& HtmlGenerator::instance()
 {
-	static HtmlGenerator *instance;
+	if (!g_instance)
+		g_instance = new HtmlGenerator();
 
-	if (!instance)
-		instance = new HtmlGenerator();
-
-	return *instance;
+	return *g_instance;
 }
 
 HtmlGenerator::HtmlGenerator() :
@@ -52,10 +51,13 @@ HtmlGenerator::HtmlGenerator() :
 
 	panic_if(!m_gip,
 			"Can't open GeoIP database");
+
+	XmlFactory::instance().registerListener("HtmlGenerator", this);
 }
 
 HtmlGenerator::~HtmlGenerator()
 {
+	XmlFactory::instance().unregisterListener(this);
 	GeoIP_delete(m_gip);
 }
 
@@ -68,6 +70,29 @@ bool HtmlGenerator::onStart(const Glib::ustring& name,
 bool HtmlGenerator::onElement(const Glib::ustring& name,
 		const xmlpp::SaxParser::AttributeList& properties, std::string value)
 {
+	std::string nameStr = "";
+	uint64_t valueNum = 0xffffffffffffffffULL;
+
+	for(xmlpp::SaxParser::AttributeList::const_iterator it = properties.begin();
+			it != properties.end();
+			++it) {
+		if (it->name == "name") {
+			nameStr = it->value;
+		} else if (it->name == "count") {
+			if (string_is_integer(it->value, 10))
+				valueNum = string_to_integer(it->value);
+		}
+	}
+
+	// Invalid or not set
+	if (nameStr == "" || valueNum == 0xffffffffffffffffULL)
+		return true;
+
+	if (name == "CountryCount")
+		m_countryCount[nameStr] += valueNum;
+	else if (name == "ArchitectureCount")
+		m_architectureCount[ArchitectureFactory::instance().getArchitectureFromName(nameStr)] += valueNum;
+
 	return true;
 }
 
@@ -91,7 +116,7 @@ std::string HtmlGenerator::toXml()
 		std::string country = it->first;
 		uint64_t count = it->second;
 
-		out += fmt("    <CountryCount name=\"%s\" count=\"%llu\"></country>\n", country.c_str(), (unsigned long long)count);
+		out += fmt("    <CountryCount name=\"%s\" count=\"%llu\"></CountryCount>\n", country.c_str(), (unsigned long long)count);
 	}
 	for (ArchitectureMap_t::iterator it = m_architectureCount.begin();
 			it != m_architectureCount.end();
@@ -100,10 +125,10 @@ std::string HtmlGenerator::toXml()
 		uint64_t count = it->second;
 		std::string name = ArchitectureFactory::instance().getNameFromArchitecture(arch);
 
-		out += fmt("    <ArchitectureCount name=\"%s\" count=\"%llu\"></country>\n", name.c_str(), (unsigned long long)count);
+		out += fmt("    <ArchitectureCount name=\"%s\" count=\"%llu\"></ArchitectureCount>\n", name.c_str(), (unsigned long long)count);
 	}
 
-	out +=  fmt("    <TotalCount count=\"%llu\"", (unsigned long long )m_totalConnections) +
+	out +=  fmt("    <TotalCount count=\"%llu\"></TotalCount>\n", (unsigned long long )m_totalConnections) +
 			"  </HtmlGenerator>\n"
 			"</emilpro>\n";
 

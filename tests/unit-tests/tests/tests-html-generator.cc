@@ -64,4 +64,32 @@ TESTSUITE(html_generator)
 
 		gen.destroy();
 	}
+
+	TEST(toAndFromXML)
+	{
+		HtmlGenerator &gen = HtmlGenerator::instance();
+
+		gen.addData("80.216.20.198", bfd_arch_powerpc);
+		gen.addData("80.216.20.198", bfd_arch_mips);
+		gen.addData("80.216.20.198", bfd_arch_i386);
+		gen.addData("23.53.38.151", bfd_arch_sparc);
+
+		ASSERT_TRUE(gen.m_countryCount.size() == 2U);
+		ASSERT_TRUE(gen.m_architectureCount.size() == 4U);
+
+		std::string xml;
+
+		xml = gen.toXml();
+
+		gen.destroy();
+
+		HtmlGenerator &gen2 = HtmlGenerator::instance();
+		ASSERT_TRUE(gen2.m_countryCount.size() == 0U);
+		ASSERT_TRUE(gen2.m_architectureCount.size() == 0U);
+
+		bool res = XmlFactory::instance().parse(xml);
+		ASSERT_TRUE(res);
+		ASSERT_TRUE(gen2.m_countryCount.size() == 2U);
+		ASSERT_TRUE(gen2.m_architectureCount.size() == 4U);
+	}
 }
