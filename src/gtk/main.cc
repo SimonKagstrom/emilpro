@@ -29,7 +29,9 @@ class EmilProGui : public emilpro::Preferences::IListener
 {
 public:
 	EmilProGui() :
-		m_nLanes(4)
+		m_nLanes(4),
+		m_data(NULL),
+		m_dataSize(0)
 	{
 	}
 
@@ -146,12 +148,10 @@ public:
 	{
 		if (argc > 1) {
 			const char *file = argv[1];
-			void *data;
-			size_t sz;
 
-			data = read_file(&sz, "%s", file);
-			if (data) {
-				Model::instance().addData(data, sz);
+			m_data = read_file(&m_dataSize, "%s", file);
+			if (m_data) {
+				Model::instance().addData(m_data, m_dataSize);
 			} else {
 				error("Can't read %s, exiting", file);
 				exit(1);
@@ -184,7 +184,14 @@ protected:
 
 	void onFileRefresh()
 	{
-		printf("FIXME. This is buggy...\n");
+		EmilPro::destroy();
+		EmilPro::init();
+
+		if (m_data) {
+			if (!Model::instance().addData(m_data, m_dataSize))
+				return;
+		}
+
 		refresh();
 	}
 
@@ -208,17 +215,15 @@ protected:
 		if (v != Gtk::RESPONSE_ACCEPT)
 			return;
 
-		size_t sz;
+		m_data = read_file(&m_dataSize, "%s", openFile->get_filename().c_str());
 
-		void *data = read_file(&sz, "%s", openFile->get_filename().c_str());
-
-		if (!data)
+		if (!m_data)
 			return; // FIXME! Do something
 
 		EmilPro::destroy();
 		EmilPro::init();
 
-		if (!Model::instance().addData(data, sz))
+		if (!Model::instance().addData(m_data, m_dataSize))
 			return;
 
 		refresh();
@@ -314,6 +319,9 @@ private:
 	Gtk::Notebook *m_instructionsDataNotebook;
 	Gtk::Window *m_window;
 	Gtk::AboutDialog *m_aboutDialog;
+
+	void *m_data;
+	size_t m_dataSize;
 };
 
 int main(int argc, char **argv)
