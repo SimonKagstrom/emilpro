@@ -11,6 +11,7 @@ namespace cgi_server
 {
 	class adjustTimestamp;
 	class validRequest;
+	class htmlGeneration;
 }
 
 namespace emilpro
@@ -20,6 +21,7 @@ namespace emilpro
 	public:
 		friend class cgi_server::adjustTimestamp;
 		friend class cgi_server::validRequest;
+		friend class cgi_server::htmlGeneration;
 
 		CgiServer();
 
