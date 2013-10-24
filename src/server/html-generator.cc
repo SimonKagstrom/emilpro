@@ -78,11 +78,11 @@ bool HtmlGenerator::onElement(const Glib::ustring& name,
 			++it) {
 		if (it->name == "name") {
 			nameStr = it->value;
-		} else if (it->name == "count") {
-			if (string_is_integer(it->value, 10))
-				valueNum = string_to_integer(it->value);
 		}
 	}
+
+	if (string_is_integer(value, 10))
+		valueNum = string_to_integer(value);
 
 	// Invalid or not set
 	if (nameStr == "" || valueNum == 0xffffffffffffffffULL)
@@ -116,7 +116,7 @@ std::string HtmlGenerator::toXml()
 		std::string country = it->first;
 		uint64_t count = it->second;
 
-		out += fmt("    <CountryCount name=\"%s\" count=\"%llu\"></CountryCount>\n", country.c_str(), (unsigned long long)count);
+		out += fmt("    <CountryCount name=\"%s\">%llu</CountryCount>\n", country.c_str(), (unsigned long long)count);
 	}
 	for (ArchitectureMap_t::iterator it = m_architectureCount.begin();
 			it != m_architectureCount.end();
@@ -125,10 +125,10 @@ std::string HtmlGenerator::toXml()
 		uint64_t count = it->second;
 		std::string name = ArchitectureFactory::instance().getNameFromArchitecture(arch);
 
-		out += fmt("    <ArchitectureCount name=\"%s\" count=\"%llu\"></ArchitectureCount>\n", name.c_str(), (unsigned long long)count);
+		out += fmt("    <ArchitectureCount name=\"%s\">%llu</ArchitectureCount>\n", name.c_str(), (unsigned long long)count);
 	}
 
-	out +=  fmt("    <TotalCount count=\"%llu\"></TotalCount>\n", (unsigned long long )m_totalConnections) +
+	out +=  fmt("    <TotalCount>%llu</TotalCount>\n", (unsigned long long )m_totalConnections) +
 			"  </HtmlGenerator>\n"
 			"</emilpro>\n";
 
