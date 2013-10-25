@@ -2,6 +2,7 @@
 #include <emilpro.hh>
 #include <instructionfactory.hh>
 #include <server/cgi-server.hh>
+#include <server/html-generator.hh>
 #include <configuration.hh>
 
 #include <string>
@@ -63,6 +64,7 @@ int main(int argc, const char *argv[])
 
 	if (mocked_timestamp != 0xffffffffffffffffULL)
 		mock_utc_timestamp(mocked_timestamp);
+	HtmlGenerator::instance();
 
 	Configuration::setBaseDirectory(baseDirectory);
 	Configuration::instance().setReadStoredModels(false);
