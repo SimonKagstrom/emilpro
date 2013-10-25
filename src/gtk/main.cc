@@ -163,6 +163,7 @@ public:
 
 			refresh();
 		}
+		Server::instance().connect();
 
 		m_app->run(*m_window);
 
@@ -331,8 +332,6 @@ int main(int argc, char **argv)
 	EmilProGui *gui = new EmilProGui();
 
 	gui->init(argc, argv);
-
-	Server::instance().connect();
 
 	gui->run(argc, argv);
 
