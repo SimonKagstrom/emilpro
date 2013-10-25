@@ -92,4 +92,43 @@ TESTSUITE(html_generator)
 		ASSERT_TRUE(gen2.m_countryCount.size() == 2U);
 		ASSERT_TRUE(gen2.m_architectureCount.size() == 4U);
 	}
+
+	TEST(insnArchitecture)
+	{
+		std::string xml;
+
+		xml =
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+			"<emilpro>\n"
+			"  <HtmlGenerator>\n"
+			"    <CountryCount name=\"Sweden\">4</CountryCount>\n"
+		    "    <ArchitectureCount name=\"z80\">4</ArchitectureCount>\n"
+		    "    <TotalCount>4</TotalCount>\n"
+			"  </HtmlGenerator>\n"
+			"  <InstructionModel name=\"beqz\" architecture=\"mips\">\n"
+			"  </InstructionModel>\n"
+			"  <InstructionModel name=\"klabbarparn\" architecture=\"powerpc\">\n"
+			"  </InstructionModel>\n"
+			"  <InstructionModel name=\"eualia\" architecture=\"powerpc\">\n"
+			"  </InstructionModel>\n"
+			"</emilpro>\n";
+
+		HtmlGenerator &gen = HtmlGenerator::instance();
+
+		bool res = XmlFactory::instance().parse(xml);
+		ASSERT_TRUE(res);
+		ASSERT_TRUE(gen.m_countryCount.size() == 1U);
+		ASSERT_TRUE(gen.m_architectureCount.size() == 1U);
+		ASSERT_TRUE(gen.m_instructionArchitectureCount.size() == 2U);
+
+		ASSERT_TRUE(gen.m_countryCount["Sweden"] == 4U);
+		ASSERT_TRUE(gen.m_architectureCount[bfd_arch_z80] == 4U);
+
+		ASSERT_TRUE(gen.m_instructionArchitectureCount[bfd_arch_mips] == 1U);
+		ASSERT_TRUE(gen.m_instructionArchitectureCount[bfd_arch_powerpc] == 2U);
+
+		xml = gen.toXml();
+
+		gen.destroy();
+	}
 }

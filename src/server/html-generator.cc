@@ -53,6 +53,7 @@ HtmlGenerator::HtmlGenerator() :
 			"Can't open GeoIP database");
 
 	XmlFactory::instance().registerListener("HtmlGenerator", this);
+	XmlFactory::instance().registerListener("InstructionModel", this);
 }
 
 HtmlGenerator::~HtmlGenerator()
@@ -64,6 +65,21 @@ HtmlGenerator::~HtmlGenerator()
 bool HtmlGenerator::onStart(const Glib::ustring& name,
 		const xmlpp::SaxParser::AttributeList& properties, std::string value)
 {
+	std::string insnArchStr;
+
+	if (name != "InstructionModel")
+		return true;
+
+	for(xmlpp::SaxParser::AttributeList::const_iterator it = properties.begin();
+			it != properties.end();
+			++it) {
+		if (it->name == "architecture") { // InstructionModel
+			insnArchStr = it->value;
+		}
+	}
+
+	m_instructionArchitectureCount[ArchitectureFactory::instance().getArchitectureFromName(insnArchStr)]++;
+
 	return true;
 }
 
@@ -72,13 +88,20 @@ bool HtmlGenerator::onElement(const Glib::ustring& name,
 {
 	std::string nameStr = "";
 	uint64_t valueNum = 0xffffffffffffffffULL;
+	std::string insnArchStr;
 
 	for(xmlpp::SaxParser::AttributeList::const_iterator it = properties.begin();
 			it != properties.end();
 			++it) {
-		if (it->name == "name") {
+		if (it->name == "name") { // HtmlGenerator
 			nameStr = it->value;
+		} else if (it->name == "architecture") { // InstructionModel
+			insnArchStr = it->value;
 		}
+	}
+
+	if (name != "CountryCount" && name != "ArchitectureCount") {
+		return true;
 	}
 
 	if (string_is_integer(value, 10))
@@ -139,6 +162,7 @@ std::string HtmlGenerator::produceHtml()
 {
 	std::map<uint64_t, std::list<std::string> > countriesByCount;
 	std::map<uint64_t, std::list<ArchitectureFactory::Architecture_t> > archByCount;
+	std::map<uint64_t, std::list<ArchitectureFactory::Architecture_t> > insnArchByCount;
 	std::string out;
 
 	for (CountryMap_t::iterator it = m_countryCount.begin();
@@ -157,6 +181,15 @@ std::string HtmlGenerator::produceHtml()
 		uint64_t count = it->second;
 
 		archByCount[count].push_back(arch);
+	}
+
+	for (ArchitectureMap_t::iterator it = m_instructionArchitectureCount.begin();
+			it != m_instructionArchitectureCount.end();
+			++it) {
+		ArchitectureFactory::Architecture_t arch = it->first;
+		uint64_t count = it->second;
+
+		insnArchByCount[count].push_back(arch);
 	}
 
 	out =
@@ -193,6 +226,30 @@ std::string HtmlGenerator::produceHtml()
 	n = 1;
 	for (std::map<uint64_t, std::list<ArchitectureFactory::Architecture_t> >::reverse_iterator it = archByCount.rbegin();
 			it != archByCount.rend();
+			++it) {
+		for (std::list<ArchitectureFactory::Architecture_t>::iterator itLst = it->second.begin();
+				itLst != it->second.end();
+				++itLst) {
+			ArchitectureFactory::Architecture_t arch = *itLst;
+			uint64_t count = it->first;
+			std::string name = ArchitectureFactory::instance().getNameFromArchitecture(arch);
+
+			if (count == 0)
+				break;
+
+			if (n > 10)
+				break;
+
+			out += fmt("<b>%u</b>. %s (%llu)<br>\n", n, name.c_str(), (unsigned long long)count);
+
+			n++;
+		}
+	}
+
+	out += "<H3>Instruction models per architecture</H3>\n";
+	n = 1;
+	for (std::map<uint64_t, std::list<ArchitectureFactory::Architecture_t> >::reverse_iterator it = insnArchByCount.rbegin();
+			it != insnArchByCount.rend();
 			++it) {
 		for (std::list<ArchitectureFactory::Architecture_t>::iterator itLst = it->second.begin();
 				itLst != it->second.end();
