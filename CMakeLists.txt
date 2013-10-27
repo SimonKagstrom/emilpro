@@ -12,7 +12,6 @@ set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
 include (${CMAKE_CURRENT_SOURCE_DIR}/cmake/BuildBinutils.cmake)
 
 find_package (LibElf REQUIRED)
-find_package (LibGeoIP REQUIRED)
 find_package (PkgConfig REQUIRED)
 
 set (PROJECT_VERSION_MAJOR  1)
@@ -26,8 +25,6 @@ set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
 pkg_check_modules(GTKMM gtkmm-3.0)
 pkg_check_modules(GTKSOURCEVIEWMM gtksourceviewmm-3.0)
 pkg_check_modules(LIBXMLPP libxml++-2.6)
-pkg_check_modules(LIBCURL libcurl)
-pkg_check_modules(CGICC cgicc)
 
 set (CMAKE_CXX_FLAGS "-std=c++0x -Wall -D_GLIBCXX_USE_NANOSLEEP -DPACKAGE=emilpro -DPACKAGE_VERSION=1")
 
@@ -121,27 +118,8 @@ add_executable (tools/squash-instruction-models
 	tools/squash-instruction-models.cc
 	)
 
-add_executable (tools/test-remote-communication
-	${BASE_SRCS}
-	tools/test-remote-communication.cc
-	)
-
-add_executable (server/cgi-server
-	${BASE_SRCS}
-	src/server/cgi-server.cc
-	src/server/html-generator.cc
-	tools/cgi-server-main.cc
-	)
-
-add_executable (server/cgi-handler
-	src/utils.cc
-	tools/cgi-handler.cc
-	)
-
 set_property(TARGET emilpro APPEND PROPERTY OBJECT_DEPENDS binutils)
 set_property(TARGET tools/squash-instruction-models APPEND PROPERTY OBJECT_DEPENDS binutils)
-set_property(TARGET tools/test-remote-communication APPEND PROPERTY OBJECT_DEPENDS binutils)
-set_property(TARGET server/cgi-server APPEND PROPERTY OBJECT_DEPENDS binutils)
 
 set (BASE_LIBS
 	${LIBELF_LIBRARIES}
@@ -163,26 +141,3 @@ target_link_libraries(emilpro
 target_link_libraries(tools/squash-instruction-models
 	${BASE_LIBS}
 	)
-
-target_link_libraries(tools/test-remote-communication
-	${BASE_LIBS}
-	)
-
-target_link_libraries(server/cgi-server
-	${BASE_LIBS}
-	${LibGeoIP_LIBRARY}
-	)
-
-target_link_libraries(server/cgi-handler
-	${CGICC_LIBRARIES}
-	)
-
-add_custom_command (OUTPUT tools/setup-conf-dir.sh
-  COMMAND cp ${CMAKE_SOURCE_DIR}/tools/setup-conf-dir.sh ${CMAKE_BINARY_DIR}/tools/setup-conf-dir.sh
-  DEPENDS
-	${CMAKE_SOURCE_DIR}/tools/setup-conf-dir.sh
-)
-
-add_custom_target(setup_conf_dir ALL
-	DEPENDS tools/setup-conf-dir.sh
-)
