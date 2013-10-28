@@ -36,7 +36,13 @@ int main(int argc, const char *argv[])
 			"\n"
 			"std::string %s = \n\"", argv[2]);
 	out += escape_string_for_c(in);
-	out += "\";";
+	out += "\"; // END";
 
-	write_file((void *)out.c_str(), out.size(), "%s", argv[1]);
+	int v = write_file((void *)out.c_str(), out.size(), "%s", argv[1]);
+	if (v != 0) {
+		fprintf(stderr, "Can't write: %d\n", v);
+		exit(1);
+	}
+
+	return 0;
 }
