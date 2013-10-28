@@ -15,6 +15,7 @@ void HtmlGenerator::addData(const char* ip, ArchitectureFactory::Architecture_t 
 
 	m_countryCount[country]++;
 	m_architectureCount[arch]++;
+	m_totalConnections++;
 }
 
 void HtmlGenerator::generate()
@@ -111,10 +112,12 @@ bool HtmlGenerator::onElement(const Glib::ustring& name,
 	if (nameStr == "" || valueNum == 0xffffffffffffffffULL)
 		return true;
 
-	if (name == "CountryCount")
+	if (name == "CountryCount") {
 		m_countryCount[nameStr] += valueNum;
-	else if (name == "ArchitectureCount")
+		m_totalConnections += valueNum;
+	} else if (name == "ArchitectureCount") {
 		m_architectureCount[ArchitectureFactory::instance().getArchitectureFromName(nameStr)] += valueNum;
+	}
 
 	return true;
 }
@@ -151,8 +154,7 @@ std::string HtmlGenerator::toXml()
 		out += fmt("    <ArchitectureCount name=\"%s\">%llu</ArchitectureCount>\n", name.c_str(), (unsigned long long)count);
 	}
 
-	out +=  fmt("    <TotalCount>%llu</TotalCount>\n", (unsigned long long )m_totalConnections) +
-			"  </HtmlGenerator>\n"
+	out +=  "  </HtmlGenerator>\n"
 			"</emilpro>\n";
 
 	return out;

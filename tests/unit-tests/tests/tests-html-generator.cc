@@ -46,6 +46,7 @@ TESTSUITE(html_generator)
 		ASSERT_TRUE(path_to_data[xmlFilename].find("Unknown") != std::string::npos);
 
 		ASSERT_TRUE(gen.m_countryCount["Sweden"] == 3U);
+		ASSERT_TRUE(gen.m_totalConnections == 7U);
 
 		// Test that the output HTML is ordered
 		size_t swePos = path_to_data[statsFilename].find("1</b>. Sweden (3)");
@@ -61,6 +62,8 @@ TESTSUITE(html_generator)
 		ASSERT_TRUE(i386Pos != std::string::npos);
 		ASSERT_TRUE(sparcPos != std::string::npos);
 		ASSERT_TRUE(i386Pos < sparcPos);
+
+		ASSERT_TRUE(path_to_data[statsFilename].find("connections is <b>7</b>") != std::string::npos);
 
 		gen.destroy();
 	}
