@@ -1,8 +1,7 @@
 Emil PRO
 
-Bintuils:
+Emil PRO is a disassembler for a large number of instruction sets.
 
-./configure --enable-targets=all --prefix=/home/ska/local/
-# FIXME!
-cp include/libiberty.h ~/local/include/
-cp include/demangle.h ~/local/include/
+Build
+-----
+
