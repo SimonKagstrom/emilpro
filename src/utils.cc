@@ -380,9 +380,15 @@ std::string escape_string_for_xml(std::string &str)
 		char c = str[i];
 
 		if (c == '<')
-			out += "\\<";
-		if (c == '>')
-			out += "\\>";
+			out += "&lt;";
+		else if (c == '>')
+			out += "&gt;";
+		else if (c == '"')
+			out += "&quot;";
+		else if (c == '\'')
+			out += "&apos;";
+		else if (c == '&')
+			out += "&amp;";
 		else
 			out += c;
 	}
