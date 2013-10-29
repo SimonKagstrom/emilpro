@@ -208,7 +208,9 @@ void Model::deriveSymbols(ISymbol *sym, InstructionList_t &lst)
 			continue;
 
 		uint64_t tgt = cur->getBranchTargetAddress();
-		if (tgt != IInstruction::INVALID_ADDRESS) {
+
+		if (tgt != IInstruction::INVALID_ADDRESS &&
+				getSurroundingData(tgt, 4, NULL, NULL) != NULL) {
 			if (m_symbolsByAddress[tgt].empty())
 				possibleSites[tgt] = true;
 		}
