@@ -140,6 +140,10 @@ public:
 		m_instructionView.init(m_builder, &m_hexView, &m_infoBox, &m_sourceView, &m_symbolView, &m_addressHistory);
 		m_symbolView.init(m_builder, &m_instructionView, &m_hexView, &m_addressHistory);
 
+		m_builder->get_widget("instruction_view", m_instructionTreeView);
+		panic_if(!m_instructionTreeView,
+				"Can't get view");
+
 		m_builder->get_widget("main_window", m_window);
 		Preferences::instance().registerListener("MainWindowSize", this);
 	}
@@ -266,7 +270,21 @@ private:
 
 	void onToggleInstructionsData()
 	{
-		m_instructionsDataNotebook->set_current_page(!m_instructionsDataNotebook->get_current_page());
+		int page = 0;
+
+		if (m_instructionTreeView->has_focus() ||
+				m_hexView.getTextView(8).has_focus() ||
+				m_hexView.getTextView(16).has_focus() ||
+				m_hexView.getTextView(32).has_focus() ||
+				m_hexView.getTextView(64).has_focus())
+			page = !m_instructionsDataNotebook->get_current_page();
+
+		m_instructionsDataNotebook->set_current_page(page);
+
+		if (page == 0)
+			m_instructionTreeView->grab_focus();
+		else
+			m_hexView.getTextView(8).grab_focus();
 	}
 
 	void onPreferencesChanged(const std::string &key,
@@ -317,6 +335,7 @@ private:
 	SymbolView m_symbolView;
 	SourceView m_sourceView;
 	AddressHistory m_addressHistory;
+	Gtk::TreeView *m_instructionTreeView;
 	Gtk::Notebook *m_instructionsDataNotebook;
 	Gtk::Window *m_window;
 	Gtk::AboutDialog *m_aboutDialog;
