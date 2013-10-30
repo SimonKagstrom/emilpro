@@ -94,9 +94,10 @@ void HexView::init(Glib::RefPtr<Gtk::Builder> builder)
 
 	m_tagTable->add(m_tag);
 
-	for (unsigned i = 0; i < 4; i++)
+	for (unsigned i = 0; i < 4; i++) {
 		m_textViews[i] = new Gtk::TextView();
-
+		m_textViews[i]->set_cursor_visible(false);
+	}
 
 	builder->get_widget("instruction_encoding_text_view", m_encodingView);
 	panic_if(!m_encodingView,
