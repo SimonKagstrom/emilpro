@@ -380,6 +380,14 @@ private:
 			if ((cur->section->flags & SEC_ALLOC) == 0)
 				continue;
 
+			// Remove ARM $a/$t/$d symbols
+			if (bfd_get_arch(m_bfd) == bfd_arch_arm && symName) {
+					if (strlen(symName) >= 2 &&
+							symName[0] == '$' && strchr("atd", symName[1]) && (symName[2] == '\0' || symName[2] == '.'))
+						continue;
+
+			}
+
 			if (m_sectionContents.find(cur->section) == m_sectionContents.end()) {
 				bfd_size_type size;
 				bfd_byte *p;
