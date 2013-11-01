@@ -239,12 +239,12 @@ public:
 				"    <privileged>%s</privileged>\n"
 				"    <description>%s</description>\n"
 				"  </InstructionModel>\n",
-				m_mnemonic.c_str(),
+				escape_string_for_xml(m_mnemonic).c_str(),
 				ArchitectureFactory::instance().getNameFromArchitecture(m_architecture).c_str(),
 				(unsigned long long)m_timestamp,
 				getTypeString().c_str(),
 				getPrivilegeString().c_str(),
-				m_description.c_str()
+				escape_string_for_xml(m_description).c_str()
 				);
 	}
 
