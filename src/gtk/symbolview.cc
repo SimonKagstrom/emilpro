@@ -14,6 +14,7 @@ public:
 	{
 		add(m_address);
 		add(m_size);
+		add(m_l);
 		add(m_r);
 		add(m_w);
 		add(m_x);
@@ -26,11 +27,12 @@ public:
 
 	unsigned getNumberOfVisibleColumns()
 	{
-		return 7;
+		return 8;
 	}
 
 	Gtk::TreeModelColumn<Glib::ustring> m_address;
 	Gtk::TreeModelColumn<Glib::ustring> m_size;
+	Gtk::TreeModelColumn<Glib::ustring> m_l;
 	Gtk::TreeModelColumn<Glib::ustring> m_r;
 	Gtk::TreeModelColumn<Glib::ustring> m_w;
 	Gtk::TreeModelColumn<Glib::ustring> m_x;
@@ -99,6 +101,7 @@ void SymbolView::init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, H
 	m_symbolListStore = Gtk::ListStore::create(*m_symbolColumns);
 	m_symbolView->append_column("Address", m_symbolColumns->m_address);
 	m_symbolView->append_column("Size", m_symbolColumns->m_size);
+	m_symbolView->append_column("Lnk", m_symbolColumns->m_l);
 	m_symbolView->append_column("R", m_symbolColumns->m_r);
 	m_symbolView->append_column("W", m_symbolColumns->m_w);
 	m_symbolView->append_column("X", m_symbolColumns->m_x);
@@ -439,6 +442,7 @@ void SymbolView::onSymbolImpl(const emilpro::ISymbol &sym)
 
 	row[m_symbolColumns->m_address] = fmt("0x%llx", (long long)sym.getAddress()).c_str();
 	row[m_symbolColumns->m_size] = fmt("0x%08llx", (long long)sym.getSize()).c_str();
+	row[m_symbolColumns->m_l] = sym.getLinkage() == ISymbol::LINK_DYNAMIC ? "D" : "";
 	row[m_symbolColumns->m_r] = r;
 	row[m_symbolColumns->m_w] = w;
 	row[m_symbolColumns->m_x] = x;
