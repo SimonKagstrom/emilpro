@@ -185,7 +185,7 @@ private:
 	// Derived
 	bool onStart(const Glib::ustring &name, const xmlpp::SaxParser::AttributeList &properties, std::string value)
 	{
-		if (name == "InstructionModel" && XmlFactory::instance().isParsingRemoteData()) {
+		if (name == "InstructionModel") {
 			uint64_t timestamp = 0;
 
 			for(xmlpp::SaxParser::AttributeList::const_iterator it = properties.begin();
@@ -205,16 +205,7 @@ private:
 
 	bool onElement(const Glib::ustring &name, const xmlpp::SaxParser::AttributeList &properties, std::string value)
 	{
-		if (name == "InstructionModelTimestamp") {
-			uint64_t timestamp = 0;
-
-			if (string_is_integer(value))
-				timestamp = string_to_integer(value);
-
-			// Might have been updated by incoming data
-			maybeUpdateTimestamp(timestamp);
-		} else if (name == "ServerTimestampDiff") {
-
+		if (name == "ServerTimestampDiff") {
 			// Difference between server timestmap and us
 			if (string_is_integer(value))
 				adjust_utc_timestamp(string_to_integer(value));
@@ -243,21 +234,6 @@ private:
 			return;
 
 		m_instructionModelTimestamp = timestamp;
-
-		Configuration &conf = Configuration::instance();
-
-		std::string fileName = conf.getPath(Configuration::DIR_REMOTE) + "/serverTimestamp.xml";
-		std::string xml = fmt(
-				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-				"<emilpro>\n"
-				"  <ServerTimestamps>\n"
-				"     <InstructionModelTimestamp>%llu</InstructionModelTimestamp>\n"
-				"  </ServerTimestamps>\n"
-				"</emilpro>\n",
-				(unsigned long long)m_instructionModelTimestamp
-				);
-
-		write_file(xml.c_str(), xml.size(), "%s", fileName.c_str());
 	}
 
 
