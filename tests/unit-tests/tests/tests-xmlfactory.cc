@@ -199,5 +199,7 @@ TESTSUITE(xmlfactory)
 				"  </InstructionModel>\n"
 				"</emilpro>");
 		ASSERT_TRUE(res == true);
+
+		ASSERT_TRUE(m_nameToValueMap["description"] == description);
 	}
 }
