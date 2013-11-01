@@ -114,8 +114,8 @@ std::string Preferences::toXml()
 
 		out +=
 				"    <PreferenceEntry>\n"
-				"       <PreferenceKey>" + key + "</PreferenceKey>\n"
-				"       <PreferenceValue>" + value + "</PreferenceValue>\n"
+				"       <PreferenceKey>" + escape_string_for_xml(key) + "</PreferenceKey>\n"
+				"       <PreferenceValue>" + escape_string_for_xml(value) + "</PreferenceValue>\n"
 				"    </PreferenceEntry>\n";
 	}
 
