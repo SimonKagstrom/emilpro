@@ -46,12 +46,12 @@ server-has-newer
 client-already-has-server-data
 	Run                            rm -rf client srv
 	Run                            ${setup_conf} srv remote 0 KALLE 4
-	Run                            ${setup_conf} client local 4
+	Run                            ${setup_conf} client local 5 KALLE 4
     ${rc}=    Run and return RC    ${cgi_server} srv -q -t 5
     Should be equal as integers    ${rc}    0
     ${rc}=    Run and return RC    ${remote_comm_test} client ${cgi_handler} srv -t 4
     Run                            echo quit > srv/to-server.fifo
-    ${rc}=    Run and return RC    grep -rq "KALLE" client/
+    ${rc}=    Run and return RC    grep -rq "KALLE" client/remote
     Run                            rm -rf client srv
     Should be equal as integers    ${rc}    1
 
