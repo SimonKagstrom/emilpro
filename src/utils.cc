@@ -372,7 +372,13 @@ std::string escape_string_for_c(std::string &str)
 	return out;
 }
 
-std::string escape_string_for_xml(std::string &str)
+#define LT_CODE '~'
+#define GT_CODE '`'
+#define QUOT_CODE '\\'
+#define SQUOT_CODE '{'
+#define AMP_CODE '#'
+
+std::string escape_string_for_xml(const std::string &str)
 {
 	std::string out;
 
@@ -380,15 +386,39 @@ std::string escape_string_for_xml(std::string &str)
 		char c = str[i];
 
 		if (c == '<')
-			out += "&lt;";
+			out += LT_CODE;
 		else if (c == '>')
-			out += "&gt;";
+			out += GT_CODE;
 		else if (c == '"')
-			out += "&quot;";
+			out += QUOT_CODE;
 		else if (c == '\'')
-			out += "&apos;";
+			out += SQUOT_CODE;
 		else if (c == '&')
-			out += "&amp;";
+			out += AMP_CODE;
+		else
+			out += c;
+	}
+
+	return out;
+}
+
+std::string unescape_string_from_xml(const std::string &str)
+{
+	std::string out;
+
+	for (unsigned i = 0; i < str.size(); i++) {
+		char c = str[i];
+
+		if (c == LT_CODE)
+			out += "<";
+		else if (c == GT_CODE)
+			out += ">";
+		else if (c == QUOT_CODE)
+			out += "\"";
+		else if (c == SQUOT_CODE)
+			out += "'";
+		else if (c == AMP_CODE)
+			out += "&";
 		else
 			out += c;
 	}
@@ -461,3 +491,4 @@ std::list<std::string> split_string(const std::string &s, const char *delims)
 
     return elems;
 }
+

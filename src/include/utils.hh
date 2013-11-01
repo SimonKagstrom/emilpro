@@ -110,7 +110,9 @@ int64_t string_to_integer(std::string str, unsigned base = 0);
 
 std::string escape_string_for_c(std::string &str);
 
-std::string escape_string_for_xml(std::string &str);
+std::string escape_string_for_xml(const std::string &str);
+
+std::string unescape_string_from_xml(const std::string &str);
 
 uint64_t get_utc_timestamp();
 

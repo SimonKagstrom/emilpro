@@ -196,4 +196,11 @@ TESTSUITE(utils)
 		ASSERT_FALSE(string_is_integer(invalid));
 		ASSERT_FALSE(string_is_integer(tooBig));
 	}
+
+	TEST(escapeXml)
+	{
+		std::string description  = "Branch & if > greater \' or \" equal < after the less";
+
+		ASSERT_TRUE(unescape_string_from_xml(escape_string_for_xml(description)) == description);
+	}
 }
