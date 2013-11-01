@@ -1,5 +1,7 @@
 #include <xmlstring.hh>
 
+#include <utils.hh>
+
 using namespace emilpro;
 
 XmlString::XmlString(const std::string& tag) :
@@ -35,7 +37,7 @@ bool XmlString::onElement(const Glib::ustring& name,
 		const xmlpp::SaxParser::AttributeList& properties, std::string value)
 {
 	indent();
-	m_string += "<" + name + handleProperties(properties) + ">" + value;
+	m_string += "<" + name + handleProperties(properties) + ">" + escape_string_for_xml(value);
 
 	return true;
 }
@@ -59,7 +61,7 @@ std::string XmlString::handleProperties(const xmlpp::SaxParser::AttributeList& p
 	for(xmlpp::SaxParser::AttributeList::const_iterator it = properties.begin();
 			it != properties.end();
 			++it)
-		out += " " + it->name + "=\"" + it->value + "\"";
+		out += " " + it->name + "=\"" + escape_string_for_xml(it->value) + "\"";
 
 	return out;
 }
