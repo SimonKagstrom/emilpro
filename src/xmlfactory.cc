@@ -61,13 +61,15 @@ void XmlFactory::on_end_element(const Glib::ustring& name)
 	maybePopListener(name);
 }
 
-void XmlFactory::on_characters(const Glib::ustring& characters)
+void XmlFactory::on_characters(const Glib::ustring& charactersIn)
 {
 	if (m_validationRun)
 		return;
 
 	if (m_currentName == "")
 		return;
+
+	std::string characters = unescape_string_from_xml(charactersIn);
 
 	XmlFactory::ElementToListenerMap_t::iterator it = m_elementListeners.find(m_currentName);
 
