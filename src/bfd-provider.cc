@@ -218,11 +218,11 @@ public:
 		symcount = bfd_read_minisymbols(m_bfd, FALSE,
 				(void **)&m_bfdSyms, &sz);
 
-		handleSymbols(symcount, m_bfdSyms);
+		handleSymbols(symcount, m_bfdSyms, false);
 
 		dynsymcount = bfd_read_minisymbols(m_bfd, TRUE /* dynamic */,
 				(void **)&m_dynamicBfdSyms, &sz);
-		handleSymbols(dynsymcount, m_dynamicBfdSyms);
+		handleSymbols(dynsymcount, m_dynamicBfdSyms, true);
 
 		asymbol *syntheticSyms;
 		syntsymcount = bfd_get_synthetic_symtab (m_bfd, symcount, m_bfdSyms,
@@ -233,7 +233,7 @@ public:
 			m_syntheticBfdSyms = (asymbol **)malloc(syntsymcount * sizeof(asymbol *));
 			for (unsigned i = 0; i < syntsymcount; i++)
 				m_syntheticBfdSyms[i] = &syntheticSyms[i];
-			handleSymbols(syntsymcount, m_syntheticBfdSyms);
+			handleSymbols(syntsymcount, m_syntheticBfdSyms, false);
 		}
 
 
@@ -350,7 +350,7 @@ private:
 		elf_end(elf);
 	}
 
-	void handleSymbols(long symcount, asymbol **syms)
+	void handleSymbols(long symcount, asymbol **syms, bool dynamic)
 	{
 		typedef std::map<ISymbol *, uint64_t> SectionAddressBySymbol_t;
 		typedef std::map<uint64_t, std::list<ISymbol *> > SymbolsByAddress_t;
@@ -418,8 +418,9 @@ private:
 				else if (cur->section->flags & SEC_ALLOC)
 					symType = ISymbol::SYM_DATA;
 			}
+
 			ISymbol &sym = SymbolFactory::instance().createSymbol(
-					ISymbol::LINK_NORMAL,
+					dynamic ? ISymbol::LINK_DYNAMIC : ISymbol::LINK_NORMAL,
 					symType,
 					symName,
 					section + cur->value,
