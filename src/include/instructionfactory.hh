@@ -17,6 +17,7 @@ namespace instruction_factory
 	class modelToFromXml;
 	class timestamp;
 	class timestampDefault;
+	class xmlSpecialCharacters;
 }
 
 namespace emilpro
@@ -30,6 +31,7 @@ namespace emilpro
 		friend class instruction_factory::modelToFromXml;
 		friend class instruction_factory::timestamp;
 		friend class instruction_factory::timestampDefault;
+		friend class instruction_factory::xmlSpecialCharacters;
 
 		class IEncodingHandler
 		{

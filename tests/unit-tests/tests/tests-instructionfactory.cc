@@ -198,4 +198,29 @@ TESTSUITE(instruction_factory)
 		lst = insnFactory.getInstructionModels(4);
 		ASSERT_TRUE(lst.size() == 1U);
 	}
+
+	TEST(xmlSpecialCharacters)
+	{
+		InstructionFactory &insnFactory = InstructionFactory::instance();
+		XmlFactory &x = XmlFactory::instance();
+		std::string description  = "Branch & if > greater \' or \" equal < after the less";
+
+		std::string xml =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				"<emilpro>\n"
+				"  <InstructionModel name=\"beqz\" architecture=\"mips\" timestamp=\"2\">\n"
+				"    <type>cflow</type>\n"
+				"    <privileged>false</privileged>\n"
+				"    <description>" + escape_string_for_xml(description) + "</description>\n"
+				"  </InstructionModel>\n"
+				"</emilpro>\n";
+
+		ArchitectureFactory::instance().provideArchitecture(bfd_arch_mips);
+
+		x.parse(xml);
+		InstructionModel *p = (InstructionModel *)insnFactory.m_instructionModelByArchitecture[(unsigned)bfd_arch_mips]["beqz"];
+		ASSERT_TRUE(p);
+
+		ASSERT_TRUE(p->m_description == description);
+	}
 }
