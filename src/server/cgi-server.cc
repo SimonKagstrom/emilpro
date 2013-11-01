@@ -52,9 +52,6 @@ bool CgiServer::onEnd(const Glib::ustring &name)
 
 std::string CgiServer::reply()
 {
-	if (m_timestamp == 0xffffffffffffffffULL)
-		return "";
-
 	InstructionFactory::InstructionModelList_t lst = InstructionFactory::instance().getInstructionModels();
 	std::list<InstructionFactory::IInstructionModel *> models;
 	uint64_t highestTimestamp = 0;
