@@ -106,7 +106,7 @@ void SymbolView::init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, H
 	m_symbolView->append_column("W", m_symbolColumns->m_w);
 	m_symbolView->append_column("X", m_symbolColumns->m_x);
 	m_symbolView->append_column("A", m_symbolColumns->m_a);
-	m_symbolView->append_column("SymbolName", m_symbolColumns->m_name);
+	m_symbolView->append_column("Symbol name", m_symbolColumns->m_name);
 
 	m_symbolView->set_model(m_symbolListStore);
 
