@@ -29,6 +29,8 @@ public:
 
 	void enableHistory();
 
+	void clear();
+
 private:
 	typedef std::list<Gtk::TreeModel::iterator> InstructionIterList_t;
 	bool onSearchEqual(const Glib::RefPtr<Gtk::TreeModel>& model, int column, const Glib::ustring& key, const Gtk::TreeModel::iterator& iter);
@@ -48,6 +50,7 @@ private:
 	Glib::RefPtr<Gtk::ListStore> m_instructionListStore;
 	InstructionModelColumns *m_instructionColumns;
 	Gtk::TreeView *m_treeView;
+	sigc::connection m_cursorChangedSignal;
 
 	Glib::RefPtr<Gtk::ListStore> m_addressHistoryListStore;
 	AddressHistoryColumns *m_addressHistoryColumns;

@@ -286,6 +286,7 @@ void SymbolView::updateSourceView(uint64_t address, const emilpro::ISymbol* sym)
 
 void SymbolView::refreshSymbols()
 {
+	m_referencesListStore->clear();
 	m_symbolListStore->clear();
 	m_symbolRowIterByAddress.clear();
 	m_symbolRowIterByName.clear();

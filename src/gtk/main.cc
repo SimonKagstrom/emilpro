@@ -181,8 +181,6 @@ protected:
 	{
 		Model::instance().registerSymbolListener(&m_symbolView);
 
-		Model::instance().parseAll();
-
 		m_hexView.clearData();
 		m_symbolView.refreshSymbols();
 	}
@@ -197,6 +195,7 @@ protected:
 				return;
 		}
 
+		m_instructionView.clear();
 		refresh();
 	}
 

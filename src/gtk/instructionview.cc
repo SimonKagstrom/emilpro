@@ -428,7 +428,7 @@ void InstructionView::init(Glib::RefPtr<Gtk::Builder> builder, HexView* hv, Info
 
 	m_treeView->append_column("Target", m_instructionColumns->m_target);
 
-	m_treeView->signal_cursor_changed().connect(sigc::mem_fun(*this,
+	m_cursorChangedSignal = m_treeView->signal_cursor_changed().connect(sigc::mem_fun(*this,
 			&InstructionView::onCursorChanged));
 	m_treeView->signal_row_activated().connect(sigc::mem_fun(*this,
 			&InstructionView::onRowActivated));
@@ -667,4 +667,14 @@ bool InstructionView::onSearchEqual(const Glib::RefPtr<Gtk::TreeModel>& model,
 		return false;
 
 	return true;
+}
+
+void InstructionView::clear()
+{
+	m_cursorChangedSignal.disconnect();
+	m_lastInstructionIters.clear();
+	m_addressHistoryListStore->clear();
+	m_instructionListStore->clear();
+	m_cursorChangedSignal = m_treeView->signal_cursor_changed().connect(sigc::mem_fun(*this,
+			&InstructionView::onCursorChanged));
 }
