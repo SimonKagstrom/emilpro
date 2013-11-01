@@ -19,6 +19,10 @@ void SourceView::init(Glib::RefPtr<Gtk::Builder> builder)
 	panic_if(!sourceFont,
 			"Can't get source font");
 
+	builder->get_widget("source_filename_label", m_sourceFilename);
+	panic_if(!m_sourceFilename,
+			"Can't get source label");
+
 	builder->get_widget("source_view", m_sourceView);
 	panic_if(!m_sourceView,
 			"Can't get source view");
@@ -57,6 +61,8 @@ void SourceView::update(uint64_t address)
 		m_lastSourceLines.clear();
 	}
 	m_currentBuffer = buffer;
+
+	m_sourceFilename->set_text(fileLine.m_file);
 
 	// Should never happen, but anyway...
 	if (!buffer)

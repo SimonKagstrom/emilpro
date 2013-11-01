@@ -36,6 +36,8 @@ private:
 	Glib::RefPtr<Gtk::TextBuffer::TagTable> m_tagTable;
 	SourceLineNrList_t m_lastSourceLines;
 
+	Gtk::Label *m_sourceFilename;
+
 	Gdk::Color m_historyColors[3];
 	Gdk::Color m_backgroundColor;
 };
