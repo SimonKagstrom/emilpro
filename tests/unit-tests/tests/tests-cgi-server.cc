@@ -206,5 +206,30 @@ TESTSUITE(cgi_server)
 		ASSERT_TRUE(path_to_data[statsFilename].find("m68k (1)") != std::string::npos);
 		ASSERT_TRUE(path_to_data[statsFilename].find("Japan (2)") != std::string::npos);
 
+		reply = server.reply();
+		ASSERT_TRUE(reply != "");
+
+		// No CurrentArchitectures
+		xml =   "  <ServerTimestamps>\n"
+				"    <InstructionModelTimestamp>1</InstructionModelTimestamp>\n"
+				"  </ServerTimestamps>\n";
+		server.request(xml);
+		ASSERT_TRUE(path_to_data[statsFilename].find("Japan (2)") != std::string::npos);
+
+		// Opt out
+		xml =   "  <ServerTimestamps optOutFromStatistics=\"yes\">\n"
+				"    <InstructionModelTimestamp>1</InstructionModelTimestamp>\n"
+				"    <CurrentArchitecture>m68k</CurrentArchitecture>\n"
+				"  </ServerTimestamps>\n";
+		server.request(xml);
+		ASSERT_TRUE(path_to_data[statsFilename].find("Japan (2)") != std::string::npos);
+
+		// Opt in
+		xml =   "  <ServerTimestamps optOutFromStatistics=\"no\">\n"
+				"    <InstructionModelTimestamp>1</InstructionModelTimestamp>\n"
+				"    <CurrentArchitecture>m68k</CurrentArchitecture>\n"
+				"  </ServerTimestamps>\n";
+		server.request(xml);
+		ASSERT_TRUE(path_to_data[statsFilename].find("Japan (3)") != std::string::npos);
 	}
 }

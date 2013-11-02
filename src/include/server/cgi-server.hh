@@ -42,6 +42,8 @@ namespace emilpro
 		uint64_t m_timestamp;
 		int64_t m_timestampAdjustment;
 		ArchitectureFactory::Architecture_t m_currentArchitecture;
+		bool m_hasCurrentArchitecture;
+		bool m_optOutFromStatistics;
 	};
 
 }

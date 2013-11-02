@@ -14,7 +14,9 @@ using namespace emilpro;
 CgiServer::CgiServer() :
 				m_timestamp(0xffffffffffffffffULL),
 				m_timestampAdjustment(0),
-				m_currentArchitecture(bfd_arch_unknown)
+				m_currentArchitecture(bfd_arch_unknown),
+				m_hasCurrentArchitecture(false),
+				m_optOutFromStatistics(false)
 {
 	InstructionFactory::instance(); // Must be created before this
 	XmlFactory::instance().registerListener("ServerTimestamps", this);
@@ -22,6 +24,17 @@ CgiServer::CgiServer() :
 
 bool CgiServer::onStart(const Glib::ustring &name, const xmlpp::SaxParser::AttributeList &properties, std::string value)
 {
+	if (name != "ServerTimestamps")
+		return true;
+
+	for(xmlpp::SaxParser::AttributeList::const_iterator it = properties.begin();
+			it != properties.end();
+			++it) {
+		if (it->name == "optOutFromStatistics") {
+			m_optOutFromStatistics = it->value == "yes" ? true : false;
+		}
+	}
+
 	return true;
 }
 
@@ -35,6 +48,7 @@ bool CgiServer::onElement(const Glib::ustring &name, const xmlpp::SaxParser::Att
 			m_timestampAdjustment = get_utc_timestamp() - string_to_integer(value);
 	} else if (name == "CurrentArchitecture") {
 		m_currentArchitecture = ArchitectureFactory::instance().getArchitectureFromName(value);
+		m_hasCurrentArchitecture = true;
 	}
 
 	return true;
@@ -117,9 +131,12 @@ void CgiServer::request(const std::string xml)
 	m_timestamp = 0xffffffffffffffffULL;
 	m_timestampAdjustment = 0;
 	m_currentArchitecture = bfd_arch_unknown;
+	m_hasCurrentArchitecture = false;
+	m_optOutFromStatistics = false;
 
 	XmlFactory::instance().parse(xml, true);
 
-	html.addData(getenv("REMOTE_ADDR"), m_currentArchitecture);
+	if (m_hasCurrentArchitecture && !m_optOutFromStatistics)
+		html.addData(getenv("REMOTE_ADDR"), m_currentArchitecture);
 	html.generate();
 }
