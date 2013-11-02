@@ -28,7 +28,7 @@ namespace emilpro
 		~CgiServer();
 		std::string reply();
 
-		void request(const std::string xml);
+		bool request(const std::string xml);
 
 	protected:
 		// From IXmlListener

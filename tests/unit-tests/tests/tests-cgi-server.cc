@@ -33,27 +33,24 @@ TESTSUITE(cgi_server)
 		CgiServer server;
 		std::string reply;
 		std::string xml;
+		bool res;
 
-		server.request("Leif GW Persson");
-
-		reply = server.reply();
-		ASSERT_TRUE(reply == "");
+		res = server.request("Leif GW Persson");
+		ASSERT_TRUE(!res);
 
 		xml =   "  <ServerTimestamps>\n"
 				"    <InstructionModelTimestamp>1</InstructionModelTimestamp>\n"
 				"  </ServerTimestampsXXX>\n";
-		server.request(xml);
+		res = server.request(xml);
 
-		reply = server.reply();
-		ASSERT_TRUE(reply == "");
+		ASSERT_TRUE(!res);
 
 		xml =   "  <ServerTimestamps>\n"
 				"    <vobb>1</vobb>\n"
 				"  </ServerTimestamps>\n";
-		server.request(xml);
+		res = server.request(xml);
 
-		reply = server.reply();
-		ASSERT_TRUE(reply == "");
+		ASSERT_TRUE(res);
 	}
 
 	TEST(validRequest, ServerFixture)

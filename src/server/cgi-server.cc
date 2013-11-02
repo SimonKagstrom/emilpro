@@ -123,7 +123,7 @@ std::string CgiServer::reply()
 			"</emilpro>\n";
 }
 
-void CgiServer::request(const std::string xml)
+bool CgiServer::request(const std::string xml)
 {
 	HtmlGenerator &html = HtmlGenerator::instance();
 
@@ -134,9 +134,12 @@ void CgiServer::request(const std::string xml)
 	m_hasCurrentArchitecture = false;
 	m_optOutFromStatistics = false;
 
-	XmlFactory::instance().parse(xml, true);
+	if (!XmlFactory::instance().parse(xml, true))
+		return false;
 
 	if (m_hasCurrentArchitecture && !m_optOutFromStatistics)
 		html.addData(getenv("REMOTE_ADDR"), m_currentArchitecture);
 	html.generate();
+
+	return true;
 }

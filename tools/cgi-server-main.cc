@@ -131,8 +131,9 @@ int main(int argc, const char *argv[])
 			break;
 		}
 
-		server.request(cur);
-		std::string reply = server.reply();
+		std::string reply;
+		if (server.request(cur) == true)
+			reply = server.reply();
 
 		write_file_timeout(reply.c_str(), reply.size(), 1000, "%s", outFifoName.c_str());
 	}
