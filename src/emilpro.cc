@@ -58,7 +58,6 @@ void EmilPro::init()
 	}
 	g_instance->parseDirectory(localDir);
 	g_instance->parseDirectory(remoteDir);
-	g_instance->parseDirectory(confDir);
 }
 
 void EmilPro::destroy()
