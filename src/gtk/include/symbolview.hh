@@ -77,6 +77,7 @@ private:
 	InstructionView *m_instructionView;
 	HexView *m_hexView;
 	emilpro::AddressHistory *m_addressHistory;
+	sigc::connection m_cursorChangedSignal;
 
 
 	std::mutex m_mutex;

@@ -112,7 +112,7 @@ void SymbolView::init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, H
 
 	m_symbolView->signal_row_activated().connect(sigc::mem_fun(*this,
 			&SymbolView::onRowActivated));
-	m_symbolView->signal_cursor_changed().connect(sigc::mem_fun(*this,
+	m_cursorChangedSignal = m_symbolView->signal_cursor_changed().connect(sigc::mem_fun(*this,
 			&SymbolView::onCursorChanged));
 
 	for (unsigned i = 0; i < m_symbolColumns->getNumberOfVisibleColumns(); i++) {
@@ -286,6 +286,7 @@ void SymbolView::updateSourceView(uint64_t address, const emilpro::ISymbol* sym)
 
 void SymbolView::refreshSymbols()
 {
+	m_cursorChangedSignal.disconnect();
 	m_referencesListStore->clear();
 	m_symbolListStore->clear();
 	m_symbolRowIterByAddress.clear();
@@ -293,6 +294,8 @@ void SymbolView::refreshSymbols()
 
 	// The onSymbol callback will handle this
 	Model::instance().parseAll();
+	m_cursorChangedSignal = m_symbolView->signal_cursor_changed().connect(sigc::mem_fun(*this,
+			&SymbolView::onCursorChanged));
 }
 
 void SymbolView::update(uint64_t address, const std::string &name)
