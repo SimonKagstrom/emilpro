@@ -13,6 +13,7 @@ namespace html_generator
 	class lookupCountries;
 	class toAndFromXML;
 	class insnArchitecture;
+	class loadStats;
 }
 
 namespace emilpro
@@ -23,6 +24,7 @@ namespace emilpro
 		friend class html_generator::lookupCountries;
 		friend class html_generator::toAndFromXML;
 		friend class html_generator::insnArchitecture;
+		friend class html_generator::loadStats;
 
 
 		void addData(const char *ip, ArchitectureFactory::Architecture_t arch);

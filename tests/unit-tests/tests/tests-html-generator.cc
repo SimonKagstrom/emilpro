@@ -134,4 +134,35 @@ TESTSUITE(html_generator)
 
 		gen.destroy();
 	}
+
+	TEST(loadStats)
+	{
+		std::string xml;
+
+		xml =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				"<emilpro>\n"
+				"  <HtmlGenerator>\n"
+				"    <CountryCount name=\"Sweden\">1116</CountryCount>\n"
+				"    <ArchitectureCount name=\"unknown\">127</ArchitectureCount>\n"
+				"    <ArchitectureCount name=\"i386\">813</ArchitectureCount>\n"
+				"    <ArchitectureCount name=\"powerpc\">64</ArchitectureCount>\n"
+				"    <ArchitectureCount name=\"arm\">112</ArchitectureCount>\n"
+				"  </HtmlGenerator>\n"
+				"</emilpro>\n"
+				;
+
+		HtmlGenerator &gen = HtmlGenerator::instance();
+
+		ASSERT_TRUE(gen.m_totalConnections == 0U);
+		ASSERT_TRUE(gen.m_architectureCount[bfd_arch_i386] == 0U);
+
+		bool res = XmlFactory::instance().parse(xml);
+		ASSERT_TRUE(res);
+		ASSERT_TRUE(gen.m_totalConnections == 1116U);
+		ASSERT_TRUE(gen.m_architectureCount[bfd_arch_i386] == 813U);
+
+		gen.addData("23.53.38.151", bfd_arch_sparc);
+		ASSERT_TRUE(gen.m_totalConnections == 1117U);
+	}
 }
