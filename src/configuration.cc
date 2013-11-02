@@ -1,6 +1,8 @@
 #include <configuration.hh>
 #include <utils.hh>
 
+#include <getopt.h>
+
 using namespace emilpro;
 
 std::string Configuration::getBasePath()
@@ -80,5 +82,58 @@ Configuration::Configuration() :
 		m_basePath = get_home_directory() + "/.emilpro";
 }
 
+bool Configuration::parse(unsigned int argc, const char* argv[])
+{
+	static const struct option long_options[] = {
+			{"help", no_argument, 0, 'h'},
+			{"debug", required_argument, 0, 'D'},
+			{0,0,0,0}
+	};
 
+	optind = 0;
+	optarg = 0;
+	while (1) {
+		int option_index = 0;
+		int c;
 
+		c = getopt_long (argc, (char **)argv,
+				"hD", long_options, &option_index);
+
+		/* No more options */
+		if (c == -1)
+			break;
+
+		switch (c) {
+		case 0:
+			break;
+		case 'h':
+			return usage();
+		case 'D':
+			break;
+		default:
+			break;
+		}
+	}
+
+	if (optind < (int)argc)
+		m_fileName = argv[optind];
+
+	return true;
+}
+
+std::string Configuration::getFileName()
+{
+	return m_fileName;
+}
+
+bool Configuration::usage()
+{
+	printf("Usage: emilpro [OPTIONS] [infile]\n"
+			"\n"
+			"Where [OPTIONS] are\n"
+			" -h, --help              this text\n"
+			" --debug=n               increase debugging level (default: 0)\n"
+	);
+
+	return false;
+}

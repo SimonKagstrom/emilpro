@@ -21,8 +21,11 @@ namespace emilpro
 
 		std::string getServerUrl();
 
+		std::string getFileName();
+
 		bool readStoredModels();
 
+		bool parse(unsigned int argc, const char *argv[]);
 
 		// Setters
 		void setReadStoredModels(bool readStoredModels);
@@ -37,7 +40,10 @@ namespace emilpro
 	private:
 		Configuration();
 
+		bool usage();
+
 		std::string m_basePath;
 		bool m_readStoredModels;
+		std::string m_fileName;
 	};
 }

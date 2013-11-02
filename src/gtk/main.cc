@@ -6,6 +6,7 @@
 #include <model.hh>
 #include <idisassembly.hh>
 #include <architecturefactory.hh>
+#include <configuration.hh>
 #include <symbolfactory.hh>
 #include <utils.hh>
 #include <jumptargetdisplay.hh>
@@ -148,22 +149,18 @@ public:
 		Preferences::instance().registerListener("MainWindowSize", this);
 	}
 
-	void run(int argc, char *argv[])
+	void run()
 	{
-		if (argc > 1) {
-			const char *file = argv[1];
+		std::string file = Configuration::instance().getFileName();
 
-			m_data = read_file(&m_dataSize, "%s", file);
+		if (file != "") {
+			m_data = read_file(&m_dataSize, "%s", file.c_str());
 			if (m_data) {
 				Model::instance().addData(m_data, m_dataSize);
 			} else {
-				error("Can't read %s, exiting", file);
+				error("Can't read %s, exiting", file.c_str());
 				exit(1);
 			}
-
-			// Close stderr to avoid Gtk Assertions. Yes, the alternative is to fix them.
-			if (argc < 3)
-				fclose(stderr);
 
 			refresh();
 		}
@@ -347,11 +344,14 @@ int main(int argc, char **argv)
 {
 	EmilPro::init();
 
+	if (Configuration::instance().parse(argc, (const char **)argv) != true)
+		return 1;
+
 	EmilProGui *gui = new EmilProGui();
 
 	gui->init(argc, argv);
 
-	gui->run(argc, argv);
+	gui->run();
 
 	delete gui;
 
