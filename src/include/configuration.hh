@@ -9,6 +9,12 @@ namespace emilpro
 	public:
 		typedef enum
 		{
+			DBG_SILENT = 0,
+			DBG_ERRORS = 1,
+		} DebugLevel_t;
+
+		typedef enum
+		{
 			DIR_LOCAL,
 			DIR_REMOTE,
 			DIR_CONFIGURATION,
@@ -22,6 +28,8 @@ namespace emilpro
 		std::string getServerUrl();
 
 		std::string getFileName();
+
+		DebugLevel_t getDebugLevel();
 
 		bool readStoredModels();
 
@@ -45,5 +53,6 @@ namespace emilpro
 		std::string m_basePath;
 		bool m_readStoredModels;
 		std::string m_fileName;
+		DebugLevel_t m_debugLevel;
 	};
 }

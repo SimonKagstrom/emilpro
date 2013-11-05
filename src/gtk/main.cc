@@ -344,8 +344,13 @@ int main(int argc, char **argv)
 {
 	EmilPro::init();
 
-	if (Configuration::instance().parse(argc, (const char **)argv) != true)
+	Configuration &conf = Configuration::instance();
+
+	if (conf.parse(argc, (const char **)argv) != true)
 		return 1;
+
+	if ((conf.getDebugLevel() & Configuration::DBG_ERRORS) == 0)
+		fclose(stderr);
 
 	EmilProGui *gui = new EmilProGui();
 

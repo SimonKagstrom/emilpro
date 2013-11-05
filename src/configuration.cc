@@ -76,7 +76,8 @@ void Configuration::setReadStoredModels(bool readStoredModels)
 
 Configuration::Configuration() :
 		m_basePath(g_base),
-		m_readStoredModels(true)
+		m_readStoredModels(true),
+		m_debugLevel(Configuration::DBG_SILENT)
 {
 	if (m_basePath == "")
 		m_basePath = get_home_directory() + "/.emilpro";
@@ -109,6 +110,9 @@ bool Configuration::parse(unsigned int argc, const char* argv[])
 		case 'h':
 			return usage();
 		case 'D':
+			if (!string_is_integer(std::string(optarg)))
+				return usage();
+			m_debugLevel = (Configuration::DebugLevel_t)string_to_integer(std::string(optarg));
 			break;
 		default:
 			break;
@@ -124,6 +128,11 @@ bool Configuration::parse(unsigned int argc, const char* argv[])
 std::string Configuration::getFileName()
 {
 	return m_fileName;
+}
+
+Configuration::DebugLevel_t Configuration::getDebugLevel()
+{
+	return m_debugLevel;
 }
 
 bool Configuration::usage()
