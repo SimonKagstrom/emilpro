@@ -20,6 +20,7 @@ namespace hexview
 	class markSelfTest;
 	class MarkFixture;
 	class maybeUpdateData;
+	class padSmallSections;
 }
 
 class HexView
@@ -34,6 +35,7 @@ public:
 	friend class hexview::markSelfTest;
 	friend class hexview::MarkFixture;
 	friend class hexview::maybeUpdateData;
+	friend class hexview::padSmallSections;
 
 	HexView();
 
@@ -115,6 +117,8 @@ private:
 	std::string handleAllData(unsigned width, bool littleEndian, bool updateLineMap = false);
 
 	std::string handleData(Data *p, unsigned width, bool littleEndian, bool updateLineMap = false);
+
+	void handleLine(std::string &dst, size_t &strOff, uint64_t baseAddress, const uint8_t *p, unsigned width, bool littleEndian, bool updateLineMap = false);
 
 	std::string getLine8(const uint8_t *data);
 	std::string getLine16(const uint16_t *data, bool littleEndian);

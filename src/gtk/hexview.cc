@@ -131,76 +131,103 @@ uint32_t HexView::sw32(uint32_t v, bool doSwap)
 	return out;
 }
 
+void HexView::handleLine(std::string& out, size_t &strOff, uint64_t curAddress,
+		const uint8_t* curLine, unsigned width, bool littleEndian,
+		bool updateLineMap)
+{
+	if (updateLineMap) {
+		m_addressToLineMap[curAddress] = m_lineNr;
+
+		m_lineNr++;
+	}
+
+	bool swp = !(cpu_is_little_endian() && littleEndian);
+	char dst[256];
+	char *p = dst;
+	const uint8_t *d8 = curLine;
+	uint16_t *d16 = (uint16_t *)curLine;
+	uint32_t *d32 = (uint32_t *)curLine;
+	uint64_t *d64 = (uint64_t *)curLine;
+
+	p += sprintf(p, "0x%016llx  ", (unsigned long long)curAddress);
+
+	switch (width)
+	{
+	case 8:
+		p += sprintf(p, "%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x  ",
+				d8[0], d8[1], d8[2], d8[3], d8[4], d8[5], d8[6], d8[7], d8[8], d8[9], d8[10], d8[11], d8[12], d8[13], d8[14], d8[15]);
+		break;
+	case 16:
+		p += sprintf(p, "%04x %04x %04x %04x %04x %04x %04x %04x          ",
+				sw16(d16[0], swp), sw16(d16[1], swp), sw16(d16[2], swp),
+				sw16(d16[3], swp), sw16(d16[4], swp), sw16(d16[5], swp),
+				sw16(d16[6], swp), sw16(d16[7], swp));
+		break;
+	case 32:
+		p += sprintf(p, "%08x %08x %08x %08x              ",
+				sw32(d32[0], swp), sw32(d32[1], swp), sw32(d32[2], swp), sw32(d32[3], swp));
+		break;
+	case 64:
+		p += sprintf(p, "%016llx %016llx                ",
+				(unsigned long long)sw64(d64[0], swp), (unsigned long long)sw64(d64[1], swp));
+		break;
+	default:
+		panic("Wrong width");
+		break;
+	}
+
+	for (unsigned i = 0; i < 16; i++) {
+		char cur = d8[i];
+
+		*p = cur >= 0x20 && cur <= 0x7e ? cur : '.';
+		p++;
+	}
+	*p++ = '\n';
+	*p = '\0';
+
+	out.replace(strOff, strlen(dst) + 1, dst); // Include the \0
+	strOff += strlen(dst);
+}
+
+
 std::string HexView::handleData(Data* p, unsigned width, bool littleEndian, bool updateLineMap)
 {
-	size_t off;
+	uint8_t paddedLine[32];
+	size_t off = 0;
 	size_t strOff = 0;
+	uint64_t curAddress = p->m_base;
 
 	// Size for 8-bits
 	std::string out(((p->m_size + 16) / 16) * 100,
 			' ');
 
-	for (off = 0; off < p->m_size; off += 16) {
+	if ((curAddress & 15) != 0) {
+		uint64_t diff = (curAddress & 15);
+		uint64_t left = 16 - diff;
+
+		if (left > p->m_size)
+			left = p->m_size;
+
+		memset(paddedLine, 0, sizeof(paddedLine));
+		memcpy(paddedLine + diff, p->m_p, left);
+		off = 16 - diff;
+		curAddress = curAddress - diff;
+
+		handleLine(out, strOff, curAddress, paddedLine, width, littleEndian, updateLineMap);
+	}
+
+	for (; off < p->m_size; off += 16) {
 		const uint8_t *curLine = p->m_p + off;
 		size_t left = p->m_size - off;
 		uint64_t curAddress = p->m_base + off;
 
-		// Skip incomplete lines. Fix this in the future...
-		if (left < 16)
-			break;
-
-		if (updateLineMap) {
-			m_addressToLineMap[curAddress] = m_lineNr;
-
-			m_lineNr++;
+		if (left < 16) {
+			memset(paddedLine, 0, sizeof(paddedLine));
+			memcpy(paddedLine, curLine, left);
+			curLine = paddedLine;
 		}
 
-		bool swp = !(cpu_is_little_endian() && littleEndian);
-		char dst[256];
-		char *p = dst;
-		const uint8_t *d8 = curLine;
-		uint16_t *d16 = (uint16_t *)curLine;
-		uint32_t *d32 = (uint32_t *)curLine;
-		uint64_t *d64 = (uint64_t *)curLine;
-
-		p += sprintf(p, "0x%016llx  ", (unsigned long long)curAddress);
-
-		switch (width)
-		{
-		case 8:
-			p += sprintf(p, "%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x  ",
-					d8[0], d8[1], d8[2], d8[3], d8[4], d8[5], d8[6], d8[7], d8[8], d8[9], d8[10], d8[11], d8[12], d8[13], d8[14], d8[15]);
-			break;
-		case 16:
-			p += sprintf(p, "%04x %04x %04x %04x %04x %04x %04x %04x          ",
-					sw16(d16[0], swp), sw16(d16[1], swp), sw16(d16[2], swp),
-					sw16(d16[3], swp), sw16(d16[4], swp), sw16(d16[5], swp),
-					sw16(d16[6], swp), sw16(d16[7], swp));
-			break;
-		case 32:
-			p += sprintf(p, "%08x %08x %08x %08x              ",
-					sw32(d32[0], swp), sw32(d32[1], swp), sw32(d32[2], swp), sw32(d32[3], swp));
-			break;
-		case 64:
-			p += sprintf(p, "%016llx %016llx                ",
-			(unsigned long long)sw64(d64[0], swp), (unsigned long long)sw64(d64[1], swp));
-			break;
-		default:
-			panic("Wrong width");
-			break;
-		}
-
-		for (unsigned i = 0; i < 16; i++) {
-			char cur = d8[i];
-
-			*p = cur >= 0x20 && cur <= 0x7e ? cur : '.';
-			p++;
-		}
-		*p++ = '\n';
-		*p = '\0';
-
-		out.replace(strOff, strlen(dst) + 1, dst); // Include the \0
-		strOff += strlen(dst);
+		handleLine(out, strOff, curAddress, curLine, width, littleEndian, updateLineMap);
 	}
 
 	out.resize(strOff);
@@ -464,11 +491,8 @@ void HexView::updateData(uint64_t address)
 
 void HexView::maybeUpdateData(uint64_t address)
 {
-	// Even out address to 16 bytes
-	uint64_t evenAddress = address & ~15;
-
 	if (!m_data.m_valid) {
-		updateData(evenAddress);
+		updateData(address);
 
 		return;
 	}
@@ -478,7 +502,7 @@ void HexView::maybeUpdateData(uint64_t address)
 
 	if (diffStart < 256 ||
 			diffEnd > -256)
-		updateData(evenAddress);
+		updateData(address);
 }
 
 void HexView::computeBuffers()

@@ -301,4 +301,36 @@ TESTSUITE(hexview)
 		hv.maybeUpdateData(0x1200);
 		ASSERT_TRUE(hv.m_updated);
 	}
+
+	TEST(padSmallSections)
+	{
+		UpdateFinder hv;
+		std::string s8LE;
+		uint8_t smallData[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g'};
+		uint8_t smallData2[] = { 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
+								16, 17, 18, 19, 20};
+
+		hv.m_data = HexView::Data(0x1003, smallData, sizeof(smallData));
+
+		s8LE = hv.handleAllData(8, true, true);
+		ASSERT_TRUE(s8LE ==
+				"0x0000000000001000  00 00 00 61 62 63 64 65 66 67 00 00 00 00 00 00  ...abcdefg......\n");
+
+
+		hv.m_data = HexView::Data(0x1000, smallData2, sizeof(smallData2));
+
+		s8LE = hv.handleAllData(8, true, true);
+		ASSERT_TRUE(s8LE ==
+				"0x0000000000001000  00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f  ................\n"
+				"0x0000000000001010  10 11 12 13 14 00 00 00 00 00 00 00 00 00 00 00  ................\n");
+
+
+		hv.m_data = HexView::Data(0x100a, smallData2, sizeof(smallData2));
+
+		s8LE = hv.handleAllData(8, true, true);
+		printf("VVV: %s\n", s8LE.c_str());
+		ASSERT_TRUE(s8LE ==
+				"0x0000000000001000  00 00 00 00 00 00 00 00 00 00 00 01 02 03 04 05  ................\n"
+				"0x0000000000001010  06 07 08 09 0a 0b 0c 0d 0e 0f 10 11 12 13 14 00  ................\n");
+	}
 }

@@ -462,9 +462,10 @@ void Model::onSymbol(ISymbol &sym)
 	bool locked;
 
 	locked = m_mutex.try_lock();
-	if (sym.getType() == ISymbol::SYM_SECTION) {
+	if (sym.getType() == ISymbol::SYM_SECTION && sym.getSize() > 0) {
 		m_data[sym.getAddress()] = new DataChunk(sym.getAddress(),
 						0, sym.getSize(), (uint8_t *)sym.getDataPtr());
+
 	}
 
 	m_symbolsByAddress[sym.getAddress()].push_back(&sym);
@@ -640,7 +641,7 @@ const uint8_t* Model::getData(uint64_t start, size_t size,
 const uint8_t* Model::getSurroundingData(uint64_t address, size_t size,
 		uint64_t* returnedStart, uint64_t* returnedEnd)
 {
-	DataMap_t::iterator it = m_data.lower_bound(address);
+	DataMap_t::iterator it = m_data.lower_bound(address + 1);
 
 	if (it != m_data.begin())
 		--it;
