@@ -632,10 +632,46 @@ Model &Model::instance()
 	return *g_instance;
 }
 
-const uint8_t* Model::getData(uint64_t start, size_t size,
+bool Model::copyData(uint8_t *dst, uint64_t address, size_t size,
 		uint64_t *returnedAddr, size_t *returnedSize)
 {
-	return getSurroundingData(start + size / 2, size, returnedAddr, returnedSize);
+	size_t left = size;
+	size_t off = 0;
+
+	memset(dst, 0, size);
+
+	while (left > 0) {
+
+		DataMap_t::iterator it = m_data.lower_bound(address + 1);
+
+		if (it != m_data.begin())
+			--it;
+
+		DataChunk *cur = it->second;
+
+		if (cur->m_address > address)
+			break;
+
+		size_t toCpy = left;
+		uint64_t start = address - cur->m_address;
+
+		if (toCpy > cur->m_size - start)
+			toCpy = cur->m_size - start;
+
+		if (toCpy == 0)
+			break;
+
+		memcpy(dst + off, cur->m_data + start, toCpy);
+
+		off += toCpy;
+		left -= toCpy;
+		address += toCpy;
+	}
+
+	if (left == size)
+		return false;
+
+	return true;
 }
 
 const uint8_t* Model::getSurroundingData(uint64_t address, size_t size,

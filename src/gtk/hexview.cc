@@ -431,19 +431,23 @@ uint64_t HexView::sw64(uint64_t v, bool doSwap)
 void HexView::updateInstructionEncoding(uint64_t addrIn, size_t size)
 {
 	emilpro::Model &model = emilpro::Model::instance();
+	uint8_t buf[16];
 	uint64_t addr = addrIn & ~15;
+	uint64_t returnedAddr;
+	size_t sz;
 
 	m_encodingBuffer->remove_all_tags(m_encodingBuffer->get_iter_at_line(0),
 			m_encodingBuffer->get_iter_at_line(m_encodingBuffer->get_line_count()));
 
-	const uint8_t *p = model.getData(addr, 16, NULL, NULL);
-	if (!p) {
+	if (!model.copyData(buf, addr, 16, &returnedAddr, &sz)) {
 		m_encodingBuffer->set_text("No instruction");
 		return;
 	}
 
-	std::string line = fmt("0x%016llx  %s  %s", (unsigned long long)addr, getLine8(p).c_str(), getAscii(p).c_str());
+	std::string line;
+	uint64_t strOff = 0;
 
+	handleLine(line, strOff, addr, buf, 8, true, false);
 	HexView::LineOffsetList_t regions = getMarkRegionsLine(0, addrIn, size, 8);
 
 	m_encodingBuffer->set_text(line);

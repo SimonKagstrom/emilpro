@@ -509,18 +509,16 @@ TESTSUITE(model)
 		ASSERT_TRUE(addr != 0U);
 		ASSERT_TRUE(size == sizeof(uint32_t));
 
-		const uint8_t *p = model.getData(addr, size, NULL, NULL);
-		ASSERT_TRUE(p);
-		const uint32_t *asInt = (const uint32_t *)p;
+		uint8_t buf[4];
+		res = model.copyData(buf, addr, 4, NULL, NULL);
+		ASSERT_TRUE(res);
+		const uint32_t *asInt = (const uint32_t *)buf;
 
 		ASSERT_TRUE(*asInt == 5U);
 
 		// Out-of-bounds
-		p = model.getData(addr, size + 10 * 1024 * 1024, NULL, NULL);
-		ASSERT_FALSE(p);
-
-		p = model.getData(0, 4, NULL, NULL);
-		ASSERT_FALSE(p);
+		res = model.copyData(buf, 0, 4, NULL, NULL);
+		ASSERT_FALSE(res);
 
 		EmilPro::destroy();
 	}
