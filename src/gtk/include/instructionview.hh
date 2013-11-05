@@ -32,7 +32,9 @@ public:
 	void clear();
 
 private:
+	typedef std::unordered_map<uint64_t, Gtk::ListStore::iterator> InstructionRowIterByAddressMap_t;
 	typedef std::list<Gtk::TreeModel::iterator> InstructionIterList_t;
+
 	bool onSearchEqual(const Glib::RefPtr<Gtk::TreeModel>& model, int column, const Glib::ustring& key, const Gtk::TreeModel::iterator& iter);
 
 	void onCursorChanged();
@@ -71,4 +73,6 @@ private:
 	emilpro::AddressHistory *m_addressHistory;
 
 	bool m_historyDisabled;
+
+	InstructionRowIterByAddressMap_t m_rowByAddress;
 };

@@ -451,6 +451,7 @@ void InstructionView::update(uint64_t address, const emilpro::ISymbol& sym)
 
 	m_instructionListStore->clear();
 	m_lastInstructionIters.clear();
+	m_rowByAddress.clear();
 
 	// Disassemble and display
 	unsigned n = 0;
@@ -473,6 +474,8 @@ void InstructionView::update(uint64_t address, const emilpro::ISymbol& sym)
 
 		Gtk::ListStore::iterator rowIt = m_instructionListStore->append();
 		Gtk::TreeRow row = *rowIt;
+
+		m_rowByAddress[cur->getAddress()] = rowIt;
 
 		row[m_instructionColumns->m_address] = fmt("0x%0llx", (long long)cur->getAddress()).c_str();
 		row[m_instructionColumns->m_instruction] = cur->getString();
@@ -608,11 +611,19 @@ void InstructionView::onRowActivated(const Gtk::TreeModel::Path& path, Gtk::Tree
 
 		if (!m_historyDisabled)
 			addAddressHistoryEntry(cur->getAddress());
-		// FIXME!
-		if (target >= sym->getAddress() && target < sym->getAddress() + sym->getSize())
-			printf("Jump within function\n");
-		else
+
+		// Follow links within the function or to another function
+		if (target >= sym->getAddress() && target < sym->getAddress() + sym->getSize()) {
+			InstructionRowIterByAddressMap_t::iterator it = m_rowByAddress.find(target);
+
+			if (it != m_rowByAddress.end()) {
+				Gtk::ListStore::iterator lIt = it->second;
+
+				m_treeView->set_cursor(m_instructionListStore->get_path(lIt));
+			}
+		} else {
 			m_symbolView->update(target);
+		}
 	}
 }
 
