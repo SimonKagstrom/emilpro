@@ -8,3 +8,8 @@
     <privileged>false</privileged>
     <description>Branch if greater or equal.</description>
   </InstructionModel>
+  <InstructionModel name="sub" architecture="mips" timestamp="0">
+    <type>data_handling</type>
+    <privileged>unknown</privileged>
+    <description></description>
+  </InstructionModel>

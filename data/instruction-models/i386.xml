@@ -5,13 +5,22 @@
 
 The address to the next instruction is pushed to the stack.</description>
   </InstructionModel>
+  <InstructionModel name="callq" architecture="i386" timestamp="0">
+    <type>call</type>
+    <privileged>false</privileged>
+    <description>Call function</description>
+  </InstructionModel>
+  <InstructionModel name="cwtl" architecture="i386" timestamp="0">
+    <type>data_handling</type>
+    <privileged>false</privileged>
+    <description>Convert word to long (extend the signed ax value into eax)</description>
+  </InstructionModel>
   <InstructionModel name="dec" architecture="i386" timestamp="0">
     <type>arithmetic_logic</type>
     <privileged>false</privileged>
     <description>Decrement register or memory location with 1.
 
-Does not affect the CF flag.
-    </description>
+Does not affect the     </description>
   </InstructionModel>
   <InstructionModel name="hlt" architecture="i386" timestamp="0">
     <type>other</type>
@@ -68,6 +77,11 @@ eflags register.
     <privileged>false</privileged>
     <description>Copy data from memory/registers onto another location.</description>
   </InstructionModel>
+  <InstructionModel name="movl" architecture="i386" timestamp="0">
+    <type>data_handling</type>
+    <privileged>false</privileged>
+    <description>Copy data from memory/registers onto another location.</description>
+  </InstructionModel>
   <InstructionModel name="pop" architecture="i386" timestamp="0">
     <type>data_handling</type>
     <privileged>false</privileged>
@@ -79,6 +93,11 @@ The number of bytes depends on the destination size.</description>
     <type>data_handling</type>
     <privileged>false</privileged>
     <description>Push register contents or contents from a memory location on the stack.</description>
+  </InstructionModel>
+  <InstructionModel name="ret" architecture="i386" timestamp="0">
+    <type>cflow</type>
+    <privileged>false</privileged>
+    <description>Return from function. Pops an address off the top of the stack and jumps there.</description>
   </InstructionModel>
   <InstructionModel name="shr" architecture="i386" timestamp="0">
     <type>arithmetic_logic</type>
