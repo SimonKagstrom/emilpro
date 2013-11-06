@@ -4,7 +4,8 @@
 using namespace emilpro;
 
 ArchitectureFactory::ArchitectureFactory() :
-		m_architecture(bfd_arch_unknown)
+		m_architecture(bfd_arch_unknown),
+		m_machine(0)
 {
 	m_architectureNameMap[(unsigned)bfd_arch_m68k] = "m68k";
 	m_architectureNameMap[(unsigned)bfd_arch_vax] = "vax";
@@ -178,24 +179,25 @@ ArchitectureFactory::~ArchitectureFactory()
 
 void ArchitectureFactory::registerListener(IArchitectureListener *listener)
 {
-	listener->onArchitectureDetected(m_architecture);
+	listener->onArchitectureDetected(m_architecture, m_machine);
 
 	m_listeners.push_back(listener);
 }
 
-void ArchitectureFactory::provideArchitecture(Architecture_t arch)
+void ArchitectureFactory::provideArchitecture(Architecture_t arch, Machine_t machine)
 {
 	if (arch == m_architecture)
 		return;
 
 	m_architecture = arch;
+	m_machine = machine;
 
 	for (ArchitectureListeners_t::iterator it = m_listeners.begin();
 			it != m_listeners.end();
 			++it) {
 		IArchitectureListener *cur = *it;
 
-		cur->onArchitectureDetected(m_architecture);
+		cur->onArchitectureDetected(m_architecture, machine);
 	}
 }
 

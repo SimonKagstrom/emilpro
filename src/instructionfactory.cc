@@ -448,7 +448,8 @@ InstructionFactory& InstructionFactory::instance()
 	return *g_instance;
 }
 
-void InstructionFactory::onArchitectureDetected(ArchitectureFactory::Architecture_t arch)
+void InstructionFactory::onArchitectureDetected(ArchitectureFactory::Architecture_t arch,
+		ArchitectureFactory::Machine_t)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
 

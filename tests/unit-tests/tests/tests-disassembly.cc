@@ -42,7 +42,7 @@ TESTSUITE(disassembly)
 		EmilPro::init();
 
 		IDisassembly &dis = IDisassembly::instance();
-		ArchitectureFactory::instance().provideArchitecture(bfd_arch_i386);
+		ArchitectureFactory::instance().provideArchitecture(bfd_arch_i386, bfd_mach_i386_i386);
 
 		InstructionList_t lst = dis.execute((void *)ia32_dump, sizeof(ia32_dump), 0x1000);
 		ASSERT_TRUE(lst.size() == 11U);

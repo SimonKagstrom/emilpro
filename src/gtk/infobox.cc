@@ -90,7 +90,8 @@ private:
 		Gtk::TreeModelColumn<Glib::ustring> m_name;
 	};
 
-	void onArchitectureDetected(ArchitectureFactory::Architecture_t arch)
+	void onArchitectureDetected(ArchitectureFactory::Architecture_t arch,
+			ArchitectureFactory::Machine_t mach)
 	{
 		m_currentArchitecture = arch;
 	}

@@ -126,7 +126,8 @@ namespace emilpro
 		virtual ~Model();
 
 		// From ArchitectureFactory::IArchitectureListener
-		virtual void onArchitectureDetected(ArchitectureFactory::Architecture_t arch);
+		virtual void onArchitectureDetected(ArchitectureFactory::Architecture_t arch,
+				ArchitectureFactory::Machine_t mach);
 
 		bool parsingOngoing();
 

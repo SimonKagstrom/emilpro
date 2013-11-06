@@ -102,7 +102,7 @@ public:
 	void init()
 	{
 	    // Some "sane" default
-		setArchitecture(&m_arch[bfd_arch_i386]);
+		setArchitecture(&m_arch[bfd_arch_i386], 0);
 
 	    ArchitectureFactory::instance().registerListener(this);
 	}
@@ -111,13 +111,14 @@ public:
 	{
 	}
 
-	virtual void onArchitectureDetected(ArchitectureFactory::Architecture_t arch)
+	virtual void onArchitectureDetected(ArchitectureFactory::Architecture_t arch,
+			ArchitectureFactory::Machine_t machine)
 	{
 		ArchitectureBfdMap_t::iterator it = m_arch.find(arch);
 
 		if (it != m_arch.end())
 		{
-			setArchitecture(&it->second);
+			setArchitecture(&it->second, machine);
 		}
 	}
 
@@ -184,12 +185,12 @@ private:
 
 	typedef std::map<ArchitectureFactory::Architecture_t, BfdArch> ArchitectureBfdMap_t;
 
-	void setArchitecture(BfdArch *arch)
+	void setArchitecture(BfdArch *arch, ArchitectureFactory::Machine_t machine)
 	{
 	    init_disassemble_info(&m_info, (void *)this, Disassembly::opcodesFprintFuncStatic);
 
 		m_info.arch = arch->bfd_arch;
-		m_info.mach = arch->bfd_mach;
+		m_info.mach = machine;
 		m_disassembler = arch->callback;
 		disassemble_init_for_target(&m_info);
 		m_info.application_data = (void *)this;

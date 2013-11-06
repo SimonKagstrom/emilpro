@@ -167,7 +167,7 @@ TESTSUITE(model)
 	TEST(generateBasicBlocks, SymbolFixture)
 	{
 		EmilPro::init();
-		ArchitectureFactory::instance().provideArchitecture(bfd_arch_i386);
+		ArchitectureFactory::instance().provideArchitecture(bfd_arch_i386, bfd_mach_i386_i386);
 
 		Model &model = Model::instance();
 		IDisassembly &dis = IDisassembly::instance();

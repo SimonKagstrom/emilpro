@@ -796,7 +796,8 @@ ArchitectureFactory::Architecture_t Model::getArchitecture() const
 	return m_architecture;
 }
 
-void Model::onArchitectureDetected(ArchitectureFactory::Architecture_t arch)
+void Model::onArchitectureDetected(ArchitectureFactory::Architecture_t arch,
+				ArchitectureFactory::Machine_t mach)
 {
 	m_architecture = arch;
 }

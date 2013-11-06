@@ -114,7 +114,7 @@ namespace emilpro
 		IInstruction *create(uint64_t startAddress, uint64_t pc, std::vector<std::string> &encodingVector,
 				std::string &encoding, uint8_t *data, size_t size);
 
-		virtual void onArchitectureDetected(ArchitectureFactory::Architecture_t arch);
+		virtual void onArchitectureDetected(ArchitectureFactory::Architecture_t arch, ArchitectureFactory::Machine_t);
 
 		IInstructionModel *getModelFromInstruction(IInstruction &insn);
 

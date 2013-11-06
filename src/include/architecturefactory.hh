@@ -12,6 +12,7 @@ namespace emilpro
 	{
 	public:
 		typedef bfd_architecture Architecture_t;
+		typedef unsigned long Machine_t;
 
 		class IArchitectureListener
 		{
@@ -20,7 +21,7 @@ namespace emilpro
 			{
 			}
 
-			virtual void onArchitectureDetected(Architecture_t arch) = 0;
+			virtual void onArchitectureDetected(Architecture_t arch, Machine_t mach) = 0;
 		};
 
 
@@ -32,7 +33,7 @@ namespace emilpro
 
 		virtual void registerListener(IArchitectureListener *listener);
 
-		virtual void provideArchitecture(Architecture_t arch);
+		virtual void provideArchitecture(Architecture_t arch, Machine_t machine = 0);
 
 		static ArchitectureFactory &instance();
 
@@ -47,6 +48,7 @@ namespace emilpro
 
 		ArchitectureListeners_t m_listeners;
 		Architecture_t m_architecture;
+		Machine_t m_machine;
 		ArchitectureNameMap_t m_architectureNameMap;
 		NameArchitectureMap_t m_nameArchitectureMap;
 
