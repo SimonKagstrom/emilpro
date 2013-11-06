@@ -26,12 +26,9 @@ public:
 	    m_disassembler = NULL;
 
 	    m_arch[bfd_arch_i386] = BfdArch(bfd_arch_i386, bfd_mach_i386_i386, print_insn_i386);
-
-#if defined(HAVE_BFD_MULTIARCH)
 	    m_arch[bfd_arch_powerpc] = BfdArch(bfd_arch_powerpc, bfd_mach_ppc_e500mc64, print_insn_big_powerpc);
 	    m_arch[bfd_arch_arm] = BfdArch(bfd_arch_arm, bfd_mach_arm_unknown, print_insn_little_arm);
 	    m_arch[bfd_arch_mips] = BfdArch(bfd_arch_mips, bfd_mach_mips10000, print_insn_big_mips);
-#endif
 	}
 
 	void init()
