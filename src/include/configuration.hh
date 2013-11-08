@@ -9,8 +9,9 @@ namespace emilpro
 	public:
 		typedef enum
 		{
-			DBG_SILENT = 0,
-			DBG_ERRORS = 1,
+			DBG_SILENT   = 0,
+			DBG_ERRORS   = 1,
+			DBG_NETWORK  = 2,
 		} DebugLevel_t;
 
 		typedef enum

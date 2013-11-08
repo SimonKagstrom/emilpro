@@ -59,7 +59,9 @@ public:
 			std::string xml = m_xmlString.getString();
 			std::string archPath = fmt("%s/%s", remoteDir.c_str(), m_currentArchitecture.c_str());
 			mkdir(archPath.c_str(), 0700);
-			printf("Got remote insn:\n%s\n", xml.c_str());
+
+			if (conf.getDebugLevel() & Configuration::DBG_NETWORK)
+				printf("Got remote insn:\n%s\n", xml.c_str());
 			write_file(xml.c_str(), xml.size(), "%s/%s.xml",
 					archPath.c_str(), m_currentName.c_str());
 		}
