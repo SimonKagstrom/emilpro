@@ -26,6 +26,10 @@ namespace emilpro
 		CgiServer();
 
 		~CgiServer();
+
+		void startup();
+
+
 		std::string reply();
 
 		bool request(const std::string xml);

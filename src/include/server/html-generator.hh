@@ -39,6 +39,7 @@ namespace emilpro
 	private:
 		typedef std::map<std::string, uint64_t> CountryMap_t;
 		typedef std::map<ArchitectureFactory::Architecture_t, uint64_t> ArchitectureMap_t;
+		typedef std::map<uint64_t, std::string> TimestampToInsnMap_t;
 
 		HtmlGenerator();
 
@@ -53,10 +54,13 @@ namespace emilpro
 
 		std::string produceHtml();
 
+		std::string getNaturalTimeDiff(uint64_t ts);
+
 		GeoIP *m_gip;
 		uint64_t m_totalConnections;
 		CountryMap_t m_countryCount;
 		ArchitectureMap_t m_architectureCount;
 		ArchitectureMap_t m_instructionArchitectureCount;
+		TimestampToInsnMap_t m_lastInstructions;
 	};
 }

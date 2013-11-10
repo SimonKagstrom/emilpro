@@ -72,6 +72,8 @@ int main(int argc, const char *argv[])
 	EmilPro::init();
 	CgiServer server;
 
+	server.startup();
+
 	if (!foreground) {
 		pid_t child;
 

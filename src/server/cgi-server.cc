@@ -143,3 +143,10 @@ bool CgiServer::request(const std::string xml)
 
 	return true;
 }
+
+void emilpro::CgiServer::startup()
+{
+	HtmlGenerator &html = HtmlGenerator::instance();
+
+	html.generate();
+}

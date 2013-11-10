@@ -26,6 +26,7 @@ void HtmlGenerator::generate()
 	std::string statsPath = Configuration::instance().getPath(Configuration::DIR_SERVER_STATISTICS);
 	std::string configurationPath = Configuration::instance().getPath(Configuration::DIR_CONFIGURATION);
 
+	printf("WRITING %s\n", statsPath.c_str());
 	write_file(html.c_str(), html.size(), "%s/stats.html", statsPath.c_str());
 	write_file(xml.c_str(), xml.size(), "%s/server-statistics.xml", configurationPath.c_str());
 }
@@ -66,7 +67,9 @@ HtmlGenerator::~HtmlGenerator()
 bool HtmlGenerator::onStart(const Glib::ustring& name,
 		const xmlpp::SaxParser::AttributeList& properties, std::string value)
 {
-	std::string insnArchStr;
+	std::string insnArch;
+	std::string insnName;
+	uint64_t timestamp = 0;
 
 	if (name != "InstructionModel")
 		return true;
@@ -75,11 +78,19 @@ bool HtmlGenerator::onStart(const Glib::ustring& name,
 			it != properties.end();
 			++it) {
 		if (it->name == "architecture") { // InstructionModel
-			insnArchStr = it->value;
+			insnArch = it->value;
+		} else if (it->name == "name") {
+			insnName = it->value;
+		} else if (it->name == "timestamp") {
+			if (string_is_integer(it->value))
+				timestamp = string_to_integer(it->value);
 		}
 	}
 
-	m_instructionArchitectureCount[ArchitectureFactory::instance().getArchitectureFromName(insnArchStr)]++;
+	m_instructionArchitectureCount[ArchitectureFactory::instance().getArchitectureFromName(insnArch)]++;
+
+	if (insnName != "")
+		m_lastInstructions[timestamp] = fmt("%s (%s)", insnName.c_str(), insnArch.c_str());
 
 	return true;
 }
@@ -242,7 +253,7 @@ std::string HtmlGenerator::produceHtml()
 			if (n > 10)
 				break;
 
-			out += fmt("<b>%u</b>. %s (%llu)<br>\n", n, name.c_str(), (unsigned long long)count);
+			out += fmt("<tt>%-2u</tt>. %s (%llu)<br>\n", n, name.c_str(), (unsigned long long)count);
 
 			n++;
 		}
@@ -266,13 +277,68 @@ std::string HtmlGenerator::produceHtml()
 			if (n > 10)
 				break;
 
-			out += fmt("<b>%u</b>. %s (%llu)<br>\n", n, name.c_str(), (unsigned long long)count);
+			out += fmt("<tt>%-2u</tt>. %s (%llu)<br>\n", n, name.c_str(), (unsigned long long)count);
 
 			n++;
 		}
 	}
 
+	out += "<H3>Last uploaded instructions</H3>\n";
+
+	n = 1;
+	for (TimestampToInsnMap_t::reverse_iterator it = m_lastInstructions.rbegin();
+			it != m_lastInstructions.rend();
+			++it) {
+		uint64_t ts = it->first;
+		std::string s = it->second;
+
+		if (n > 10)
+			break;
+
+		out += fmt("<tt>%-2u</tt>. %s: %s<br>\n", n, s.c_str(), getNaturalTimeDiff(ts).c_str());
+
+		n++;
+	}
+
+
 	out += "</body></html>\n";
 
 	return out;
+}
+
+std::string emilpro::HtmlGenerator::getNaturalTimeDiff(uint64_t ts)
+{
+	uint64_t now = get_utc_timestamp();
+	int64_t diff = now - ts;
+
+	if (ts >= now - 60)
+		return "moments ago";
+
+	if (diff < 60 * 60) {
+		uint64_t minutes = diff / (60);
+
+		return fmt("%llu minute%s ago", (unsigned long long)minutes, minutes == 1 ? "" : "s");
+	}
+
+	if (diff < 60 * 60 * 24) {
+		uint64_t hours = diff / (60 * 60);
+
+		return fmt("%llu hour%s ago", (unsigned long long)hours, hours == 1 ? "" : "s");
+	}
+
+	if (diff < 31 * 60 * 60 * 24) {
+		uint64_t days = diff / (60 * 60 * 24);
+
+		return fmt("%llu day%s ago", (unsigned long long)days, days == 1 ? "" : "s");
+	}
+
+	if (diff < 365 * 60 * 60 * 24) {
+		uint64_t months = diff / (31 * 60 * 60 * 24);
+
+		return fmt("%llu month%s ago", (unsigned long long)months, months == 1 ? "" : "s");
+	}
+
+	uint64_t years = diff / (365 * 60 * 60 * 24);
+
+	return fmt("%llu month%s ago", (unsigned long long)years, years == 1 ? "" : "s");
 }
