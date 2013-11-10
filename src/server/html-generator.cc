@@ -26,7 +26,6 @@ void HtmlGenerator::generate()
 	std::string statsPath = Configuration::instance().getPath(Configuration::DIR_SERVER_STATISTICS);
 	std::string configurationPath = Configuration::instance().getPath(Configuration::DIR_CONFIGURATION);
 
-	printf("WRITING %s\n", statsPath.c_str());
 	write_file(html.c_str(), html.size(), "%s/stats.html", statsPath.c_str());
 	write_file(xml.c_str(), xml.size(), "%s/server-statistics.xml", configurationPath.c_str());
 }
@@ -228,7 +227,7 @@ std::string HtmlGenerator::produceHtml()
 			if (n > 20)
 				break;
 
-			out += fmt("<b>%u</b>. %s (%llu)<br>\n", n, country.c_str(), (unsigned long long)count);
+			out += fmt("<tt>%2u</tt> %s (%llu)<br>\n", n, country.c_str(), (unsigned long long)count);
 
 			n++;
 		}
@@ -253,7 +252,7 @@ std::string HtmlGenerator::produceHtml()
 			if (n > 10)
 				break;
 
-			out += fmt("<tt>%-2u</tt> %s (%llu)<br>\n", n, name.c_str(), (unsigned long long)count);
+			out += fmt("<tt>%2u</tt> %s (%llu)<br>\n", n, name.c_str(), (unsigned long long)count);
 
 			n++;
 		}
@@ -295,7 +294,7 @@ std::string HtmlGenerator::produceHtml()
 		if (n > 10)
 			break;
 
-		out += fmt("<tt>%-2u</tt> %s: %s<br>\n", n, s.c_str(), getNaturalTimeDiff(ts).c_str());
+		out += fmt("<tt>%2u</tt> %s: %s<br>\n", n, s.c_str(), getNaturalTimeDiff(ts).c_str());
 
 		n++;
 	}
