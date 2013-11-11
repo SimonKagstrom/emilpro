@@ -65,7 +65,7 @@ set (BASE_SRCS
 	../src/addresshistory.cc
 	../src/architecturefactory.cc
 	../src/null-disassembly.cc
-	../src/bfd-provider.cc
+	../src/null-provider.cc
 	../src/configuration.cc
 	../src/emilpro.cc
 	../src/instructionfactory.cc
@@ -116,8 +116,6 @@ set_property(TARGET server/cgi-server APPEND PROPERTY OBJECT_DEPENDS binutils)
 
 set (BASE_LIBS
 	${LIBELF_LIBRARIES}
-	${CMAKE_BINARY_DIR}/install-binutils/lib/libbfd.a
-	${CMAKE_BINARY_DIR}/install-binutils/lib/libiberty.a
 	${LIBXMLPP_LIBRARIES}
 	${LIBCURL_LIBRARIES}
 	z
