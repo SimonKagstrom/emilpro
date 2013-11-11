@@ -165,4 +165,51 @@ TESTSUITE(html_generator)
 		gen.addData("23.53.38.151", bfd_arch_sparc);
 		ASSERT_TRUE(gen.m_totalConnections == 1117U);
 	}
+
+	TEST(naturalTimeDiff)
+	{
+		HtmlGenerator &gen = HtmlGenerator::instance();
+#define MINUTES(n) (n * 60)
+#define HOURS(n) (n * MINUTES(60))
+#define DAYS(n) (n * HOURS(24))
+#define WEEKS(n) (n * DAYS(7))
+#define MONTHS(n) (n * DAYS(31))
+#define YEARS(n) (n * MONTHS(12))
+
+		std::string s;
+
+		mock_utc_timestamp(0);
+		s = gen.getNaturalTimeDiff(0);
+		ASSERT_TRUE(s == "moments ago");
+
+		mock_utc_timestamp(MINUTES(5));
+		s = gen.getNaturalTimeDiff(0);
+		ASSERT_TRUE(s == "5 minutes ago");
+
+		mock_utc_timestamp(MINUTES(1));
+		s = gen.getNaturalTimeDiff(0);
+		ASSERT_TRUE(s == "1 minute ago");
+
+		mock_utc_timestamp(HOURS(23));
+		s = gen.getNaturalTimeDiff(0);
+		ASSERT_TRUE(s == "23 hours ago");
+
+		mock_utc_timestamp(DAYS(5));
+		s = gen.getNaturalTimeDiff(0);
+		ASSERT_TRUE(s == "5 days ago");
+
+		mock_utc_timestamp(WEEKS(3));
+		s = gen.getNaturalTimeDiff(0);
+		ASSERT_TRUE(s == "3 weeks ago");
+
+		mock_utc_timestamp(MONTHS(1));
+		s = gen.getNaturalTimeDiff(0);
+		ASSERT_TRUE(s == "1 month ago");
+
+		mock_utc_timestamp(YEARS(2));
+		s = gen.getNaturalTimeDiff(0);
+		ASSERT_TRUE(s == "2 years ago");
+
+		gen.destroy();
+	}
 }

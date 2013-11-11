@@ -310,7 +310,7 @@ std::string emilpro::HtmlGenerator::getNaturalTimeDiff(uint64_t ts)
 	uint64_t now = get_utc_timestamp();
 	int64_t diff = now - ts;
 
-	if (ts >= now - 60)
+	if (ts - now < 60)
 		return "moments ago";
 
 	if (diff < 60 * 60) {
@@ -325,10 +325,16 @@ std::string emilpro::HtmlGenerator::getNaturalTimeDiff(uint64_t ts)
 		return fmt("%llu hour%s ago", (unsigned long long)hours, hours == 1 ? "" : "s");
 	}
 
-	if (diff < 31 * 60 * 60 * 24) {
+	if (diff < 7 * 60 * 60 * 24) {
 		uint64_t days = diff / (60 * 60 * 24);
 
 		return fmt("%llu day%s ago", (unsigned long long)days, days == 1 ? "" : "s");
+	}
+
+	if (diff < 31 * 60 * 60 * 24) {
+		uint64_t weeks = diff / (7 * 60 * 60 * 24);
+
+		return fmt("%llu week%s ago", (unsigned long long)weeks, weeks == 1 ? "" : "s");
 	}
 
 	if (diff < 365 * 60 * 60 * 24) {
@@ -339,5 +345,5 @@ std::string emilpro::HtmlGenerator::getNaturalTimeDiff(uint64_t ts)
 
 	uint64_t years = diff / (365 * 60 * 60 * 24);
 
-	return fmt("%llu month%s ago", (unsigned long long)years, years == 1 ? "" : "s");
+	return fmt("%llu year%s ago", (unsigned long long)years, years == 1 ? "" : "s");
 }

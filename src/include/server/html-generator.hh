@@ -14,6 +14,7 @@ namespace html_generator
 	class toAndFromXML;
 	class insnArchitecture;
 	class loadStats;
+	class naturalTimeDiff;
 }
 
 namespace emilpro
@@ -25,6 +26,7 @@ namespace emilpro
 		friend class html_generator::toAndFromXML;
 		friend class html_generator::insnArchitecture;
 		friend class html_generator::loadStats;
+		friend class html_generator::naturalTimeDiff;
 
 
 		void addData(const char *ip, ArchitectureFactory::Architecture_t arch);
