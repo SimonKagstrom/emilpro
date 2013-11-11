@@ -49,15 +49,15 @@ TESTSUITE(html_generator)
 		ASSERT_TRUE(gen.m_totalConnections == 7U);
 
 		// Test that the output HTML is ordered
-		size_t swePos = path_to_data[statsFilename].find("1</b>. Sweden (3)");
-		size_t japanPos = path_to_data[statsFilename].find("2</b>. Japan (2)");
+		size_t swePos = path_to_data[statsFilename].find("1</tt> Sweden (3)");
+		size_t japanPos = path_to_data[statsFilename].find("2</tt> Japan (2)");
 
 		ASSERT_TRUE(swePos != std::string::npos);
 		ASSERT_TRUE(japanPos != std::string::npos);
 		ASSERT_TRUE(swePos < japanPos);
 
-		size_t i386Pos = path_to_data[statsFilename].find("1</b>. i386 (3)");
-		size_t sparcPos = path_to_data[statsFilename].find("2</b>. sparc (2)");
+		size_t i386Pos = path_to_data[statsFilename].find("1</tt> i386 (3)");
+		size_t sparcPos = path_to_data[statsFilename].find("2</tt> sparc (2)");
 
 		ASSERT_TRUE(i386Pos != std::string::npos);
 		ASSERT_TRUE(sparcPos != std::string::npos);
