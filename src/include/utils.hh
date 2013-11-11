@@ -10,16 +10,16 @@
 
 #define error(x...) do \
 { \
-	fprintf(stderr, "Error: "); \
-	fprintf(stderr, x); \
-	fprintf(stderr, "\n"); \
+	printf("Error: "); \
+	printf(x); \
+	printf("\n"); \
 } while(0)
 
 #define warning(x...) do \
 { \
-	fprintf(stderr, "Warning: "); \
-	fprintf(stderr, x); \
-	fprintf(stderr, "\n"); \
+	printf("Warning: "); \
+	printf(x); \
+	printf("\n"); \
 } while(0)
 
 #define panic(x...) do \
