@@ -36,6 +36,29 @@ void XmlFactory::on_start_element(const Glib::ustring& name,
 
 	m_currentName = name;
 	m_currentProperties = properties;
+
+	XmlFactory::ElementToListenerMap_t::iterator it = m_elementListeners.find(m_currentName);
+
+	if (it != m_elementListeners.end()) {
+		XmlFactory::ListenerList_t *curLst = &it->second;
+
+		m_listenerStack.push_back(curLst);
+	}
+
+	for (XmlFactory::ListenerStack_t::iterator itLst = m_listenerStack.begin();
+			itLst != m_listenerStack.end();
+			++itLst) {
+		XmlFactory::ListenerList_t *curLst = *itLst;
+
+		for (XmlFactory::ListenerList_t::iterator itListener = curLst->begin();
+				itListener != curLst->end();
+				++itListener) {
+			XmlFactory::IXmlListener *cur = *itListener;
+
+			cur->onStart(m_currentName, properties, "");
+		}
+	}
+
 }
 
 void XmlFactory::on_end_element(const Glib::ustring& name)
@@ -59,6 +82,8 @@ void XmlFactory::on_end_element(const Glib::ustring& name)
 	}
 
 	maybePopListener(name);
+
+	m_currentName = "";
 }
 
 void XmlFactory::on_characters(const Glib::ustring& charactersIn)
@@ -70,14 +95,7 @@ void XmlFactory::on_characters(const Glib::ustring& charactersIn)
 		return;
 
 	std::string characters = unescape_string_from_xml(charactersIn);
-
-	XmlFactory::ElementToListenerMap_t::iterator it = m_elementListeners.find(m_currentName);
-
-	if (it != m_elementListeners.end()) {
-		XmlFactory::ListenerList_t *curLst = &it->second;
-
-		m_listenerStack.push_back(curLst);
-	}
+	characters = trimString(characters);
 
 	// For everything that currently listens
 	for (XmlFactory::ListenerStack_t::iterator itLst = m_listenerStack.begin();
@@ -90,10 +108,7 @@ void XmlFactory::on_characters(const Glib::ustring& charactersIn)
 				++itListener) {
 			XmlFactory::IXmlListener *cur = *itListener;
 
-			if (cur->hasName(m_currentName))
-				cur->onStart(m_currentName, m_currentProperties, characters);
-			else
-				cur->onElement(m_currentName, m_currentProperties, characters);
+			cur->onElement(m_currentName, m_currentProperties, characters);
 		}
 	}
 

@@ -27,7 +27,7 @@ bool XmlString::onStart(const Glib::ustring& name,
 {
 	indent();
 
-	m_string += "<" + name + handleProperties(properties) + ">\n";
+	m_string += "<" + name + handleProperties(properties) + ">";
 	m_level++;
 
 	return true;
@@ -36,20 +36,16 @@ bool XmlString::onStart(const Glib::ustring& name,
 bool XmlString::onElement(const Glib::ustring& name,
 		const xmlpp::SaxParser::AttributeList& properties, std::string value)
 {
-	indent();
-	m_string += "<" + name + handleProperties(properties) + ">" + escape_string_for_xml(value);
+	m_string += escape_string_for_xml(value);
 
 	return true;
 }
 
 bool XmlString::onEnd(const Glib::ustring& name)
 {
-	if (name == m_tag) {
-		indent();
-		m_level--;
-	}
-
+	m_level--;
 	m_string += "</" + name + ">\n";
+	indent();
 
 	return true;
 }

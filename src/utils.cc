@@ -302,7 +302,7 @@ std::string escapeHtml(const char *str)
 std::string trimString(std::string &strIn)
 {
 	std::string str = strIn;
-	size_t endpos = str.find_last_not_of(" \t");
+	size_t endpos = str.find_last_not_of(" \t\n\r");
 
 	if( std::string::npos != endpos )
 	{

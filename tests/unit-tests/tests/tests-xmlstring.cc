@@ -100,7 +100,7 @@ TESTSUITE(xmlstring)
 				"    <encoding>0x??ab</encoding>\n"
 				"    <encoding>0x??cd</encoding>\n"
 				"    <description>Branch if greater or equal\n"
-				"           Yada yada."
+				"           Yada yada.\n"
 				"    </description>\n"
 				"  </InstructionModel>\n"
 				"</emilpro>\n";
