@@ -200,6 +200,23 @@ TESTSUITE(disassembly)
 		ASSERT_TRUE(p->getString().find("ble") != std::string::npos);
 		ASSERT_TRUE(p->getMnemonic() == "ble");
 
+
+
+		ArchitectureFactory::instance().provideArchitecture(bfd_arch_avr);
+		lst = dis.execute((void *)avr_dump, sizeof(avr_dump), 0x1000);
+		ASSERT_TRUE(lst.size() == 11U);
+
+		m = listToAddressMap(lst);
+		p = m[0x1000 +  0]; ASSERT_TRUE(p);
+		ASSERT_TRUE(p->getString().find("mov") != std::string::npos);
+		ASSERT_TRUE(p->getMnemonic() == "mov");
+		p = m[0x1000 +  4]; ASSERT_TRUE(p);
+		ASSERT_TRUE(p->getString().find("cpi") != std::string::npos);
+		ASSERT_TRUE(p->getMnemonic() == "cpi");
+		p = m[0x1000 + 14]; ASSERT_TRUE(p);
+		ASSERT_TRUE(p->getString().find("rcall") != std::string::npos);
+		ASSERT_TRUE(p->getMnemonic() == "rcall");
+
 		EmilPro::destroy();
 	}
 
