@@ -173,10 +173,13 @@ TESTSUITE(disassembly)
 		m = listToAddressMap(lst);
 		p = m[0x1000 +  0]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getString().find("slt") != std::string::npos);
+		ASSERT_TRUE(p->getMnemonic() == "slt");
 		p = m[0x1000 +  4]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getString().find("beqz") != std::string::npos);
+		ASSERT_TRUE(p->getMnemonic() == "beqz");
 		p = m[0x1000 + 20]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getString().find("jr") != std::string::npos);
+		ASSERT_TRUE(p->getMnemonic() == "jr");
 		d = p->getRawData(sz);
 		ASSERT_TRUE(sz == 4U);
 		ASSERT_TRUE(memcmp(d, &mips_dump[20], sz) == 0);
@@ -189,10 +192,13 @@ TESTSUITE(disassembly)
 		m = listToAddressMap(lst);
 		p = m[0x1000 +  0]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getString().find("push") != std::string::npos);
+		ASSERT_TRUE(p->getMnemonic() == "push");
 		p = m[0x1000 +  4]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getString().find("cmp") != std::string::npos);
+		ASSERT_TRUE(p->getMnemonic() == "cmp");
 		p = m[0x1000 + 16]; ASSERT_TRUE(p);
 		ASSERT_TRUE(p->getString().find("ble") != std::string::npos);
+		ASSERT_TRUE(p->getMnemonic() == "ble");
 
 		EmilPro::destroy();
 	}
