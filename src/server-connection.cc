@@ -2,6 +2,7 @@
 #include <xmlfactory.hh>
 #include <configuration.hh>
 #include <instructionfactory.hh>
+#include <preferences.hh>
 #include <model.hh>
 #include <utils.hh>
 #include <network-listener.hh>
@@ -115,19 +116,22 @@ private:
 };
 
 
-class ClientHandler : public XmlFactory::IXmlListener
+class ClientHandler : public XmlFactory::IXmlListener, public Preferences::IListener
 {
 public:
 	ClientHandler() :
-		m_instructionModelTimestamp(0)
+		m_instructionModelTimestamp(0),
+		m_optOutFromServerStatistics(false)
 	{
 		XmlFactory::instance().registerListener("InstructionModel", this);
 		XmlFactory::instance().registerListener("ServerTimestamps", this);
+		Preferences::instance().registerListener("OptOutServerStatistics", this);
 	}
 
 	~ClientHandler()
 	{
 		XmlFactory::instance().unregisterListener(this);
+		Preferences::instance().unregisterListener(this);
 	}
 
 	bool sendTimestamps()
@@ -168,13 +172,18 @@ private:
 	std::string toXml()
 	{
 		std::string archStr = ArchitectureFactory::instance().getNameFromArchitecture(Model::instance().getArchitecture());
+		std::string optOut;
+
+		if (m_optOutFromServerStatistics)
+			optOut = " optOutFromStatistics=\"yes\"";
 
 		return fmt(
-				"  <ServerTimestamps>\n"
+				"  <ServerTimestamps%s>\n"
 				"    <Timestamp>%llu</Timestamp>\n"
 				"    <InstructionModelTimestamp>%llu</InstructionModelTimestamp>\n"
 				"    <CurrentArchitecture>%s</CurrentArchitecture>\n"
 				"  </ServerTimestamps>\n",
+				optOut.c_str(),
 				(unsigned long long)get_utc_timestamp(),
 				(unsigned long long)m_instructionModelTimestamp,
 				archStr.c_str()
@@ -225,6 +234,20 @@ private:
 		return true;
 	}
 
+	void onPreferencesChanged(const std::string &key,
+			const std::string &oldValue, const std::string &newValue)
+	{
+		// Should be impossible, but anyway
+		if (key != "OptOutServerStatistics")
+			return;
+
+		if (newValue == "yes")
+			m_optOutFromServerStatistics = true;
+		else
+			m_optOutFromServerStatistics = false;
+	}
+
+
 	void maybeUpdateTimestamp(uint64_t timestamp)
 	{
 		if (timestamp == 0)
@@ -239,6 +262,7 @@ private:
 
 	uint64_t m_instructionModelTimestamp;
 	InstructionFactory::InstructionModelList_t m_modelsToServer;
+	bool m_optOutFromServerStatistics;
 };
 
 void Server::registerListener(IListener &listener)
