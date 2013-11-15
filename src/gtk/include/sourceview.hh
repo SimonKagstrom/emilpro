@@ -19,6 +19,8 @@ public:
 
 	void update(uint64_t address);
 
+	void clear();
+
 private:
 	Glib::RefPtr<Gsv::Buffer> getSourceBuffer(emilpro::ILineProvider::FileLine &fileLine);
 	typedef std::list<unsigned int> SourceLineNrList_t;

@@ -193,6 +193,7 @@ protected:
 		}
 
 		m_instructionView.clear();
+		m_sourceView.clear();
 		refresh();
 	}
 

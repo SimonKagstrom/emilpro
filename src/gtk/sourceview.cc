@@ -105,6 +105,11 @@ void SourceView::update(uint64_t address)
 	buffer->delete_mark(mark);
 }
 
+void SourceView::clear()
+{
+	m_filesToBuffer.clear();
+}
+
 Glib::RefPtr<Gsv::Buffer> SourceView::getSourceBuffer(emilpro::ILineProvider::FileLine& fileLine)
 {
 	Glib::RefPtr<Gsv::Buffer> buffer;
