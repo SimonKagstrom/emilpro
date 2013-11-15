@@ -23,6 +23,10 @@ make
 The first time EmilPRO is built, it will download and build binutils, so this
 will take quite a bit of time.
 
+Install
+-------
+The binary is self-contained, so just copy '''emilpro''' to somewhere in your path.
+
 Name
 ----
 The name is a pun on IDA pro.
