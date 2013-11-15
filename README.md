@@ -25,7 +25,7 @@ will take quite a bit of time.
 
 Install
 -------
-The binary is self-contained, so just copy '''emilpro''' to somewhere in your path.
+The binary is self-contained, so just copy **emilpro** to somewhere in your path.
 
 Name
 ----
