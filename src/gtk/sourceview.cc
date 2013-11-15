@@ -125,7 +125,7 @@ Glib::RefPtr<Gsv::Buffer> SourceView::getSourceBuffer(emilpro::ILineProvider::Fi
 	Glib::RefPtr<Gsv::LanguageManager> manager = Gsv::LanguageManager::get_default();
 	Glib::RefPtr<Gsv::Language> language;
 
-	bool uncertain;
+	bool uncertain = false;
 	Glib::ustring content = Gio::content_type_guess(fileLine.m_file, data, uncertain);
 
 	if (uncertain)
