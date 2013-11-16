@@ -7,6 +7,14 @@ See http://www.emilpro.com for more information!
 
 Build
 -----
+First install dependencies on your system. EmilPRO needs development packages of the following:
+
+* libelf
+* gtkmm-3.0
+* gtksourceviewmm-3.0
+* libxml++-2.6
+* libcurl
+
 EmilPRO uses cmake for the build, so the process for building it is basically:
 
 ```sh
