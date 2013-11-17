@@ -18,6 +18,7 @@ int main(int argc, const char *argv[])
 	}
 
 	const char *dir = argv[1];
+	mkdir(dir, 0644);
 
 	// Reads all models
 	EmilPro::init();
