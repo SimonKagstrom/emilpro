@@ -128,6 +128,11 @@ public:
 		m_builder->get_widget("view_toggle_instructions_data", viewToggleInstructionsDataItem);
 		viewToggleInstructionsDataItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onToggleInstructionsData));
 
+		Gtk::MenuItem *viewFocusReferencesDataItem;
+		m_builder->get_widget("view_focus_references", viewFocusReferencesDataItem);
+		viewFocusReferencesDataItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onFocusReferences));
+
+
 		m_builder->get_widget("about_dialog", m_aboutDialog);
 		panic_if(!m_aboutDialog,
 				"No about dialog");
@@ -143,6 +148,10 @@ public:
 
 		m_builder->get_widget("instruction_view", m_instructionTreeView);
 		panic_if(!m_instructionTreeView,
+				"Can't get view");
+
+		m_builder->get_widget("references_view", m_referencesTreeView);
+		panic_if(!m_referencesTreeView,
 				"Can't get view");
 
 		m_builder->get_widget("main_window", m_window);
@@ -284,6 +293,11 @@ private:
 			m_hexView.getTextView(8).grab_focus();
 	}
 
+	void onFocusReferences()
+	{
+		m_referencesTreeView->grab_focus();
+	}
+
 	void onPreferencesChanged(const std::string &key,
 			const std::string &oldValue, const std::string &newValue)
 	{
@@ -334,6 +348,7 @@ private:
 	AddressHistory m_addressHistory;
 	Gtk::TreeView *m_instructionTreeView;
 	Gtk::Notebook *m_instructionsDataNotebook;
+	Gtk::TreeView *m_referencesTreeView;
 	Gtk::Window *m_window;
 	Gtk::AboutDialog *m_aboutDialog;
 
