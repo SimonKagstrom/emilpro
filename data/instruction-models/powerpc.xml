@@ -21,8 +21,7 @@
   <InstructionModel name="beq+" architecture="powerpc" timestamp="0">
     <type>cflow</type>
     <privileged>false</privileged>
-    <description>Branch if equal
-</description>
+    <description>Branch if equal</description>
   </InstructionModel>
   <InstructionModel name="beq-" architecture="powerpc" timestamp="0">
     <type>cflow</type>

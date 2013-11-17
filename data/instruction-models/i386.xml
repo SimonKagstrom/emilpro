@@ -1,3 +1,8 @@
+  <InstructionModel name="add" architecture="i386" timestamp="0">
+    <type>arithmetic_logic</type>
+    <privileged>false</privileged>
+    <description>Add two values (of which one can reside in memory)</description>
+  </InstructionModel>
   <InstructionModel name="call" architecture="i386" timestamp="0">
     <type>call</type>
     <privileged>false</privileged>
@@ -20,7 +25,7 @@ The address to the next instruction is pushed to the stack.</description>
     <privileged>false</privileged>
     <description>Decrement register or memory location with 1.
 
-Does not affect the     </description>
+Does not affect the</description>
   </InstructionModel>
   <InstructionModel name="hlt" architecture="i386" timestamp="0">
     <type>other</type>
@@ -49,13 +54,17 @@ Does not affect the     </description>
     <description>Branch if below or equal.
 
 Check if CF == 1 or ZF == 1 in the
-eflags register.
-    </description>
+eflags register.</description>
   </InstructionModel>
   <InstructionModel name="je" architecture="i386" timestamp="0">
     <type>cflow</type>
     <privileged>false</privileged>
     <description>Branch if equal</description>
+  </InstructionModel>
+  <InstructionModel name="jg" architecture="i386" timestamp="0">
+    <type>cflow</type>
+    <privileged>false</privileged>
+    <description>Jump if greater</description>
   </InstructionModel>
   <InstructionModel name="jle" architecture="i386" timestamp="0">
     <type>cflow</type>
@@ -66,6 +75,11 @@ eflags register.
     <type>cflow</type>
     <privileged>false</privileged>
     <description>Unconditional branch</description>
+  </InstructionModel>
+  <InstructionModel name="jmpq" architecture="i386" timestamp="0">
+    <type>cflow</type>
+    <privileged>false</privileged>
+    <description>Branch unconditionally</description>
   </InstructionModel>
   <InstructionModel name="jne" architecture="i386" timestamp="0">
     <type>cflow</type>
@@ -81,6 +95,11 @@ eflags register.
     <type>data_handling</type>
     <privileged>false</privileged>
     <description>Copy data from memory/registers onto another location.</description>
+  </InstructionModel>
+  <InstructionModel name="nop" architecture="i386" timestamp="0">
+    <type>other</type>
+    <privileged>false</privileged>
+    <description>No operation</description>
   </InstructionModel>
   <InstructionModel name="pop" architecture="i386" timestamp="0">
     <type>data_handling</type>
@@ -99,11 +118,15 @@ The number of bytes depends on the destination size.</description>
     <privileged>false</privileged>
     <description>Return from function. Pops an address off the top of the stack and jumps there.</description>
   </InstructionModel>
+  <InstructionModel name="retq" architecture="i386" timestamp="0">
+    <type>cflow</type>
+    <privileged>false</privileged>
+    <description>Return from function (pop return address from stack and jump there)</description>
+  </InstructionModel>
   <InstructionModel name="shr" architecture="i386" timestamp="0">
     <type>arithmetic_logic</type>
     <privileged>false</privileged>
-    <description>Shift logical right
-    </description>
+    <description>Shift logical right</description>
   </InstructionModel>
   <InstructionModel name="sub" architecture="i386" timestamp="0">
     <type>arithmetic_logic</type>

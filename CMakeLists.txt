@@ -51,11 +51,17 @@ add_custom_command (OUTPUT emilpro_glade.hh
 
 add_custom_command (OUTPUT built_in_instruction_models.hh
   COMMAND ${CMAKE_BINARY_DIR}/file-to-source ${CMAKE_BINARY_DIR}/built_in_instruction_models.hh built_in_instruction_models_xml
-  	${CMAKE_SOURCE_DIR}/data/instruction-models/i386.xml 
-  	${CMAKE_SOURCE_DIR}/data/instruction-models/mips.xml
+    ${CMAKE_SOURCE_DIR}/data/instruction-models/arm.xml
+    ${CMAKE_SOURCE_DIR}/data/instruction-models/avr.xml
+    ${CMAKE_SOURCE_DIR}/data/instruction-models/i386.xml
+    ${CMAKE_SOURCE_DIR}/data/instruction-models/mips.xml
+    ${CMAKE_SOURCE_DIR}/data/instruction-models/powerpc.xml
   DEPENDS
-  	${CMAKE_SOURCE_DIR}/data/instruction-models/i386.xml 
-  	${CMAKE_SOURCE_DIR}/data/instruction-models/mips.xml
+    ${CMAKE_SOURCE_DIR}/data/instruction-models/arm.xml
+    ${CMAKE_SOURCE_DIR}/data/instruction-models/avr.xml
+    ${CMAKE_SOURCE_DIR}/data/instruction-models/i386.xml
+    ${CMAKE_SOURCE_DIR}/data/instruction-models/mips.xml
+    ${CMAKE_SOURCE_DIR}/data/instruction-models/powerpc.xml
   	file-to-source
 )
 
