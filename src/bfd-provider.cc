@@ -236,6 +236,8 @@ public:
 			handleSymbols(syntsymcount, m_syntheticBfdSyms, false);
 		}
 
+		deriveSymbolSizes();
+		provideSymbols();
 
 		// Provide section symbols
 		asection *section;
@@ -352,13 +354,6 @@ private:
 
 	void handleSymbols(long symcount, asymbol **syms, bool dynamic)
 	{
-		typedef std::map<ISymbol *, uint64_t> SectionAddressBySymbol_t;
-		typedef std::map<uint64_t, std::list<ISymbol *> > SymbolsByAddress_t;
-		typedef std::list<ISymbol *> SymbolList_t;
-		SectionAddressBySymbol_t sectionEndAddresses;
-		SymbolsByAddress_t symbolsByAddress;
-		SymbolList_t fixupSyms;
-
 		for (long i = 0; i < symcount; i++) {
 			asymbol *cur = syms[i];
 			enum ISymbol::SymbolType symType;
@@ -436,7 +431,10 @@ private:
 			if (size == 0)
 				fixupSyms.push_back(&sym);
 		}
+	}
 
+	void deriveSymbolSizes(void)
+	{
 		for (SymbolList_t::iterator it = fixupSyms.begin();
 				it != fixupSyms.end();
 				++it) {
@@ -460,7 +458,10 @@ private:
 					cur->setSize(lastSectionAddr - cur->getAddress());
 			}
 		}
+	}
 
+	void provideSymbols()
+	{
 		for (SymbolsByAddress_t::iterator it = symbolsByAddress.begin();
 				it != symbolsByAddress.end();
 				++it) {
@@ -476,6 +477,9 @@ private:
 
 	typedef std::map<asection *, void *> BfdSectionContents_t;
 	typedef std::map<uint64_t, asection *> BfdSectionByAddress_t;
+	typedef std::map<ISymbol *, uint64_t> SectionAddressBySymbol_t;
+	typedef std::map<uint64_t, std::list<ISymbol *> > SymbolsByAddress_t;
+	typedef std::list<ISymbol *> SymbolList_t;
 
 	struct bfd *m_bfd;
 	ISymbolListener *m_listener;
@@ -487,6 +491,9 @@ private:
 
 	BfdSectionContents_t m_sectionContents;
 	BfdSectionByAddress_t m_sectionByAddress;
+	SectionAddressBySymbol_t sectionEndAddresses;
+	SymbolsByAddress_t symbolsByAddress;
+	SymbolList_t fixupSyms;
 };
 
 namespace emilpro
