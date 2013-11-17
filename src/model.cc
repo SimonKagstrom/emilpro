@@ -777,7 +777,7 @@ uint64_t Model::lookupOneSymbol(const std::string& str)
 	if (string_is_integer(str, 16)) {
 		uint64_t address = string_to_integer(str, 16);
 
-		const SymbolList_t lst = getNearestSymbolLocked(address);
+		const SymbolList_t lst = getNearestSymbol(address);
 
 		if (!lst.empty())
 			return address;
