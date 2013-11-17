@@ -120,9 +120,6 @@ const InstructionList_t Model::getInstructions(uint64_t start, uint64_t end)
 			if (syms.empty())
 				break;
 
-			if (syms.size())
-				error("Size is wrong, we don't handle this now...");
-
 			for (Model::SymbolList_t::const_iterator it = syms.begin();
 					it != syms.end();
 					++it) {
