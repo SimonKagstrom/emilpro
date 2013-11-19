@@ -8,6 +8,8 @@ project (emilpro)
 set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
                         ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
+set (BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
 # Dependencies
 include (${CMAKE_CURRENT_SOURCE_DIR}/cmake/BuildBinutils.cmake)
 
