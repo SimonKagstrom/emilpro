@@ -2,6 +2,7 @@
 #include <configuration.hh>
 #include <utils.hh>
 
+#include <syslog.h>
 #include <list>
 
 using namespace emilpro;
@@ -12,6 +13,10 @@ void HtmlGenerator::addData(const char* ip, ArchitectureFactory::Architecture_t 
 
 	if (!country)
 		country = "Unknown";
+
+	syslog(LOG_INFO, "Connection from %s (%s) with architecture %s\n",
+			ip, country, ArchitectureFactory::instance().getNameFromArchitecture(arch).c_str()
+			);
 
 	m_countryCount[country]++;
 	m_architectureCount[arch]++;

@@ -6,6 +6,7 @@
 #include <configuration.hh>
 
 #include <string>
+#include <syslog.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -61,6 +62,8 @@ int main(int argc, const char *argv[])
 		else if (strcmp(argv[i], "-f") == 0)
 			foreground = true;
 	}
+
+	openlog("emilpro-server", 0, LOG_INFO);
 
 	if (mocked_timestamp != 0xffffffffffffffffULL)
 		mock_utc_timestamp(mocked_timestamp);
