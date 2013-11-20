@@ -231,7 +231,7 @@ public:
 		if (syntheticSyms) {
 			m_rawSyntheticBfdSyms = syntheticSyms;
 			m_syntheticBfdSyms = (asymbol **)malloc(syntsymcount * sizeof(asymbol *));
-			for (unsigned i = 0; i < syntsymcount; i++)
+			for (long i = 0; i < syntsymcount; i++)
 				m_syntheticBfdSyms[i] = &syntheticSyms[i];
 			handleSymbols(syntsymcount, m_syntheticBfdSyms, false);
 		}
