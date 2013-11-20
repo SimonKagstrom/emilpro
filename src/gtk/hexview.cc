@@ -445,7 +445,7 @@ void HexView::updateInstructionEncoding(uint64_t addrIn, size_t size)
 	}
 
 	std::string line;
-	uint64_t strOff = 0;
+	size_t strOff = 0;
 
 	handleLine(line, strOff, addr, buf, 8, true, false);
 	HexView::LineOffsetList_t regions = getMarkRegionsLine(0, addrIn, size, 8);
