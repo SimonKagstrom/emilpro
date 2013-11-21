@@ -1,0 +1,11 @@
+EmilPRO (2):
+	* Correct build on 32-bit systems
+	
+	* Correct build of binutils on newer compilers (build without -Werror)
+
+	-- Simon Kagstrom <simon.kagstrom@gmail.com>
+
+EmilPRO (1):
+	* Initial release
+
+	-- Simon Kagstrom <simon.kagstrom@gmail.com>, Mon Nov 18 06:51:19 CET 2013
