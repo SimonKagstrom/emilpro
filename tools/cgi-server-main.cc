@@ -4,6 +4,7 @@
 #include <server/cgi-server.hh>
 #include <server/html-generator.hh>
 #include <configuration.hh>
+#include <xmlfactory.hh>
 
 #include <string>
 #include <syslog.h>
@@ -45,6 +46,7 @@ int main(int argc, const char *argv[])
 	baseDirectory = argv[1];
 	std::string inFifoName = baseDirectory + "/to-server.fifo";
 	std::string outFifoName = baseDirectory + "/from-server.fifo";
+	std::string currentIpName = baseDirectory + "/current-ip";
 	uint64_t mocked_timestamp = 0xffffffffffffffffULL;
 
 	for (int i = 2; i < argc; i++) {
@@ -122,6 +124,8 @@ int main(int argc, const char *argv[])
 	while (1)
 	{
 		char *data;
+		std::string currentIpXml;
+		char *currentIpPtr;
 		size_t sz;
 
 		data = (char *)read_file_timeout(&sz, 1000, "%s", inFifoName.c_str());
@@ -131,10 +135,17 @@ int main(int argc, const char *argv[])
 		std::string cur(data);
 		free(data);
 
+		currentIpPtr = (char *)read_file_timeout(&sz, 1000, "%s", currentIpName.c_str());
+		if (currentIpPtr)
+			currentIpXml = currentIpPtr;
+		free(currentIpPtr);
+
 		if (honorQuit && cur.substr(0, 4) == "quit") {
 			ret = 2;
 			break;
 		}
+
+		XmlFactory::instance().parse(currentIpXml);
 
 		std::string reply;
 		if (server.request(cur) == true)

@@ -52,6 +52,7 @@ int main(int argc, const char *argv[])
 	std::string lockFile = baseDir + "/cgi-handler.lock";
 	std::string toServerFifoName = baseDir + "/to-server.fifo";
 	std::string fromServerFifoName = baseDir + "/from-server.fifo";
+	std::string currentIPName = baseDir + "/current_ip";
 	int rv;
 
 	lockFd = open(lockFile.c_str(), O_RDWR | O_CREAT, 0600);
@@ -86,7 +87,7 @@ int main(int argc, const char *argv[])
 		data = rawData;
 	}
 
-	rv = write_file_timeout(ip.c_str(), ip.size(), 1000, "%s", toServerFifoName.c_str());
+	rv = write_file_timeout(ip.c_str(), ip.size(), 1000, "%s", currentIPName.c_str());
 	if (rv < 0) {
 		ret = 1;
 		goto out;
