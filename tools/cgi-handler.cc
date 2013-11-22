@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stdlib.h>
 
 using namespace cgicc;
 
@@ -27,6 +28,15 @@ int main(int argc, const char *argv[])
 	std::string data;
 	bool testMode = false;
 	int ret = 0;
+	char *p;
+	size_t sz;
+	std::string ip = fmt("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+					"<emilpro>\n"
+					"  <ServerTimestamps>\n"
+					"    <CurrentIP>%s</CurrentIP>\n"
+					"  </ServerTimestamps>\n"
+					"</emilpro>\n",
+					getenv("REMOTE_ADDR"));
 
 	if (argc >= 3) {
 		testMode = true;
@@ -76,14 +86,11 @@ int main(int argc, const char *argv[])
 		data = rawData;
 	}
 
-	rv = write_file_timeout(data.c_str(), data.size(), 1000, "%s", toServerFifoName.c_str());
+	rv = write_file_timeout(ip.c_str(), ip.size(), 1000, "%s", toServerFifoName.c_str());
 	if (rv < 0) {
 		ret = 1;
 		goto out;
 	}
-
-	char *p;
-	size_t sz;
 
 	p = (char *)read_file_timeout(&sz, 1000, "%s", fromServerFifoName.c_str());
 	if (!p) {

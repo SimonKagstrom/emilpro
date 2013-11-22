@@ -49,6 +49,8 @@ bool CgiServer::onElement(const Glib::ustring &name, const xmlpp::SaxParser::Att
 	} else if (name == "CurrentArchitecture") {
 		m_currentArchitecture = ArchitectureFactory::instance().getArchitectureFromName(value);
 		m_hasCurrentArchitecture = true;
+	} else if (name == "CurrentIP") {
+		setenv("REMOTE_ADDR", value.c_str(), 1);
 	}
 
 	return true;
