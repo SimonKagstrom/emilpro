@@ -92,6 +92,12 @@ int main(int argc, const char *argv[])
 		goto out;
 	}
 
+	rv = write_file_timeout(data.c_str(), data.size(), 1000, "%s", toServerFifoName.c_str());
+	if (rv < 0) {
+		ret = 1;
+		goto out;
+	}
+
 	p = (char *)read_file_timeout(&sz, 1000, "%s", fromServerFifoName.c_str());
 	if (!p) {
 		ret = 2;
