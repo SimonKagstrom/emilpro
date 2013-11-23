@@ -1,4 +1,9 @@
 EmilPRO (2):
+	* A bug in the country count of the server has been corrected (Sweden is not
+	  the world...)
+
+	* The server now logs connections to syslog
+
 	* Correct build on 32-bit systems
 	
 	* Correct build of binutils on newer compilers (build without -Werror)
