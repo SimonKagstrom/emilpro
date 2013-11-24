@@ -46,7 +46,7 @@ int main(int argc, const char *argv[])
 	baseDirectory = argv[1];
 	std::string inFifoName = baseDirectory + "/to-server.fifo";
 	std::string outFifoName = baseDirectory + "/from-server.fifo";
-	std::string currentIpName = baseDirectory + "/current-ip";
+	std::string currentIpName = baseDirectory + "/current_ip";
 	uint64_t mocked_timestamp = 0xffffffffffffffffULL;
 
 	for (int i = 2; i < argc; i++) {
