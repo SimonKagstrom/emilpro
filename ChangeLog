@@ -1,3 +1,10 @@
+EmilPRO (3):
+	* Really fix the Sweden-is-not-the-world bug. current-ip -> current_ip in both
+	  places works really well...
+
+	-- Simon Kagstrom <simon.kagstrom@gmail.com>
+
+
 EmilPRO (2):
 	* A bug in the country count of the server has been corrected (Sweden is not
 	  the world...)
