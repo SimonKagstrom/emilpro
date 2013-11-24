@@ -50,7 +50,7 @@ bool CgiServer::onElement(const Glib::ustring &name, const xmlpp::SaxParser::Att
 		m_currentArchitecture = ArchitectureFactory::instance().getArchitectureFromName(value);
 		m_hasCurrentArchitecture = true;
 	} else if (name == "CurrentIP") {
-		setenv("REMOTE_ADDR", value.c_str(), 1);
+		m_remoteIp = value;
 	}
 
 	return true;
@@ -140,7 +140,7 @@ bool CgiServer::request(const std::string xml)
 		return false;
 
 	if (m_hasCurrentArchitecture && !m_optOutFromStatistics)
-		html.addData(getenv("REMOTE_ADDR"), m_currentArchitecture);
+		html.addData(m_remoteIp.c_str(), m_currentArchitecture);
 	html.generate();
 
 	return true;

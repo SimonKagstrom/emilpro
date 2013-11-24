@@ -48,6 +48,7 @@ namespace emilpro
 		ArchitectureFactory::Architecture_t m_currentArchitecture;
 		bool m_hasCurrentArchitecture;
 		bool m_optOutFromStatistics;
+		std::string m_remoteIp;
 	};
 
 }
