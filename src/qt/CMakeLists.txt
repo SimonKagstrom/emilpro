@@ -32,7 +32,7 @@ pkg_check_modules(LIBCURL libcurl)
 
 set (CMAKE_CXX_FLAGS "-std=c++0x -Wall -D_GLIBCXX_USE_NANOSLEEP -DPACKAGE=emilpro -DPACKAGE_VERSION=1 ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
-set (CMAKE_BUILD_TYPE release)
+set (CMAKE_BUILD_TYPE debug)
 set(CMAKE_AUTOMOC ON)
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/tools)
