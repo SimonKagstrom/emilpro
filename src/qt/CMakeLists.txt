@@ -79,6 +79,7 @@ set (BASE_SRCS
 	../preferences.cc
 	../server-connection.cc
 	../symbolfactory.cc
+	../ui-helpers.cc
 	../utils.cc
 	../xmlfactory.cc
 	../xmlstring.cc

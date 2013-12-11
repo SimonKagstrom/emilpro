@@ -7,6 +7,8 @@
 #include <model.hh>
 #include <symbolfactory.hh>
 
+#include <unordered_map>
+
 namespace Ui {
 class MainWindow;
 }
@@ -25,7 +27,14 @@ public:
 private slots:
     void on_symbolTableView_activated(const QModelIndex &index);
 
+    void on_instructionTableView_activated(const QModelIndex &index);
+
+    void on_instructionTableView_entered(const QModelIndex &index);
+
 private:
+    typedef std::unordered_map<std::string, std::string> FileToStringMap_t;
+    typedef std::unordered_map<int, const emilpro::IInstruction *> RowToInstruction_t;
+
     void setupSymbolView();
 
     void refresh();
@@ -34,13 +43,14 @@ private:
 
 	void updateInstructionView(uint64_t address, const emilpro::ISymbol &sym);
 
-
     Ui::MainWindow *m_ui;
     QStandardItemModel *m_symbolViewModel;
     QStandardItemModel *m_instructionViewModel;
 
     void *m_data;
     size_t m_dataSize;
+    FileToStringMap_t m_sourceFileMap;
+    RowToInstruction_t m_rowToInstruction;
 };
 
 #endif // MAINWINDOW_H

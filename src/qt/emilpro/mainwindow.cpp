@@ -5,8 +5,10 @@
 #include <configuration.hh>
 #include <model.hh>
 #include <utils.hh>
+#include <ui-helpers.hh>
 
 #include <qstandarditemmodel.h>
+#include <QTextBlock>
 
 using namespace emilpro;
 
@@ -35,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_ui->instructionTableView->horizontalHeader()->setStretchLastSection(true);
     m_ui->instructionTableView->resizeColumnsToContents();
+
+	Model::instance().registerSymbolListener(this);
 }
 
 MainWindow::~MainWindow()
@@ -71,8 +75,6 @@ void MainWindow::on_symbolTableView_activated(const QModelIndex &index)
 	uint64_t addr = string_to_integer(s);
 	Model &model = Model::instance();
 
-	printf("TADA: 0x%llx\n", addr);
-
 	Model::SymbolList_t lst = model.getNearestSymbol(addr);
 	if (lst.empty())
 		return;
@@ -88,7 +90,6 @@ void MainWindow::refresh()
 
 	delete m_symbolViewModel;
 	setupSymbolView();
-	model.registerSymbolListener(this);
 
 	if (file != "") {
 		m_data = read_file(&m_dataSize, "%s", file.c_str());
@@ -106,6 +107,12 @@ void MainWindow::refresh()
 
 void MainWindow::onSymbol(ISymbol& sym)
 {
+	// Skip the file symbol
+	if (sym.getType() == ISymbol::SYM_FILE)
+		return;
+
+	printf("XXX: 0x%08x: %s at %p\n", sym.getAddress(), sym.getName().c_str(), &sym);
+
     QList<QStandardItem *> lst;
 
     QString addr = QString::fromStdString(fmt("0x%llx", (unsigned long long)sym.getAddress()));
@@ -149,11 +156,15 @@ void MainWindow::updateInstructionView(uint64_t address, const ISymbol& sym)
 {
 	Model &model = Model::instance();
 	InstructionList_t insns = model.getInstructions(sym.getAddress(), sym.getAddress() + sym.getSize());
+	int row = 0;
 
+	m_rowToInstruction.clear();
 	for (InstructionList_t::iterator it = insns.begin();
 			it != insns.end();
-			++it) {
+			++it, ++row) {
 		IInstruction *cur = *it;
+
+		m_rowToInstruction[row] = cur;
 
 		QList<QStandardItem *> lst;
 
@@ -174,4 +185,48 @@ void MainWindow::updateInstructionView(uint64_t address, const ISymbol& sym)
 	}
 
 	m_ui->instructionTableView->resizeColumnsToContents();
+}
+
+void MainWindow::on_instructionTableView_activated(const QModelIndex &index)
+{
+}
+
+void MainWindow::on_instructionTableView_entered(const QModelIndex &index)
+{
+	int row = index.row();
+
+	const IInstruction *cur = m_rowToInstruction[row];
+
+	if (!cur)
+		return;
+	ILineProvider::FileLine fileLine = Model::instance().getLineByAddress(cur->getAddress());
+
+	if (!fileLine.m_isValid)
+		return;
+
+	if (m_sourceFileMap.find(fileLine.m_file) == m_sourceFileMap.end())
+		m_sourceFileMap[fileLine.m_file] = UiHelpers::getFileContents(fileLine.m_file);
+	std::string data = m_sourceFileMap[fileLine.m_file];
+
+	m_ui->sourceTextEdit->setText(QString(data.c_str()));
+	if (data == "")
+		return;
+
+	int line = fileLine.m_lineNr - 1;
+
+	if (line < 0)
+		line = 0;
+
+	QTextCursor cursor(m_ui->sourceTextEdit->document()->findBlockByLineNumber(line));
+	cursor.select(QTextCursor::LineUnderCursor);
+	m_ui->sourceTextEdit->setTextCursor(cursor);
+
+    QTextEdit::ExtraSelection highlight;
+    highlight.cursor = m_ui->sourceTextEdit->textCursor();
+    highlight.format.setProperty(QTextFormat::FullWidthSelection, true);
+    highlight.format.setBackground( Qt::green );
+
+    QList<QTextEdit::ExtraSelection> extras;
+    extras << highlight;
+    m_ui->sourceTextEdit->setExtraSelections( extras );
 }
