@@ -66,9 +66,9 @@ namespace emilpro
 		{
 		}
 
-		virtual uint64_t getAddress() = 0;
+		virtual uint64_t getAddress() const = 0;
 
-		virtual uint64_t getSize() = 0;
+		virtual uint64_t getSize() const = 0;
 
 		/**
 		 * Return the target address for branches/calls.

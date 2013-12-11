@@ -76,12 +76,12 @@ public:
 	}
 
 	// From IInstruction
-	uint64_t getAddress()
+	uint64_t getAddress() const
 	{
 		return m_address;
 	}
 
-	uint64_t getSize()
+	uint64_t getSize() const
 	{
 		return m_size;
 	}
