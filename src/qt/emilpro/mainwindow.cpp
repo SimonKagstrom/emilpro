@@ -22,21 +22,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setupSymbolView();
 
-    m_instructionViewModel = new QStandardItemModel(0,5,this);
-    m_instructionViewModel->setHorizontalHeaderItem(0, new QStandardItem(QString("Address")));
-    m_instructionViewModel->setHorizontalHeaderItem(1, new QStandardItem(QString("B")));
-    m_instructionViewModel->setHorizontalHeaderItem(2, new QStandardItem(QString("Instruction")));
-    m_instructionViewModel->setHorizontalHeaderItem(3, new QStandardItem(QString("F")));
-    m_instructionViewModel->setHorizontalHeaderItem(4, new QStandardItem(QString("Target")));
+    setupInstructionView();
 
     QStandardItemModel *a = new QStandardItemModel(0, 1, this);
     a->setHorizontalHeaderItem(0, new QStandardItem(QString("Symbol references")));
 
     m_ui->referencesListView->setModel(a);
-    m_ui->instructionTableView->setModel(m_instructionViewModel);
-
-    m_ui->instructionTableView->horizontalHeader()->setStretchLastSection(true);
-    m_ui->instructionTableView->resizeColumnsToContents();
 
 	Model::instance().registerSymbolListener(this);
 }
@@ -150,6 +141,21 @@ void MainWindow::setupSymbolView()
     m_ui->symbolTableView->setModel(m_symbolViewModel);
     m_ui->symbolTableView->horizontalHeader()->setStretchLastSection(true);
     m_ui->symbolTableView->resizeColumnsToContents();
+}
+
+void MainWindow::setupInstructionView()
+{
+    m_instructionViewModel = new QStandardItemModel(0,5,this);
+    m_instructionViewModel->setHorizontalHeaderItem(0, new QStandardItem(QString("Address")));
+    m_instructionViewModel->setHorizontalHeaderItem(1, new QStandardItem(QString("B")));
+    m_instructionViewModel->setHorizontalHeaderItem(2, new QStandardItem(QString("Instruction")));
+    m_instructionViewModel->setHorizontalHeaderItem(3, new QStandardItem(QString("F")));
+    m_instructionViewModel->setHorizontalHeaderItem(4, new QStandardItem(QString("Target")));
+
+    m_ui->instructionTableView->setModel(m_instructionViewModel);
+
+    m_ui->instructionTableView->horizontalHeader()->setStretchLastSection(true);
+    m_ui->instructionTableView->resizeColumnsToContents();
 }
 
 void MainWindow::updateInstructionView(uint64_t address, const ISymbol& sym)

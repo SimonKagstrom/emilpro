@@ -37,6 +37,8 @@ private:
 
     void setupSymbolView();
 
+    void setupInstructionView();
+
     void refresh();
 
     void onSymbol(emilpro::ISymbol &sym);
