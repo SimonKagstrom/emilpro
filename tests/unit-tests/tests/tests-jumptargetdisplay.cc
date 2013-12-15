@@ -17,7 +17,7 @@ public:
 	{
 	}
 
-	uint64_t getAddress()
+	uint64_t getAddress() const
 	{
 		return m_address;
 	}
@@ -27,7 +27,7 @@ public:
 		return m_type;
 	}
 
-	MOCK_METHOD0(getSize, uint64_t());
+	MOCK_CONST_METHOD0(getSize, uint64_t());
 
 	/**
 	 * Return the target address for branches/calls.
