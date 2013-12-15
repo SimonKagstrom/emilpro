@@ -225,6 +225,7 @@ void MainWindow::on_instructionTableView_entered(const QModelIndex &index)
 
 	QTextCursor cursor(m_ui->sourceTextEdit->document()->findBlockByLineNumber(line));
 	cursor.select(QTextCursor::LineUnderCursor);
+	cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, 5);
 	m_ui->sourceTextEdit->setTextCursor(cursor);
 
     QTextEdit::ExtraSelection highlight;
