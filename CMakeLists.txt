@@ -30,6 +30,7 @@ pkg_check_modules(LIBXMLPP libxml++-2.6)
 pkg_check_modules(LIBCURL libcurl)
 
 set (CMAKE_CXX_FLAGS "-std=c++0x -Wall -D_GLIBCXX_USE_NANOSLEEP -DPACKAGE=emilpro -DPACKAGE_VERSION=1")
+LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/install-binutils/lib ${CMAKE_BINARY_DIR}/install-binutils/lib64)
 
 if (HAVE_BFD_MULTIARCH)
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_BFD_MULTIARCH")
@@ -132,14 +133,13 @@ set_property(TARGET tools/squash-instruction-models APPEND PROPERTY OBJECT_DEPEN
 
 set (BASE_LIBS
 	${LIBELF_LIBRARIES}
-	${CMAKE_BINARY_DIR}/install-binutils/lib/libopcodes.a
-	${CMAKE_BINARY_DIR}/install-binutils/lib/libbfd.a
-	${CMAKE_BINARY_DIR}/install-binutils/lib/libiberty.a
+	opcodes
+	bfd
+	iberty
 	${LIBXMLPP_LIBRARIES}
 	${LIBCURL_LIBRARIES}
 	z
 	)
-
 
 target_link_libraries(emilpro
 	${GTKMM_LIBRARIES}
