@@ -29,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_ui->referencesListView->setModel(a);
 
+    m_highlighter = new Highlighter(m_ui->sourceTextEdit->document());
+
 	Model::instance().registerSymbolListener(this);
 }
 

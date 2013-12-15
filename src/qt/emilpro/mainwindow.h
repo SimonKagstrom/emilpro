@@ -9,6 +9,8 @@
 
 #include <unordered_map>
 
+#include "highlighter.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -53,6 +55,7 @@ private:
     size_t m_dataSize;
     FileToStringMap_t m_sourceFileMap;
     RowToInstruction_t m_rowToInstruction;
+    Highlighter *m_highlighter;
 };
 
 #endif // MAINWINDOW_H
