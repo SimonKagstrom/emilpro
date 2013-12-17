@@ -18,10 +18,11 @@ namespace emilpro
 
 		enum SymbolType
 		{
-			SYM_TEXT,
-			SYM_DATA,
-			SYM_FILE,
-			SYM_SECTION,
+			SYM_NONE    = 0,
+			SYM_TEXT    = 1,
+			SYM_DATA    = 2,
+			SYM_FILE    = 4,
+			SYM_SECTION = 8,
 		};
 
 
