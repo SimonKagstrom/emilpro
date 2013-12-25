@@ -4,6 +4,7 @@
 #include <hexview.hh>
 #include <model.hh>
 #include <utils.hh>
+#include <ui-helpers.hh>
 
 using namespace emilpro;
 
@@ -302,88 +303,17 @@ void SymbolView::update(uint64_t address, const std::string &name)
 {
 	Gtk::TreeModel::Path path;
 
-	/* set_cursor results in a call to onCursorChanged, so release the lock
-	   until then */
-	{
-		Model &model = Model::instance();
+	Model &model = Model::instance();
 
-		const Model::SymbolList_t nearestSyms = model.getNearestSymbol(address);
+	const ISymbol *best = UiHelpers::getBestSymbol(address, name);
 
-		if (nearestSyms.empty())
-			return;
+	if (!best)
+		return;
 
-		uint64_t symbolAddress = IInstruction::INVALID_ADDRESS;
-		uint64_t sectionAddress = IInstruction::INVALID_ADDRESS;
-
-		for (Model::SymbolList_t::const_iterator sIt = nearestSyms.begin();
-				sIt != nearestSyms.end();
-				++sIt) {
-			ISymbol *sym = *sIt;
-
-			if (sym->getType() == ISymbol::SYM_SECTION) {
-				sectionAddress = sym->getAddress();
-				continue;
-			}
-
-			if (sym->getType() != ISymbol::SYM_TEXT && sym->getType() != ISymbol::SYM_DATA)
-				continue;
-
-			// Found a "meaningful" symbol
-			symbolAddress = sym->getAddress();
-			break;
-		}
-
-		// No text/data symbol found, just use the section
-		if (symbolAddress == IInstruction::INVALID_ADDRESS)
-			symbolAddress = sectionAddress;
-
-		if (m_symbolRowIterByAddress.find(symbolAddress) == m_symbolRowIterByAddress.end())
-			return;
-		Gtk::ListStore::iterator rowIt = m_symbolRowIterByAddress[symbolAddress];
-		path = m_symbolListStore->get_path(rowIt);
-
-		Model::SymbolList_t syms = model.getSymbolExact(symbolAddress);
-		if (syms.empty()) {
-			warning("Can't get symbol\n");
-			return;
-		}
-
-		const ISymbol *largest = syms.front();
-
-		for (Model::SymbolList_t::iterator it = syms.begin();
-				it != syms.end();
-				++it) {
-			const ISymbol *cur = *it;
-			enum ISymbol::SymbolType type = cur->getType();
-
-			if (type != ISymbol::SYM_TEXT && type != ISymbol::SYM_DATA)
-				continue;
-
-			if (largest->getType() != ISymbol::SYM_TEXT && largest->getType() != ISymbol::SYM_DATA)
-				largest = cur;
-
-			if (cur->getSize() > largest->getSize())
-				largest = cur;
-
-			// Prioritize the selected name
-			if (cur->getName() == name) {
-				Gtk::ListStore::iterator rowIt = m_symbolRowIterByName[name];
-				Gtk::TreeRow row = *rowIt;
-
-				// ... but only if it has the same address
-				if (row[m_symbolColumns->m_rawAddress] == cur->getAddress())
-					path = m_symbolListStore->get_path(rowIt);
-
-				largest = cur;
-				break;
-			}
-		}
-
-		if (largest->isExecutable())
-			m_instructionView->update(address, *largest);
-		else
-			updateDataView(address, largest);
-	}
+	if (best->isExecutable())
+		m_instructionView->update(address, *best);
+	else
+		updateDataView(address, best);
 
 	m_symbolView->set_cursor(path);
 }

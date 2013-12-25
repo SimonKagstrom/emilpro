@@ -100,6 +100,7 @@ set (GUI_SRCS
 	src/gtk/namemanglerview.cc
 	src/gtk/sourceview.cc
 	src/gtk/symbolview.cc
+	src/ui-helpers.cc
 	)
 	
 set_property(SOURCE src/gtk/main.cc APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_BINARY_DIR}/emilpro_glade.hh)
