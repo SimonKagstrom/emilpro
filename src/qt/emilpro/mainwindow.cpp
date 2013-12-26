@@ -24,10 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setupInstructionView();
 
-    QStandardItemModel *a = new QStandardItemModel(0, 1, this);
-    a->setHorizontalHeaderItem(0, new QStandardItem(QString("Symbol references")));
-
-    m_ui->referencesListView->setModel(a);
+    setupReferencesView();
 
     m_highlighter = new Highlighter(m_ui->sourceTextEdit->document());
 
@@ -67,7 +64,6 @@ void MainWindow::on_symbolTableView_activated(const QModelIndex &index)
 		return;
 
 	uint64_t addr = string_to_integer(s);
-	Model &model = Model::instance();
 
 	const ISymbol *sym = UiHelpers::getBestSymbol(addr, name);
 
@@ -162,6 +158,14 @@ void MainWindow::setupInstructionView()
     m_ui->instructionTableView->resizeColumnsToContents();
 }
 
+void MainWindow::setupReferencesView()
+{
+    m_referencesViewModel = new QStandardItemModel(0, 1, this);
+    m_referencesViewModel->setHorizontalHeaderItem(0, new QStandardItem(QString("Symbol references")));
+
+    m_ui->referencesListView->setModel(m_referencesViewModel);
+}
+
 void MainWindow::updateInstructionView(uint64_t address, const ISymbol& sym)
 {
 	Model &model = Model::instance();
@@ -240,4 +244,51 @@ void MainWindow::on_instructionTableView_entered(const QModelIndex &index)
     QList<QTextEdit::ExtraSelection> extras;
     extras << highlight;
     m_ui->sourceTextEdit->setExtraSelections( extras );
+}
+
+void MainWindow::on_referencesListView_activated(const QModelIndex &index)
+{
+
+}
+
+void MainWindow::on_symbolTableView_entered(const QModelIndex &index)
+{
+	int row = index.row();
+	QModelIndex parent = index.parent();
+
+	std::string s = m_symbolViewModel->data(m_symbolViewModel->index(row, 0, parent)).toString().toStdString();
+
+	m_referencesViewModel->clear();
+
+	if (!string_is_integer(s, 16))
+		return;
+
+	Model &model = Model::instance();
+
+	uint64_t address = string_to_integer(s);
+
+	const Model::CrossReferenceList_t &references = model.getReferences(address);
+
+	for (Model::CrossReferenceList_t::const_iterator it = references.begin();
+			it != references.end();
+			++it) {
+		uint64_t cur = *it;
+		const Model::SymbolList_t syms = model.getNearestSymbol(cur);
+
+		if (syms.empty()) {
+			QString name = QString::fromStdString(s);
+
+			m_referencesViewModel->appendRow(new QStandardItem(name));
+		} else {
+			for (Model::SymbolList_t::const_iterator sIt = syms.begin();
+					sIt != syms.end();
+					++sIt) {
+				ISymbol *sym = *sIt;
+				// FIXME! Mr Gorbachev, mangle this name!
+				QString name = QString::fromStdString(sym->getName());
+
+				m_referencesViewModel->appendRow(new QStandardItem(name));
+			}
+		}
+	}
 }

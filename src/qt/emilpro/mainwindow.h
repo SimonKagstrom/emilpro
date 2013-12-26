@@ -33,6 +33,10 @@ private slots:
 
     void on_instructionTableView_entered(const QModelIndex &index);
 
+    void on_referencesListView_activated(const QModelIndex &index);
+
+    void on_symbolTableView_entered(const QModelIndex &index);
+
 private:
     typedef std::unordered_map<std::string, std::string> FileToStringMap_t;
     typedef std::unordered_map<int, const emilpro::IInstruction *> RowToInstruction_t;
@@ -40,6 +44,8 @@ private:
     void setupSymbolView();
 
     void setupInstructionView();
+
+    void setupReferencesView();
 
     void refresh();
 
@@ -50,6 +56,7 @@ private:
     Ui::MainWindow *m_ui;
     QStandardItemModel *m_symbolViewModel;
     QStandardItemModel *m_instructionViewModel;
+    QStandardItemModel *m_referencesViewModel;
 
     void *m_data;
     size_t m_dataSize;
