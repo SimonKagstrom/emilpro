@@ -100,8 +100,6 @@ void MainWindow::onSymbol(ISymbol& sym)
 	if (sym.getType() == ISymbol::SYM_FILE)
 		return;
 
-	printf("XXX: 0x%08x: %s at %p\n", sym.getAddress(), sym.getName().c_str(), &sym);
-
     QList<QStandardItem *> lst;
 
     QString addr = QString::fromStdString(fmt("0x%llx", (unsigned long long)sym.getAddress()));
