@@ -84,9 +84,7 @@ void MainWindow::refresh()
 
 	if (file != "") {
 		m_data = read_file(&m_dataSize, "%s", file.c_str());
-		if (m_data) {
-			model.addData(m_data, m_dataSize);
-		} else {
+		if (!m_data) {
 			error("Can't read %s, exiting", file.c_str());
 			exit(1);
 		}
