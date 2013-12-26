@@ -54,6 +54,22 @@ TESTSUITE(symbol_provider)
 		}
 	};
 
+	class DuplicateFixture : public ISymbolListener
+	{
+	public:
+		DuplicateFixture()
+		{
+			SymbolFactory::instance().registerListener(this);
+		}
+
+		virtual void onSymbol(ISymbol &sym)
+		{
+			m_symbolsByName[sym.getName()].push_back(&sym);
+		}
+
+		std::unordered_map<std::string, std::list<ISymbol *>> m_symbolsByName;
+	};
+
 	TEST(nonPerfectMatches, SymbolFixture)
 	{
 		SymbolFactory &factory = SymbolFactory::instance();
@@ -220,4 +236,22 @@ TESTSUITE(symbol_provider)
 		ASSERT_TRUE(sym->getType() == ISymbol::SYM_TEXT);
 	}
 
+
+	TEST(duplicateSymbols, DuplicateFixture)
+	{
+		SymbolFactory &factory = SymbolFactory::instance();
+		unsigned res;
+
+		size_t sz;
+		void *data = read_file(&sz, "%s/test-binary", crpcut::get_start_dir());
+		ASSERT_TRUE(data != (void *)NULL);
+
+		res = factory.parseBestProvider(data, sz);
+		ASSERT_TRUE(res > ISymbolProvider::NO_MATCH);
+
+		ASSERT_TRUE(m_symbolsByName["main"].size() == 1);
+
+		free(data);
+		factory.destroy();
+	}
 }
