@@ -61,6 +61,7 @@ void MainWindow::on_symbolTableView_activated(const QModelIndex &index)
 	QModelIndex parent = index.parent();
 
 	std::string s = m_symbolViewModel->data(m_symbolViewModel->index(row, 0, parent)).toString().toStdString();
+	std::string name = m_symbolViewModel->data(m_symbolViewModel->index(row, 7, parent)).toString().toStdString();
 
 	if (!string_is_integer(s))
 		return;
@@ -68,11 +69,12 @@ void MainWindow::on_symbolTableView_activated(const QModelIndex &index)
 	uint64_t addr = string_to_integer(s);
 	Model &model = Model::instance();
 
-	Model::SymbolList_t lst = model.getNearestSymbol(addr);
-	if (lst.empty())
+	const ISymbol *sym = UiHelpers::getBestSymbol(addr, name);
+
+	if (!sym)
 		return;
 
-	updateInstructionView(addr, *lst.front());
+	updateInstructionView(addr, *sym);
 }
 
 void MainWindow::refresh()
