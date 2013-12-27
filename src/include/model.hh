@@ -66,6 +66,8 @@ namespace emilpro
 
 		const InstructionList_t getInstructions(uint64_t start, uint64_t end);
 
+		const IInstruction *getInstructionByAddress(uint64_t address);
+
 		BasicBlockList_t getBasicBlocksFromInstructions(const InstructionList_t &instructions);
 
 		const SymbolList_t &getSymbols();

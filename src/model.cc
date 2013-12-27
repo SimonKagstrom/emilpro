@@ -798,3 +798,19 @@ void Model::onArchitectureDetected(ArchitectureFactory::Architecture_t arch,
 {
 	m_architecture = arch;
 }
+
+const IInstruction* emilpro::Model::getInstructionByAddress(uint64_t address)
+{
+	const IInstruction *out = NULL;
+
+	m_mutex.lock();
+	InstructionMap_t::iterator it = m_instructionCache.find(address);
+
+	if (it != m_instructionCache.end())
+		out = it->second;
+
+	m_mutex.unlock();
+
+
+	return out;
+}
