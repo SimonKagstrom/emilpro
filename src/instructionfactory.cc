@@ -86,32 +86,32 @@ public:
 		return m_size;
 	}
 
-	uint64_t getBranchTargetAddress()
+	uint64_t getBranchTargetAddress() const
 	{
 		return m_targetAddress;
 	}
 
-	Ternary_t isPrivileged()
+	Ternary_t isPrivileged() const
 	{
 		return m_privileged;
 	}
 
-	InstructionType_t getType()
+	InstructionType_t getType() const
 	{
 		return m_type;
 	}
 
-	std::string &getString()
+	const std::string &getString() const
 	{
 		return m_encoding;
 	}
 
-	std::string &getMnemonic()
+	const std::string &getMnemonic() const
 	{
 		return m_mnemonic;
 	}
 
-	const OperandList_t &getOperands()
+	const OperandList_t &getOperands() const
 	{
 		return m_operands;
 	}
@@ -140,7 +140,7 @@ private:
 class emilpro::InstructionModel : public InstructionFactory::IInstructionModel
 {
 public:
-	InstructionModel(std::string &mnemonic, std::string &architecture) :
+	InstructionModel(const std::string &mnemonic, std::string &architecture) :
 		m_mnemonic(mnemonic),
 		m_type(IInstruction::IT_UNKNOWN),
 		m_privileged(T_unknown),

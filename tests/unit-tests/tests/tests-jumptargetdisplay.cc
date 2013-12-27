@@ -22,7 +22,7 @@ public:
 		return m_address;
 	}
 
-	InstructionType_t getType()
+	InstructionType_t getType() const
 	{
 		return m_type;
 	}
@@ -32,18 +32,18 @@ public:
 	/**
 	 * Return the target address for branches/calls.
 	 */
-	uint64_t getBranchTargetAddress()
+	uint64_t getBranchTargetAddress() const
 	{
 		return m_branchTarget;
 	}
 
-	MOCK_METHOD0(isPrivileged, Ternary_t());
+	MOCK_CONST_METHOD0(isPrivileged, Ternary_t());
 
-	MOCK_METHOD0(getString, std::string &());
+	MOCK_CONST_METHOD0(getString, std::string &());
 
-	MOCK_METHOD0(getMnemonic, std::string &());
+	MOCK_CONST_METHOD0(getMnemonic, std::string &());
 
-	const OperandList_t &getOperands()
+	const OperandList_t &getOperands() const
 	{
 		return m_operands;
 	}

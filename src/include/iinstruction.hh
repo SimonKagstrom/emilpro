@@ -73,17 +73,17 @@ namespace emilpro
 		/**
 		 * Return the target address for branches/calls.
 		 */
-		virtual uint64_t getBranchTargetAddress() = 0;
+		virtual uint64_t getBranchTargetAddress() const = 0;
 
-		virtual Ternary_t isPrivileged() = 0;
+		virtual Ternary_t isPrivileged() const = 0;
 
-		virtual InstructionType_t getType() = 0;
+		virtual InstructionType_t getType() const = 0;
 
-		virtual std::string &getString() = 0;
+		virtual const std::string &getString() const = 0;
 
-		virtual std::string &getMnemonic() = 0;
+		virtual const std::string &getMnemonic() const = 0;
 
-		virtual const OperandList_t &getOperands() = 0;
+		virtual const OperandList_t &getOperands() const = 0;
 	};
 
 	typedef std::list<IInstruction *> InstructionList_t;
