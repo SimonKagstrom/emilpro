@@ -6,6 +6,7 @@
 
 #include <model.hh>
 #include <symbolfactory.hh>
+#include <addresshistory.hh>
 
 #include <unordered_map>
 
@@ -37,6 +38,8 @@ private slots:
 
     void on_symbolTableView_entered(const QModelIndex &index);
 
+    void on_addressHistoryListView_activated(const QModelIndex &index);
+
 private:
     typedef std::unordered_map<std::string, std::string> FileToStringMap_t;
     typedef std::unordered_map<int, const emilpro::IInstruction *> RowToInstruction_t;
@@ -46,6 +49,10 @@ private:
     void setupInstructionView();
 
     void setupReferencesView();
+
+    void setupAddressHistoryView();
+
+    void addHistoryEntry(uint64_t addr);
 
     void refresh();
 
@@ -57,12 +64,14 @@ private:
     QStandardItemModel *m_symbolViewModel;
     QStandardItemModel *m_instructionViewModel;
     QStandardItemModel *m_referencesViewModel;
+    QStandardItemModel *m_addressHistoryViewModel;
 
     void *m_data;
     size_t m_dataSize;
     FileToStringMap_t m_sourceFileMap;
     RowToInstruction_t m_rowToInstruction;
     Highlighter *m_highlighter;
+    emilpro::AddressHistory m_addressHistory;
 };
 
 #endif // MAINWINDOW_H

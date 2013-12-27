@@ -26,6 +26,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setupReferencesView();
 
+    setupAddressHistoryView();
+
+
     m_highlighter = new Highlighter(m_ui->sourceTextEdit->document());
 
 	Model::instance().registerSymbolListener(this);
@@ -70,6 +73,7 @@ void MainWindow::on_symbolTableView_activated(const QModelIndex &index)
 	if (!sym)
 		return;
 
+	addHistoryEntry(addr);
 	updateInstructionView(addr, *sym);
 }
 
@@ -199,6 +203,7 @@ void MainWindow::updateInstructionView(uint64_t address, const ISymbol& sym)
 
 void MainWindow::on_instructionTableView_activated(const QModelIndex &index)
 {
+	//addHistoryEntry(addr);
 }
 
 void MainWindow::on_instructionTableView_entered(const QModelIndex &index)
@@ -244,7 +249,7 @@ void MainWindow::on_instructionTableView_entered(const QModelIndex &index)
 
 void MainWindow::on_referencesListView_activated(const QModelIndex &index)
 {
-
+	//addHistoryEntry(addr);
 }
 
 void MainWindow::on_symbolTableView_entered(const QModelIndex &index)
@@ -287,4 +292,53 @@ void MainWindow::on_symbolTableView_entered(const QModelIndex &index)
 			}
 		}
 	}
+}
+
+
+void MainWindow::setupAddressHistoryView()
+{
+    m_addressHistoryViewModel = new QStandardItemModel(0, 1, this);
+
+    m_ui->addressHistoryListView->setModel(m_addressHistoryViewModel);
+}
+
+
+void MainWindow::on_addressHistoryListView_activated(const QModelIndex &index)
+{
+}
+
+
+void MainWindow::addHistoryEntry(uint64_t address)
+{
+	Model &model = Model::instance();
+	bool res = m_addressHistory.maybeAddEntry(address);
+
+	if (!res)
+		return;
+
+	const Model::SymbolList_t syms = model.getNearestSymbol(address);
+
+	const ISymbol *p = NULL;
+	for (Model::SymbolList_t::const_iterator sIt = syms.begin();
+			sIt != syms.end();
+			++sIt) {
+		const ISymbol *sym = *sIt;
+
+		if (sym->getType() != ISymbol::SYM_TEXT)
+			continue;
+		p = sym;
+	}
+
+	std::string symName = "";
+
+	if (p)
+		symName = p->getName();
+
+	QString str = QString::fromStdString(fmt("0x%0llx%s%s%s",
+			(unsigned long long)address,
+			p ? " (" : "",
+			symName.c_str(),
+			p ? ")" : ""));
+
+	m_addressHistoryViewModel->appendRow(new QStandardItem(str));
 }

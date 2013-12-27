@@ -59,7 +59,14 @@
            <bool>false</bool>
           </attribute>
          </widget>
-         <widget class="QListView" name="referencesListView"/>
+         <widget class="QListView" name="referencesListView">
+          <property name="font">
+           <font>
+            <family>Monospace</family>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
+         </widget>
         </widget>
         <widget class="QSplitter" name="splitter_2">
          <property name="orientation">
@@ -77,16 +84,7 @@
                <string>Instructions</string>
               </attribute>
               <layout class="QGridLayout" name="gridLayout_3">
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="topMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
+               <property name="margin">
                 <number>0</number>
                </property>
                <property name="spacing">
@@ -130,16 +128,7 @@
                <string>Data</string>
               </attribute>
               <layout class="QGridLayout" name="gridLayout_2">
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="topMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
+               <property name="margin">
                 <number>0</number>
                </property>
                <property name="spacing">
@@ -215,7 +204,14 @@
             </widget>
            </item>
            <item>
-            <widget class="QListView" name="listView"/>
+            <widget class="QListView" name="addressHistoryListView">
+             <property name="font">
+              <font>
+               <family>Monospace</family>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -232,7 +228,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>26</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
