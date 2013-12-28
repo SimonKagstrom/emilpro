@@ -40,6 +40,8 @@ private slots:
 
     void on_addressHistoryListView_activated(const QModelIndex &index);
 
+    void on_sourceTextEdit_cursorPositionChanged();
+
 private:
     typedef std::unordered_map<std::string, std::string> FileToStringMap_t;
     typedef std::unordered_map<int, const emilpro::IInstruction *> RowToInstruction_t;

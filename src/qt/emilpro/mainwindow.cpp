@@ -9,6 +9,7 @@
 
 #include <qstandarditemmodel.h>
 #include <QTextBlock>
+#include <QScrollBar>
 
 using namespace emilpro;
 
@@ -291,7 +292,6 @@ void MainWindow::on_instructionTableView_entered(const QModelIndex &index)
 
 	QTextCursor cursor(m_ui->sourceTextEdit->document()->findBlockByLineNumber(line));
 	cursor.select(QTextCursor::LineUnderCursor);
-	cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, 5);
 	m_ui->sourceTextEdit->setTextCursor(cursor);
 
     QTextEdit::ExtraSelection highlight;
@@ -409,4 +409,13 @@ void MainWindow::updateSymbolView(uint64_t address, const std::string &name)
 
 	addHistoryEntry(address);
 	updateInstructionView(address, *sym);
+}
+
+void MainWindow::on_sourceTextEdit_cursorPositionChanged()
+{
+	int cursorY = m_ui->sourceTextEdit->cursorRect().top();
+
+	QScrollBar *vbar = m_ui->sourceTextEdit->verticalScrollBar();
+
+	vbar->setValue(vbar->value() + cursorY - m_ui->sourceTextEdit->height() / 2);
 }
