@@ -188,6 +188,20 @@ void MainWindow::updateInstructionView(uint64_t address, const ISymbol& sym)
 		QString f = "";
 		QString target;
 
+		if (cur->getBranchTargetAddress() != IInstruction::INVALID_ADDRESS) {
+			uint64_t targetAddress = cur->getBranchTargetAddress();
+			Model::SymbolList_t targetSyms = model.getSymbolExact(targetAddress);
+
+			if (targetSyms.empty() || (targetAddress >= sym.getAddress() && targetAddress < sym.getAddress() + sym.getSize())) {
+				target = QString::fromStdString(fmt("0x%0llx", (long long)targetAddress));
+			} else {
+				const ISymbol *targetSym = targetSyms.front();
+
+				target = QString::fromStdString(targetSym->getName());
+			}
+		}
+
+
 		QString name = QString::fromStdString(sym.getName());
 
 		lst.append(new QStandardItem(addr));
