@@ -45,6 +45,7 @@ private slots:
 private:
     typedef std::unordered_map<std::string, std::string> FileToStringMap_t;
     typedef std::unordered_map<int, const emilpro::IInstruction *> RowToInstruction_t;
+    typedef std::unordered_map<uint64_t, int> AddressToRow_t;
 
     void setupSymbolView();
 
@@ -76,6 +77,8 @@ private:
     RowToInstruction_t m_rowToInstruction;
     Highlighter *m_highlighter;
     emilpro::AddressHistory m_addressHistory;
+
+    AddressToRow_t m_addressToSymbolRowMap;
 };
 
 #endif // MAINWINDOW_H

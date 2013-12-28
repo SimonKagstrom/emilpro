@@ -77,6 +77,7 @@ void MainWindow::refresh()
 	Model &model = Model::instance();
 
 	delete m_symbolViewModel;
+	m_addressToSymbolRowMap.clear();
 	setupSymbolView();
 
 	if (file != "") {
@@ -116,8 +117,12 @@ void MainWindow::onSymbol(ISymbol& sym)
     lst.append(new QStandardItem(x));
     lst.append(new QStandardItem(a));
     lst.append(new QStandardItem(name));
+
+    m_addressToSymbolRowMap[sym.getAddress()] = m_symbolViewModel->rowCount();
+
     m_symbolViewModel->appendRow(lst);
     m_ui->symbolTableView->resizeColumnsToContents();
+
 }
 
 void MainWindow::setupSymbolView()
@@ -408,6 +413,9 @@ void MainWindow::updateSymbolView(uint64_t address, const std::string &name)
 		return;
 
 	addHistoryEntry(address);
+	if (m_addressToSymbolRowMap.find(sym->getAddress()) != m_addressToSymbolRowMap.end())
+		m_ui->symbolTableView->selectRow(m_addressToSymbolRowMap[sym->getAddress()]);
+
 	updateInstructionView(address, *sym);
 }
 
