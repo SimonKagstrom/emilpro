@@ -49,6 +49,7 @@ set (${TGT}_SRCS
 	../../src/preferences.cc
 	../../src/server/html-generator.cc
 	../../src/symbolfactory.cc
+	../../src/ui-helpers.cc
 	../../src/utils.cc
 	../../src/xmlfactory.cc
 	../../src/xmlstring.cc
@@ -66,6 +67,7 @@ set (${TGT}_SRCS
 	tests/tests-preferences.cc
 	tests/tests-server-connection.cc
 	tests/tests-symbol-provider.cc
+	tests/tests-ui-helpers.cc
 	tests/tests-utils.cc
 	tests/tests-xmlfactory.cc
 	tests/tests-xmlstring.cc

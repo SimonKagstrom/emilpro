@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utils.hh>
+
 #include "test.hh"
 
 #include "symbol-fixture.hh"
@@ -25,12 +27,13 @@ public:
 		return true;
 	}
 
-	void addSymbol(uint64_t start, uint64_t end)
+	void addSymbol(uint64_t start, uint64_t end,
+			enum ISymbol::SymbolType symbolType = ISymbol::SYM_TEXT)
 	{
 		ASSERT_TRUE(m_listener);
 
 		ISymbol &p = SymbolFactory::instance().createSymbol(ISymbol::LINK_NORMAL,
-				ISymbol::SYM_TEXT,
+				symbolType,
 				fmt("%llx..%llx\n", (long long)start, (long long)end).c_str(),
 				NULL,
 				start,
