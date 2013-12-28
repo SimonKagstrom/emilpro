@@ -65,6 +65,8 @@ private:
 
 	void updateSymbolView(uint64_t address, const std::string &name = "");
 
+	void updateInfoBox(const emilpro::IInstruction *cur);
+
     Ui::MainWindow *m_ui;
     QStandardItemModel *m_symbolViewModel;
     QStandardItemModel *m_instructionViewModel;

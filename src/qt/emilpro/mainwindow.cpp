@@ -277,6 +277,8 @@ void MainWindow::on_instructionTableView_entered(const QModelIndex &index)
 
 	if (!cur)
 		return;
+	updateInfoBox(cur);
+
 	ILineProvider::FileLine fileLine = Model::instance().getLineByAddress(cur->getAddress());
 
 	if (!fileLine.m_isValid)
@@ -426,4 +428,16 @@ void MainWindow::on_sourceTextEdit_cursorPositionChanged()
 	QScrollBar *vbar = m_ui->sourceTextEdit->verticalScrollBar();
 
 	vbar->setValue(vbar->value() + cursorY - m_ui->sourceTextEdit->height() / 2);
+}
+
+void MainWindow::updateInfoBox(const emilpro::IInstruction* insn)
+{
+	if (!insn) {
+		m_ui->instructionTextEdit->setText("No instruction");
+		return;
+	}
+
+	QString s = QString::fromStdString(UiHelpers::getInstructionInfoString(*insn));
+
+	m_ui->instructionTextEdit->setText(s);
 }
