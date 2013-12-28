@@ -1,7 +1,7 @@
 #pragma once
 
 #include <isymbol.hh>
-#include <namemanglerview.hh>
+#include <namemangler.hh>
 #include <symbolfactory.hh>
 #include <addresshistory.hh>
 #include <model.hh>
@@ -17,7 +17,7 @@ class HexView;
 class SymbolModelColumns;
 class ReferenceModelColumns;
 
-class SymbolView : public NameManglerView::IListener, public emilpro::ISymbolListener
+class SymbolView : public emilpro::NameMangler::IListener, public emilpro::ISymbolListener
 {
 public:
 	SymbolView();
@@ -53,8 +53,8 @@ private:
 
 	void onEntryActivated();
 
-	// From NameManglerView::IListener
-	void onManglingChanged();
+	// From NameMangler::IListener
+	void onManglingChanged(bool enabled);
 
 	void onManglingChangedSignal();
 

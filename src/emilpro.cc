@@ -68,10 +68,10 @@ void EmilPro::destroy()
 	InstructionFactory::instance().destroy();
 	ArchitectureFactory::instance().destroy();
 	//Server::instance().destroy();
+	NameMangler::instance().destroy();
 	Preferences::instance().destroy();
 	XmlFactory::instance().destroy();
 	Configuration::instance().destroy();
-	NameMangler::instance().destroy();
 
 	if (g_instance)
 		delete g_instance;

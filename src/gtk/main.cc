@@ -17,7 +17,6 @@
 #include <sourceview.hh>
 #include <emilpro.hh>
 #include <server.hh>
-#include <namemanglerview.hh>
 
 #include <string>
 #include <vector>
@@ -49,8 +48,6 @@ public:
 
 		m_hexView.init(m_builder);
 
-		NameManglerView::instance().init(m_builder);
-
 		Gtk::ImageMenuItem *fileOpenItem;
 		Gtk::ImageMenuItem *fileRefresh;
 		Gtk::ImageMenuItem *fileQuit;
@@ -61,6 +58,7 @@ public:
 		m_builder->get_widget("file_menu_quit", fileQuit);
 		m_builder->get_widget("view_menu_forward", viewForwardItem);
 		m_builder->get_widget("view_menu_backward", viewBackwardItem);
+		m_builder->get_widget("view_menu_mangle", m_viewMangleItem);
 		panic_if (!(fileOpenItem && viewForwardItem && viewBackwardItem),
 				"Can't get menu items");
 		fileOpenItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onFileOpen));
@@ -69,6 +67,7 @@ public:
 
 		viewForwardItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onViewForward));
 		viewBackwardItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onViewBackward));
+		m_viewMangleItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onViewMangle));
 
 		// FIXME! Get this from properties instead!
 		m_backgroundColor = Gdk::Color("white");
@@ -246,6 +245,15 @@ private:
 		updateHistoryEntry(m_addressHistory.back());
 	}
 
+	void onViewMangle()
+	{
+		bool isActive = m_viewMangleItem->get_active();
+
+		std::string value = isActive ? "yes" : "no";
+
+		Preferences::instance().setValue("MangleNames", value);
+	}
+
 	void onViewForward()
 	{
 		updateHistoryEntry(m_addressHistory.forward());
@@ -351,6 +359,7 @@ private:
 	Gtk::TreeView *m_referencesTreeView;
 	Gtk::Window *m_window;
 	Gtk::AboutDialog *m_aboutDialog;
+	Gtk::CheckMenuItem *m_viewMangleItem;
 
 	void *m_data;
 	size_t m_dataSize;

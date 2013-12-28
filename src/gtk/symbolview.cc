@@ -92,7 +92,7 @@ void SymbolView::init(Glib::RefPtr<Gtk::Builder> builder, InstructionView *iv, H
 	panic_if(!symbolFont,
 			"Can't get instruction view");
 
-	NameManglerView::instance().registerListener(this);
+	NameMangler::instance().registerListener(this);
 
 	builder->get_widget("symbol_view", m_symbolView);
 	panic_if(!m_symbolView,
@@ -208,7 +208,7 @@ void SymbolView::onCursorChanged()
 	if(!iter)
 		return;
 	Model &model = Model::instance();
-	NameManglerView &mv = NameManglerView::instance();
+	NameMangler &mv = NameMangler::instance();
 
 	Gtk::TreeModel::Row row = *iter;
 	uint64_t address = row[m_symbolColumns->m_rawAddress];
@@ -303,8 +303,6 @@ void SymbolView::update(uint64_t address, const std::string &name)
 {
 	Gtk::TreeModel::Path path;
 
-	Model &model = Model::instance();
-
 	const ISymbol *best = UiHelpers::getBestSymbol(address, name);
 
 	if (!best)
@@ -356,7 +354,7 @@ void SymbolView::onSymbolSignal()
 
 void SymbolView::onSymbolImpl(const emilpro::ISymbol &sym)
 {
-	NameManglerView &mv = NameManglerView::instance();
+	NameMangler &mv = NameMangler::instance();
 
 	// Skip the file symbol
 	if (sym.getType() == ISymbol::SYM_FILE)
@@ -409,7 +407,7 @@ void SymbolView::onManglingChangedSignal()
 	refreshSymbols();
 }
 
-void SymbolView::onManglingChanged()
+void SymbolView::onManglingChanged(bool enabled)
 {
 	m_manglingSignal();
 }

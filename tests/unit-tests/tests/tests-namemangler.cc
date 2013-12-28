@@ -28,6 +28,8 @@ TESTSUITE(namemangler)
 			ASSERT_TRUE(res == "ZN2ai14MockEvaluateAiC2Ev");
 
 			m.destroy();
+			Preferences::instance().destroy();
+			XmlFactory::instance().destroy();
 		}
 	}
 
@@ -43,6 +45,8 @@ TESTSUITE(namemangler)
 			ASSERT_TRUE(res == "ai::MockEvaluateAi::MockEvaluateAi()");
 
 			m.destroy();
+			Preferences::instance().destroy();
+			XmlFactory::instance().destroy();
 		}
 	}
 }
