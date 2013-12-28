@@ -66,15 +66,7 @@ void MainWindow::on_symbolTableView_activated(const QModelIndex &index)
 	if (!string_is_integer(s))
 		return;
 
-	uint64_t addr = string_to_integer(s);
-
-	const ISymbol *sym = UiHelpers::getBestSymbol(addr, name);
-
-	if (!sym)
-		return;
-
-	addHistoryEntry(addr);
-	updateInstructionView(addr, *sym);
+	updateSymbolView(string_to_integer(s), name);
 }
 
 void MainWindow::refresh()
@@ -172,6 +164,7 @@ void MainWindow::updateInstructionView(uint64_t address, const ISymbol& sym)
 	InstructionList_t insns = model.getInstructions(sym.getAddress(), sym.getAddress() + sym.getSize());
 	int row = 0;
 
+	m_instructionViewModel->clear();
 	m_rowToInstruction.clear();
 	for (InstructionList_t::iterator it = insns.begin();
 			it != insns.end();
@@ -217,6 +210,56 @@ void MainWindow::updateInstructionView(uint64_t address, const ISymbol& sym)
 
 void MainWindow::on_instructionTableView_activated(const QModelIndex &index)
 {
+	int row = index.row();
+	QModelIndex parent = index.parent();
+
+	std::string s = m_instructionViewModel->data(m_instructionViewModel->index(row, 0, parent)).toString().toStdString();
+	if (!string_is_integer(s))
+		return;
+
+	Model &model = Model::instance();
+	uint64_t address = string_to_integer(s);
+
+	const IInstruction *cur = model.getInstructionByAddress(address);
+
+	if (!cur)
+		return;
+
+	if (cur->getType() != IInstruction::IT_CFLOW && cur->getType() != IInstruction::IT_CALL)
+		return;
+
+	uint64_t target = cur->getBranchTargetAddress();
+
+	if (target == IInstruction::INVALID_ADDRESS)
+		return;
+
+	// Lookup symbol for this instruction
+	const Model::SymbolList_t syms = model.getNearestSymbol(cur->getAddress());
+	if (syms.size() == 0)
+		return;
+
+	for (Model::SymbolList_t::const_iterator sIt = syms.begin();
+			sIt != syms.end();
+			++sIt) {
+		const ISymbol *sym = *sIt;
+
+		if (sym->getType() != ISymbol::SYM_TEXT)
+			continue;
+
+		addHistoryEntry(target);
+
+		// Follow links within the function or to another function
+		if (target >= sym->getAddress() && target < sym->getAddress() + sym->getSize()) {
+			// FIXME! NYI within function
+			printf("Jump within function (0x%llx...0x%llx dst 0x%llx)\n",
+					(unsigned long long)sym->getAddress(), (unsigned long long)(sym->getAddress() + sym->getSize()),
+					(unsigned long long)target);
+		} else {
+			updateSymbolView(target);
+		}
+	}
+
+
 	//addHistoryEntry(addr);
 }
 
@@ -355,4 +398,15 @@ void MainWindow::addHistoryEntry(uint64_t address)
 			p ? ")" : ""));
 
 	m_addressHistoryViewModel->appendRow(new QStandardItem(str));
+}
+
+void MainWindow::updateSymbolView(uint64_t address, const std::string &name)
+{
+	const ISymbol *sym = UiHelpers::getBestSymbol(address, name);
+
+	if (!sym)
+		return;
+
+	addHistoryEntry(address);
+	updateInstructionView(address, *sym);
 }

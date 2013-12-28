@@ -60,6 +60,8 @@ private:
 
 	void updateInstructionView(uint64_t address, const emilpro::ISymbol &sym);
 
+	void updateSymbolView(uint64_t address, const std::string &name = "");
+
     Ui::MainWindow *m_ui;
     QStandardItemModel *m_symbolViewModel;
     QStandardItemModel *m_instructionViewModel;
