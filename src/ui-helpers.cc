@@ -1,4 +1,5 @@
 #include <ui-helpers.hh>
+#include <instructionfactory.hh>
 
 #include <utils.hh>
 
@@ -85,4 +86,56 @@ const ISymbol* UiHelpers::getBestSymbol(uint64_t address, const std::string &cur
 	}
 
 	return largest;
+}
+
+std::string UiHelpers::getInstructionInfoString(const emilpro::IInstruction& insn)
+{
+	InstructionFactory::IInstructionModel *model = InstructionFactory::instance().getModelFromInstruction(insn);
+
+	std::string s = "No instruction info, click edit to add";
+
+	if (model) {
+		const char *type = "unknown";
+		const char *privileged = "unknown";
+
+		switch (model->getType())
+		{
+		case IInstruction::IT_CFLOW:
+			type = "Control flow";
+			break;
+		case IInstruction::IT_CALL:
+			type = "Call";
+			break;
+		case IInstruction::IT_DATA_HANDLING:
+			type = "Data handling";
+			break;
+		case IInstruction::IT_ARITHMETIC_LOGIC:
+			type = "Arithmetic/logic";
+			break;
+		case IInstruction::IT_OTHER:
+			type = "Other";
+			break;
+		default:
+			break;
+		}
+
+		Ternary_t isPrivileged = model->isPrivileged();
+
+		if (isPrivileged == T_true)
+			privileged = "yes";
+		else if (isPrivileged == T_false)
+			privileged = "no";
+
+		s = fmt(
+				"Type: %s\n"
+				"Privileged: %s\n"
+				"\n"
+				"%s",
+				type,
+				privileged,
+				model->getDescription().c_str()
+				);
+	}
+
+	return s;
 }

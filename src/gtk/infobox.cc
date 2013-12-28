@@ -4,6 +4,7 @@
 #include <server.hh>
 #include <preferences.hh>
 #include <utils.hh>
+#include <ui-helpers.hh>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -224,53 +225,10 @@ void InfoBox::onInstructionSelected(IInstruction &insn)
 
 	InstructionFactory::IInstructionModel *model = InstructionFactory::instance().getModelFromInstruction(insn);
 
-	std::string s = "No instruction info, click edit to add";
+	std::string s = UiHelpers::getInstructionInfoString(insn);
 
 	m_label->set_text(fmt("Instruction: %s",
 			insn.getMnemonic().c_str()).c_str());
-
-	if (model) {
-		const char *type = "unknown";
-		const char *privileged = "unknown";
-
-		switch (model->getType())
-		{
-		case IInstruction::IT_CFLOW:
-			type = "Control flow";
-			break;
-		case IInstruction::IT_CALL:
-			type = "Call";
-			break;
-		case IInstruction::IT_DATA_HANDLING:
-			type = "Data handling";
-			break;
-		case IInstruction::IT_ARITHMETIC_LOGIC:
-			type = "Arithmetic/logic";
-			break;
-		case IInstruction::IT_OTHER:
-			type = "Other";
-			break;
-		default:
-			break;
-		}
-
-		Ternary_t isPrivileged = model->isPrivileged();
-
-		if (isPrivileged == T_true)
-			privileged = "yes";
-		else if (isPrivileged == T_false)
-			privileged = "no";
-
-		s = fmt(
-				"Type: %s\n"
-				"Privileged: %s\n"
-				"\n"
-				"%s",
-				type,
-				privileged,
-				model->getDescription().c_str()
-				);
-	}
 
 	m_textBuffer->set_text(s);
 }

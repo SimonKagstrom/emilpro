@@ -590,7 +590,7 @@ bool InstructionFactory::XmlListener::onEnd(const Glib::ustring& name)
 	return true;
 }
 
-InstructionFactory::IInstructionModel* InstructionFactory::getModelFromInstruction(IInstruction &insn)
+InstructionFactory::IInstructionModel* InstructionFactory::getModelFromInstruction(const IInstruction &insn)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
 

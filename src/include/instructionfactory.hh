@@ -116,7 +116,7 @@ namespace emilpro
 
 		virtual void onArchitectureDetected(ArchitectureFactory::Architecture_t arch, ArchitectureFactory::Machine_t);
 
-		IInstructionModel *getModelFromInstruction(IInstruction &insn);
+		IInstructionModel *getModelFromInstruction(const IInstruction &insn);
 
 		IInstructionModel *createModelForInstruction(IInstruction &insn);
 
