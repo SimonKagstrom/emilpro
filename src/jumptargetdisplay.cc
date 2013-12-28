@@ -34,7 +34,7 @@ JumpTargetDisplay::~JumpTargetDisplay()
 	delete[] m_lanes;
 }
 
-void JumpTargetDisplay::calculateLanes(InstructionList_t &insns, unsigned nVisibleInsns)
+void JumpTargetDisplay::calculateLanes(const InstructionList_t &insns, unsigned nVisibleInsns)
 {
 	m_nRows = insns.size();
 	m_nVisibleInsns = nVisibleInsns;
@@ -57,7 +57,7 @@ void JumpTargetDisplay::calculateLanes(InstructionList_t &insns, unsigned nVisib
 	InstructionMap_t insnMap;
 	unsigned nr = 0;
 
-	for (InstructionList_t::iterator it = insns.begin();
+	for (InstructionList_t::const_iterator it = insns.begin();
 			it != insns.end();
 			++it) {
 		IInstruction *cur = *it;
@@ -103,7 +103,7 @@ void JumpTargetDisplay::calculateLanes(InstructionList_t &insns, unsigned nVisib
 	if (m_isForward) {
 		row = 0;
 
-		for (InstructionList_t::iterator it = insns.begin();
+		for (InstructionList_t::const_iterator it = insns.begin();
 				it != insns.end();
 				++it, ++row) {
 			IInstruction *cur = *it;
@@ -128,7 +128,7 @@ void JumpTargetDisplay::calculateLanes(InstructionList_t &insns, unsigned nVisib
 	} else {
 		row = insns.size() - 1;
 
-		for (InstructionList_t::reverse_iterator it = insns.rbegin();
+		for (InstructionList_t::const_reverse_iterator it = insns.rbegin();
 				it != insns.rend();
 				++it, --row) {
 			IInstruction *cur = *it;

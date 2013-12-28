@@ -38,7 +38,7 @@ namespace emilpro
 
 		~JumpTargetDisplay();
 
-		void calculateLanes(InstructionList_t &insns, unsigned nVisibleInsns);
+		void calculateLanes(const InstructionList_t &insns, unsigned nVisibleInsns);
 
 		bool getLanes(unsigned insnNr, LaneValue_t *lanesOut);
 
