@@ -56,6 +56,8 @@ private:
 
     void setupAddressHistoryView();
 
+    void setupInstructionLabels();
+
     void addHistoryEntry(uint64_t addr);
 
     void refresh();

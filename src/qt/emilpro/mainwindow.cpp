@@ -151,16 +151,15 @@ void MainWindow::setupInstructionView()
     m_ui->instructionTableView->setItemDelegateForColumn(1, &m_backwardItemDelegate);
     m_ui->instructionTableView->setItemDelegateForColumn(3, &m_forwardItemDelegate);
 
-    m_instructionViewModel->setHorizontalHeaderItem(0, new QStandardItem(QString("Address")));
-    m_instructionViewModel->setHorizontalHeaderItem(1, new QStandardItem(QString("B")));
-    m_instructionViewModel->setHorizontalHeaderItem(2, new QStandardItem(QString("Instruction")));
-    m_instructionViewModel->setHorizontalHeaderItem(3, new QStandardItem(QString("F")));
-    m_instructionViewModel->setHorizontalHeaderItem(4, new QStandardItem(QString("Target")));
-
     m_ui->instructionTableView->setModel(m_instructionViewModel);
-
     m_ui->instructionTableView->horizontalHeader()->setStretchLastSection(true);
-    m_ui->instructionTableView->resizeColumnsToContents();
+
+    m_ui->instructionTableView->setColumnWidth(0, 100);
+    m_ui->instructionTableView->setColumnWidth(1, 80);
+    m_ui->instructionTableView->setColumnWidth(2, 300);
+    m_ui->instructionTableView->setColumnWidth(3, 80);
+
+    setupInstructionLabels();
 }
 
 void MainWindow::setupReferencesView()
@@ -171,6 +170,19 @@ void MainWindow::setupReferencesView()
     m_ui->referencesListView->setModel(m_referencesViewModel);
 }
 
+void MainWindow::setupInstructionLabels()
+{
+    QStringList labels;
+
+    labels << "Address"
+    	<< "B"
+    	<< "Instruction"
+    	<< "F"
+    	<< "Target";
+
+    m_instructionViewModel->setHorizontalHeaderLabels(labels);
+}
+
 void MainWindow::updateInstructionView(uint64_t address, const ISymbol& sym)
 {
 	Model &model = Model::instance();
@@ -178,6 +190,8 @@ void MainWindow::updateInstructionView(uint64_t address, const ISymbol& sym)
 	int row = 0;
 
 	m_instructionViewModel->clear();
+	setupInstructionLabels();
+
 	m_rowToInstruction.clear();
 	m_forwardItemDelegate.update(insns, 60);
 	m_backwardItemDelegate.update(insns, 60);
