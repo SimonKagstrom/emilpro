@@ -24,6 +24,7 @@ public:
 	    m_list = NULL;
 	    m_startAddress = 0;
 	    m_disassembler = NULL;
+	    m_encoding = NULL;
 
 	    m_arch[bfd_arch_i386] = BfdArch(bfd_arch_i386, bfd_mach_i386_i386, print_insn_i386);
 	    m_arch[bfd_arch_powerpc] = BfdArch(bfd_arch_powerpc, bfd_mach_ppc_e500mc64, print_insn_big_powerpc);
@@ -169,7 +170,10 @@ private:
 	class BfdArch
 	{
 	public:
-		BfdArch()
+		BfdArch() :
+			bfd_arch(bfd_arch_i386),
+			bfd_mach(0),
+			callback(NULL)
 		{
 		}
 
