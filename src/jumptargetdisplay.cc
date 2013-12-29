@@ -272,7 +272,7 @@ void JumpTargetDisplay::deallocateLane(IInstruction *start, IInstruction *end, I
 	lanes[i] = NULL;
 }
 
-bool JumpTargetDisplay::getLanes(unsigned insnNr, JumpTargetDisplay::LaneValue_t *lanesOut)
+bool JumpTargetDisplay::getLanes(unsigned insnNr, JumpTargetDisplay::LaneValue_t *lanesOut) const
 {
 	if (insnNr > m_nRows)
 		return false;

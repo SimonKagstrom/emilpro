@@ -11,6 +11,7 @@
 #include <unordered_map>
 
 #include "highlighter.h"
+#include "jumpdisplay-delegate.h"
 
 namespace Ui {
 class MainWindow;
@@ -81,6 +82,9 @@ private:
     emilpro::AddressHistory m_addressHistory;
 
     AddressToRow_t m_addressToSymbolRowMap;
+
+    JumpDisplayDelegate m_backwardItemDelegate;
+    JumpDisplayDelegate m_forwardItemDelegate;
 };
 
 #endif // MAINWINDOW_H

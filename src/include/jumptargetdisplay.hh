@@ -40,7 +40,7 @@ namespace emilpro
 
 		void calculateLanes(const InstructionList_t &insns, unsigned nVisibleInsns);
 
-		bool getLanes(unsigned insnNr, LaneValue_t *lanesOut);
+		bool getLanes(unsigned insnNr, LaneValue_t *lanesOut) const;
 
 	private:
 		typedef std::unordered_map<IInstruction *, unsigned> InstructionNrMap_t;

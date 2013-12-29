@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "jumpdisplay-delegate.h"
 
 #include <emilpro.hh>
 #include <configuration.hh>
@@ -17,7 +18,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::MainWindow),
     m_data(NULL),
-    m_dataSize(0)
+    m_dataSize(0),
+    m_backwardItemDelegate(false),
+    m_forwardItemDelegate(true)
 {
     m_ui->setupUi(this);
 
@@ -144,6 +147,10 @@ void MainWindow::setupSymbolView()
 void MainWindow::setupInstructionView()
 {
     m_instructionViewModel = new QStandardItemModel(0,5,this);
+
+    m_ui->instructionTableView->setItemDelegateForColumn(1, &m_backwardItemDelegate);
+    m_ui->instructionTableView->setItemDelegateForColumn(3, &m_forwardItemDelegate);
+
     m_instructionViewModel->setHorizontalHeaderItem(0, new QStandardItem(QString("Address")));
     m_instructionViewModel->setHorizontalHeaderItem(1, new QStandardItem(QString("B")));
     m_instructionViewModel->setHorizontalHeaderItem(2, new QStandardItem(QString("Instruction")));
@@ -172,6 +179,9 @@ void MainWindow::updateInstructionView(uint64_t address, const ISymbol& sym)
 
 	m_instructionViewModel->clear();
 	m_rowToInstruction.clear();
+	m_forwardItemDelegate.update(insns, 60);
+	m_backwardItemDelegate.update(insns, 60);
+
 	for (InstructionList_t::iterator it = insns.begin();
 			it != insns.end();
 			++it, ++row) {

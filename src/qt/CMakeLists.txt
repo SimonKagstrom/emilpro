@@ -88,6 +88,7 @@ set (BASE_SRCS
 
 set (GUI_SRCS
 	emilpro/highlighter.cpp
+	emilpro/jumpdisplay-delegate.cpp
 	emilpro/main.cpp
 	emilpro/mainwindow.cpp
 	)
