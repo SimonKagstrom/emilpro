@@ -33,8 +33,6 @@ private slots:
 
     void on_instructionTableView_activated(const QModelIndex &index);
 
-    void on_instructionTableView_entered(const QModelIndex &index);
-
     void on_referencesListView_activated(const QModelIndex &index);
 
     void on_symbolTableView_entered(const QModelIndex &index);
@@ -42,6 +40,8 @@ private slots:
     void on_addressHistoryListView_activated(const QModelIndex &index);
 
     void on_sourceTextEdit_cursorPositionChanged();
+
+    void on_insnCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
 
 private:
     typedef std::unordered_map<std::string, std::string> FileToStringMap_t;
@@ -57,6 +57,8 @@ private:
     void setupAddressHistoryView();
 
     void setupInstructionLabels();
+
+    void setupInfoBox();
 
     void addHistoryEntry(uint64_t addr);
 

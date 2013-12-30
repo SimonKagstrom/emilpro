@@ -159,6 +159,10 @@ void MainWindow::setupInstructionView()
     m_ui->instructionTableView->setColumnWidth(2, 300);
     m_ui->instructionTableView->setColumnWidth(3, 80);
 
+    connect(m_ui->instructionTableView->selectionModel(),
+            SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+            this, SLOT(on_insnCurrentChanged(QModelIndex, QModelIndex)));
+
     setupInstructionLabels();
 }
 
@@ -293,7 +297,8 @@ void MainWindow::on_instructionTableView_activated(const QModelIndex &index)
 	//addHistoryEntry(addr);
 }
 
-void MainWindow::on_instructionTableView_entered(const QModelIndex &index)
+
+void MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelIndex& previous)
 {
 	int row = index.row();
 
@@ -388,6 +393,10 @@ void MainWindow::setupAddressHistoryView()
     m_addressHistoryViewModel = new QStandardItemModel(0, 1, this);
 
     m_ui->addressHistoryListView->setModel(m_addressHistoryViewModel);
+}
+
+void MainWindow::setupInfoBox()
+{
 }
 
 
