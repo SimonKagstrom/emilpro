@@ -15,11 +15,8 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
+    <item row="1" column="0">
      <layout class="QVBoxLayout" name="verticalLayout_6">
-      <item>
-       <widget class="QLineEdit" name="lineEdit"/>
-      </item>
       <item>
        <widget class="QSplitter" name="splitter_3">
         <property name="sizePolicy">
@@ -36,6 +33,12 @@
           <enum>Qt::Horizontal</enum>
          </property>
          <widget class="QTableView" name="symbolTableView">
+          <property name="minimumSize">
+           <size>
+            <width>499</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <family>Monospace</family>
@@ -92,6 +95,12 @@
                </property>
                <item row="0" column="0">
                 <widget class="QTableView" name="instructionTableView">
+                 <property name="minimumSize">
+                  <size>
+                   <width>492</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="font">
                   <font>
                    <family>Monospace</family>
@@ -145,6 +154,12 @@
             <layout class="QVBoxLayout" name="verticalLayout_25">
              <item>
               <widget class="QTextEdit" name="sourceTextEdit">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="font">
                 <font>
                  <family>Monospace</family>
@@ -219,6 +234,9 @@
        </widget>
       </item>
      </layout>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLineEdit" name="lineEdit"/>
     </item>
    </layout>
   </widget>
