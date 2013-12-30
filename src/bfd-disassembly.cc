@@ -11,11 +11,14 @@
 #include <instructionfactory.hh>
 #include <idisassembly.hh>
 #include <iinstruction.hh>
+#include <preferences.hh>
 #include <utils.hh>
 
 using namespace emilpro;
 
-class Disassembly : public IDisassembly, ArchitectureFactory::IArchitectureListener
+class Disassembly : public IDisassembly,
+	ArchitectureFactory::IArchitectureListener,
+	Preferences::IListener
 {
 public:
 	Disassembly()
@@ -25,6 +28,7 @@ public:
 	    m_startAddress = 0;
 	    m_disassembler = NULL;
 	    m_encoding = NULL;
+	    m_useIntelSyntax = false;
 
 	    m_arch[bfd_arch_i386] = BfdArch(bfd_arch_i386, bfd_mach_i386_i386, print_insn_i386);
 	    m_arch[bfd_arch_powerpc] = BfdArch(bfd_arch_powerpc, bfd_mach_ppc_e500mc64, print_insn_big_powerpc);
@@ -69,8 +73,8 @@ public:
 	    m_arch[bfd_arch_fr30] = BfdArch(bfd_arch_fr30, 0, print_insn_fr30);
 	    m_arch[bfd_arch_frv] = BfdArch(bfd_arch_frv, 0, print_insn_frv);
 	    m_arch[bfd_arch_moxie] = BfdArch(bfd_arch_moxie, 0, print_insn_moxie);       /* The moxie processor */
-	    m_arch[bfd_arch_mcore] = BfdArch(bfd_arch_mcore, 0, print_insn_mcore);
 	    m_arch[bfd_arch_mep] = BfdArch(bfd_arch_mep, 0, print_insn_mep);
+	    m_arch[bfd_arch_mcore] = BfdArch(bfd_arch_mcore, 0, print_insn_mcore);
 	    m_arch[bfd_arch_ia64] = BfdArch(bfd_arch_ia64, bfd_mach_ia64_elf64, print_insn_ia64);      /* HP/Intel ia64 */
 	    m_arch[bfd_arch_ip2k] = BfdArch(bfd_arch_ip2k, 0, print_insn_ip2k);      /* Ubicom IP2K microcontrollers. */
 	    m_arch[bfd_arch_iq2000] = BfdArch(bfd_arch_iq2000, 0, print_insn_iq2000);     /* Vitesse IQ2000.  */
@@ -98,19 +102,33 @@ public:
 	    m_arch[bfd_arch_tilepro] = BfdArch(bfd_arch_tilepro, 0, print_insn_tilepro);   /* Tilera TILEPro */
 	    m_arch[bfd_arch_tilegx] = BfdArch(bfd_arch_tilegx, 0, print_insn_tilegx);    /* Tilera TILE-Gx */
 	    m_arch[bfd_arch_aarch64] = BfdArch(bfd_arch_aarch64, 0, print_insn_aarch64);   /* AArch64  */
+
+	    // Some "sane" default
+		m_currentArch = BfdArch(m_arch[bfd_arch_i386]);
 	}
 
 	void init()
 	{
-	    // Some "sane" default
-		setArchitecture(&m_arch[bfd_arch_i386], 0);
+		setArchitecture(m_currentArch);
 
 	    ArchitectureFactory::instance().registerListener(this);
+	    Preferences::instance().registerListener("X86InstructionSyntax", this);
 	}
 
 	virtual ~Disassembly()
 	{
 	}
+
+	virtual void onPreferencesChanged(const std::string &key,
+			const std::string &oldValue, const std::string &newValue)
+	{
+		if (key != "X86InstructionSyntax")
+			return;
+
+		m_useIntelSyntax = (newValue == "intel");
+		setArchitecture(m_currentArch);
+	}
+
 
 	virtual void onArchitectureDetected(ArchitectureFactory::Architecture_t arch,
 			ArchitectureFactory::Machine_t machine)
@@ -119,7 +137,10 @@ public:
 
 		if (it != m_arch.end())
 		{
-			setArchitecture(&it->second, machine);
+			m_currentArch = it->second;
+			m_currentArch.bfd_mach = machine;
+
+			setArchitecture(m_currentArch);
 		}
 	}
 
@@ -189,16 +210,23 @@ private:
 
 	typedef std::map<ArchitectureFactory::Architecture_t, BfdArch> ArchitectureBfdMap_t;
 
-	void setArchitecture(BfdArch *arch, ArchitectureFactory::Machine_t machine)
+	void setArchitecture(const BfdArch &arch)
 	{
-	    init_disassemble_info(&m_info, (void *)this, Disassembly::opcodesFprintFuncStatic);
+		init_disassemble_info(&m_info, (void *)this, Disassembly::opcodesFprintFuncStatic);
+		unsigned long bfd_mach = arch.bfd_mach;
 
-		m_info.arch = arch->bfd_arch;
-		m_info.mach = machine;
-		m_disassembler = arch->callback;
+		if (arch.bfd_arch == bfd_arch_i386) {
+			if (m_useIntelSyntax)
+				bfd_mach |= bfd_mach_i386_intel_syntax;
+			else
+				bfd_mach &= ~bfd_mach_i386_intel_syntax;
+		}
+
+		m_info.arch = arch.bfd_arch;
+		m_info.mach = bfd_mach;
+		m_disassembler = arch.callback;
 		disassemble_init_for_target(&m_info);
 		m_info.application_data = (void *)this;
-
 	}
 
 	void opcodesFprintFunc(const char *str)
@@ -228,6 +256,7 @@ private:
 	struct disassemble_info m_info;
 	disassembler_ftype m_disassembler;
 	ArchitectureBfdMap_t m_arch;
+	BfdArch m_currentArch;
 
 	InstructionList_t *m_list;
 	uint64_t m_startAddress;
@@ -235,6 +264,7 @@ private:
 
 	std::string m_instructionStr;
 	std::vector<std::string> m_instructionVector;
+	bool m_useIntelSyntax;
 };
 
 static Disassembly *g_instance;
