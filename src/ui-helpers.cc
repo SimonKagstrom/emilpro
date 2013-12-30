@@ -88,7 +88,7 @@ const ISymbol* UiHelpers::getBestSymbol(uint64_t address, const std::string &cur
 	return largest;
 }
 
-std::string UiHelpers::getInstructionInfoString(const emilpro::IInstruction& insn)
+std::string UiHelpers::getInstructionInfoString(const emilpro::IInstruction& insn, bool richText)
 {
 	InstructionFactory::IInstructionModel *model = InstructionFactory::instance().getModelFromInstruction(insn);
 
@@ -126,15 +126,27 @@ std::string UiHelpers::getInstructionInfoString(const emilpro::IInstruction& ins
 		else if (isPrivileged == T_false)
 			privileged = "no";
 
-		s = fmt(
-				"Type: %s\n"
-				"Privileged: %s\n"
-				"\n"
-				"%s",
-				type,
-				privileged,
-				model->getDescription().c_str()
-				);
+		if (richText) {
+			s = fmt(
+					"<b>Type</b>: %s<br>"
+					"<b>Privileged</b>: %s<br>"
+					"<br>"
+					"%s",
+					type,
+					privileged,
+					model->getDescription().c_str()
+			);
+		} else {
+			s = fmt(
+					"Type: %s\n"
+					"Privileged: %s\n"
+					"\n"
+					"%s",
+					type,
+					privileged,
+					model->getDescription().c_str()
+			);
+		}
 	}
 
 	return s;
