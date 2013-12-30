@@ -5,6 +5,7 @@
 #include <idisassembly.hh>
 #include <iinstruction.hh>
 #include <configuration.hh>
+#include <preferences.hh>
 #include <emilpro.hh>
 #include <utils.hh>
 
@@ -13,6 +14,11 @@
 using namespace emilpro;
 
 #include "assembly-dumps.h"
+static int write_callback(const void *data, size_t size, const char *path)
+{
+	return size;
+}
+
 
 class DisassemblyFixture
 {
@@ -95,6 +101,39 @@ TESTSUITE(disassembly)
 		ASSERT_TRUE(p->getMnemonic() == "mov");
 		ASSERT_TRUE(p->getType() == IInstruction::IT_DATA_HANDLING);
 		ASSERT_TRUE(p->isPrivileged() == T_false);
+	};
+
+	TEST(ia32IntelSyntax, DisassemblyFixture)
+	{
+		mock_write_file(write_callback);
+
+		EmilPro::init();
+
+		IDisassembly &dis = IDisassembly::instance();
+		ArchitectureFactory::instance().provideArchitecture(bfd_arch_i386, bfd_mach_i386_i386);
+
+		InstructionList_t lst;
+
+		Preferences::instance().setValue("X86InstructionSyntax", "att");
+		lst = dis.execute((void *)ia32_dump, sizeof(ia32_dump), 0x1000);
+		ASSERT_TRUE(lst.size() == 11U);
+
+		AddressMap_t m = listToAddressMap(lst);
+		IInstruction *p;
+
+		p = m[0x1000 + 2]; ASSERT_TRUE(p);
+		ASSERT_TRUE(p->getString().find("%ebx,(%esp)") != std::string::npos);
+
+
+
+		Preferences::instance().setValue("X86InstructionSyntax", "intel");
+		lst = dis.execute((void *)ia32_dump, sizeof(ia32_dump), 0x1000);
+		ASSERT_TRUE(lst.size() == 11U);
+
+		m = listToAddressMap(lst);
+
+		p = m[0x1000 + 2]; ASSERT_TRUE(p);
+		ASSERT_TRUE(p->getString().find("DWORD PTR") != std::string::npos);
 	};
 
 	// NYI
