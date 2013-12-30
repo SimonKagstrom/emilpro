@@ -59,6 +59,7 @@ public:
 		m_builder->get_widget("view_menu_forward", viewForwardItem);
 		m_builder->get_widget("view_menu_backward", viewBackwardItem);
 		m_builder->get_widget("view_menu_mangle", m_viewMangleItem);
+		m_builder->get_widget("view_x86_syntax", m_viewX86SyntaxItem);
 		panic_if (!(fileOpenItem && viewForwardItem && viewBackwardItem),
 				"Can't get menu items");
 		fileOpenItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onFileOpen));
@@ -68,6 +69,7 @@ public:
 		viewForwardItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onViewForward));
 		viewBackwardItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onViewBackward));
 		m_viewMangleItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onViewMangle));
+		m_viewX86SyntaxItem->signal_activate().connect(sigc::mem_fun(*this, &EmilProGui::onViewX86Syntax));
 
 		// FIXME! Get this from properties instead!
 		m_backgroundColor = Gdk::Color("white");
@@ -155,6 +157,7 @@ public:
 
 		m_builder->get_widget("main_window", m_window);
 		Preferences::instance().registerListener("MainWindowSize", this);
+		Preferences::instance().registerListener("X86InstructionSyntax", this);
 	}
 
 	void run()
@@ -254,6 +257,18 @@ private:
 		Preferences::instance().setValue("MangleNames", value);
 	}
 
+	void onViewX86Syntax()
+	{
+		bool isActive = m_viewX86SyntaxItem->get_active();
+
+		std::string value = isActive ? "att" : "intel";
+
+		Preferences::instance().setValue("X86InstructionSyntax", value);
+
+		if (m_data)
+			onFileRefresh();
+	}
+
 	void onViewForward()
 	{
 		updateHistoryEntry(m_addressHistory.forward());
@@ -309,25 +324,29 @@ private:
 	void onPreferencesChanged(const std::string &key,
 			const std::string &oldValue, const std::string &newValue)
 	{
-		if (key != "MainWindowSize")
-			return;
+		if (key == "MainWindowSize") {
+			size_t comma = newValue.find(",");
+			// Malformed, fix it
+			if (comma == std::string::npos) {
+				updatePreferences();
+				return;
+			}
 
-		size_t comma = newValue.find(",");
-		// Malformed, fix it
-		if (comma == std::string::npos) {
-			updatePreferences();
-			return;
+			std::string w = newValue.substr(0, comma);
+			std::string h = newValue.substr(comma + 1, newValue.size());
+
+			if (!string_is_integer(w) || !string_is_integer(h)) {
+				updatePreferences();
+				return;
+			}
+
+			m_window->resize(string_to_integer(w), string_to_integer(h));
+		} else if (key == "X86InstructionSyntax") {
+			if (newValue == "intel")
+				m_viewX86SyntaxItem->set_active(false);
+			else
+				m_viewX86SyntaxItem->set_active(true);
 		}
-
-		std::string w = newValue.substr(0, comma);
-		std::string h = newValue.substr(comma + 1, newValue.size());
-
-		if (!string_is_integer(w) || !string_is_integer(h)) {
-			updatePreferences();
-			return;
-		}
-
-		m_window->resize(string_to_integer(w), string_to_integer(h));
 	}
 
 	void updatePreferences()
@@ -360,6 +379,7 @@ private:
 	Gtk::Window *m_window;
 	Gtk::AboutDialog *m_aboutDialog;
 	Gtk::CheckMenuItem *m_viewMangleItem;
+	Gtk::CheckMenuItem *m_viewX86SyntaxItem;
 
 	void *m_data;
 	size_t m_dataSize;
