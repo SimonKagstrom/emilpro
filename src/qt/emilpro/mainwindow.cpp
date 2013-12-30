@@ -461,7 +461,7 @@ void MainWindow::updateInfoBox(const emilpro::IInstruction* insn)
 		return;
 	}
 
-	QString s = QString::fromStdString(UiHelpers::getInstructionInfoString(*insn));
+	QString s = QString::fromStdString(UiHelpers::getInstructionInfoString(*insn, true));
 
 	m_ui->instructionTextEdit->setText(s);
 }
