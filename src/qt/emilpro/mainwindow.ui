@@ -236,7 +236,7 @@
      </layout>
     </item>
     <item row="0" column="0">
-     <widget class="QLineEdit" name="lineEdit"/>
+     <widget class="QLineEdit" name="locationLineEdit"/>
     </item>
    </layout>
   </widget>
@@ -317,6 +317,18 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>locationLineEdit</tabstop>
+  <tabstop>symbolTableView</tabstop>
+  <tabstop>instructionTableView</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>textBrowser</tabstop>
+  <tabstop>sourceTextEdit</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>instructionTextEdit</tabstop>
+  <tabstop>addressHistoryListView</tabstop>
+  <tabstop>referencesListView</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
