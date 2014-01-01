@@ -43,6 +43,14 @@ private slots:
 
     void on_insnCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
 
+    void on_action_Forward_triggered(bool activated);
+
+    void on_action_Backward_triggered(bool activated);
+
+    void on_action_Mangle_names_triggered(bool activated);
+
+    void on_action_Toggle_data_instructions_triggered(bool activated);
+
 private:
     typedef std::unordered_map<std::string, std::string> FileToStringMap_t;
     typedef std::unordered_map<int, const emilpro::IInstruction *> RowToInstruction_t;
@@ -72,6 +80,9 @@ private:
 
 	void updateInfoBox(const emilpro::IInstruction *cur);
 
+	void updateHistoryEntry(const emilpro::AddressHistory::Entry &e);
+
+
     Ui::MainWindow *m_ui;
     QStandardItemModel *m_symbolViewModel;
     QStandardItemModel *m_instructionViewModel;
@@ -84,6 +95,7 @@ private:
     RowToInstruction_t m_rowToInstruction;
     Highlighter *m_highlighter;
     emilpro::AddressHistory m_addressHistory;
+    bool m_addressHistoryDisabled;
 
     AddressToRow_t m_addressToSymbolRowMap;
 

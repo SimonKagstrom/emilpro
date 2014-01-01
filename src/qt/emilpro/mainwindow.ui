@@ -311,13 +311,25 @@
    <property name="text">
     <string>&amp;Forward</string>
    </property>
+   <property name="shortcut">
+    <string>Alt+Right</string>
+   </property>
   </action>
   <action name="action_Backward">
    <property name="text">
     <string>&amp;Backward</string>
    </property>
+   <property name="shortcut">
+    <string>Alt+Left</string>
+   </property>
   </action>
   <action name="action_Mangle_names">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>&amp;Mangle names</string>
    </property>
@@ -325,6 +337,9 @@
   <action name="action_Toggle_data_instructions">
    <property name="text">
     <string>&amp;Toggle data/instructions</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
    </property>
   </action>
  </widget>

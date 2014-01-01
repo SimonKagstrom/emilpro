@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ui(new Ui::MainWindow),
     m_data(NULL),
     m_dataSize(0),
+    m_addressHistoryDisabled(false),
     m_backwardItemDelegate(false),
     m_forwardItemDelegate(true)
 {
@@ -425,6 +426,9 @@ void MainWindow::on_addressHistoryListView_activated(const QModelIndex &index)
 
 void MainWindow::addHistoryEntry(uint64_t address)
 {
+	if (m_addressHistoryDisabled)
+		return;
+
 	Model &model = Model::instance();
 	bool res = m_addressHistory.maybeAddEntry(address);
 
@@ -479,6 +483,34 @@ void MainWindow::on_sourceTextEdit_cursorPositionChanged()
 	QScrollBar *vbar = m_ui->sourceTextEdit->verticalScrollBar();
 
 	vbar->setValue(vbar->value() + cursorY - m_ui->sourceTextEdit->height() / 2);
+}
+
+void MainWindow::on_action_Forward_triggered(bool activated)
+{
+	updateHistoryEntry(m_addressHistory.forward());
+}
+
+void MainWindow::on_action_Backward_triggered(bool activated)
+{
+	updateHistoryEntry(m_addressHistory.back());
+}
+
+void MainWindow::on_action_Mangle_names_triggered(bool activated)
+{
+}
+
+void MainWindow::on_action_Toggle_data_instructions_triggered(bool activated)
+{
+}
+
+void MainWindow::updateHistoryEntry(const AddressHistory::Entry& e)
+{
+	if (!e.isValid())
+		return;
+
+	m_addressHistoryDisabled = true;
+	updateSymbolView(e.getAddress());
+	m_addressHistoryDisabled = false;
 }
 
 void MainWindow::updateInfoBox(const emilpro::IInstruction* insn)
