@@ -278,6 +278,7 @@
     <addaction name="separator"/>
     <addaction name="action_Mangle_names"/>
     <addaction name="action_Toggle_data_instructions"/>
+    <addaction name="actionAT_T_syntax_x86"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -340,6 +341,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionAT_T_syntax_x86">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;AT&amp;&amp;T syntax (x86)</string>
    </property>
   </action>
  </widget>

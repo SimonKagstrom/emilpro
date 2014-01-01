@@ -503,6 +503,10 @@ void MainWindow::on_action_Toggle_data_instructions_triggered(bool activated)
 {
 }
 
+void MainWindow::on_actionAT_T_syntax_x86_triggered(bool activated)
+{
+}
+
 void MainWindow::updateHistoryEntry(const AddressHistory::Entry& e)
 {
 	if (!e.isValid())

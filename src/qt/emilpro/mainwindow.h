@@ -51,6 +51,8 @@ private slots:
 
     void on_action_Toggle_data_instructions_triggered(bool activated);
 
+    void on_actionAT_T_syntax_x86_triggered(bool activated);
+
 private:
     typedef std::unordered_map<std::string, std::string> FileToStringMap_t;
     typedef std::unordered_map<int, const emilpro::IInstruction *> RowToInstruction_t;
