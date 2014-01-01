@@ -223,8 +223,6 @@ void InfoBox::onInstructionSelected(IInstruction &insn)
 {
 	m_dialog->setCurrentInstruction(insn);
 
-	InstructionFactory::IInstructionModel *model = InstructionFactory::instance().getModelFromInstruction(insn);
-
 	std::string s = UiHelpers::getInstructionInfoString(insn);
 
 	m_label->set_text(fmt("Instruction: %s",
