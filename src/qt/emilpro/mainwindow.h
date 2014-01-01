@@ -12,6 +12,7 @@
 
 #include "highlighter.h"
 #include "jumpdisplay-delegate.h"
+#include "editinstructiondialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -52,6 +53,8 @@ private slots:
     void on_action_Toggle_data_instructions_triggered(bool activated);
 
     void on_actionAT_T_syntax_x86_triggered(bool activated);
+
+    void on_editInstructionPushButton_clicked();
 
 private:
     typedef std::unordered_map<std::string, std::string> FileToStringMap_t;
@@ -103,6 +106,9 @@ private:
 
     JumpDisplayDelegate m_backwardItemDelegate;
     JumpDisplayDelegate m_forwardItemDelegate;
+
+    EditInstructionDialog *m_editInstructionDialog;
+    const emilpro::IInstruction *m_currentInstruction;
 };
 
 #endif // MAINWINDOW_H

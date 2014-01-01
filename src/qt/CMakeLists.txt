@@ -91,9 +91,13 @@ set (GUI_SRCS
 	emilpro/jumpdisplay-delegate.cpp
 	emilpro/main.cpp
 	emilpro/mainwindow.cpp
+	emilpro/editinstructiondialog.cpp
 	)
 	
-qt5_wrap_ui(UI_HEADERS emilpro/mainwindow.ui)
+qt5_wrap_ui(UI_HEADERS
+	emilpro/mainwindow.ui
+	emilpro/editinstructiondialog.ui
+	)
 	
 set_property(SOURCE ../emilpro.cc APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_BINARY_DIR}/built_in_instruction_models.hh)
 

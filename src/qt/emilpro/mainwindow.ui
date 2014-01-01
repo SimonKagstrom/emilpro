@@ -215,7 +215,7 @@
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton">
+              <widget class="QPushButton" name="editInstructionPushButton">
                <property name="text">
                 <string>Edit</string>
                </property>
@@ -363,7 +363,7 @@
   <tabstop>tabWidget</tabstop>
   <tabstop>textBrowser</tabstop>
   <tabstop>sourceTextEdit</tabstop>
-  <tabstop>pushButton</tabstop>
+  <tabstop>editInstructionPushButton</tabstop>
   <tabstop>instructionTextEdit</tabstop>
   <tabstop>addressHistoryListView</tabstop>
   <tabstop>referencesTableView</tabstop>

@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
 #include "jumpdisplay-delegate.h"
 
 #include <emilpro.hh>
@@ -21,7 +22,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_dataSize(0),
     m_addressHistoryDisabled(false),
     m_backwardItemDelegate(false),
-    m_forwardItemDelegate(true)
+    m_forwardItemDelegate(true),
+    m_currentInstruction(NULL)
 {
     m_ui->setupUi(this);
 
@@ -33,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setupAddressHistoryView();
 
+    m_editInstructionDialog = new EditInstructionDialog();
 
     m_highlighter = new Highlighter(m_ui->sourceTextEdit->document());
 
@@ -306,6 +309,8 @@ void MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelInd
 
 	const IInstruction *cur = m_rowToInstruction[row];
 
+	m_currentInstruction = cur;
+
 	if (!cur)
 		return;
 	updateInfoBox(cur);
@@ -528,4 +533,9 @@ void MainWindow::updateInfoBox(const emilpro::IInstruction* insn)
 	QString s = QString::fromStdString(UiHelpers::getInstructionInfoString(*insn, true));
 
 	m_ui->instructionTextEdit->setText(s);
+}
+
+void MainWindow::on_editInstructionPushButton_clicked()
+{
+	m_editInstructionDialog->edit(m_currentInstruction);
 }
