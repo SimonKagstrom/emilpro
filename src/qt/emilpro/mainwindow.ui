@@ -15,6 +15,9 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QLineEdit" name="locationLineEdit"/>
+    </item>
     <item row="1" column="0">
      <layout class="QVBoxLayout" name="verticalLayout_6">
       <item>
@@ -62,13 +65,25 @@
            <bool>false</bool>
           </attribute>
          </widget>
-         <widget class="QListView" name="referencesListView">
+         <widget class="QTableView" name="referencesTableView">
           <property name="font">
            <font>
             <family>Monospace</family>
             <pointsize>10</pointsize>
            </font>
           </property>
+          <property name="editTriggers">
+           <set>QAbstractItemView::NoEditTriggers</set>
+          </property>
+          <property name="showGrid">
+           <bool>false</bool>
+          </property>
+          <attribute name="horizontalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
          </widget>
         </widget>
         <widget class="QSplitter" name="splitter_2">
@@ -235,9 +250,6 @@
       </item>
      </layout>
     </item>
-    <item row="0" column="0">
-     <widget class="QLineEdit" name="locationLineEdit"/>
-    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -327,7 +339,7 @@
   <tabstop>pushButton</tabstop>
   <tabstop>instructionTextEdit</tabstop>
   <tabstop>addressHistoryListView</tabstop>
-  <tabstop>referencesListView</tabstop>
+  <tabstop>referencesTableView</tabstop>
  </tabstops>
  <resources/>
  <connections/>

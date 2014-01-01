@@ -168,10 +168,11 @@ void MainWindow::setupInstructionView()
 
 void MainWindow::setupReferencesView()
 {
-    m_referencesViewModel = new QStandardItemModel(0, 1, this);
-    m_referencesViewModel->setHorizontalHeaderItem(0, new QStandardItem(QString("Symbol references")));
+    m_referencesViewModel = new QStandardItemModel(0, 2, this);
 
-    m_ui->referencesListView->setModel(m_referencesViewModel);
+    m_ui->referencesTableView->setModel(m_referencesViewModel);
+    m_ui->instructionTableView->setColumnWidth(0, 80);
+    m_ui->referencesTableView->horizontalHeader()->setStretchLastSection(true);
 }
 
 void MainWindow::setupInstructionLabels()
@@ -340,8 +341,18 @@ void MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelInd
     m_ui->sourceTextEdit->setExtraSelections( extras );
 }
 
-void MainWindow::on_referencesListView_activated(const QModelIndex &index)
+void MainWindow::on_referencesTableView_activated(const QModelIndex &index)
 {
+	int row = index.row();
+	QModelIndex parent = index.parent();
+
+	std::string s = m_referencesViewModel->data(m_referencesViewModel->index(row, 0, parent)).toString().toStdString();
+	std::string name = m_referencesViewModel->data(m_referencesViewModel->index(row, 1, parent)).toString().toStdString();
+
+	if (!string_is_integer(s, 16))
+		return;
+
+	updateSymbolView(string_to_integer(s), name);
 	//addHistoryEntry(addr);
 }
 
@@ -369,19 +380,26 @@ void MainWindow::on_symbolTableView_entered(const QModelIndex &index)
 		uint64_t cur = *it;
 		const Model::SymbolList_t syms = model.getNearestSymbol(cur);
 
+		QString addr = QString::fromStdString(fmt("0x%llx", (unsigned long long)cur));
 		if (syms.empty()) {
-			QString name = QString::fromStdString(s);
+			QList<QStandardItem *> lst;
 
-			m_referencesViewModel->appendRow(new QStandardItem(name));
+			lst.append(new QStandardItem(addr));
+			m_referencesViewModel->appendRow(lst);
 		} else {
 			for (Model::SymbolList_t::const_iterator sIt = syms.begin();
 					sIt != syms.end();
 					++sIt) {
 				ISymbol *sym = *sIt;
+				QList<QStandardItem *> lst;
+
 				// FIXME! Mr Gorbachev, mangle this name!
 				QString name = QString::fromStdString(sym->getName());
 
-				m_referencesViewModel->appendRow(new QStandardItem(name));
+				lst.append(new QStandardItem(addr));
+				lst.append(new QStandardItem(name));
+
+				m_referencesViewModel->appendRow(lst);
 			}
 		}
 	}

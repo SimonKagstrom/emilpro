@@ -33,7 +33,7 @@ private slots:
 
     void on_instructionTableView_activated(const QModelIndex &index);
 
-    void on_referencesListView_activated(const QModelIndex &index);
+    void on_referencesTableView_activated(const QModelIndex &index);
 
     void on_symbolTableView_entered(const QModelIndex &index);
 
