@@ -56,7 +56,7 @@ private slots:
 private:
     typedef std::unordered_map<std::string, std::string> FileToStringMap_t;
     typedef std::unordered_map<int, const emilpro::IInstruction *> RowToInstruction_t;
-    typedef std::unordered_map<uint64_t, int> AddressToRow_t;
+    typedef std::unordered_map<std::string, int> AddressNameToRow_t;
 
     void setupSymbolView();
 
@@ -99,7 +99,7 @@ private:
     emilpro::AddressHistory m_addressHistory;
     bool m_addressHistoryDisabled;
 
-    AddressToRow_t m_addressToSymbolRowMap;
+    AddressNameToRow_t m_addressToSymbolRowMap;
 
     JumpDisplayDelegate m_backwardItemDelegate;
     JumpDisplayDelegate m_forwardItemDelegate;
