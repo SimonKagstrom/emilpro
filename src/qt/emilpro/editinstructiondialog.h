@@ -4,6 +4,7 @@
 #include <QDialog>
 
 #include <iinstruction.hh>
+#include <instructionfactory.hh>
 
 namespace Ui {
 class EditInstructionDialog;
@@ -19,8 +20,15 @@ public:
 
     void edit(const emilpro::IInstruction *insn);
 
+private slots:
+    void on_buttonBox_accepted();
+
+    void on_buttonBox_rejected();
+
 private:
     Ui::EditInstructionDialog *m_ui;
+    emilpro::InstructionFactory::IInstructionModel *m_currentModel;
+    const emilpro::IInstruction *m_currentInstruction;
 };
 
 #endif // EDITINSTRUCTIONDIALOG_H

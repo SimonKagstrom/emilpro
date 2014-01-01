@@ -97,7 +97,7 @@
        <widget class="QComboBox" name="instructionPrivilegedComboBox">
         <item>
          <property name="text">
-          <string>No</string>
+          <string>Unknown</string>
          </property>
         </item>
         <item>
@@ -107,7 +107,7 @@
         </item>
         <item>
          <property name="text">
-          <string>Unknown</string>
+          <string>No</string>
          </property>
         </item>
        </widget>
