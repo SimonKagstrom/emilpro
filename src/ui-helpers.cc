@@ -60,18 +60,17 @@ const ISymbol* UiHelpers::getBestSymbol(uint64_t address, const std::string &cur
 		return NULL;
 	}
 
-	const ISymbol *largest = syms.front();
+	const ISymbol *largest = NULL;
 
 	for (Model::SymbolList_t::iterator it = syms.begin();
 			it != syms.end();
 			++it) {
 		const ISymbol *cur = *it;
-		enum ISymbol::SymbolType type = cur->getType();
 
-		if (type != ISymbol::SYM_TEXT && type != ISymbol::SYM_DATA)
+		if ((cur->getType() & filterMask) != 0)
 			continue;
 
-		if ((largest->getType() & filterMask) == 0)
+		if (!largest)
 			largest = cur;
 
 		if (cur->getSize() > largest->getSize())
@@ -79,11 +78,13 @@ const ISymbol* UiHelpers::getBestSymbol(uint64_t address, const std::string &cur
 
 		// Prioritize the selected name
 		if (cur->getName() == currentName) {
-
 			largest = cur;
 			break;
 		}
 	}
+
+	if (!largest)
+		largest = syms.front();
 
 	return largest;
 }
