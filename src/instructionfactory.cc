@@ -599,7 +599,7 @@ InstructionFactory::IInstructionModel* InstructionFactory::getModelFromInstructi
 	return archModel[insn.getMnemonic()];
 }
 
-InstructionFactory::IInstructionModel* InstructionFactory::createModelForInstruction(IInstruction& insn)
+InstructionFactory::IInstructionModel* InstructionFactory::createModelForInstruction(const IInstruction& insn)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
 

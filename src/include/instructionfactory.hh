@@ -118,7 +118,7 @@ namespace emilpro
 
 		IInstructionModel *getModelFromInstruction(const IInstruction &insn);
 
-		IInstructionModel *createModelForInstruction(IInstruction &insn);
+		IInstructionModel *createModelForInstruction(const IInstruction &insn);
 
 		InstructionModelList_t getInstructionModels(uint64_t fromTimestamp = 0);
 
