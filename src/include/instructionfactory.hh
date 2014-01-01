@@ -60,21 +60,21 @@ namespace emilpro
 			/**
 			 * The type of instruction (control-flow, arithmetic etc)
 			 */
-			virtual void setType(std::string &typeStr) = 0;
+			virtual void setType(const std::string &typeStr) = 0;
 
 			virtual void setType(IInstruction::InstructionType_t type) = 0;
 
 			/**
 			 * If the instruction is privileged or not (true/false/unknown)
 			 */
-			virtual void setPrivileged(std::string &privilegedStr) = 0;
+			virtual void setPrivileged(const std::string &privilegedStr) = 0;
 
 			virtual void setPrivileged(Ternary_t priv) = 0;
 
 			/**
 			 * The description (HTML) of what the instruction does.
 			 */
-			virtual void setDescription(std::string &description) = 0;
+			virtual void setDescription(const std::string &description) = 0;
 
 			/**
 			 * Set the index of the address reference (if applicable). IDX_GUESS to scan and
@@ -85,17 +85,17 @@ namespace emilpro
 			virtual void setTimeStamp(uint64_t ts) = 0;
 
 
-			virtual IInstruction::InstructionType_t getType() = 0;
+			virtual IInstruction::InstructionType_t getType() const = 0;
 
-			virtual Ternary_t isPrivileged() = 0;
+			virtual Ternary_t isPrivileged() const = 0;
 
-			virtual std::string &getDescription() = 0;
+			virtual const std::string &getDescription() const = 0;
 
-			virtual int &getAddressReferenceIndex() = 0;
+			virtual int getAddressReferenceIndex() const = 0;
 
-			virtual uint64_t getTimeStamp() = 0;
+			virtual uint64_t getTimeStamp() const = 0;
 
-			virtual ArchitectureFactory::Architecture_t getArchitecture() = 0;
+			virtual ArchitectureFactory::Architecture_t getArchitecture() const = 0;
 
 			/**
 			 * Produce XML from the instruction model

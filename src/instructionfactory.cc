@@ -151,7 +151,7 @@ public:
 		m_architecture = ArchitectureFactory::instance().getArchitectureFromName(architecture);
 	}
 
-	void setType(std::string &typeStr)
+	void setType(const std::string &typeStr)
 	{
 		if (typeStr == "cflow")
 			m_type = IInstruction::IT_CFLOW;
@@ -172,7 +172,7 @@ public:
 		m_type = type;
 	}
 
-	void setPrivileged(std::string &privilegedStr)
+	void setPrivileged(const std::string &privilegedStr)
 	{
 		if (privilegedStr == "true")
 			m_privileged = T_true;
@@ -187,7 +187,7 @@ public:
 		m_privileged = privileged;
 	}
 
-	void setDescription(std::string &description)
+	void setDescription(const std::string &description)
 	{
 		m_description = description;
 	}
@@ -201,32 +201,32 @@ public:
 		m_timestamp = ts;
 	}
 
-	uint64_t getTimeStamp()
+	uint64_t getTimeStamp() const
 	{
 		return m_timestamp;
 	}
 
-	IInstruction::InstructionType_t getType()
+	IInstruction::InstructionType_t getType() const
 	{
 		return m_type;
 	}
 
-	Ternary_t isPrivileged()
+	Ternary_t isPrivileged() const
 	{
 		return m_privileged;
 	}
 
-	std::string &getDescription()
+	const std::string &getDescription() const
 	{
 		return m_description;
 	}
 
-	int &getAddressReferenceIndex()
+	int getAddressReferenceIndex() const
 	{
 		return m_addressReferenceIndex;
 	}
 
-	ArchitectureFactory::Architecture_t getArchitecture()
+	ArchitectureFactory::Architecture_t getArchitecture() const
 	{
 		return m_architecture;
 	}
