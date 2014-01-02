@@ -1,4 +1,16 @@
 EmilPRO (3):
+	* Gtk GUI: Partailly fix the remember window-size-on-close feature
+
+	* Issue #3: Allow switching between AT&T/Intel syntax on x86
+
+	* Refactor code to make it easier to share code between GTK/QT
+
+	* Correct build on some Fedora systems (look for libs in lib64)
+
+	* Improve constness of many method prototypes
+
+	* QT GUI: Implement a mostly-done QT-based GUI
+
 	* Really fix the Sweden-is-not-the-world bug. current-ip -> current_ip in both
 	  places works really well...
 

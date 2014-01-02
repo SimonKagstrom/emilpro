@@ -352,8 +352,6 @@ private:
 			m_windowWidth = (int)string_to_integer(w);
 			m_windowHeight = (int)string_to_integer(h);
 
-			printf("XXX: %d,%d\n", m_windowWidth, m_windowHeight);
-
 			m_window->resize(m_windowWidth, m_windowHeight);
 		} else if (key == "X86InstructionSyntax") {
 			if (newValue == "intel")
