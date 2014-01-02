@@ -42,6 +42,7 @@ namespace emilpro
 				void *data,
 				uint64_t address,
 				uint64_t size,
+				uint64_t fileOffset,
 				bool isAllocated,
 				bool isWriteable,
 				bool isExecutable);

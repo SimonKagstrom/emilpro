@@ -223,7 +223,7 @@ void Model::deriveSymbols(ISymbol *sym, InstructionList_t &lst)
 			uint64_t cur = it->first;
 			uint64_t last = lastIt->first;
 
-			addDerivedSymbol(last, cur - last, p + last);
+			addDerivedSymbol(sym, last, cur - last, p + last);
 		}
 
 		lastIt = it;
@@ -236,10 +236,10 @@ void Model::deriveSymbols(ISymbol *sym, InstructionList_t &lst)
 	uint64_t startLast = lastIt->first;
 	uint64_t endLast = lastInsnAddr;
 
-	addDerivedSymbol(startLast, endLast - startLast, p + startLast);
+	addDerivedSymbol(sym, startLast, endLast - startLast, p + startLast);
 }
 
-void Model::addDerivedSymbol(uint64_t address, int64_t size, void *data)
+void Model::addDerivedSymbol(const ISymbol *section, uint64_t address, int64_t size, void *data)
 {
 	if (size <= 0)
 		return;
@@ -247,7 +247,9 @@ void Model::addDerivedSymbol(uint64_t address, int64_t size, void *data)
 	ISymbol &sym = SymbolFactory::instance().createSymbol(ISymbol::LINK_NORMAL,
 			ISymbol::SYM_TEXT,
 			fmt("fn_0x%llx_0x%llx", (unsigned long long)address, (unsigned long long)(address + size)).c_str(),
-			data, address, size, true, false, true);
+			data, address, size,
+			section->getFileOffset() + address - section->getAddress(),
+			true, false, true);
 
 	onSymbol(sym);
 	m_pendingListenerSymbols.push_back(&sym);

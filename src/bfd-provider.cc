@@ -272,6 +272,7 @@ public:
 					it->second,
 					(uint64_t)bfd_section_vma(m_bfd, section),
 					(uint64_t)bfd_section_size(m_bfd, section),
+					section->filepos,
 					section->flags & SEC_ALLOC,
 					!(section->flags & SEC_READONLY),
 					section->flags & SEC_CODE
@@ -288,6 +289,7 @@ public:
 				data,
 				0,
 				dataSize,
+				0,
 				false,
 				false,
 				false
@@ -421,6 +423,7 @@ private:
 					section + cur->value,
 					symAddr,
 					size,
+					cur->section->filepos + cur->value,
 					cur->section->flags & SEC_ALLOC,
 					!(cur->section->flags & SEC_READONLY),
 					cur->section->flags & SEC_CODE

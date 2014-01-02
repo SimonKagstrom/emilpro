@@ -17,6 +17,7 @@ public:
 			void *data,
 			uint64_t address,
 			uint64_t size,
+			uint64_t fileOffset,
 			const char *name,
 			bool isAllocated,
 			bool isWriteable,
@@ -26,6 +27,7 @@ public:
 				m_data(data),
 				m_address(address),
 				m_size(size),
+				m_fileOffset(fileOffset),
 				m_name(name),
 				m_isAllocated(isAllocated),
 				m_isWriteable(isWriteable),
@@ -78,6 +80,11 @@ public:
 		return m_size;
 	}
 
+	uint64_t getFileOffset() const
+	{
+		return m_fileOffset;
+	}
+
 	void setSize(uint64_t size)
 	{
 		m_size = size;
@@ -89,6 +96,7 @@ private:
 	void *m_data;
 	uint64_t m_address;
 	uint64_t m_size;
+	uint64_t m_fileOffset;
 	std::string m_name;
 	bool m_isAllocated;
 	bool m_isWriteable;
@@ -126,11 +134,13 @@ ISymbol &SymbolFactory::createSymbol(enum ISymbol::LinkageType linkage,
 		void *data,
 		uint64_t address,
 		uint64_t size,
+		uint64_t fileOffset,
 		bool isAllocated,
 		bool isWriteable,
 		bool isExecutable)
 {
-	Symbol *cur = new Symbol(type, linkage, data, address, size, name, isAllocated, isWriteable, isExecutable);
+	Symbol *cur = new Symbol(type, linkage, data, address, size, fileOffset,
+			name, isAllocated, isWriteable, isExecutable);
 
 	m_symbols.push_back(cur);
 

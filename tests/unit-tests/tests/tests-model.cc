@@ -543,6 +543,7 @@ TESTSUITE(model)
 				(void *)d1,
 				base,
 				sizeof(d1),
+				base,
 				true,
 				false,
 				true);
@@ -554,6 +555,7 @@ TESTSUITE(model)
 				(void *)d2,
 				base + sizeof(d1) + 1024,
 				sizeof(d2),
+				base,
 				true,
 				false,
 				true);
@@ -613,6 +615,7 @@ TESTSUITE(model)
 				NULL,
 				base,
 				0x1000,
+				base,
 				true,
 				false,
 				true);
@@ -624,6 +627,7 @@ TESTSUITE(model)
 				NULL,
 				base + 0x2000,
 				0x1000,
+				base,
 				true,
 				false,
 				true);
@@ -635,6 +639,7 @@ TESTSUITE(model)
 				NULL,
 				base + 0x3000,
 				0x1000,
+				base,
 				true,
 				false,
 				true);

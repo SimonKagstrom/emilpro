@@ -48,6 +48,8 @@ namespace emilpro
 
 		virtual uint64_t getSize() const = 0;
 
+		virtual uint64_t getFileOffset() const = 0;
+
 
 		virtual void setSize(uint64_t size) = 0;
 	};

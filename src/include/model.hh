@@ -137,7 +137,7 @@ namespace emilpro
 
 		void deriveSymbols(ISymbol *sym, InstructionList_t &lst);
 
-		void addDerivedSymbol(uint64_t address, int64_t size, void *data);
+		void addDerivedSymbol(const ISymbol *section, uint64_t address, int64_t size, void *data);
 
 		const ILineProvider::FileLine getLineByAddressLocked(uint64_t addr);
 
