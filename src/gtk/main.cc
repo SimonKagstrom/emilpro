@@ -31,7 +31,9 @@ public:
 	EmilProGui() :
 		m_nLanes(4),
 		m_data(NULL),
-		m_dataSize(0)
+		m_dataSize(0),
+		m_windowWidth(1024),
+		m_windowHeight(768)
 	{
 	}
 
@@ -210,6 +212,9 @@ protected:
 
 	void onFileQuit()
 	{
+		m_windowWidth = m_window->get_width();
+		m_windowHeight = m_window->get_height();
+
 		Gtk::Main::quit();
 	}
 
@@ -339,8 +344,17 @@ private:
 				updatePreferences();
 				return;
 			}
+			if (string_to_integer(w) < 1024)
+				w = "1024";
+			if (string_to_integer(h) < 768)
+				h = "768";
 
-			m_window->resize(string_to_integer(w), string_to_integer(h));
+			m_windowWidth = (int)string_to_integer(w);
+			m_windowHeight = (int)string_to_integer(h);
+
+			printf("XXX: %d,%d\n", m_windowWidth, m_windowHeight);
+
+			m_window->resize(m_windowWidth, m_windowHeight);
 		} else if (key == "X86InstructionSyntax") {
 			if (newValue == "intel")
 				m_viewX86SyntaxItem->set_active(false);
@@ -352,7 +366,7 @@ private:
 	void updatePreferences()
 	{
 		Preferences::instance().setValue("MainWindowSize",
-				fmt("%d,%d", m_window->get_width(), m_window->get_height()));
+				fmt("%d,%d", m_windowWidth, m_windowHeight));
 	}
 
 
@@ -383,6 +397,9 @@ private:
 
 	void *m_data;
 	size_t m_dataSize;
+
+	int m_windowWidth;
+	int m_windowHeight;
 };
 
 int main(int argc, char **argv)
