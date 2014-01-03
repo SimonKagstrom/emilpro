@@ -14,7 +14,7 @@ EmilPRO (3):
 	* Really fix the Sweden-is-not-the-world bug. current-ip -> current_ip in both
 	  places works really well...
 
-	-- Simon Kagstrom <simon.kagstrom@gmail.com>
+	-- Simon Kagstrom <simon.kagstrom@gmail.com>, Fri Jan  3 12:39:13 CET 2014
 
 
 EmilPRO (2):
