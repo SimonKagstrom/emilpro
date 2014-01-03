@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.16.0 on Sun Dec 29 14:41:48 2013 -->
+<!-- Generated with glade 3.16.0 on Fri Jan  3 09:06:11 2014 -->
 <interface>
   <!-- interface-requires gtk+ 3.0 -->
   <!-- interface-requires gtksourceview 3.0 -->
@@ -11,7 +11,7 @@
     <property name="border_width">5</property>
     <property name="type_hint">dialog</property>
     <property name="program_name">EmilPRO</property>
-    <property name="version">1 - "Raketost"</property>
+    <property name="version">3 - "Kräkmåla"</property>
     <property name="comments" translatable="yes">This application needs your help! Visit the webpage for more info and tasks to do!</property>
     <property name="website">http://www.emilpro.com</property>
     <property name="website_label" translatable="yes">emilpro.com</property>
