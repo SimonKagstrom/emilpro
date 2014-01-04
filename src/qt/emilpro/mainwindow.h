@@ -76,6 +76,8 @@ private:
 
     void setupInstructionEncoding();
 
+    void setupDataView();
+
     void setupInfoBox();
 
     void addHistoryEntry(uint64_t addr);
@@ -93,6 +95,8 @@ private:
 	void updateHistoryEntry(const emilpro::AddressHistory::Entry &e);
 
 	void updateInstructionEncoding(const emilpro::IInstruction *insn);
+
+	void updateDataView(uint64_t address, size_t size);
 
 
     Ui::MainWindow *m_ui;
@@ -119,6 +123,12 @@ private:
 
     QHexEdit *m_encodingHexEdit;
     QHexEditData *m_encodingData;
+
+    QHexEdit *m_dataViewHexEdit;
+    QHexEditData *m_dataViewData;
+    uint64_t m_dataViewStart;
+    uint64_t m_dataViewEnd;
+    size_t m_dataViewSize;
 };
 
 #endif // MAINWINDOW_H

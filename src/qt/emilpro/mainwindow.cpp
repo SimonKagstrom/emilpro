@@ -37,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setupInstructionEncoding();
 
+    setupDataView();
+
     m_editInstructionDialog = new EditInstructionDialog();
 
     m_highlighter = new Highlighter(m_ui->sourceTextEdit->document());
@@ -318,6 +320,7 @@ void MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelInd
 
 	updateInstructionEncoding(cur);
 	updateInfoBox(cur);
+	updateDataView(cur->getAddress(), cur->getSize());
 
 	ILineProvider::FileLine fileLine = Model::instance().getLineByAddress(cur->getAddress());
 
@@ -456,6 +459,33 @@ void MainWindow::setupInfoBox()
 {
 }
 
+void MainWindow::setupDataView()
+{
+    QBuffer *hexViewBuffer;
+
+    m_dataViewStart = 0;
+	m_dataViewEnd = 0;
+    m_dataViewSize = 16 * 1024;
+
+	hexViewBuffer = new QBuffer();
+	hexViewBuffer->open(QBuffer::ReadWrite);
+	hexViewBuffer->seek(m_dataViewSize);
+
+	m_dataViewData = new QHexEditData(hexViewBuffer);
+
+	// We want the same font as for the instructions
+	const QFont &font = m_ui->instructionTableView->font();
+	QFontMetrics metrics = QFontMetrics(font);
+
+	m_dataViewHexEdit = new QHexEdit(m_ui->dataViewScrollArea);
+	m_dataViewHexEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	m_dataViewHexEdit->setMinimumWidth(1024);
+	m_dataViewHexEdit->setMinimumHeight(metrics.height() * m_dataViewSize / 16);
+	m_dataViewHexEdit->setData(m_dataViewData);
+
+	m_dataViewHexEdit->setFont(font);
+}
+
 
 void MainWindow::on_addressHistoryListView_activated(const QModelIndex &index)
 {
@@ -512,7 +542,9 @@ void MainWindow::updateSymbolView(uint64_t address, const std::string &name)
 	if (m_addressToSymbolRowMap.find(key) != m_addressToSymbolRowMap.end())
 		m_ui->symbolTableView->selectRow(m_addressToSymbolRowMap[key]);
 
-	updateInstructionView(address, *sym);
+	updateDataView(sym->getAddress(), sym->getSize());
+	if (sym->getType() == ISymbol::SYM_TEXT)
+		updateInstructionView(address, *sym);
 }
 
 void MainWindow::on_sourceTextEdit_cursorPositionChanged()
@@ -578,6 +610,34 @@ void MainWindow::updateInstructionEncoding(const IInstruction* insn)
 	m_encodingHexEdit->setRangeColor(markStart, markEnd, color);
 	m_encodingHexEdit->setBaseAddress(returnedAddr);
 	m_encodingData->replace(0, 32, QByteArray((const char *)buf, sizeof(buf)));
+}
+
+void MainWindow::updateDataView(uint64_t address, size_t size)
+{
+	uint64_t markStart, markEnd;
+	QColor color = QColor("green");
+
+	if (address < m_dataViewStart ||
+			address + size > m_dataViewEnd ||
+			(m_dataViewStart == m_dataViewEnd && m_dataViewStart == 0)) {
+		emilpro::Model &model = emilpro::Model::instance();
+
+		const uint8_t *p = model.getSurroundingData(address, 4096, &m_dataViewStart, &m_dataViewEnd);
+		if (!p) {
+			m_dataViewStart = 0;
+			m_dataViewEnd = 0;
+			return;
+		}
+
+		m_dataViewData->replace(0, m_dataViewSize, QByteArray((const char*)p, m_dataViewEnd - m_dataViewStart));
+		m_dataViewHexEdit->setBaseAddress(m_dataViewStart);
+	}
+
+	markStart = address - m_dataViewStart;
+	markEnd = markStart + size - 1;
+
+	m_dataViewHexEdit->resetRangeColor();
+	m_dataViewHexEdit->setRangeColor(markStart, markEnd, color);
 }
 
 void MainWindow::updateInfoBox(const emilpro::IInstruction* insn)
