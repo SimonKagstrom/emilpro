@@ -14,6 +14,9 @@
 #include "jumpdisplay-delegate.h"
 #include "editinstructiondialog.h"
 
+#include "QHexEdit/qhexedit.h"
+#include "QHexEdit/qhexeditdata.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -71,6 +74,8 @@ private:
 
     void setupInstructionLabels();
 
+    void setupInstructionEncoding();
+
     void setupInfoBox();
 
     void addHistoryEntry(uint64_t addr);
@@ -86,6 +91,8 @@ private:
 	void updateInfoBox(const emilpro::IInstruction *cur);
 
 	void updateHistoryEntry(const emilpro::AddressHistory::Entry &e);
+
+	void updateInstructionEncoding(const emilpro::IInstruction *insn);
 
 
     Ui::MainWindow *m_ui;
@@ -109,6 +116,9 @@ private:
 
     EditInstructionDialog *m_editInstructionDialog;
     const emilpro::IInstruction *m_currentInstruction;
+
+    QHexEdit *m_encodingHexEdit;
+    QHexEditData *m_encodingData;
 };
 
 #endif // MAINWINDOW_H

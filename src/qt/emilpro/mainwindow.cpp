@@ -35,6 +35,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setupAddressHistoryView();
 
+    setupInstructionEncoding();
+
     m_editInstructionDialog = new EditInstructionDialog();
 
     m_highlighter = new Highlighter(m_ui->sourceTextEdit->document());
@@ -313,6 +315,8 @@ void MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelInd
 
 	if (!cur)
 		return;
+
+	updateInstructionEncoding(cur);
 	updateInfoBox(cur);
 
 	ILineProvider::FileLine fileLine = Model::instance().getLineByAddress(cur->getAddress());
@@ -419,6 +423,35 @@ void MainWindow::setupAddressHistoryView()
     m_ui->addressHistoryListView->setModel(m_addressHistoryViewModel);
 }
 
+void MainWindow::setupInstructionEncoding()
+{
+	char buf[32];
+
+	memset(buf, 0, sizeof(buf));
+
+    QBuffer *encodingBuffer;
+
+	encodingBuffer = new QBuffer();
+	encodingBuffer->open(QBuffer::ReadWrite);
+	encodingBuffer->write(buf, sizeof(buf));
+
+	m_encodingData = new QHexEditData(encodingBuffer);
+
+	// We want the same font as for the instructions
+	const QFont &font = m_ui->instructionTableView->font();
+	QFontMetrics metrics = QFontMetrics(font);
+
+	m_ui->instructionEncodingLineEdit->setMinimumHeight(metrics.height() * 2); // Two rows
+
+	m_encodingHexEdit = new QHexEdit(m_ui->instructionEncodingLineEdit);
+	m_encodingHexEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	m_encodingHexEdit->setMinimumWidth(1024); // Big enough, probably some better way
+	m_encodingHexEdit->setData(m_encodingData);
+
+	m_encodingHexEdit->setFont(font);
+}
+
+
 void MainWindow::setupInfoBox()
 {
 }
@@ -521,6 +554,30 @@ void MainWindow::updateHistoryEntry(const AddressHistory::Entry& e)
 	m_addressHistoryDisabled = true;
 	updateSymbolView(e.getAddress());
 	m_addressHistoryDisabled = false;
+}
+
+
+void MainWindow::updateInstructionEncoding(const IInstruction* insn)
+{
+	emilpro::Model &model = emilpro::Model::instance();
+	uint8_t buf[32];
+	uint64_t address = insn->getAddress();
+	uint64_t displayAddress = address & ~15;
+	uint64_t returnedAddr;
+	uint64_t markStart, markEnd;
+	size_t sz;
+	QColor color = QColor("green");
+
+	if (!model.copyData(buf, displayAddress, 32, &returnedAddr, &sz))
+		return;
+
+	markStart = address - returnedAddr;
+	markEnd = markStart + insn->getSize() - 1;
+
+	m_encodingHexEdit->resetRangeColor();
+	m_encodingHexEdit->setRangeColor(markStart, markEnd, color);
+	m_encodingHexEdit->setBaseAddress(returnedAddr);
+	m_encodingData->replace(0, 32, QByteArray((const char *)buf, sizeof(buf)));
 }
 
 void MainWindow::updateInfoBox(const emilpro::IInstruction* insn)

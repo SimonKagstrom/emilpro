@@ -87,11 +87,16 @@ set (BASE_SRCS
 	)
 
 set (GUI_SRCS
+	emilpro/QHexEdit/qhexedit.cpp
+	emilpro/QHexEdit/qhexeditdata.cpp
+	emilpro/QHexEdit/qhexeditdatamanager.cpp
+	emilpro/QHexEdit/qhexeditprivate.cpp
+	emilpro/QHexEdit/undocommands.cpp
+	emilpro/editinstructiondialog.cpp
 	emilpro/highlighter.cpp
 	emilpro/jumpdisplay-delegate.cpp
 	emilpro/main.cpp
 	emilpro/mainwindow.cpp
-	emilpro/editinstructiondialog.cpp
 	)
 	
 qt5_wrap_ui(UI_HEADERS
