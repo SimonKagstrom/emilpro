@@ -639,6 +639,8 @@ bool Model::copyData(uint8_t *dst, uint64_t address, size_t size,
 
 	memset(dst, 0, size);
 
+	*returnedAddr = address;
+
 	while (left > 0) {
 
 		DataMap_t::iterator it = m_data.lower_bound(address + 1);
