@@ -372,11 +372,13 @@ std::string escape_string_for_c(std::string &str)
 	return out;
 }
 
-#define LT_CODE '~'
-#define GT_CODE '`'
-#define QUOT_CODE '\\'
-#define SQUOT_CODE '{'
-#define AMP_CODE '#'
+#define START_CHAR '~'
+
+#define LT_CODE    "_lessr;"
+#define GT_CODE    "_great;"
+#define QUOT_CODE  "_quote;"
+#define SQUOT_CODE "_squot;"
+#define AMP_CODE   "_amper;"
 
 std::string escape_string_for_xml(const std::string &str)
 {
@@ -385,19 +387,42 @@ std::string escape_string_for_xml(const std::string &str)
 	for (unsigned i = 0; i < str.size(); i++) {
 		char c = str[i];
 
-		if (c == '<')
-			out += LT_CODE;
+		if (c == START_CHAR)
+			out += fmt("%c%c", START_CHAR, START_CHAR);
+		else if (c == '<')
+			out += fmt("%c%s%c", START_CHAR, LT_CODE, START_CHAR);
 		else if (c == '>')
-			out += GT_CODE;
+			out += fmt("%c%s%c", START_CHAR, GT_CODE, START_CHAR);
 		else if (c == '"')
-			out += QUOT_CODE;
+			out += fmt("%c%s%c", START_CHAR, QUOT_CODE, START_CHAR);
 		else if (c == '\'')
-			out += SQUOT_CODE;
+			out += fmt("%c%s%c", START_CHAR, SQUOT_CODE, START_CHAR);
 		else if (c == '&')
-			out += AMP_CODE;
+			out += fmt("%c%s%c", START_CHAR, AMP_CODE, START_CHAR);
 		else
 			out += c;
 	}
+
+	return out;
+}
+
+static std::string unescape_one_xml(const std::string &str, unsigned &offset)
+{
+	std::string out;
+	std::string cur = str.substr(offset + 1, strlen(LT_CODE));
+
+	if (cur == LT_CODE)
+		out += "<";
+	else if (cur == GT_CODE)
+		out += ">";
+	else if (cur == QUOT_CODE)
+		out += "\"";
+	else if (cur == SQUOT_CODE)
+		out += "'";
+	else if (cur == AMP_CODE)
+		out += "&";
+
+	offset += strlen(LT_CODE) + 1;
 
 	return out;
 }
@@ -408,17 +433,12 @@ std::string unescape_string_from_xml(const std::string &str)
 
 	for (unsigned i = 0; i < str.size(); i++) {
 		char c = str[i];
+		char next = (i == str.size() - 1) ? START_CHAR : str[i + 1];
 
-		if (c == LT_CODE)
-			out += "<";
-		else if (c == GT_CODE)
-			out += ">";
-		else if (c == QUOT_CODE)
-			out += "\"";
-		else if (c == SQUOT_CODE)
-			out += "'";
-		else if (c == AMP_CODE)
-			out += "&";
+		if (c == START_CHAR && next == START_CHAR)
+			out += START_CHAR;
+		else if (c == START_CHAR)
+			out += unescape_one_xml(str, i);
 		else
 			out += c;
 	}

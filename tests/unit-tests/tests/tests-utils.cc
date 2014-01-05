@@ -199,8 +199,13 @@ TESTSUITE(utils)
 
 	TEST(escapeXml)
 	{
-		std::string description  = "Branch & if > greater \' or \" equal < after the less";
+		std::string d0  = "Branch & if > greater \' or \" equal < after the less";
+		std::string d1 = "`";
+		std::string d2 = "_great;";
+		std::string d3 = "`klabbarparn";
 
-		ASSERT_TRUE(unescape_string_from_xml(escape_string_for_xml(description)) == description);
+		ASSERT_TRUE(unescape_string_from_xml(escape_string_for_xml(d0)) == d0);
+		ASSERT_TRUE(unescape_string_from_xml(escape_string_for_xml(d1)) == d1);
+		ASSERT_TRUE(unescape_string_from_xml(escape_string_for_xml(d2)) == d2);
 	}
 }

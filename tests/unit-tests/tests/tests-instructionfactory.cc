@@ -204,6 +204,7 @@ TESTSUITE(instruction_factory)
 		InstructionFactory &insnFactory = InstructionFactory::instance();
 		XmlFactory &x = XmlFactory::instance();
 		std::string description  = "Branch & if > greater \' or \" equal < after the less";
+		bool res;
 
 		std::string xml =
 				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -217,7 +218,8 @@ TESTSUITE(instruction_factory)
 
 		ArchitectureFactory::instance().provideArchitecture(bfd_arch_mips);
 
-		x.parse(xml);
+		res = x.parse(xml);
+		ASSERT_TRUE(res);
 		InstructionModel *p = (InstructionModel *)insnFactory.m_instructionModelByArchitecture[(unsigned)bfd_arch_mips]["beqz"];
 		ASSERT_TRUE(p);
 
