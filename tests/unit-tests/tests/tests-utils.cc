@@ -203,9 +203,12 @@ TESTSUITE(utils)
 		std::string d1 = "`";
 		std::string d2 = "_great;";
 		std::string d3 = "`klabbarparn";
+		std::string d4 = "``manne";
 
 		ASSERT_TRUE(unescape_string_from_xml(escape_string_for_xml(d0)) == d0);
 		ASSERT_TRUE(unescape_string_from_xml(escape_string_for_xml(d1)) == d1);
 		ASSERT_TRUE(unescape_string_from_xml(escape_string_for_xml(d2)) == d2);
+		ASSERT_TRUE(unescape_string_from_xml(escape_string_for_xml(d3)) == d3);
+		ASSERT_TRUE(unescape_string_from_xml(escape_string_for_xml(d4)) == d4);
 	}
 }
