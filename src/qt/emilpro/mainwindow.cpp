@@ -8,6 +8,7 @@
 #include <model.hh>
 #include <utils.hh>
 #include <ui-helpers.hh>
+#include <server.hh>
 
 #include <qstandarditemmodel.h>
 #include <QTextBlock>
@@ -58,6 +59,8 @@ bool MainWindow::init(int argc, char* argv[])
 
 	if (conf.parse(argc, (const char **)argv) != true)
 		return false;
+
+	Server::instance().connect();
 
 	refresh();
 
