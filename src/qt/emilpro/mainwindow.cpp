@@ -176,6 +176,7 @@ void MainWindow::setupSymbolView()
     m_ui->symbolTableView->horizontalHeader()->setStretchLastSection(true);
     m_ui->symbolTableView->resizeColumnsToContents();
     m_ui->symbolTableView->setColumnWidth(0, 100);
+    m_ui->symbolTableView->setColumnWidth(1, 80);
 
 
     // Start the symbol timer
