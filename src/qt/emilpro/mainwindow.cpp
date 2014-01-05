@@ -23,7 +23,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_addressHistoryDisabled(false),
     m_backwardItemDelegate(false),
     m_forwardItemDelegate(true),
-    m_currentInstruction(NULL)
+    m_currentInstruction(NULL),
+    m_timer(NULL)
 {
     m_ui->setupUi(this);
 
@@ -103,7 +104,30 @@ void MainWindow::refresh()
 	}
 }
 
-void MainWindow::onSymbol(ISymbol& sym)
+void MainWindow::on_symbolTimerTriggered()
+{
+	Model::SymbolList_t syms;
+
+	m_symbolMutex.lock();
+	for (unsigned n = 0; n < 1000; n++) {
+		if (m_currentSymbols.empty())
+			break;
+
+		ISymbol *cur = m_currentSymbols.front();
+		m_currentSymbols.pop_front();
+
+		syms.push_back(cur);
+	}
+	m_symbolMutex.unlock();
+
+	for (Model::SymbolList_t::iterator it = syms.begin();
+			it != syms.end();
+			++it) {
+		handleSymbol(**it);
+	}
+}
+
+void MainWindow::handleSymbol(emilpro::ISymbol& sym)
 {
 	// Skip the file symbol
 	if (sym.getType() == ISymbol::SYM_FILE)
@@ -132,8 +156,13 @@ void MainWindow::onSymbol(ISymbol& sym)
     m_addressToSymbolRowMap[fmt("0x%llx_%s", (unsigned long long)sym.getAddress(), sym.getName().c_str())] = m_symbolViewModel->rowCount();
 
     m_symbolViewModel->appendRow(lst);
-    m_ui->symbolTableView->resizeColumnsToContents();
+}
 
+void MainWindow::onSymbol(ISymbol& sym)
+{
+	m_symbolMutex.lock();
+	m_currentSymbols.push_back(&sym);
+	m_symbolMutex.unlock();
 }
 
 void MainWindow::setupSymbolView()
@@ -150,6 +179,13 @@ void MainWindow::setupSymbolView()
     m_ui->symbolTableView->setModel(m_symbolViewModel);
     m_ui->symbolTableView->horizontalHeader()->setStretchLastSection(true);
     m_ui->symbolTableView->resizeColumnsToContents();
+    m_ui->symbolTableView->setColumnWidth(0, 100);
+
+
+    // Start the symbol timer
+    m_timer = new QTimer(this);
+    connect(m_timer, SIGNAL(timeout()), SLOT(on_symbolTimerTriggered()));
+    m_timer->start(100);
 }
 
 void MainWindow::setupInstructionView()
@@ -477,7 +513,7 @@ void MainWindow::setupDataView()
 	const QFont &font = m_ui->instructionTableView->font();
 	QFontMetrics metrics = QFontMetrics(font);
 
-	m_dataViewHexEdit = new QHexEdit(m_ui->dataViewScrollArea);
+	m_dataViewHexEdit = new QHexEdit(m_ui->tab_2);
 	m_dataViewHexEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	m_dataViewHexEdit->setMinimumWidth(1024);
 	m_dataViewHexEdit->setMinimumHeight(metrics.height() * m_dataViewSize / 16);

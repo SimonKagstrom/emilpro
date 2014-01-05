@@ -17,6 +17,8 @@
 #include "QHexEdit/qhexedit.h"
 #include "QHexEdit/qhexeditdata.h"
 
+#include <mutex>
+
 namespace Ui {
 class MainWindow;
 }
@@ -59,6 +61,8 @@ private slots:
 
     void on_editInstructionPushButton_clicked();
 
+    void on_symbolTimerTriggered();
+
 private:
     typedef std::unordered_map<std::string, std::string> FileToStringMap_t;
     typedef std::unordered_map<int, const emilpro::IInstruction *> RowToInstruction_t;
@@ -84,8 +88,6 @@ private:
 
     void refresh();
 
-    void onSymbol(emilpro::ISymbol &sym);
-
 	void updateInstructionView(uint64_t address, const emilpro::ISymbol &sym);
 
 	void updateSymbolView(uint64_t address, const std::string &name = "");
@@ -98,6 +100,11 @@ private:
 
 	void updateDataView(uint64_t address, size_t size);
 
+
+	void handleSymbol(emilpro::ISymbol &sym);
+
+    // From ISymbolListener (called from another thread!)
+    void onSymbol(emilpro::ISymbol &sym);
 
     Ui::MainWindow *m_ui;
     QStandardItemModel *m_symbolViewModel;
@@ -129,6 +136,10 @@ private:
     uint64_t m_dataViewStart;
     uint64_t m_dataViewEnd;
     size_t m_dataViewSize;
+
+    emilpro::Model::SymbolList_t m_currentSymbols;
+    QTimer *m_timer;
+    std::mutex m_symbolMutex;
 };
 
 #endif // MAINWINDOW_H
