@@ -639,7 +639,8 @@ bool Model::copyData(uint8_t *dst, uint64_t address, size_t size,
 
 	memset(dst, 0, size);
 
-	*returnedAddr = address;
+	if (returnedAddr)
+		*returnedAddr = address;
 
 	while (left > 0) {
 
