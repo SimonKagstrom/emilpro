@@ -26,25 +26,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_currentInstruction(NULL),
     m_timer(NULL)
 {
-    m_ui->setupUi(this);
-
-    setupSymbolView();
-
-    setupInstructionView();
-
-    setupReferencesView();
-
-    setupAddressHistoryView();
-
-    setupInstructionEncoding();
-
-    setupDataView();
-
-    m_editInstructionDialog = new EditInstructionDialog();
-
-    m_highlighter = new Highlighter(m_ui->sourceTextEdit->document());
-
-	Model::instance().registerSymbolListener(this);
 }
 
 MainWindow::~MainWindow()
@@ -57,6 +38,21 @@ MainWindow::~MainWindow()
 bool MainWindow::init(int argc, char* argv[])
 {
 	EmilPro::init();
+
+    m_ui->setupUi(this);
+
+    setupSymbolView();
+    setupInstructionView();
+    setupReferencesView();
+    setupAddressHistoryView();
+    setupInstructionEncoding();
+    setupDataView();
+
+    m_editInstructionDialog = new EditInstructionDialog();
+    m_highlighter = new Highlighter(m_ui->sourceTextEdit->document());
+
+	Model::instance().registerSymbolListener(this);
+
 
 	Configuration &conf = Configuration::instance();
 
