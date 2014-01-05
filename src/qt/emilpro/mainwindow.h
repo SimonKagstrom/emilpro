@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 #include <qstandarditemmodel.h>
@@ -25,68 +24,68 @@ class MainWindow;
 
 class MainWindow : public QMainWindow, public emilpro::ISymbolListener
 {
-    Q_OBJECT
-    
+	Q_OBJECT
+
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
-    
-    bool init(int argc, char *argv[]);
+	explicit MainWindow(QWidget *parent = 0);
+	~MainWindow();
+
+	bool init(int argc, char *argv[]);
 
 
-private slots:
-    void on_symbolTableView_activated(const QModelIndex &index);
+	private slots:
+	void on_symbolTableView_activated(const QModelIndex &index);
 
-    void on_instructionTableView_activated(const QModelIndex &index);
+	void on_instructionTableView_activated(const QModelIndex &index);
 
-    void on_referencesTableView_activated(const QModelIndex &index);
+	void on_referencesTableView_activated(const QModelIndex &index);
 
-    void on_symbolTableView_entered(const QModelIndex &index);
+	void on_symbolTableView_entered(const QModelIndex &index);
 
-    void on_addressHistoryListView_activated(const QModelIndex &index);
+	void on_addressHistoryListView_activated(const QModelIndex &index);
 
-    void on_sourceTextEdit_cursorPositionChanged();
+	void on_sourceTextEdit_cursorPositionChanged();
 
-    void on_insnCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
+	void on_insnCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
 
-    void on_action_Forward_triggered(bool activated);
+	void on_action_Forward_triggered(bool activated);
 
-    void on_action_Backward_triggered(bool activated);
+	void on_action_Backward_triggered(bool activated);
 
-    void on_action_Mangle_names_triggered(bool activated);
+	void on_action_Mangle_names_triggered(bool activated);
 
-    void on_action_Toggle_data_instructions_triggered(bool activated);
+	void on_action_Toggle_data_instructions_triggered(bool activated);
 
-    void on_actionAT_T_syntax_x86_triggered(bool activated);
+	void on_actionAT_T_syntax_x86_triggered(bool activated);
 
-    void on_editInstructionPushButton_clicked();
+	void on_editInstructionPushButton_clicked();
 
-    void on_symbolTimerTriggered();
+	void on_symbolTimerTriggered();
 
-private:
-    typedef std::unordered_map<std::string, std::string> FileToStringMap_t;
-    typedef std::unordered_map<int, const emilpro::IInstruction *> RowToInstruction_t;
-    typedef std::unordered_map<std::string, int> AddressNameToRow_t;
+	private:
+	typedef std::unordered_map<std::string, std::string> FileToStringMap_t;
+	typedef std::unordered_map<int, const emilpro::IInstruction *> RowToInstruction_t;
+	typedef std::unordered_map<std::string, int> AddressNameToRow_t;
 
-    void setupSymbolView();
+	void setupSymbolView();
 
-    void setupInstructionView();
+	void setupInstructionView();
 
-    void setupReferencesView();
+	void setupReferencesView();
 
-    void setupAddressHistoryView();
+	void setupAddressHistoryView();
 
-    void setupInstructionLabels();
+	void setupInstructionLabels();
 
-    void setupInstructionEncoding();
+	void setupInstructionEncoding();
 
-    void setupDataView();
+	void setupDataView();
 
-    void setupInfoBox();
+	void setupInfoBox();
 
-    void addHistoryEntry(uint64_t addr);
+	void addHistoryEntry(uint64_t addr);
 
-    void refresh();
+	void refresh();
 
 	void updateInstructionView(uint64_t address, const emilpro::ISymbol &sym);
 
@@ -103,43 +102,41 @@ private:
 
 	void handleSymbol(emilpro::ISymbol &sym);
 
-    // From ISymbolListener (called from another thread!)
-    void onSymbol(emilpro::ISymbol &sym);
+	// From ISymbolListener (called from another thread!)
+	void onSymbol(emilpro::ISymbol &sym);
 
-    Ui::MainWindow *m_ui;
-    QStandardItemModel *m_symbolViewModel;
-    QStandardItemModel *m_instructionViewModel;
-    QStandardItemModel *m_referencesViewModel;
-    QStandardItemModel *m_addressHistoryViewModel;
+	Ui::MainWindow *m_ui;
+	QStandardItemModel *m_symbolViewModel;
+	QStandardItemModel *m_instructionViewModel;
+	QStandardItemModel *m_referencesViewModel;
+	QStandardItemModel *m_addressHistoryViewModel;
 
-    void *m_data;
-    size_t m_dataSize;
-    FileToStringMap_t m_sourceFileMap;
-    RowToInstruction_t m_rowToInstruction;
-    Highlighter *m_highlighter;
-    emilpro::AddressHistory m_addressHistory;
-    bool m_addressHistoryDisabled;
+	void *m_data;
+	size_t m_dataSize;
+	FileToStringMap_t m_sourceFileMap;
+	RowToInstruction_t m_rowToInstruction;
+	Highlighter *m_highlighter;
+	emilpro::AddressHistory m_addressHistory;
+	bool m_addressHistoryDisabled;
 
-    AddressNameToRow_t m_addressToSymbolRowMap;
+	AddressNameToRow_t m_addressToSymbolRowMap;
 
-    JumpDisplayDelegate m_backwardItemDelegate;
-    JumpDisplayDelegate m_forwardItemDelegate;
+	JumpDisplayDelegate m_backwardItemDelegate;
+	JumpDisplayDelegate m_forwardItemDelegate;
 
-    EditInstructionDialog *m_editInstructionDialog;
-    const emilpro::IInstruction *m_currentInstruction;
+	EditInstructionDialog *m_editInstructionDialog;
+	const emilpro::IInstruction *m_currentInstruction;
 
-    QHexEdit *m_encodingHexEdit;
-    QHexEditData *m_encodingData;
+	QHexEdit *m_encodingHexEdit;
+	QHexEditData *m_encodingData;
 
-    QHexEdit *m_dataViewHexEdit;
-    QHexEditData *m_dataViewData;
-    uint64_t m_dataViewStart;
-    uint64_t m_dataViewEnd;
-    size_t m_dataViewSize;
+	QHexEdit *m_dataViewHexEdit;
+	QHexEditData *m_dataViewData;
+	uint64_t m_dataViewStart;
+	uint64_t m_dataViewEnd;
+	size_t m_dataViewSize;
 
-    emilpro::Model::SymbolList_t m_currentSymbols;
-    QTimer *m_timer;
-    std::mutex m_symbolMutex;
+	emilpro::Model::SymbolList_t m_currentSymbols;
+	QTimer *m_timer;
+	std::mutex m_symbolMutex;
 };
-
-#endif // MAINWINDOW_H
