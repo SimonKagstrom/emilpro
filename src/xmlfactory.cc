@@ -210,6 +210,7 @@ void XmlFactory::on_fatal_error(const Glib::ustring& text)
 
 bool XmlFactory::isParsingRemoteData()
 {
+	// Called with the lock held
 	return m_isRemote;
 }
 
