@@ -69,10 +69,17 @@ int main(int argc, const char *argv[])
 
 	if (mocked_timestamp != 0xffffffffffffffffULL)
 		mock_utc_timestamp(mocked_timestamp);
-	HtmlGenerator::instance();
 
 	Configuration::setBaseDirectory(baseDirectory);
+
+	if (honorQuit) {
+		Configuration::instance().setServerStatisticsDirectory(baseDirectory);
+		closelog();
+	}
+
 	Configuration::instance().setReadStoredModels(false);
+
+	HtmlGenerator::instance();
 
 	EmilPro::init();
 	CgiServer server;
