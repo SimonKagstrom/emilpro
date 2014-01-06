@@ -39,6 +39,8 @@ namespace emilpro
 		// Setters
 		void setReadStoredModels(bool readStoredModels);
 
+		void setServerStatisticsDirectory(const std::string dir);
+
 
 		void destroy();
 
@@ -55,5 +57,6 @@ namespace emilpro
 		bool m_readStoredModels;
 		std::string m_fileName;
 		DebugLevel_t m_debugLevel;
+		std::string m_serverStatisticsDir;
 	};
 }

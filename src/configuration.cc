@@ -26,7 +26,7 @@ std::string Configuration::getPath(Dir_t dir)
 		out = getBasePath() + "/configuration";
 		break;
 	case DIR_SERVER_STATISTICS:
-		out = "/www/emilpro";
+		out = m_serverStatisticsDir;
 		break;
 	default:
 		break;
@@ -63,6 +63,11 @@ void Configuration::setBaseDirectory(const std::string base)
 	g_base = base;
 }
 
+void Configuration::setServerStatisticsDirectory(const std::string dir)
+{
+	m_serverStatisticsDir = dir;
+}
+
 
 bool Configuration::readStoredModels()
 {
@@ -77,7 +82,8 @@ void Configuration::setReadStoredModels(bool readStoredModels)
 Configuration::Configuration() :
 		m_basePath(g_base),
 		m_readStoredModels(true),
-		m_debugLevel(Configuration::DBG_SILENT)
+		m_debugLevel(Configuration::DBG_SILENT),
+		m_serverStatisticsDir("/www/emilpro")
 {
 	if (m_basePath == "")
 		m_basePath = get_home_directory() + "/.emilpro";
