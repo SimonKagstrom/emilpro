@@ -60,6 +60,7 @@ TESTSUITE(network_listener)
 
 		mock_write_file(write_callback);
 
+		Configuration::instance().setDebugLevel(Configuration::DBG_NETWORK);
 		NetworkListener nl;
 		XmlFactory::instance().parse(xml, true);
 
