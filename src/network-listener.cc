@@ -93,8 +93,3 @@ NetworkListener::~NetworkListener()
 void NetworkListener::onConnectResult(bool connected, const std::string& status)
 {
 }
-
-void NetworkListener::onXml(const std::string& xml)
-{
-	XmlFactory::instance().parse(xml, true);
-}

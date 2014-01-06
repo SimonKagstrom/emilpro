@@ -25,8 +25,6 @@ namespace emilpro
 			 * Callback with
 			 */
 			virtual void onConnectResult(bool connected, const std::string &status) = 0;
-
-			virtual void onXml(const std::string &xml) = 0;
 		};
 
 		class IConnectionHandler

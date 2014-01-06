@@ -15,8 +15,6 @@ namespace emilpro
 
 		virtual void onConnectResult(bool connected, const std::string &status);
 
-		virtual void onXml(const std::string &xml);
-
 	private:
 		InstructionModelListener *m_modelListener;
 	};
