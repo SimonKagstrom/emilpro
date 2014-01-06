@@ -95,7 +95,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidget">
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tab">
               <attribute name="title">
@@ -109,63 +109,115 @@
                 <number>0</number>
                </property>
                <item row="0" column="0">
-                <widget class="QTableView" name="instructionTableView">
-                 <property name="minimumSize">
-                  <size>
-                   <width>492</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <family>Monospace</family>
-                   <pointsize>10</pointsize>
-                  </font>
-                 </property>
-                 <property name="styleSheet">
-                  <string notr="true"/>
-                 </property>
-                 <property name="verticalScrollBarPolicy">
-                  <enum>Qt::ScrollBarAlwaysOff</enum>
-                 </property>
-                 <property name="editTriggers">
-                  <set>QAbstractItemView::NoEditTriggers</set>
-                 </property>
-                 <property name="selectionMode">
-                  <enum>QAbstractItemView::ExtendedSelection</enum>
-                 </property>
-                 <property name="selectionBehavior">
-                  <enum>QAbstractItemView::SelectRows</enum>
-                 </property>
-                 <property name="showGrid">
-                  <bool>false</bool>
-                 </property>
-                 <attribute name="verticalHeaderVisible">
-                  <bool>false</bool>
-                 </attribute>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QWidget" name="instructionEncodingLineEdit" native="true">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>25</height>
-                  </size>
-                 </property>
-                 <property name="baseSize">
-                  <size>
-                   <width>0</width>
-                   <height>25</height>
-                  </size>
-                 </property>
-                </widget>
+                <layout class="QHBoxLayout" name="horizontalLayout">
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout">
+                   <property name="spacing">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="QTableView" name="instructionTableView">
+                     <property name="minimumSize">
+                      <size>
+                       <width>750</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <family>Monospace</family>
+                       <pointsize>10</pointsize>
+                       <italic>false</italic>
+                      </font>
+                     </property>
+                     <property name="selectionBehavior">
+                      <enum>QAbstractItemView::SelectRows</enum>
+                     </property>
+                     <property name="showGrid">
+                      <bool>false</bool>
+                     </property>
+                     <attribute name="horizontalHeaderVisible">
+                      <bool>true</bool>
+                     </attribute>
+                     <attribute name="verticalHeaderVisible">
+                      <bool>false</bool>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QWidget" name="instructionEncodingLineEdit" native="true">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>0</width>
+                       <height>25</height>
+                      </size>
+                     </property>
+                     <property name="baseSize">
+                      <size>
+                       <width>0</width>
+                       <height>25</height>
+                      </size>
+                     </property>
+                     <zorder>splitter_2</zorder>
+                     <zorder>instructionTableView</zorder>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_7"/>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_3">
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_2">
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="label">
+                       <property name="text">
+                        <string>Current instruction</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="editInstructionPushButton">
+                       <property name="text">
+                        <string>Edit</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="QTextEdit" name="instructionTextEdit"/>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
                </item>
               </layout>
              </widget>
@@ -190,8 +242,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>645</width>
-                    <height>212</height>
+                    <width>996</width>
+                    <height>211</height>
                    </rect>
                   </property>
                  </widget>
@@ -204,80 +256,54 @@
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_25">
              <item>
-              <widget class="QTextEdit" name="sourceTextEdit">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
+              <layout class="QHBoxLayout" name="sourceAddressHistoryHorizontalLayout">
+               <property name="topMargin">
+                <number>0</number>
                </property>
-               <property name="font">
-                <font>
-                 <family>Monospace</family>
-                 <pointsize>10</pointsize>
-                </font>
-               </property>
-               <property name="textInteractionFlags">
-                <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-               </property>
-              </widget>
+               <item>
+                <widget class="QTextEdit" name="sourceTextEdit">
+                 <property name="minimumSize">
+                  <size>
+                   <width>750</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Monospace</family>
+                   <pointsize>10</pointsize>
+                   <italic>true</italic>
+                  </font>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_2">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label_2">
+                   <property name="text">
+                    <string>Address history</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QListView" name="addressHistoryListView">
+                   <property name="font">
+                    <font>
+                     <family>Monospace</family>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
              </item>
             </layout>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="layoutWidget_2">
-          <layout class="QVBoxLayout" name="verticalLayout_2">
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_13">
-             <item>
-              <widget class="QLabel" name="label">
-               <property name="text">
-                <string>Current instruction</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QPushButton" name="editInstructionPushButton">
-               <property name="text">
-                <string>Edit</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <widget class="QTextEdit" name="instructionTextEdit"/>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>Lookup history</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QListView" name="addressHistoryListView">
-             <property name="font">
-              <font>
-               <family>Monospace</family>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-            </widget>
            </item>
           </layout>
          </widget>
@@ -395,12 +421,7 @@
  <tabstops>
   <tabstop>locationLineEdit</tabstop>
   <tabstop>symbolTableView</tabstop>
-  <tabstop>instructionTableView</tabstop>
   <tabstop>tabWidget</tabstop>
-  <tabstop>sourceTextEdit</tabstop>
-  <tabstop>editInstructionPushButton</tabstop>
-  <tabstop>instructionTextEdit</tabstop>
-  <tabstop>addressHistoryListView</tabstop>
   <tabstop>referencesTableView</tabstop>
  </tabstops>
  <resources/>
