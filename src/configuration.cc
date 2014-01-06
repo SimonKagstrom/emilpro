@@ -141,6 +141,11 @@ Configuration::DebugLevel_t Configuration::getDebugLevel()
 	return m_debugLevel;
 }
 
+void emilpro::Configuration::setDebugLevel(DebugLevel_t lvl)
+{
+	m_debugLevel = lvl;
+}
+
 bool Configuration::usage()
 {
 	printf("Usage: emilpro [OPTIONS] [infile]\n"

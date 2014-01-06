@@ -32,6 +32,8 @@ namespace emilpro
 
 		DebugLevel_t getDebugLevel();
 
+		void setDebugLevel(DebugLevel_t lvl);
+
 		bool readStoredModels();
 
 		bool parse(unsigned int argc, const char *argv[]);
