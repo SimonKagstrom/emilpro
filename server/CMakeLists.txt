@@ -67,9 +67,8 @@ set (BASE_SRCS
 	../src/xmlstring.cc
 	)
 
-set_property(SOURCE ../src/emilpro.cc APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_BINARY_DIR}/built_in_instruction_models.hh)
-
 include_directories(
+	../tools/
 	../src/gtk/include/
 	../src/include/
 	${CMAKE_BINARY_DIR}
