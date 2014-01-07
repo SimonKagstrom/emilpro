@@ -15,9 +15,6 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QLineEdit" name="locationLineEdit"/>
-    </item>
     <item row="1" column="0">
      <layout class="QVBoxLayout" name="verticalLayout_6">
       <item>
@@ -164,8 +161,6 @@
                        <height>25</height>
                       </size>
                      </property>
-                     <zorder>splitter_2</zorder>
-                     <zorder>instructionTableView</zorder>
                     </widget>
                    </item>
                   </layout>
@@ -184,7 +179,7 @@
                       <number>0</number>
                      </property>
                      <item>
-                      <widget class="QLabel" name="label">
+                      <widget class="QLabel" name="currentInstructionLabel">
                        <property name="text">
                         <string>Current instruction</string>
                        </property>
@@ -197,8 +192,8 @@
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
-                         <width>40</width>
-                         <height>20</height>
+                         <width>13</width>
+                         <height>26</height>
                         </size>
                        </property>
                       </spacer>
@@ -283,7 +278,7 @@
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="QLabel" name="label_2">
+                  <widget class="QLabel" name="addressHistoryLabel">
                    <property name="text">
                     <string>Address history</string>
                    </property>
@@ -311,6 +306,9 @@
        </widget>
       </item>
      </layout>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLineEdit" name="locationLineEdit"/>
     </item>
    </layout>
   </widget>
