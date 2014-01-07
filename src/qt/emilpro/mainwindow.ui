@@ -15,300 +15,258 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="1" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout_6">
-      <item>
-       <widget class="QSplitter" name="splitter_3">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <widget class="QSplitter" name="splitter">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <widget class="QTableView" name="symbolTableView">
-          <property name="minimumSize">
-           <size>
-            <width>499</width>
-            <height>0</height>
-           </size>
+    <item row="0" column="0">
+     <widget class="QSplitter" name="splitter_5">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QWidget" name="layoutWidget">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QLineEdit" name="locationLineEdit"/>
+        </item>
+        <item>
+         <widget class="QSplitter" name="splitter">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
-          <property name="font">
-           <font>
-            <family>Monospace</family>
-            <pointsize>10</pointsize>
-            <kerning>true</kerning>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true"/>
-          </property>
-          <property name="editTriggers">
-           <set>QAbstractItemView::NoEditTriggers</set>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-          <property name="showGrid">
-           <bool>false</bool>
-          </property>
-          <attribute name="verticalHeaderVisible">
-           <bool>false</bool>
-          </attribute>
+          <widget class="QTableView" name="symbolTableView">
+           <property name="minimumSize">
+            <size>
+             <width>499</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Monospace</family>
+             <pointsize>10</pointsize>
+             <kerning>true</kerning>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
+           </property>
+           <property name="selectionBehavior">
+            <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+           <property name="showGrid">
+            <bool>false</bool>
+           </property>
+           <attribute name="verticalHeaderVisible">
+            <bool>false</bool>
+           </attribute>
+          </widget>
+          <widget class="QTableView" name="referencesTableView">
+           <property name="font">
+            <font>
+             <family>Monospace</family>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
+           </property>
+           <property name="showGrid">
+            <bool>false</bool>
+           </property>
+           <attribute name="horizontalHeaderVisible">
+            <bool>false</bool>
+           </attribute>
+           <attribute name="verticalHeaderVisible">
+            <bool>false</bool>
+           </attribute>
+          </widget>
          </widget>
-         <widget class="QTableView" name="referencesTableView">
-          <property name="font">
-           <font>
-            <family>Monospace</family>
-            <pointsize>10</pointsize>
-           </font>
-          </property>
-          <property name="editTriggers">
-           <set>QAbstractItemView::NoEditTriggers</set>
-          </property>
-          <property name="showGrid">
-           <bool>false</bool>
-          </property>
-          <attribute name="horizontalHeaderVisible">
-           <bool>false</bool>
-          </attribute>
-          <attribute name="verticalHeaderVisible">
-           <bool>false</bool>
-          </attribute>
-         </widget>
-        </widget>
-        <widget class="QSplitter" name="splitter_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <widget class="QWidget" name="verticalLayoutWidget_6">
-          <layout class="QVBoxLayout" name="verticalLayout_19">
-           <item>
-            <widget class="QTabWidget" name="tabWidget">
-             <property name="currentIndex">
-              <number>0</number>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QSplitter" name="splitter_4">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <widget class="QTabWidget" name="tabWidget">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="tab">
+         <attribute name="title">
+          <string>Instructions</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <widget class="QSplitter" name="splitter_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <widget class="QTableView" name="instructionTableView">
+             <property name="minimumSize">
+              <size>
+               <width>750</width>
+               <height>0</height>
+              </size>
              </property>
-             <widget class="QWidget" name="tab">
-              <attribute name="title">
-               <string>Instructions</string>
-              </attribute>
-              <layout class="QGridLayout" name="gridLayout_3">
-               <property name="margin">
-                <number>0</number>
-               </property>
-               <property name="spacing">
-                <number>0</number>
-               </property>
-               <item row="0" column="0">
-                <layout class="QHBoxLayout" name="horizontalLayout">
-                 <item>
-                  <layout class="QVBoxLayout" name="verticalLayout">
-                   <property name="spacing">
-                    <number>0</number>
-                   </property>
-                   <item>
-                    <widget class="QTableView" name="instructionTableView">
-                     <property name="minimumSize">
-                      <size>
-                       <width>750</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <family>Monospace</family>
-                       <pointsize>10</pointsize>
-                       <italic>false</italic>
-                      </font>
-                     </property>
-                     <property name="selectionBehavior">
-                      <enum>QAbstractItemView::SelectRows</enum>
-                     </property>
-                     <property name="showGrid">
-                      <bool>false</bool>
-                     </property>
-                     <attribute name="horizontalHeaderVisible">
-                      <bool>true</bool>
-                     </attribute>
-                     <attribute name="verticalHeaderVisible">
-                      <bool>false</bool>
-                     </attribute>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QWidget" name="instructionEncodingLineEdit" native="true">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>0</width>
-                       <height>25</height>
-                      </size>
-                     </property>
-                     <property name="baseSize">
-                      <size>
-                       <width>0</width>
-                       <height>25</height>
-                      </size>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_7"/>
-                 </item>
-                 <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_3">
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_2">
-                     <property name="topMargin">
-                      <number>0</number>
-                     </property>
-                     <item>
-                      <widget class="QLabel" name="currentInstructionLabel">
-                       <property name="text">
-                        <string>Current instruction</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <spacer name="horizontalSpacer">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                       <property name="sizeHint" stdset="0">
-                        <size>
-                         <width>13</width>
-                         <height>26</height>
-                        </size>
-                       </property>
-                      </spacer>
-                     </item>
-                     <item>
-                      <widget class="QPushButton" name="editInstructionPushButton">
-                       <property name="text">
-                        <string>Edit</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <widget class="QTextEdit" name="instructionTextEdit"/>
-                   </item>
-                  </layout>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </widget>
-             <widget class="QWidget" name="tab_2">
-              <attribute name="title">
-               <string>Data</string>
-              </attribute>
-              <layout class="QGridLayout" name="gridLayout_2">
-               <property name="margin">
-                <number>0</number>
-               </property>
-               <property name="spacing">
-                <number>0</number>
-               </property>
-               <item row="0" column="0">
-                <widget class="QScrollArea" name="dataViewScrollArea">
-                 <property name="widgetResizable">
-                  <bool>true</bool>
-                 </property>
-                 <widget class="QWidget" name="dataViewScrollAreaContents">
-                  <property name="geometry">
-                   <rect>
-                    <x>0</x>
-                    <y>0</y>
-                    <width>996</width>
-                    <height>211</height>
-                   </rect>
+             <property name="font">
+              <font>
+               <family>Monospace</family>
+               <pointsize>10</pointsize>
+               <italic>false</italic>
+              </font>
+             </property>
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectRows</enum>
+             </property>
+             <property name="showGrid">
+              <bool>false</bool>
+             </property>
+             <attribute name="horizontalHeaderVisible">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="verticalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+            </widget>
+            <widget class="QWidget" name="layoutWidget">
+             <layout class="QVBoxLayout" name="verticalLayout_2">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout">
+                <item>
+                 <widget class="QLabel" name="currentInstructionLabel">
+                  <property name="text">
+                   <string>Current instruction</string>
                   </property>
                  </widget>
-                </widget>
-               </item>
-              </layout>
-             </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>13</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="editInstructionPushButton">
+                  <property name="text">
+                   <string>Edit</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QTextEdit" name="instructionTextEdit"/>
+              </item>
+             </layout>
             </widget>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_25">
-             <item>
-              <layout class="QHBoxLayout" name="sourceAddressHistoryHorizontalLayout">
-               <property name="topMargin">
-                <number>0</number>
-               </property>
-               <item>
-                <widget class="QTextEdit" name="sourceTextEdit">
-                 <property name="minimumSize">
-                  <size>
-                   <width>750</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <family>Monospace</family>
-                   <pointsize>10</pointsize>
-                   <italic>true</italic>
-                  </font>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QVBoxLayout" name="verticalLayout_2">
-                 <property name="leftMargin">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="addressHistoryLabel">
-                   <property name="text">
-                    <string>Address history</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QListView" name="addressHistoryListView">
-                   <property name="font">
-                    <font>
-                     <family>Monospace</family>
-                     <pointsize>10</pointsize>
-                    </font>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QWidget" name="instructionEncodingLineEdit" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="baseSize">
+             <size>
+              <width>0</width>
+              <height>25</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tab_2">
+         <attribute name="title">
+          <string>Data</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <property name="margin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QScrollArea" name="dataViewScrollArea">
+            <property name="widgetResizable">
+             <bool>true</bool>
+            </property>
+            <widget class="QWidget" name="dataViewScrollAreaContents">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>1000</width>
+               <height>238</height>
+              </rect>
+             </property>
+            </widget>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="0" column="0">
-     <widget class="QLineEdit" name="locationLineEdit"/>
+       <widget class="QSplitter" name="splitter_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <widget class="QTextEdit" name="sourceTextEdit">
+         <property name="minimumSize">
+          <size>
+           <width>750</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+           <pointsize>10</pointsize>
+           <italic>false</italic>
+          </font>
+         </property>
+        </widget>
+        <widget class="QWidget" name="layoutWidget">
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QLabel" name="addressHistoryLabel">
+            <property name="text">
+             <string>Address history</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QListView" name="addressHistoryListView">
+            <property name="font">
+             <font>
+              <family>Monospace</family>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </widget>
+     </widget>
     </item>
    </layout>
   </widget>
