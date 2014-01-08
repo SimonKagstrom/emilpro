@@ -89,6 +89,9 @@ void MainWindow::refresh()
 
 	delete m_symbolViewModel;
 	m_addressToSymbolRowMap.clear();
+	m_addressHistoryViewModel->clear();
+	m_addressHistory.clear();
+
 	setupSymbolView();
 
 	if (file != "") {
