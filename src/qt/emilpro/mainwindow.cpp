@@ -53,7 +53,7 @@ bool MainWindow::init(int argc, char* argv[])
     m_highlighter = new Highlighter(m_ui->sourceTextEdit->document());
 
 	Model::instance().registerSymbolListener(this);
-
+	NameMangler::instance().registerListener(this);
 
 	Configuration &conf = Configuration::instance();
 
@@ -144,7 +144,7 @@ void MainWindow::handleSymbol(emilpro::ISymbol& sym)
     QString w = sym.isWriteable() ? "W" : " ";
     QString x = sym.isExecutable() ? "X" : " ";
     QString a = sym.isAllocated() ? "A" : " ";
-    QString name = QString::fromStdString(sym.getName());
+    QString name = QString::fromStdString(NameMangler::instance().mangle(sym.getName()));
 
     lst.append(new QStandardItem(addr));
     lst.append(new QStandardItem(size));
@@ -165,6 +165,13 @@ void MainWindow::onSymbol(ISymbol& sym)
 	m_symbolMutex.lock();
 	m_currentSymbols.push_back(&sym);
 	m_symbolMutex.unlock();
+}
+
+void MainWindow::onManglingChanged(bool enabled)
+{
+	m_ui->action_Mangle_names->setChecked(enabled);
+
+	refresh();
 }
 
 void MainWindow::setupSymbolView()
@@ -272,12 +279,9 @@ void MainWindow::updateInstructionView(uint64_t address, const ISymbol& sym)
 			} else {
 				const ISymbol *targetSym = targetSyms.front();
 
-				target = QString::fromStdString(targetSym->getName());
+				target = QString::fromStdString(NameMangler::instance().mangle(targetSym->getName()));
 			}
 		}
-
-
-		QString name = QString::fromStdString(sym.getName());
 
 		lst.append(new QStandardItem(addr));
 		lst.append(new QStandardItem(b));
@@ -446,7 +450,7 @@ void MainWindow::on_symbolTableView_entered(const QModelIndex &index)
 				QList<QStandardItem *> lst;
 
 				// FIXME! Mr Gorbachev, mangle this name!
-				QString name = QString::fromStdString(sym->getName());
+				QString name = QString::fromStdString(NameMangler::instance().mangle(sym->getName()));
 
 				lst.append(new QStandardItem(addr));
 				lst.append(new QStandardItem(name));
@@ -558,7 +562,7 @@ void MainWindow::addHistoryEntry(uint64_t address)
 	std::string symName = "";
 
 	if (p)
-		symName = p->getName();
+		symName = NameMangler::instance().mangle(p->getName());
 
 	QString str = QString::fromStdString(fmt("0x%0llx%s%s%s",
 			(unsigned long long)address,
@@ -607,6 +611,11 @@ void MainWindow::on_action_Backward_triggered(bool activated)
 
 void MainWindow::on_action_Mangle_names_triggered(bool activated)
 {
+	bool isActive = m_ui->action_Mangle_names->isChecked();
+
+	std::string value = isActive ? "yes" : "no";
+
+	Preferences::instance().setValue("MangleNames", value);
 }
 
 void MainWindow::on_action_Toggle_data_instructions_triggered(bool activated)

@@ -6,6 +6,7 @@
 #include <model.hh>
 #include <symbolfactory.hh>
 #include <addresshistory.hh>
+#include <namemangler.hh>
 
 #include <unordered_map>
 
@@ -22,7 +23,9 @@ namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow, public emilpro::ISymbolListener
+class MainWindow : public QMainWindow,
+	private emilpro::ISymbolListener,
+	private emilpro::NameMangler::IListener
 {
 	Q_OBJECT
 
@@ -104,6 +107,9 @@ public:
 
 	// From ISymbolListener (called from another thread!)
 	void onSymbol(emilpro::ISymbol &sym);
+
+	// From NameMangler::IListener
+	void onManglingChanged(bool enabled);
 
 	Ui::MainWindow *m_ui;
 	QStandardItemModel *m_symbolViewModel;
