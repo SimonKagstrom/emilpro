@@ -138,7 +138,7 @@
               <bool>false</bool>
              </attribute>
             </widget>
-            <widget class="QWidget" name="layoutWidget">
+            <widget class="QWidget" name="layoutWidget2">
              <layout class="QVBoxLayout" name="verticalLayout_2">
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout">
@@ -252,7 +252,7 @@
           </font>
          </property>
         </widget>
-        <widget class="QWidget" name="layoutWidget">
+        <widget class="QWidget" name="layoutWidget3">
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
            <widget class="QLabel" name="addressHistoryLabel">
