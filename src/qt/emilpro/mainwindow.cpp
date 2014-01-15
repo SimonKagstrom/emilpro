@@ -17,40 +17,40 @@
 using namespace emilpro;
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    m_ui(new Ui::MainWindow),
-    m_data(NULL),
-    m_dataSize(0),
-    m_addressHistoryDisabled(false),
-    m_backwardItemDelegate(false),
-    m_forwardItemDelegate(true),
-    m_currentInstruction(NULL),
-    m_timer(NULL)
+    		QMainWindow(parent),
+    		m_ui(new Ui::MainWindow),
+    		m_data(NULL),
+    		m_dataSize(0),
+    		m_addressHistoryDisabled(false),
+    		m_backwardItemDelegate(false),
+    		m_forwardItemDelegate(true),
+    		m_currentInstruction(NULL),
+    		m_timer(NULL)
 {
 }
 
 MainWindow::~MainWindow()
 {
-    delete m_instructionViewModel;
-    delete m_symbolViewModel;
-    delete m_ui;
+	delete m_instructionViewModel;
+	delete m_symbolViewModel;
+	delete m_ui;
 }
 
 bool MainWindow::init(int argc, char* argv[])
 {
 	EmilPro::init();
 
-    m_ui->setupUi(this);
+	m_ui->setupUi(this);
 
-    setupSymbolView();
-    setupInstructionView();
-    setupReferencesView();
-    setupAddressHistoryView();
-    setupInstructionEncoding();
-    setupDataView();
+	setupSymbolView();
+	setupInstructionView();
+	setupReferencesView();
+	setupAddressHistoryView();
+	setupInstructionEncoding();
+	setupDataView();
 
-    m_editInstructionDialog = new EditInstructionDialog();
-    m_highlighter = new Highlighter(m_ui->sourceTextEdit->document());
+	m_editInstructionDialog = new EditInstructionDialog();
+	m_highlighter = new Highlighter(m_ui->sourceTextEdit->document());
 
 	Model::instance().registerSymbolListener(this);
 	NameMangler::instance().registerListener(this);
@@ -135,29 +135,29 @@ void MainWindow::handleSymbol(emilpro::ISymbol& sym)
 	if (sym.getType() == ISymbol::SYM_FILE)
 		return;
 
-    QList<QStandardItem *> lst;
+	QList<QStandardItem *> lst;
 
-    QString addr = QString::fromStdString(fmt("0x%llx", (unsigned long long)sym.getAddress()));
-    QString size = QString::fromStdString(fmt("0x%llx", (unsigned long long)sym.getSize()));
-    QString lnk = sym.getLinkage() == ISymbol::LINK_DYNAMIC ? "D" : " ";
-    QString r = "R";
-    QString w = sym.isWriteable() ? "W" : " ";
-    QString x = sym.isExecutable() ? "X" : " ";
-    QString a = sym.isAllocated() ? "A" : " ";
-    QString name = QString::fromStdString(NameMangler::instance().mangle(sym.getName()));
+	QString addr = QString::fromStdString(fmt("0x%llx", (unsigned long long)sym.getAddress()));
+	QString size = QString::fromStdString(fmt("0x%llx", (unsigned long long)sym.getSize()));
+	QString lnk = sym.getLinkage() == ISymbol::LINK_DYNAMIC ? "D" : " ";
+	QString r = "R";
+	QString w = sym.isWriteable() ? "W" : " ";
+	QString x = sym.isExecutable() ? "X" : " ";
+	QString a = sym.isAllocated() ? "A" : " ";
+	QString name = QString::fromStdString(NameMangler::instance().mangle(sym.getName()));
 
-    lst.append(new QStandardItem(addr));
-    lst.append(new QStandardItem(size));
-    lst.append(new QStandardItem(lnk));
-    lst.append(new QStandardItem(r));
-    lst.append(new QStandardItem(w));
-    lst.append(new QStandardItem(x));
-    lst.append(new QStandardItem(a));
-    lst.append(new QStandardItem(name));
+	lst.append(new QStandardItem(addr));
+	lst.append(new QStandardItem(size));
+	lst.append(new QStandardItem(lnk));
+	lst.append(new QStandardItem(r));
+	lst.append(new QStandardItem(w));
+	lst.append(new QStandardItem(x));
+	lst.append(new QStandardItem(a));
+	lst.append(new QStandardItem(name));
 
-    m_addressToSymbolRowMap[fmt("0x%llx_%s", (unsigned long long)sym.getAddress(), sym.getName().c_str())] = m_symbolViewModel->rowCount();
+	m_addressToSymbolRowMap[fmt("0x%llx_%s", (unsigned long long)sym.getAddress(), sym.getName().c_str())] = m_symbolViewModel->rowCount();
 
-    m_symbolViewModel->appendRow(lst);
+	m_symbolViewModel->appendRow(lst);
 }
 
 void MainWindow::onSymbol(ISymbol& sym)
@@ -176,70 +176,70 @@ void MainWindow::onManglingChanged(bool enabled)
 
 void MainWindow::setupSymbolView()
 {
-    m_symbolViewModel = new QStandardItemModel(0,8,this);
-    m_symbolViewModel->setHorizontalHeaderItem(0, new QStandardItem(QString("Address")));
-    m_symbolViewModel->setHorizontalHeaderItem(1, new QStandardItem(QString("Size")));
-    m_symbolViewModel->setHorizontalHeaderItem(2, new QStandardItem(QString("Lnk")));
-    m_symbolViewModel->setHorizontalHeaderItem(3, new QStandardItem(QString("R")));
-    m_symbolViewModel->setHorizontalHeaderItem(4, new QStandardItem(QString("W")));
-    m_symbolViewModel->setHorizontalHeaderItem(5, new QStandardItem(QString("X")));
-    m_symbolViewModel->setHorizontalHeaderItem(6, new QStandardItem(QString("A")));
-    m_symbolViewModel->setHorizontalHeaderItem(7, new QStandardItem(QString("Symbol name")));
-    m_ui->symbolTableView->setModel(m_symbolViewModel);
-    m_ui->symbolTableView->horizontalHeader()->setStretchLastSection(true);
-    m_ui->symbolTableView->resizeColumnsToContents();
-    m_ui->symbolTableView->setColumnWidth(0, 100);
-    m_ui->symbolTableView->setColumnWidth(1, 80);
+	m_symbolViewModel = new QStandardItemModel(0,8,this);
+	m_symbolViewModel->setHorizontalHeaderItem(0, new QStandardItem(QString("Address")));
+	m_symbolViewModel->setHorizontalHeaderItem(1, new QStandardItem(QString("Size")));
+	m_symbolViewModel->setHorizontalHeaderItem(2, new QStandardItem(QString("Lnk")));
+	m_symbolViewModel->setHorizontalHeaderItem(3, new QStandardItem(QString("R")));
+	m_symbolViewModel->setHorizontalHeaderItem(4, new QStandardItem(QString("W")));
+	m_symbolViewModel->setHorizontalHeaderItem(5, new QStandardItem(QString("X")));
+	m_symbolViewModel->setHorizontalHeaderItem(6, new QStandardItem(QString("A")));
+	m_symbolViewModel->setHorizontalHeaderItem(7, new QStandardItem(QString("Symbol name")));
+	m_ui->symbolTableView->setModel(m_symbolViewModel);
+	m_ui->symbolTableView->horizontalHeader()->setStretchLastSection(true);
+	m_ui->symbolTableView->resizeColumnsToContents();
+	m_ui->symbolTableView->setColumnWidth(0, 100);
+	m_ui->symbolTableView->setColumnWidth(1, 80);
 
 
-    // Start the symbol timer
-    m_timer = new QTimer(this);
-    connect(m_timer, SIGNAL(timeout()), SLOT(on_symbolTimerTriggered()));
-    m_timer->start(100);
+	// Start the symbol timer
+	m_timer = new QTimer(this);
+	connect(m_timer, SIGNAL(timeout()), SLOT(on_symbolTimerTriggered()));
+	m_timer->start(100);
 }
 
 void MainWindow::setupInstructionView()
 {
-    m_instructionViewModel = new QStandardItemModel(0,5,this);
+	m_instructionViewModel = new QStandardItemModel(0,5,this);
 
-    m_ui->instructionTableView->setItemDelegateForColumn(1, &m_backwardItemDelegate);
-    m_ui->instructionTableView->setItemDelegateForColumn(3, &m_forwardItemDelegate);
+	m_ui->instructionTableView->setItemDelegateForColumn(1, &m_backwardItemDelegate);
+	m_ui->instructionTableView->setItemDelegateForColumn(3, &m_forwardItemDelegate);
 
-    m_ui->instructionTableView->setModel(m_instructionViewModel);
-    m_ui->instructionTableView->horizontalHeader()->setStretchLastSection(true);
+	m_ui->instructionTableView->setModel(m_instructionViewModel);
+	m_ui->instructionTableView->horizontalHeader()->setStretchLastSection(true);
 
-    m_ui->instructionTableView->setColumnWidth(0, 100);
-    m_ui->instructionTableView->setColumnWidth(1, 80);
-    m_ui->instructionTableView->setColumnWidth(2, 300);
-    m_ui->instructionTableView->setColumnWidth(3, 80);
+	m_ui->instructionTableView->setColumnWidth(0, 100);
+	m_ui->instructionTableView->setColumnWidth(1, 80);
+	m_ui->instructionTableView->setColumnWidth(2, 300);
+	m_ui->instructionTableView->setColumnWidth(3, 80);
 
-    connect(m_ui->instructionTableView->selectionModel(),
-            SIGNAL(currentChanged(QModelIndex, QModelIndex)),
-            this, SLOT(on_insnCurrentChanged(QModelIndex, QModelIndex)));
+	connect(m_ui->instructionTableView->selectionModel(),
+			SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+			this, SLOT(on_insnCurrentChanged(QModelIndex, QModelIndex)));
 
-    setupInstructionLabels();
+	setupInstructionLabels();
 }
 
 void MainWindow::setupReferencesView()
 {
-    m_referencesViewModel = new QStandardItemModel(0, 2, this);
+	m_referencesViewModel = new QStandardItemModel(0, 2, this);
 
-    m_ui->referencesTableView->setModel(m_referencesViewModel);
-    m_ui->instructionTableView->setColumnWidth(0, 80);
-    m_ui->referencesTableView->horizontalHeader()->setStretchLastSection(true);
+	m_ui->referencesTableView->setModel(m_referencesViewModel);
+	m_ui->instructionTableView->setColumnWidth(0, 80);
+	m_ui->referencesTableView->horizontalHeader()->setStretchLastSection(true);
 }
 
 void MainWindow::setupInstructionLabels()
 {
-    QStringList labels;
+	QStringList labels;
 
-    labels << "Address"
-    	<< "B"
-    	<< "Instruction"
-    	<< "F"
-    	<< "Target";
+	labels << "Address"
+			<< "B"
+			<< "Instruction"
+			<< "F"
+			<< "Target";
 
-    m_instructionViewModel->setHorizontalHeaderLabels(labels);
+	m_instructionViewModel->setHorizontalHeaderLabels(labels);
 }
 
 void MainWindow::updateInstructionView(uint64_t address, const ISymbol& sym)
@@ -387,14 +387,14 @@ void MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelInd
 	cursor.select(QTextCursor::LineUnderCursor);
 	m_ui->sourceTextEdit->setTextCursor(cursor);
 
-    QTextEdit::ExtraSelection highlight;
-    highlight.cursor = m_ui->sourceTextEdit->textCursor();
-    highlight.format.setProperty(QTextFormat::FullWidthSelection, true);
-    highlight.format.setBackground( Qt::green );
+	QTextEdit::ExtraSelection highlight;
+	highlight.cursor = m_ui->sourceTextEdit->textCursor();
+	highlight.format.setProperty(QTextFormat::FullWidthSelection, true);
+	highlight.format.setBackground( Qt::green );
 
-    QList<QTextEdit::ExtraSelection> extras;
-    extras << highlight;
-    m_ui->sourceTextEdit->setExtraSelections( extras );
+	QList<QTextEdit::ExtraSelection> extras;
+	extras << highlight;
+	m_ui->sourceTextEdit->setExtraSelections( extras );
 }
 
 void MainWindow::on_referencesTableView_activated(const QModelIndex &index)
@@ -464,9 +464,9 @@ void MainWindow::on_symbolTableView_entered(const QModelIndex &index)
 
 void MainWindow::setupAddressHistoryView()
 {
-    m_addressHistoryViewModel = new QStandardItemModel(0, 1, this);
+	m_addressHistoryViewModel = new QStandardItemModel(0, 1, this);
 
-    m_ui->addressHistoryListView->setModel(m_addressHistoryViewModel);
+	m_ui->addressHistoryListView->setModel(m_addressHistoryViewModel);
 }
 
 void MainWindow::setupInstructionEncoding()
@@ -475,7 +475,7 @@ void MainWindow::setupInstructionEncoding()
 
 	memset(buf, 0, sizeof(buf));
 
-    QBuffer *encodingBuffer;
+	QBuffer *encodingBuffer;
 
 	encodingBuffer = new QBuffer();
 	encodingBuffer->open(QBuffer::ReadWrite);
@@ -504,11 +504,11 @@ void MainWindow::setupInfoBox()
 
 void MainWindow::setupDataView()
 {
-    QBuffer *hexViewBuffer;
+	QBuffer *hexViewBuffer;
 
-    m_dataViewStart = 0;
+	m_dataViewStart = 0;
 	m_dataViewEnd = 0;
-    m_dataViewSize = 16 * 1024;
+	m_dataViewSize = 16 * 1024;
 
 	hexViewBuffer = new QBuffer();
 	hexViewBuffer->open(QBuffer::ReadWrite);
@@ -567,8 +567,8 @@ void MainWindow::addHistoryEntry(uint64_t address)
 	QString str = QString::fromStdString(fmt("0x%0llx%s%s%s",
 			(unsigned long long)address,
 			p ? " (" : "",
-			symName.c_str(),
-			p ? ")" : ""));
+					symName.c_str(),
+					p ? ")" : ""));
 
 	m_addressHistoryViewModel->appendRow(new QStandardItem(str));
 }
