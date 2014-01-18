@@ -13,17 +13,17 @@ class QHexEdit : public QFrame
         explicit QHexEdit(QWidget *parent = 0);
         bool readOnly();
         int addressWidth();
-        QHexEditData* data();
+        int visibleLinesCount();
+        QHexEditData *data();
         qint64 indexOf(QByteArray& ba, qint64 start = 0);
+        qint64 baseAddress();
         qint64 cursorPos();
         qint64 selectionStart();
         qint64 selectionEnd();
-
-        void setFont(const QFont &);
-
-        void setBaseAddress(qint64 base);
-
-        qint64 getBaseAddress();
+        qint64 visibleStartOffset();
+        qint64 visibleEndOffset();
+        void setFont(const QFont &f);
+        void setBaseAddress(qint64 ba);
 
     signals:
         void positionChanged(qint64 offset);
@@ -38,14 +38,9 @@ class QHexEdit : public QFrame
         void copy();
         void paste();
         void selectAll();
-        void doAnd(qint64 start, qint64 end, uchar value);
-        void doOr(qint64 start, qint64 end, uchar value);
-        void doXor(qint64 start, qint64 end, uchar value);
-        void doMod(qint64 start, qint64 end, uchar value);
-        void doNot(qint64 start, qint64 end);
         void setReadOnly(bool b);
         void setCursorPos(qint64 pos);
-        void setData(QHexEditData* hexeditdata);
+        void setData(QHexEditData *hexeditdata);
         void setSelection(qint64 start, qint64 end);
         void setRangeColor(qint64 start, qint64 end, QColor color);
         void removeRangeColor(qint64 start, qint64 end);

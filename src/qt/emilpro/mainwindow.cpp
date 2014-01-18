@@ -471,17 +471,9 @@ void MainWindow::setupAddressHistoryView()
 
 void MainWindow::setupInstructionEncoding()
 {
-	char buf[32];
+	QByteArray buf(32, 0x0);
 
-	memset(buf, 0, sizeof(buf));
-
-	QBuffer *encodingBuffer;
-
-	encodingBuffer = new QBuffer();
-	encodingBuffer->open(QBuffer::ReadWrite);
-	encodingBuffer->write(buf, sizeof(buf));
-
-	m_encodingData = new QHexEditData(encodingBuffer);
+	m_encodingData = QHexEditData::fromMemory(buf);
 
 	// We want the same font as for the instructions
 	const QFont &font = m_ui->instructionTableView->font();
@@ -504,17 +496,13 @@ void MainWindow::setupInfoBox()
 
 void MainWindow::setupDataView()
 {
-	QBuffer *hexViewBuffer;
-
 	m_dataViewStart = 0;
 	m_dataViewEnd = 0;
 	m_dataViewSize = 16 * 1024;
 
-	hexViewBuffer = new QBuffer();
-	hexViewBuffer->open(QBuffer::ReadWrite);
-	hexViewBuffer->seek(m_dataViewSize);
+	QByteArray buf(m_dataViewSize, 0x0);
 
-	m_dataViewData = new QHexEditData(hexViewBuffer);
+	m_dataViewData = QHexEditData::fromMemory(buf);
 
 	// We want the same font as for the instructions
 	const QFont &font = m_ui->instructionTableView->font();

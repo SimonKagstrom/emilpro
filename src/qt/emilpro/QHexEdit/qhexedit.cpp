@@ -9,7 +9,6 @@ QHexEdit::QHexEdit(QWidget *parent): QFrame(parent)
     /* Forward QHexEditPrivate's Signals */
     connect(this->_hexedit_p, SIGNAL(positionChanged(qint64)), this, SIGNAL(positionChanged(qint64)));
     connect(this->_hexedit_p, SIGNAL(selectionChanged(qint64)), this, SIGNAL(selectionChanged(qint64)));
-    connect(this->_hexedit_p, SIGNAL(bytesChanged(qint64)), this, SIGNAL(bytesChanged(qint64)));
     connect(this->_hexedit_p, SIGNAL(verticalScrollBarValueChanged(int)), this, SIGNAL(verticalScrollBarValueChanged(int)));
 
     this->_scrollarea->setFocusPolicy(Qt::NoFocus);
@@ -28,31 +27,6 @@ QHexEdit::QHexEdit(QWidget *parent): QFrame(parent)
 
     this->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     this->setLayout(this->_hlayout);
-}
-
-void QHexEdit::doAnd(qint64 start, qint64 end, uchar value)
-{
-    this->_hexedit_p->doAnd(start, end, value);
-}
-
-void QHexEdit::doOr(qint64 start, qint64 end, uchar value)
-{
-    this->_hexedit_p->doOr(start, end, value);
-}
-
-void QHexEdit::doXor(qint64 start, qint64 end, uchar value)
-{
-    this->_hexedit_p->doXor(start, end, value);
-}
-
-void QHexEdit::doMod(qint64 start, qint64 end, uchar value)
-{
-    this->_hexedit_p->doMod(start, end, value);
-}
-
-void QHexEdit::doNot(qint64 start, qint64 end)
-{
-    this->_hexedit_p->doNot(start, end);
 }
 
 void QHexEdit::undo()
@@ -85,16 +59,6 @@ void QHexEdit::resetRangeColor()
     this->_hexedit_p->resetRangeColor();
 }
 
-void QHexEdit::setBaseAddress(qint64 base)
-{
-    this->_hexedit_p->setBaseAddress(base);
-}
-
-qint64 QHexEdit::getBaseAddress()
-{
-	return this->_hexedit_p->getBaseAddress();
-}
-
 void QHexEdit::setVerticalScrollBarValue(int value)
 {
     this->_hexedit_p->setVerticalScrollBarValue(value);
@@ -120,6 +84,11 @@ int QHexEdit::addressWidth()
     return this->_hexedit_p->addressWidth();
 }
 
+int QHexEdit::visibleLinesCount()
+{
+    return this->_hexedit_p->visibleLinesCount();
+}
+
 QHexEditData *QHexEdit::data()
 {
     return this->_hexedit_p->data();
@@ -128,6 +97,11 @@ QHexEditData *QHexEdit::data()
 qint64 QHexEdit::indexOf(QByteArray &ba, qint64 start)
 {
     return this->_hexedit_p->indexOf(ba, start);
+}
+
+qint64 QHexEdit::baseAddress()
+{
+    return this->_hexedit_p->baseAddress();
 }
 
 qint64 QHexEdit::cursorPos()
@@ -143,6 +117,26 @@ qint64 QHexEdit::selectionStart()
 qint64 QHexEdit::selectionEnd()
 {
     return this->_hexedit_p->selectionEnd();
+}
+
+void QHexEdit::setFont(const QFont &f)
+{
+    this->_hexedit_p->setFont(f);
+}
+
+void QHexEdit::setBaseAddress(qint64 ba)
+{
+    return this->_hexedit_p->setBaseAddress(ba);
+}
+
+qint64 QHexEdit::visibleStartOffset()
+{
+    return this->_hexedit_p->visibleStartOffset();
+}
+
+qint64 QHexEdit::visibleEndOffset()
+{
+    return this->_hexedit_p->visibleEndOffset();
 }
 
 bool QHexEdit::readOnly()
@@ -168,9 +162,4 @@ void QHexEdit::cut()
 void QHexEdit::redo()
 {
     this->_hexedit_p->redo();
-}
-
-void QHexEdit::setFont(const QFont &font)
-{
-	this->_hexedit_p->setFont(font);
 }

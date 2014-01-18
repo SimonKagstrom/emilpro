@@ -3,10 +3,9 @@
 
 #include <QtCore>
 #include <QtWidgets>
-#include "qhexeditdatamanager.h"
+#include "qhexeditdata.h"
 
 /* TODO: Improve Drawing Routines */
-
 class QHexEditPrivate : public QWidget
 {
     Q_OBJECT
@@ -18,13 +17,9 @@ class QHexEditPrivate : public QWidget
         void cut();
         void copy();
         void paste();
-        void doAnd(qint64 start, qint64 end, uchar value);
-        void doOr(qint64 start, qint64 end, uchar value);
-        void doXor(qint64 start, qint64 end, uchar value);
-        void doMod(qint64 start, qint64 end, uchar value);
-        void doNot(qint64 start, qint64 end);
+        void setBaseAddress(qint64 ba);
         void setCursorPos(qint64 pos);
-        void setData(QHexEditData* hexeditdata);
+        void setData(QHexEditData *hexeditdata);
         void setReadOnly(bool b);
         void setAddressWidth(int w);
         void setWheelScrollLines(int c);
@@ -41,26 +36,44 @@ class QHexEditPrivate : public QWidget
         void setVerticalScrollBarValue(int value);
         bool readOnly();
         int addressWidth();
+        int visibleLinesCount();
         int wheelScrollLines();
         qint64 indexOf(QByteArray& ba, bool start);
+        qint64 baseAddress();
         qint64 cursorPos();
         qint64 selectionStart();
         qint64 selectionEnd();
-        QHexEditData* data();
+        qint64 visibleStartOffset();
+        qint64 visibleEndOffset();
+        QHexEditData *data();
         QColor& lineColor();
         QColor& addressForeColor();
         QColor& addressBackColor();
         QColor& alternateLineColor();
-        QBrush& selectedCursorBrush();
-
-        void setBaseAddress(qint64 base);
-
-        qint64 getBaseAddress();
+        QBrush& selectedCursorBrush();        
 
     private:
+        void internalSetCursorPos(qint64 pos, int charidx);
+
+    private:
+        qint64 cursorPosFromPoint(const QPoint& pt, int* charindex);
+        qint64 verticalSliderPosition64();
         QColor byteWeight(uchar b);
+        bool isTextSelected();
+        void removeSelectedText();
+        void processDeleteEvents();
+        void processBackspaceEvents();
+        void processHexPart(int key);
+        void processAsciiPart(int key);
+        bool processMoveEvents(QKeyEvent* event);
+        bool processSelectEvents(QKeyEvent* event);
+        bool processTextInputEvents(QKeyEvent* event);
+        bool processInsOvrEvents(QKeyEvent* event);
+        bool processUndoRedo(QKeyEvent* event);
+        bool processClipboardKeys(QKeyEvent* event);
         void setCursorPos(qint64 pos, int charidx);
-        void setCursorXY(qint64 pos, int charidx);
+        void updateCursorXY(qint64 pos, int charidx);
+        void drawParts(QPainter& painter);
         void drawLine(QPainter& painter, QFontMetrics& fm, qint64 line, int y);
         void drawAddress(QPainter &painter, QFontMetrics &fm, qint64 line, int y);
         void drawHexPart(QPainter &painter, QFontMetrics &fm, qint64 line, int y);
@@ -68,8 +81,6 @@ class QHexEditPrivate : public QWidget
         void setSelectionEnd(qint64 pos, int charidx);
         void ensureVisible();
         void adjust();
-        qint64 cursorPosFromPoint(const QPoint& pt, int* charindex);
-        qint64 verticalSliderPosition64();
 
     protected:
         void paintEvent(QPaintEvent* pe);
@@ -81,23 +92,19 @@ class QHexEditPrivate : public QWidget
 
     private: /* Constants */
         static const int CURSOR_BLINK_INTERVAL;
+        static const int BYTES_PER_LINE;
 
     signals:
         void positionChanged(qint64 offset);
         void selectionChanged(qint64 length);
-        void bytesChanged(qint64 pos);
         void verticalScrollBarValueChanged(int value);
 
     private:
-        enum SelectedPart
-        {
-            AddressPart = 0,
-            HexPart     = 1,
-            AsciiPart   = 2
-        };
-
+        enum SelectedPart { AddressPart = 0, HexPart = 1, AsciiPart = 2 };
+        enum InsertMode { Overwrite = 0, Insert = 1 };
         QMap<qint64, QColor> _highlightmap;
-        QHexEditDataManager* _hexeditdatamanager;
+        QKeyEvent* _lastkeyevent;
+        QHexEditData* _hexeditdata;
         QScrollArea* _scrollarea;
         QScrollBar* _vscrollbar;
         QTimer* _timBlink;
@@ -107,6 +114,11 @@ class QHexEditPrivate : public QWidget
         QColor _addressbackcolor;
         QBrush _selcursorbrush;
         SelectedPart _selpart;
+        InsertMode _insmode;
+        qint64 _selectionstart;
+        qint64 _selectionend;
+        qint64 _cursorpos;
+        qint64 _baseaddress;
         int _whellscrolllines;
         int _cursorX;
         int _cursorY;
@@ -114,16 +126,16 @@ class QHexEditPrivate : public QWidget
         int _xposascii;
         int _xposhex;
         int _xPosend;
+        int _charidx;
         int _charwidth;
         int _charheight;
         bool _readonly;
         bool _blink;
-        qint64 _baseAddress;
 
     private slots:
         void blinkCursor();
         void vScrollBarValueChanged(int);
-        void hexEditDataChanged(qint64, qint64);
+        void hexEditDataChanged(qint64 offset, qint64, QHexEditData::ActionType reason);
 };
 
 #endif // QHEXEDITPRIVATE_H
