@@ -54,6 +54,7 @@ bool MainWindow::init(int argc, char* argv[])
 
 	Model::instance().registerSymbolListener(this);
 	NameMangler::instance().registerListener(this);
+	Preferences::instance().registerListener("X86InstructionSyntax", this);
 
 	Configuration &conf = Configuration::instance();
 
@@ -62,7 +63,19 @@ bool MainWindow::init(int argc, char* argv[])
 
 	Server::instance().connect();
 
-	refresh();
+	std::string file = conf.getFileName();
+	Model &model = Model::instance();
+
+	if (file != "") {
+		m_data = read_file(&m_dataSize, "%s", file.c_str());
+		if (!m_data) {
+			error("Can't read %s, exiting", file.c_str());
+			exit(1);
+		}
+
+		model.addData(m_data, m_dataSize);
+		model.parseAll();
+	}
 
 	return true;
 }
@@ -83,10 +96,6 @@ void MainWindow::on_symbolTableView_activated(const QModelIndex &index)
 
 void MainWindow::refresh()
 {
-	Configuration &conf = Configuration::instance();
-	std::string file = conf.getFileName();
-	Model &model = Model::instance();
-
 	delete m_symbolViewModel;
 	m_addressToSymbolRowMap.clear();
 	m_addressHistoryViewModel->clear();
@@ -94,16 +103,7 @@ void MainWindow::refresh()
 
 	setupSymbolView();
 
-	if (file != "") {
-		m_data = read_file(&m_dataSize, "%s", file.c_str());
-		if (!m_data) {
-			error("Can't read %s, exiting", file.c_str());
-			exit(1);
-		}
-
-		model.addData(m_data, m_dataSize);
-		model.parseAll();
-	}
+	Model::instance().parseAll();
 }
 
 void MainWindow::on_symbolTimerTriggered()
@@ -612,6 +612,12 @@ void MainWindow::on_action_Toggle_data_instructions_triggered(bool activated)
 
 void MainWindow::on_actionAT_T_syntax_x86_triggered(bool activated)
 {
+	std::string value = activated ? "att" : "intel";
+
+	Preferences::instance().setValue("X86InstructionSyntax", value);
+
+	if (m_data)
+		refresh();
 }
 
 void MainWindow::updateHistoryEntry(const AddressHistory::Entry& e)
@@ -691,4 +697,11 @@ void MainWindow::updateInfoBox(const emilpro::IInstruction* insn)
 void MainWindow::on_editInstructionPushButton_clicked()
 {
 	m_editInstructionDialog->edit(m_currentInstruction);
+}
+
+void MainWindow::onPreferencesChanged(const std::string& key,
+		const std::string& oldValue, const std::string& newValue)
+{
+	if (key == "X86InstructionSyntax")
+		m_ui->actionAT_T_syntax_x86->setChecked(newValue == "att");
 }

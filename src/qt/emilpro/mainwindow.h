@@ -7,6 +7,7 @@
 #include <symbolfactory.hh>
 #include <addresshistory.hh>
 #include <namemangler.hh>
+#include <preferences.hh>
 
 #include <unordered_map>
 
@@ -25,7 +26,8 @@ class MainWindow;
 
 class MainWindow : public QMainWindow,
 	private emilpro::ISymbolListener,
-	private emilpro::NameMangler::IListener
+	private emilpro::NameMangler::IListener,
+	private emilpro::Preferences::IListener
 {
 	Q_OBJECT
 
@@ -110,6 +112,10 @@ public:
 
 	// From NameMangler::IListener
 	void onManglingChanged(bool enabled);
+
+	// From Preferences::IListener
+	void onPreferencesChanged(const std::string &key,
+			const std::string &oldValue, const std::string &newValue);
 
 	Ui::MainWindow *m_ui;
 	QStandardItemModel *m_symbolViewModel;
