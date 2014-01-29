@@ -705,3 +705,20 @@ void MainWindow::onPreferencesChanged(const std::string& key,
 	if (key == "X86InstructionSyntax")
 		m_ui->actionAT_T_syntax_x86->setChecked(newValue == "att");
 }
+
+
+void MainWindow::on_locationLineEdit_returnPressed()
+{
+	QString text = m_ui->locationLineEdit->text();
+
+	m_addressHistory.clear();
+	m_addressHistoryViewModel->clear();
+
+	Model::AddressList_t lst = Model::instance().lookupAddressesByText(text.toStdString());
+
+	for (Model::AddressList_t::iterator it = lst.begin();
+			it != lst.end();
+			++it) {
+		updateSymbolView(*it);
+	}
+}

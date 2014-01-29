@@ -23,7 +23,15 @@
       <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QLineEdit" name="locationLineEdit"/>
+         <widget class="QLineEdit" name="locationLineEdit">
+          <property name="font">
+           <font>
+            <family>Monospace</family>
+            <pointsize>10</pointsize>
+            <italic>false</italic>
+           </font>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QSplitter" name="splitter">

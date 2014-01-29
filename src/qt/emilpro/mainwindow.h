@@ -67,7 +67,9 @@ public:
 
 	void on_symbolTimerTriggered();
 
-	private:
+    void on_locationLineEdit_returnPressed();
+
+private:
 	typedef std::unordered_map<std::string, std::string> FileToStringMap_t;
 	typedef std::unordered_map<int, const emilpro::IInstruction *> RowToInstruction_t;
 	typedef std::unordered_map<std::string, int> AddressNameToRow_t;
