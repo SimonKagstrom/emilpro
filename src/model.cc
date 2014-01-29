@@ -833,7 +833,12 @@ const ISymbol* Model::getSection(uint64_t address)
 	SymbolList_t syms;
 
 	m_mutex.lock();
-	syms = getNearestSymbolLockedMap(m_sections, address);
+	auto exactIt = m_sections.find(address);
+
+	if (exactIt != m_sections.end())
+		syms = exactIt->second;
+	else
+		syms = getNearestSymbolLockedMap(m_sections, address);
 	m_mutex.unlock();
 
 	if (syms.empty())
