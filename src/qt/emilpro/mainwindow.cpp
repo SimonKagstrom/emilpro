@@ -502,10 +502,12 @@ void MainWindow::setupDataView()
 	// We want the same font as for the instructions
 	const QFont &font = m_ui->instructionTableView->font();
 	QFontMetrics metrics = QFontMetrics(font);
+	m_dataViewData = QHexEditData::fromMemory(QByteArray());
 
 	m_dataViewHexEdit = new QHexEdit(m_ui->tab_2);
 	m_dataViewHexEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	m_dataViewHexEdit->setMinimumWidth(1024);
+	m_dataViewHexEdit->setData(m_dataViewData);
 	m_dataViewHexEdit->setMinimumHeight(m_ui->tab_2->height());
 
 	m_dataViewHexEdit->setFont(font);
@@ -654,16 +656,9 @@ void MainWindow::updateDataView(uint64_t address, size_t size)
 	QColor color = QColor("green");
 	emilpro::Model &model = emilpro::Model::instance();
 
+	// Outside of the current section, lookup another
 	if (address < m_dataViewStart ||
 			address >= m_dataViewEnd) {
-//		if (m_dataViewData)
-//			delete m_dataViewData;
-
-		m_dataViewData = NULL;
-	}
-
-	// Outside of the current section, lookup another
-	if (!m_dataViewData) {
 		const emilpro::ISymbol *section = model.getSection(address);
 
 		if (!section)
@@ -677,8 +672,7 @@ void MainWindow::updateDataView(uint64_t address, size_t size)
 
 		QByteArray buf((char *)section->getDataPtr(), section->getSize());
 
-		m_dataViewData = QHexEditData::fromMemory(buf);
-		m_dataViewHexEdit->setData(m_dataViewData);
+		m_dataViewData->replace(0, buf);
 		m_dataViewHexEdit->setBaseAddress(m_dataViewStart);
 	}
 
