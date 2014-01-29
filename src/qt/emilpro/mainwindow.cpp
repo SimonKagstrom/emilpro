@@ -642,8 +642,8 @@ void MainWindow::updateInstructionEncoding(const IInstruction* insn)
 	markStart = address - returnedAddr;
 	markEnd = markStart + insn->getSize() - 1;
 
-	m_encodingHexEdit->resetRangeColor();
-	m_encodingHexEdit->setRangeColor(markStart, markEnd, color);
+	m_encodingHexEdit->clearHighlight();
+	m_encodingHexEdit->highlightBackground(markStart, markEnd, color);
 	m_encodingHexEdit->setBaseAddress(returnedAddr);
 	m_encodingData->replace(0, 32, QByteArray((const char *)buf, sizeof(buf)));
 }
@@ -685,8 +685,8 @@ void MainWindow::updateDataView(uint64_t address, size_t size)
 	markStart = address - m_dataViewStart;
 	markEnd = markStart + size - 1;
 
-	m_dataViewHexEdit->resetRangeColor();
-	m_dataViewHexEdit->setRangeColor(markStart, markEnd, color);
+	m_dataViewHexEdit->clearHighlight();
+	m_dataViewHexEdit->highlightBackground(markStart, markEnd, color);
 }
 
 void MainWindow::updateInfoBox(const emilpro::IInstruction* insn)

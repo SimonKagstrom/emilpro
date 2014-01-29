@@ -90,6 +90,7 @@ set (GUI_SRCS
 	emilpro/QHexEdit/qhexedit.cpp
 	emilpro/QHexEdit/qhexeditdata.cpp
 	emilpro/QHexEdit/qhexeditdatamanager.cpp
+	emilpro/QHexEdit/qhexedithighlighter.cpp
 	emilpro/QHexEdit/qhexeditprivate.cpp
 	emilpro/QHexEdit/undocommands.cpp
 	emilpro/editinstructiondialog.cpp

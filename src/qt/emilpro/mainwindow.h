@@ -148,7 +148,6 @@ private:
 	QHexEditData *m_dataViewData;
 	uint64_t m_dataViewStart;
 	uint64_t m_dataViewEnd;
-	size_t m_dataViewSize;
 
 	emilpro::Model::SymbolList_t m_currentSymbols;
 	QTimer *m_timer;
