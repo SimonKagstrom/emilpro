@@ -283,6 +283,16 @@ TESTSUITE(model)
 		while (!model.parsingComplete())
 			;
 
+		const ISymbol *section;
+
+		section = model.getSection(mainSym->getAddress());
+		ASSERT_TRUE(section);
+		ASSERT_TRUE(section->getName() == ".text");
+
+		section = model.getSection(mainSym->getAddress() + 1);
+		ASSERT_TRUE(section);
+		ASSERT_TRUE(section->getName() == ".text");
+
 		ASSERT_FALSE(model.parsingOngoing());
 		ASSERT_TRUE(model.parsingComplete());
 		ASSERT_TRUE(model.m_instructionCache[mainSym->getAddress()]);

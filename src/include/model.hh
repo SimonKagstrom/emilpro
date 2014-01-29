@@ -72,6 +72,8 @@ namespace emilpro
 
 		const SymbolList_t &getSymbols();
 
+		const ISymbol *getSection(uint64_t address);
+
 		void registerSymbolListener(ISymbolListener *listener);
 
 		const AddressList_t lookupAddressesByText(const std::string &str);
@@ -149,6 +151,8 @@ namespace emilpro
 
 		const SymbolList_t getNearestSymbolLocked(uint64_t address);
 
+		const SymbolList_t getNearestSymbolLockedMap(const SymbolOrderedMap_t &map, uint64_t address);
+
 		uint64_t lookupOneSymbol(const std::string &str);
 
 		uint64_t lookupOneSymbolByName(const std::string &name);
@@ -170,6 +174,7 @@ namespace emilpro
 		CrossReferenceMap_t m_crossReferences;
 		CrossReferenceList_t m_emptyReferenceList;
 		SymbolListeners_t m_symbolListeners;
+		SymbolOrderedMap_t m_sections;
 
 		SymbolList_t m_pendingListenerSymbols;
 

@@ -174,8 +174,10 @@ void Model::fillCacheWithSymbol(ISymbol *sym)
 		getLineByAddressLocked(cur->getAddress());
 	}
 
-	if (sym->getType() == ISymbol::SYM_SECTION)
+	if (sym->getType() == ISymbol::SYM_SECTION) {
+		m_sections[sym->getAddress()].push_back(sym);
 		deriveSymbols(sym, lst);
+	}
 
 	// Cleanup overlapped insns
 	for (InstructionList_t::iterator it = cleanupList.begin();
@@ -513,29 +515,25 @@ const Model::SymbolList_t Model::getSymbolExactLocked(uint64_t address)
 	return Model::SymbolList_t();
 }
 
-const Model::SymbolList_t Model::getNearestSymbolLocked(uint64_t address)
+
+const Model::SymbolList_t Model::getNearestSymbolLockedMap(const SymbolOrderedMap_t& lookupMap,
+		uint64_t address)
 {
-	Model::SymbolMap_t::const_iterator exactIt = m_symbolsByAddress.find(address);
-
-	if (exactIt != m_symbolsByAddress.end())
-		return exactIt->second;
-
-	SymbolOrderedMap_t::iterator it = m_orderedSymbols.lower_bound(address);
 	Model::SymbolList_t out;
 
-	if (m_orderedSymbols.empty())
+	if (lookupMap.empty())
 		return out;
+
+	auto it = lookupMap.lower_bound(address);
 
 	--it;
 
 	// Above the last symbol
-	if (it == m_orderedSymbols.end())
+	if (it == lookupMap.end())
 		return out;
 
-	for (Model::SymbolList_t::iterator sIt = it->second.begin();
-			sIt != it->second.end();
-			++sIt) {
-		ISymbol *cur = *sIt;
+	for (auto sIt : it->second) {
+		ISymbol *cur = sIt;
 
 		if (cur->getAddress() + cur->getSize() < address)
 			continue;
@@ -544,6 +542,16 @@ const Model::SymbolList_t Model::getNearestSymbolLocked(uint64_t address)
 	}
 
 	return out;
+}
+
+const Model::SymbolList_t Model::getNearestSymbolLocked(uint64_t address)
+{
+	Model::SymbolMap_t::const_iterator exactIt = m_symbolsByAddress.find(address);
+
+	if (exactIt != m_symbolsByAddress.end())
+		return exactIt->second;
+
+	return getNearestSymbolLockedMap(m_orderedSymbols, address);
 }
 
 const Model::SymbolList_t Model::getSymbolExact(uint64_t address)
@@ -804,7 +812,7 @@ void Model::onArchitectureDetected(ArchitectureFactory::Architecture_t arch,
 	m_architecture = arch;
 }
 
-const IInstruction* emilpro::Model::getInstructionByAddress(uint64_t address)
+const IInstruction* Model::getInstructionByAddress(uint64_t address)
 {
 	const IInstruction *out = NULL;
 
@@ -818,4 +826,18 @@ const IInstruction* emilpro::Model::getInstructionByAddress(uint64_t address)
 
 
 	return out;
+}
+
+const ISymbol* Model::getSection(uint64_t address)
+{
+	SymbolList_t syms;
+
+	m_mutex.lock();
+	syms = getNearestSymbolLockedMap(m_sections, address);
+	m_mutex.unlock();
+
+	if (syms.empty())
+		return NULL;
+
+	return syms.front();
 }
