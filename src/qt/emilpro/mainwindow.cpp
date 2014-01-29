@@ -511,7 +511,7 @@ void MainWindow::setupDataView()
 	m_dataViewHexEdit = new QHexEdit(m_ui->tab_2);
 	m_dataViewHexEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	m_dataViewHexEdit->setMinimumWidth(1024);
-	m_dataViewHexEdit->setMinimumHeight(metrics.height() * m_dataViewSize / 16);
+	m_dataViewHexEdit->setMinimumHeight(m_ui->tab_2->height());
 	m_dataViewHexEdit->setData(m_dataViewData);
 
 	m_dataViewHexEdit->setFont(font);
