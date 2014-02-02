@@ -63,6 +63,8 @@ public:
 
 	void on_actionAT_T_syntax_x86_triggered(bool activated);
 
+	void on_action_About_triggered(bool activated);
+
 	void on_editInstructionPushButton_clicked();
 
 	void on_symbolTimerTriggered();

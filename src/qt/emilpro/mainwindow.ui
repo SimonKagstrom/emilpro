@@ -302,6 +302,7 @@
     <property name="title">
      <string>&amp;Help</string>
     </property>
+    <addaction name="action_About"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
@@ -370,6 +371,11 @@
    </property>
    <property name="text">
     <string>&amp;AT&amp;&amp;T syntax (x86)</string>
+   </property>
+  </action>
+  <action name="action_About">
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>

@@ -700,6 +700,17 @@ void MainWindow::on_editInstructionPushButton_clicked()
 	m_editInstructionDialog->edit(m_currentInstruction);
 }
 
+void MainWindow::on_action_About_triggered(bool activated)
+{
+	QString title = "About EmilPRO";
+	QString text = "<center><b>EmilPRO</b></center><br>"
+			"<center>4 - \"Bräkne Hoby\"</center><br><br>"
+			"This application needs your help! Visit the webpage for more info and tasks to do!<br>"
+			"<center><A HERF=\"http://www.emilpro.com\">www.emilpro.com</A><br>";
+
+	QMessageBox::about(this, title, text);
+}
+
 void MainWindow::onPreferencesChanged(const std::string& key,
 		const std::string& oldValue, const std::string& newValue)
 {
