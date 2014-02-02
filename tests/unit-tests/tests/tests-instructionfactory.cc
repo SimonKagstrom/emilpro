@@ -225,4 +225,36 @@ TESTSUITE(instruction_factory)
 
 		ASSERT_TRUE(p->m_description == description);
 	}
+
+	TEST(scrubHtml)
+	{
+		InstructionFactory &insnFactory = InstructionFactory::instance();
+		XmlFactory &x = XmlFactory::instance();
+		std::string description  = "<b>KALLE</b>";
+		bool res;
+
+		std::string xml =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				"<emilpro>\n"
+				"  <InstructionModel name=\"beqz\" architecture=\"mips\" timestamp=\"2\">\n"
+				"    <type>cflow</type>\n"
+				"    <privileged>false</privileged>\n"
+				"    <description>" + escape_string_for_xml(description) + "</description>\n"
+				"  </InstructionModel>\n"
+				"</emilpro>\n";
+
+		ArchitectureFactory::instance().provideArchitecture(bfd_arch_mips);
+
+		res = x.parse(xml);
+		ASSERT_TRUE(res);
+		InstructionModel *p = (InstructionModel *)insnFactory.m_instructionModelByArchitecture[(unsigned)bfd_arch_mips]["beqz"];
+		ASSERT_TRUE(p);
+
+		std::string scrubbed = p->toXml();
+		ASSERT_TRUE(scrubbed.find("<description>KALLE</description>") != std::string::npos);
+
+		Configuration::instance().setCapabilties(Configuration::CAP_HTML_DESCRIPTIONS);
+		scrubbed = p->toXml();
+		ASSERT_TRUE(scrubbed.find(fmt("<description>%s</description>", escape_string_for_xml(description).c_str())) != std::string::npos);
+	}
 }

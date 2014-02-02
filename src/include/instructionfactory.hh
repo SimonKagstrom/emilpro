@@ -18,6 +18,7 @@ namespace instruction_factory
 	class timestamp;
 	class timestampDefault;
 	class xmlSpecialCharacters;
+	class scrubHtml;
 }
 
 namespace emilpro
@@ -32,6 +33,7 @@ namespace emilpro
 		friend class instruction_factory::timestamp;
 		friend class instruction_factory::timestampDefault;
 		friend class instruction_factory::xmlSpecialCharacters;
+		friend class instruction_factory::scrubHtml;
 
 		class IEncodingHandler
 		{

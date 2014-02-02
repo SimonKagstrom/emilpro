@@ -233,6 +233,11 @@ public:
 
 	std::string toXml()
 	{
+		std::string description = m_description;
+
+		if ((Configuration::instance().getCapabilties() & Configuration::CAP_HTML_DESCRIPTIONS) == 0)
+			description = scrub_html(description);
+
 		return fmt(
 				"  <InstructionModel name=\"%s\" architecture=\"%s\" timestamp=\"%llu\">\n"
 				"    <type>%s</type>\n"
@@ -244,7 +249,7 @@ public:
 				(unsigned long long)m_timestamp,
 				getTypeString().c_str(),
 				getPrivilegeString().c_str(),
-				escape_string_for_xml(m_description).c_str()
+				escape_string_for_xml(description).c_str()
 				);
 	}
 
