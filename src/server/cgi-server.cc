@@ -3,6 +3,7 @@
 #include <instructionfactory.hh>
 #include <server/cgi-server.hh>
 #include <server/html-generator.hh>
+#include <configuration.hh>
 
 #include <string>
 #include <fstream>
@@ -51,6 +52,9 @@ bool CgiServer::onElement(const Glib::ustring &name, const xmlpp::SaxParser::Att
 		m_hasCurrentArchitecture = true;
 	} else if (name == "CurrentIP") {
 		m_remoteIp = value;
+	} else if (name == "ClientCapabilities") {
+		if (string_is_integer(value))
+			Configuration::instance().setCapabilties((Configuration::Capabilities_t)string_to_integer(value));
 	}
 
 	return true;
@@ -129,12 +133,13 @@ bool CgiServer::request(const std::string xml)
 {
 	HtmlGenerator &html = HtmlGenerator::instance();
 
-	// Reset timestamps before parsing
+	// Reset state before parsing
 	m_timestamp = 0xffffffffffffffffULL;
 	m_timestampAdjustment = 0;
 	m_currentArchitecture = bfd_arch_unknown;
 	m_hasCurrentArchitecture = false;
 	m_optOutFromStatistics = false;
+	Configuration::instance().setCapabilties(Configuration::CAP_NONE);
 
 	if (!XmlFactory::instance().parse(xml, true))
 		return false;

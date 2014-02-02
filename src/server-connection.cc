@@ -182,11 +182,13 @@ private:
 				"    <Timestamp>%llu</Timestamp>\n"
 				"    <InstructionModelTimestamp>%llu</InstructionModelTimestamp>\n"
 				"    <CurrentArchitecture>%s</CurrentArchitecture>\n"
+				"    <ClientCapabilities>%llu</ClientCapabilities>"
 				"  </ServerTimestamps>\n",
 				optOut.c_str(),
 				(unsigned long long)get_utc_timestamp(),
 				(unsigned long long)m_instructionModelTimestamp,
-				archStr.c_str()
+				archStr.c_str(),
+				(unsigned long long)Configuration::instance().getCapabilties()
 				);
 	}
 
