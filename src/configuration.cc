@@ -83,7 +83,8 @@ Configuration::Configuration() :
 		m_basePath(g_base),
 		m_readStoredModels(true),
 		m_debugLevel(Configuration::DBG_SILENT),
-		m_serverStatisticsDir("/www/emilpro")
+		m_serverStatisticsDir("/www/emilpro"),
+		m_capabilities(Configuration::CAP_NONE)
 {
 	if (m_basePath == "")
 		m_basePath = get_home_directory() + "/.emilpro";
@@ -156,4 +157,14 @@ bool Configuration::usage()
 	);
 
 	return false;
+}
+
+Configuration::Capabilities_t Configuration::getCapabilties() const
+{
+	return m_capabilities;
+}
+
+void Configuration::setCapabilties(Configuration::Capabilities_t cap)
+{
+	m_capabilities = cap;
 }

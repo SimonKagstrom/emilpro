@@ -22,6 +22,12 @@ namespace emilpro
 			DIR_SERVER_STATISTICS,
 		} Dir_t;
 
+		typedef enum
+		{
+			CAP_NONE = 0,
+			CAP_HTML_DESCRIPTIONS = 1,
+		} Capabilities_t;
+
 		std::string getBasePath();
 
 		std::string getPath(Dir_t dir);
@@ -32,7 +38,11 @@ namespace emilpro
 
 		DebugLevel_t getDebugLevel();
 
+		Capabilities_t getCapabilties() const;
+
 		void setDebugLevel(DebugLevel_t lvl);
+
+		void setCapabilties(Capabilities_t cap);
 
 		bool readStoredModels();
 
@@ -60,5 +70,6 @@ namespace emilpro
 		std::string m_fileName;
 		DebugLevel_t m_debugLevel;
 		std::string m_serverStatisticsDir;
+		Capabilities_t m_capabilities;
 	};
 }
