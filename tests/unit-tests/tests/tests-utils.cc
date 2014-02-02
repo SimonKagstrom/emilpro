@@ -211,4 +211,25 @@ TESTSUITE(utils)
 		ASSERT_TRUE(unescape_string_from_xml(escape_string_for_xml(d3)) == d3);
 		ASSERT_TRUE(unescape_string_from_xml(escape_string_for_xml(d4)) == d4);
 	}
+
+	TEST(scrubHtml)
+	{
+		std::string s0 = "Kalle anka satt pa en planka";
+		std::string s1 = "<b></b><p></p><pre></pre>";
+		std::string s2 = "<tt>Moa Ramstedt</tt>";
+		std::string s3 = "Grejt <pre>lejks</pre> in kanada";
+		std::string scrubbed;
+
+		scrubbed = scrub_html(s0);
+		ASSERT_TRUE(s0 == scrubbed);
+
+		scrubbed = scrub_html(s1);
+		ASSERT_TRUE(scrubbed == "");
+
+		scrubbed = scrub_html(s2);
+		ASSERT_TRUE(scrubbed == "Moa Ramstedt");
+
+		scrubbed = scrub_html(s3);
+		ASSERT_TRUE(scrubbed == "Grejt lejks in kanada");
+	}
 }

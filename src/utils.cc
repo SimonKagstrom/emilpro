@@ -2,6 +2,7 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <stdexcept>
+#include <algorithm>
 #include <time.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -371,6 +372,43 @@ std::string escape_string_for_c(std::string &str)
 
 	return out;
 }
+
+static std::string scrub_html_tag(const std::string &str, const std::string &tag)
+{
+	size_t pos = str.find(tag);
+
+	if (pos == std::string::npos)
+		return str;
+
+	auto a = str.substr(0, pos);
+	auto b = str.substr(pos + tag.size());
+
+	return a + b;
+}
+
+static std::string scrub_html_tags(const std::string &str, const std::string &tags)
+{
+	auto tagList = split_string(tags, ",");
+	std::string out = str;
+
+	for (const auto &it : tagList)
+		out = scrub_html_tag(out, it);
+
+	return out;
+}
+
+std::string scrub_html(const std::string &str)
+{
+	std::string tags = "<b>,</b>,<p>,</p>,<tt>,</tt>,<pre>,</pre>,<br>,<i>,</i>";
+	std::string out = scrub_html_tags(str, tags);
+
+	// Scrub upper case as well
+	std::transform(tags.begin(), tags.end(), tags.begin(), ::toupper);
+	out = scrub_html_tags(out, tags);
+
+	return out;
+}
+
 
 #define START_CHAR '~'
 

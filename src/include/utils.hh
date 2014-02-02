@@ -114,6 +114,8 @@ std::string escape_string_for_xml(const std::string &str);
 
 std::string unescape_string_from_xml(const std::string &str);
 
+std::string scrub_html(const std::string &str);
+
 uint64_t get_utc_timestamp();
 
 void adjust_utc_timestamp(int64_t diff);
