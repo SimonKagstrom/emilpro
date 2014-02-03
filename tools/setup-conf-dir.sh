@@ -24,7 +24,7 @@ while [ $# -gt 1 ] ; do
 <?xml version="1.0" encoding="UTF-8"?>
 <emilpro>
   <InstructionModel name="$NAME" architecture="mips" timestamp="$INSN_TS">
-  <description>~_lessr;b~_great;INGOLF~_lessr;/b~_great;</description>
+     <description>~_lessr;~b~_great;~INGOLF~_lessr;~/b~_great;~</description>
   </InstructionModel>
 </emilpro>
 EOF
