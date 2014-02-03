@@ -215,7 +215,7 @@ TESTSUITE(utils)
 	TEST(scrubHtml)
 	{
 		std::string s0 = "Kalle anka satt pa en planka";
-		std::string s1 = "<b></b><p></p><pre></pre>";
+		std::string s1 = "<b></b><p></p><pre></pre><blockquote></blockquote><strong><em></cite>";
 		std::string s2 = "<tt>Moa Ramstedt</tt>";
 		std::string s3 = "Grejt <pre>lejks</pre> in kanada";
 		std::string scrubbed;

@@ -391,15 +391,17 @@ static std::string scrub_html_tags(const std::string &str, const std::string &ta
 	auto tagList = split_string(tags, ",");
 	std::string out = str;
 
-	for (const auto &it : tagList)
-		out = scrub_html_tag(out, it);
+	for (const auto &it : tagList) {
+		out = scrub_html_tag(out, "<" + it + ">");
+		out = scrub_html_tag(out, "</" + it + ">");
+	}
 
 	return out;
 }
 
 std::string scrub_html(const std::string &str)
 {
-	std::string tags = "<b>,</b>,<p>,</p>,<tt>,</tt>,<pre>,</pre>,<br>,<i>,</i>";
+	std::string tags = "b,p,tt,pre,br,i,em,strong,cite,blockquote";
 	std::string out = scrub_html_tags(str, tags);
 
 	// Scrub upper case as well
