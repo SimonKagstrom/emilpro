@@ -64,7 +64,7 @@ public:
 static void usage()
 {
 	printf(
-			"Usage: test-remote-communication <conf-dir> <cgi-handler> <to-server-fifo> <from-server-fifo> [-t TIMESTAMP]\n"
+			"Usage: test-remote-communication <conf-dir> <cgi-handler> <base-dir> [-t TIMESTAMP] [-x]\n"
 	);
 	exit(1);
 }
@@ -82,6 +82,9 @@ int main(int argc, const char *argv[])
 
 	uint64_t mocked_timestamp = 0xffffffffffffffffULL;
 
+	// Reads all models
+	Configuration::setBaseDirectory(dir);
+
 	for (int i = 4; i < argc; i++) {
 		if (strcmp(argv[i], "-t") == 0) {
 			i++;
@@ -91,14 +94,14 @@ int main(int argc, const char *argv[])
 			if (!string_is_integer(arg))
 				usage();
 			mocked_timestamp = string_to_integer(arg);
+		} else if (strcmp(argv[i], "-x") == 0) {
+			Configuration::instance().setCapabilties(Configuration::CAP_HTML_DESCRIPTIONS);
 		}
 	}
 
 	if (mocked_timestamp != 0xffffffffffffffffULL)
 		mock_utc_timestamp(mocked_timestamp);
 
-	// Reads all models
-	Configuration::setBaseDirectory(dir);
 	EmilPro::init();
 
 	Server &server = Server::instance();
