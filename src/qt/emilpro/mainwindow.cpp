@@ -349,6 +349,11 @@ void MainWindow::on_instructionTableView_activated(const QModelIndex &index)
 	//addHistoryEntry(addr);
 }
 
+void MainWindow::on_instructionTableView_doubleClicked(const QModelIndex &index)
+{
+	on_instructionTableView_activated(index);
+}
+
 
 void MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelIndex& previous)
 {

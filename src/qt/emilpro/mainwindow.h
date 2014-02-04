@@ -53,6 +53,8 @@ public:
 
 	void on_insnCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
 
+    void on_instructionTableView_doubleClicked(const QModelIndex &index);
+
 	void on_action_Forward_triggered(bool activated);
 
 	void on_action_Backward_triggered(bool activated);
