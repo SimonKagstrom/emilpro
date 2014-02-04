@@ -74,6 +74,7 @@ public:
 private:
 	typedef std::unordered_map<std::string, std::string> FileToStringMap_t;
 	typedef std::unordered_map<int, const emilpro::IInstruction *> RowToInstruction_t;
+	typedef std::unordered_map<uint64_t, int> AddressToRow_t;
 	typedef std::unordered_map<std::string, int> AddressNameToRow_t;
 
 	void setupSymbolView();
@@ -131,6 +132,7 @@ private:
 	size_t m_dataSize;
 	FileToStringMap_t m_sourceFileMap;
 	RowToInstruction_t m_rowToInstruction;
+	AddressToRow_t m_addressToRow;
 	Highlighter *m_highlighter;
 	emilpro::AddressHistory m_addressHistory;
 	bool m_addressHistoryDisabled;

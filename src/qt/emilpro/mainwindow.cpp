@@ -251,6 +251,7 @@ void MainWindow::updateInstructionView(uint64_t address, const ISymbol& sym)
 	m_instructionViewModel->clear();
 	setupInstructionLabels();
 
+	m_addressToRow.clear();
 	m_rowToInstruction.clear();
 	m_forwardItemDelegate.update(insns, 60);
 	m_backwardItemDelegate.update(insns, 60);
@@ -261,6 +262,7 @@ void MainWindow::updateInstructionView(uint64_t address, const ISymbol& sym)
 		IInstruction *cur = *it;
 
 		m_rowToInstruction[row] = cur;
+		m_addressToRow[cur->getAddress()] = row;
 
 		QList<QStandardItem *> lst;
 
@@ -336,10 +338,8 @@ void MainWindow::on_instructionTableView_activated(const QModelIndex &index)
 
 		// Follow links within the function or to another function
 		if (target >= sym->getAddress() && target < sym->getAddress() + sym->getSize()) {
-			// FIXME! NYI within function
-			printf("Jump within function (0x%llx...0x%llx dst 0x%llx)\n",
-					(unsigned long long)sym->getAddress(), (unsigned long long)(sym->getAddress() + sym->getSize()),
-					(unsigned long long)target);
+			if (m_addressToRow.find(target) != m_addressToRow.end())
+				m_ui->instructionTableView->selectRow(m_addressToRow[target]);
 		} else {
 			updateSymbolView(target);
 		}
