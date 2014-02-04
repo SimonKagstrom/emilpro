@@ -294,6 +294,10 @@ void MainWindow::updateInstructionView(uint64_t address, const ISymbol& sym)
 	}
 
 	m_ui->instructionTableView->resizeColumnsToContents();
+
+	// Focus the current instruction
+	if (m_addressToRow.find(address) != m_addressToRow.end())
+		m_ui->instructionTableView->selectRow(m_addressToRow[address]);
 }
 
 void MainWindow::on_instructionTableView_activated(const QModelIndex &index)
