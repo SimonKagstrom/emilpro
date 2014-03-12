@@ -382,8 +382,11 @@ private:
 					if (strlen(symName) >= 2 &&
 							symName[0] == '$' && strchr("atd", symName[1]) && (symName[2] == '\0' || symName[2] == '.'))
 						continue;
-
 			}
+
+			const char *kernelStrtabPrefix = "__kstrtab_";
+			if (strncmp(symName, kernelStrtabPrefix, strlen(kernelStrtabPrefix)) == 0)
+				continue;
 
 			if (m_sectionContents.find(cur->section) == m_sectionContents.end()) {
 				bfd_size_type size;
