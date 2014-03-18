@@ -24,10 +24,10 @@ set (PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJEC
 set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
                         ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-pkg_check_modules(GTKMM gtkmm-3.0)
-pkg_check_modules(GTKSOURCEVIEWMM gtksourceviewmm-3.0)
-pkg_check_modules(LIBXMLPP libxml++-2.6)
-pkg_check_modules(LIBCURL libcurl)
+pkg_check_modules(GTKMM REQUIRED gtkmm-3.0)
+pkg_check_modules(GTKSOURCEVIEWMM REQUIRED gtksourceviewmm-3.0)
+pkg_check_modules(LIBXMLPP REQUIRED libxml++-2.6)
+pkg_check_modules(LIBCURL REQUIRED libcurl)
 
 set (CMAKE_CXX_FLAGS "-std=c++0x -Wall -D_GLIBCXX_USE_NANOSLEEP -DPACKAGE=emilpro -DPACKAGE_VERSION=1")
 LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/install-binutils/lib ${CMAKE_BINARY_DIR}/install-binutils/lib64)
