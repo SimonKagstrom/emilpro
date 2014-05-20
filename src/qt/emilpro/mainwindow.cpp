@@ -496,6 +496,7 @@ void MainWindow::setupInstructionEncoding()
 	m_encodingHexEdit->setData(m_encodingData);
 
 	m_encodingHexEdit->setFont(font);
+	m_encodingDataWriter = new QHexEditDataWriter(m_encodingData);
 }
 
 
@@ -520,6 +521,8 @@ void MainWindow::setupDataView()
 	m_dataViewHexEdit->setMinimumHeight(m_ui->tab_2->height());
 
 	m_dataViewHexEdit->setFont(font);
+
+	m_dataViewDataWriter = new QHexEditDataWriter(m_dataViewData);
 }
 
 
@@ -656,7 +659,8 @@ void MainWindow::updateInstructionEncoding(const IInstruction* insn)
 	m_encodingHexEdit->clearHighlight();
 	m_encodingHexEdit->highlightBackground(markStart, markEnd, color);
 	m_encodingHexEdit->setBaseAddress(returnedAddr);
-	m_encodingData->replace(0, 32, QByteArray((const char *)buf, sizeof(buf)));
+
+	m_encodingDataWriter->replace(0, 32, QByteArray((const char *)buf, sizeof(buf)));
 }
 
 void MainWindow::updateDataView(uint64_t address, size_t size)
@@ -681,7 +685,7 @@ void MainWindow::updateDataView(uint64_t address, size_t size)
 
 		QByteArray buf((char *)section->getDataPtr(), section->getSize());
 
-		m_dataViewData->replace(0, buf);
+		m_dataViewDataWriter->replace(0, buf);
 		m_dataViewHexEdit->setBaseAddress(m_dataViewStart);
 	}
 

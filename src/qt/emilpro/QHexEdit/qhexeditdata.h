@@ -16,6 +16,9 @@ class QHexEditData : public QObject
 {
     Q_OBJECT
 
+    public:
+        enum ActionType { None = 0, Insert = 1, Remove = 2, Replace = 3 };
+
     private:
         class ModifiedItem
         {
@@ -33,19 +36,6 @@ class QHexEditData : public QObject
                 bool _mod;
         };
 
-        class ByteRef
-        {
-            public:
-                ByteRef(qint64 pos, QHexEditData* o): _owner(o), _pos(pos) { }
-                ByteRef(const ByteRef& br): _owner(br._owner), _pos(br._pos) { }
-                ByteRef& operator =(uchar b) { this->_owner->replace(this->_pos, b); return *this; }
-                operator uchar() { return this->_owner->at(this->_pos); }
-
-            private:
-                QHexEditData* _owner;
-                qint64 _pos;
-        };
-
         typedef QList<ModifiedItem*> ModifyList;
 
     public:
@@ -59,6 +49,12 @@ class QHexEditData : public QObject
                 void setNotify(bool b) { this->_notify = b; }
                 qint64 pos() const { return this->_pos; }
                 QHexEditData* owner() const { return this->_owner; }
+
+            protected:
+                void notifyDataChanged(qint64 offset, qint64 size, QHexEditData::ActionType reason)
+                {
+                    emit this->owner()->dataChanged(offset, size, reason);
+                }
 
             private:
                 QHexEditData* _owner;
@@ -87,12 +83,12 @@ class QHexEditData : public QObject
 
             private:
                 int _index;
-                qint64 _oldlength;
-                qint64 _newlength;
 
             protected:
                 QHexEditData::ModifyList _oldml;
                 QHexEditData::ModifyList _newml;
+                qint64 _oldlength;
+                qint64 _newlength;
         };
 
         class InsertCommand: public ModifyRangeCommand
@@ -115,8 +111,10 @@ class QHexEditData : public QObject
                             oldmi = this->_newml[1];
 
                         ModifiedItem* newmi = ic->_newml.last();
+                        this->_newlength += ic->_newlength;
 
                         oldmi->updateLen(newmi->length());
+                        this->notifyDataChanged(ic->pos(), ic->newLength(), QHexEditData::Insert);
                         return true;
                     }
 
@@ -131,8 +129,12 @@ class QHexEditData : public QObject
                     for(int i = 0; i < this->_oldml.length(); i++)
                         this->owner()->_modlist.insert(this->index() + i, this->_oldml[i]);
 
+                    /* Update HexEditData's length */
+                    this->owner()->_length -= this->newLength();
+                    this->owner()->_length += this->oldLength();
+
                     if(this->canNotify())
-                        emit this->owner()->dataChanged(this->pos(), this->oldLength(), QHexEditData::Insert);
+                        this->notifyDataChanged(this->pos(), this->oldLength(), QHexEditData::Insert);
                 }
 
                 virtual void redo()
@@ -147,7 +149,7 @@ class QHexEditData : public QObject
                         this->owner()->_modlist.insert(this->index() + i, this->_newml[i]);
 
                     if(this->canNotify())
-                        emit this->owner()->dataChanged(this->pos(), this->newLength(), QHexEditData::Insert);
+                        this->notifyDataChanged(this->pos(), this->newLength(), QHexEditData::Insert);
                 }
 
             private:
@@ -170,8 +172,12 @@ class QHexEditData : public QObject
                     for(int i = 0; i < this->_oldml.length(); i++)
                         this->owner()->_modlist.insert(this->index() + i, this->_oldml.at(i));
 
+                    /* Update HexEditData's length */
+                    this->owner()->_length -= this->newLength();
+                    this->owner()->_length += this->oldLength();
+
                     if(this->canNotify())
-                        emit this->owner()->dataChanged(this->pos(), this->oldLength(), QHexEditData::Remove);
+                        this->notifyDataChanged(this->pos(), this->oldLength(), QHexEditData::Remove);
                 }
 
                 virtual void redo()
@@ -182,7 +188,7 @@ class QHexEditData : public QObject
                         this->owner()->_modlist.insert(this->index() + i, this->_newml.at(i));
 
                     if(this->canNotify())
-                        emit this->owner()->dataChanged(this->pos(), this->newLength(), QHexEditData::Remove);
+                        this->notifyDataChanged(this->pos(), this->newLength(), QHexEditData::Remove);
                 }
         };
 
@@ -198,7 +204,7 @@ class QHexEditData : public QObject
                     this->_remcmd->undo();
 
                     if(this->canNotify())
-                        emit this->owner()->dataChanged(this->pos(), this->_data.length(), QHexEditData::Replace);
+                        emit this->notifyDataChanged(this->pos(), this->_data.length(), QHexEditData::Replace);
                 }
 
                 virtual void redo()
@@ -231,7 +237,7 @@ class QHexEditData : public QObject
                     }
 
                     if(this->canNotify())
-                        emit this->owner()->dataChanged(this->pos(), this->_data.length(), QHexEditData::Replace);
+                        this->notifyDataChanged(this->pos(), this->_data.length(), QHexEditData::Replace);
                 }
 
             private:
@@ -243,21 +249,10 @@ class QHexEditData : public QObject
 
     private:
         explicit QHexEditData(QIODevice* iodevice, QObject *parent = 0);
+        ~QHexEditData();
 
     public:
-        enum ActionType { None = 0, Insert = 1, Remove = 2, Replace = 3 };
         QUndoStack* undoStack();
-        uchar at(qint64 pos);
-        qint64 indexOf(const QByteArray& ba, qint64 start);
-        void append(const QByteArray& ba);
-        void insert(qint64 pos, uchar ch);
-        void insert(qint64 pos, const QByteArray& ba);
-        void remove(qint64 pos, qint64 len);
-        void replace(qint64 pos, uchar b);
-        void replace(qint64 pos, qint64 len, uchar b);
-        void replace(qint64 pos, const QByteArray& ba);
-        void replace(qint64 pos, qint64 len, const QByteArray& ba);
-        QByteArray read(qint64 pos, qint64 len);
         qint64 length() const;
 
     public slots:
@@ -271,11 +266,9 @@ class QHexEditData : public QObject
 
     private:
         InsertCommand* internalInsert(qint64 pos, const QByteArray& ba, QHexEditData::ActionType act);
-        RemoveCommand* internalRemove(qint64 pos, qint64 len, QHexEditData::ActionType); /* TODO: QHexEditData::internalRemove(): Optimization Needed */
+        RemoveCommand* internalRemove(qint64 pos, qint64 len, QHexEditData::ActionType act); /* TODO: QHexEditData::internalRemove(): Optimization Needed */
         QHexEditData::ModifiedItem *modifiedItem(qint64 pos, qint64 *datapos = nullptr, int* index = nullptr);
         qint64 updateBuffer(const QByteArray& ba);
-        void bufferizeData(qint64 pos);
-        bool needsBuffering(qint64 pos);
         bool canOptimize(QHexEditData::ActionType at, qint64 pos);
         void recordAction(QHexEditData::ActionType at, qint64 pos);
 
@@ -287,13 +280,16 @@ class QHexEditData : public QObject
         ModifyList _modlist;
         QIODevice* _iodevice;
         QByteArray _modbuffer;
-        QByteArray _buffereddata;
-        qint64 _buffereddatapos;
         qint64 _length;
+        qint64 _devicelength;
         qint64 _lastpos;
         QHexEditData::ActionType _lastaction;
         QUndoStack _undostack;
+        QMutex _mutex;
 
+    friend class QHexEditData::AbstractCommand;
+    friend class QHexEditDataReader;
+    friend class QHexEditDataWriter;
 };
 
 #endif // QHEXEDITDATA_H

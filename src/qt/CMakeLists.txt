@@ -89,10 +89,12 @@ set (BASE_SRCS
 set (GUI_SRCS
 	emilpro/QHexEdit/qhexedit.cpp
 	emilpro/QHexEdit/qhexeditdata.cpp
-	emilpro/QHexEdit/qhexeditdatamanager.cpp
 	emilpro/QHexEdit/qhexedithighlighter.cpp
 	emilpro/QHexEdit/qhexeditprivate.cpp
-	emilpro/QHexEdit/undocommands.cpp
+	emilpro/QHexEdit/qhexeditcomments.cpp
+	emilpro/QHexEdit/qhexeditdatadevice.cpp
+	emilpro/QHexEdit/qhexeditdatareader.cpp
+	emilpro/QHexEdit/qhexeditdatawriter.cpp
 	emilpro/editinstructiondialog.cpp
 	emilpro/highlighter.cpp
 	emilpro/jumpdisplay-delegate.cpp

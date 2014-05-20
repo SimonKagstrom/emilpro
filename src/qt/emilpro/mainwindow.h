@@ -149,9 +149,12 @@ private:
 
 	QHexEdit *m_encodingHexEdit;
 	QHexEditData *m_encodingData;
+	QHexEditDataWriter *m_encodingDataWriter;
 
 	QHexEdit *m_dataViewHexEdit;
 	QHexEditData *m_dataViewData;
+	QHexEditDataWriter *m_dataViewDataWriter;
+
 	uint64_t m_dataViewStart;
 	uint64_t m_dataViewEnd;
 

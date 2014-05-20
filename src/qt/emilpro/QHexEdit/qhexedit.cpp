@@ -40,9 +40,19 @@ void QHexEdit::setData(QHexEditData *hexeditdata)
     this->_hexedit_p->setData(hexeditdata);
 }
 
+void QHexEdit::selectPos(qint64 pos)
+{
+    this->setSelectionRange(pos, 1);
+}
+
 void QHexEdit::setSelection(qint64 start, qint64 end)
 {
     this->_hexedit_p->setSelection(start, end);
+}
+
+void QHexEdit::setSelectionRange(qint64 start, qint64 length)
+{
+    this->setSelection(start, start + length);
 }
 
 void QHexEdit::highlightBackground(qint64 start, qint64 end, const QColor &color)
@@ -65,9 +75,29 @@ void QHexEdit::clearHighlight()
     this->_hexedit_p->clearHighlight();
 }
 
+void QHexEdit::commentRange(qint64 start, qint64 end, const QString &comment)
+{
+    this->_hexedit_p->commentRange(start, end, comment);
+}
+
+void QHexEdit::uncommentRange(qint64 start, qint64 end)
+{
+    this->_hexedit_p->uncommentRange(start, end);
+}
+
+void QHexEdit::clearComments()
+{
+    this->_hexedit_p->clearComments();
+}
+
 void QHexEdit::setVerticalScrollBarValue(int value)
 {
     this->_hexedit_p->setVerticalScrollBarValue(value);
+}
+
+void QHexEdit::scroll(QWheelEvent *event)
+{
+    this->_hexedit_p->scroll(event);
 }
 
 void QHexEdit::setCursorPos(qint64 pos)
@@ -123,6 +153,11 @@ qint64 QHexEdit::selectionStart()
 qint64 QHexEdit::selectionEnd()
 {
     return this->_hexedit_p->selectionEnd();
+}
+
+qint64 QHexEdit::selectionLength()
+{
+    return this->_hexedit_p->selectionEnd() - this->_hexedit_p->selectionStart();
 }
 
 void QHexEdit::setFont(const QFont &f)

@@ -2,9 +2,13 @@
 #define QHEXEDITPRIVATE_H
 
 #include <QtCore>
+#include <QtGui>
 #include <QtWidgets>
 #include "qhexeditdata.h"
+#include "qhexeditdatareader.h"
+#include "qhexeditdatawriter.h"
 #include "qhexedithighlighter.h"
+#include "qhexeditcomments.h"
 
 class QHexEditPrivate : public QWidget
 {
@@ -28,6 +32,9 @@ class QHexEditPrivate : public QWidget
         void highlightBackground(qint64 start, qint64 end, const QColor& color);
         void clearHighlight(qint64 start, qint64 end);
         void clearHighlight();
+        void commentRange(qint64 start, qint64 end, const QString& comment);
+        void uncommentRange(qint64 start, qint64 end);
+        void clearComments();
         void setFont(const QFont& font);
         void setLineColor(const QColor& c);
         void setAddressForeColor(const QColor& c);
@@ -35,11 +42,12 @@ class QHexEditPrivate : public QWidget
         void setAlternateLineColor(const QColor& c);
         void setSelectedCursorBrush(const QBrush &b);
         void setVerticalScrollBarValue(int value);
+        void scroll(QWheelEvent *event);
         bool readOnly();
         int addressWidth();
         int visibleLinesCount();
         int wheelScrollLines();
-        qint64 indexOf(QByteArray& ba, bool start);
+        qint64 indexOf(QByteArray& ba, qint64 start);
         qint64 baseAddress();
         qint64 cursorPos();
         qint64 selectionStart();
@@ -78,7 +86,7 @@ class QHexEditPrivate : public QWidget
         void drawParts(QPainter& painter);
         void drawLineBackground(QPainter& painter, qint64 line, qint64 linestart, int y);
         void drawLine(QPainter& painter, QFontMetrics& fm, qint64 line, int y);
-        void drawAddress(QPainter &painter, QFontMetrics &fm, qint64 line, int y);
+        void drawAddress(QPainter &painter, QFontMetrics &fm, qint64 line, qint64 linestart, int y);
         void drawHex(QPainter &painter, QFontMetrics &fm, const QColor& bc, const QColor& fc, uchar b, qint64 i, int& x, int y);
         void drawAscii(QPainter &painter, QFontMetrics &fm, const QColor& bc, const QColor& fc, uchar b, int& x, int y);
         void setSelectionEnd(qint64 pos, int charidx);
@@ -108,8 +116,11 @@ class QHexEditPrivate : public QWidget
         enum SelectedPart { AddressPart = 0, HexPart = 1, AsciiPart = 2 };
         enum InsertMode { Overwrite = 0, Insert = 1 };
         QHexEditHighlighter* _highlighter;
+        QHexEditComments* _comments;
         QKeyEvent* _lastkeyevent;
         QHexEditData* _hexeditdata;
+        QHexEditDataReader* _reader;
+        QHexEditDataWriter* _writer;
         QScrollArea* _scrollarea;
         QScrollBar* _vscrollbar;
         QTimer* _timBlink;
