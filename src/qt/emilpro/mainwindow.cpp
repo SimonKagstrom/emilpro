@@ -747,3 +747,18 @@ void MainWindow::on_locationLineEdit_returnPressed()
 		updateSymbolView(*it);
 	}
 }
+
+void MainWindow::on_action_Open_triggered(bool activated)
+{
+}
+
+void MainWindow::on_action_Refresh_triggered(bool activated)
+{
+	refresh();
+}
+
+void MainWindow::on_action_Quit_triggered(bool activated)
+{
+	// Fixme! Store window size in preferences
+	QApplication::quit();
+}

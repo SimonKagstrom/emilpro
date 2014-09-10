@@ -287,6 +287,7 @@
      <string>&amp;File</string>
     </property>
     <addaction name="action_Open"/>
+    <addaction name="action_Refresh"/>
     <addaction name="separator"/>
     <addaction name="action_Quit"/>
    </widget>
@@ -379,6 +380,11 @@
   <action name="action_About">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="action_Refresh">
+   <property name="text">
+    <string>&amp;Refresh</string>
    </property>
   </action>
  </widget>

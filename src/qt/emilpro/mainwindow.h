@@ -55,6 +55,12 @@ public:
 
     void on_instructionTableView_doubleClicked(const QModelIndex &index);
 
+	void on_action_Open_triggered(bool activated);
+
+	void on_action_Refresh_triggered(bool activated);
+
+	void on_action_Quit_triggered(bool activated);
+
 	void on_action_Forward_triggered(bool activated);
 
 	void on_action_Backward_triggered(bool activated);
