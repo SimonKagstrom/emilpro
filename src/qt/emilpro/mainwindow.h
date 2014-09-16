@@ -138,7 +138,8 @@ private:
 
 	void *m_data;
 	size_t m_dataSize;
-	FileToStringMap_t m_sourceFileMap;
+	std::string m_currentSourceFile; // Current source file name (cache)
+	FileToStringMap_t m_sourceFileMap; // Source file data
 	RowToInstruction_t m_rowToInstruction;
 	AddressToRow_t m_addressToRow;
 	Highlighter *m_highlighter;
