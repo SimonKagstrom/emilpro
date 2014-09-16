@@ -384,9 +384,11 @@ void MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelInd
 	const std::string &data = m_sourceFileMap[fileLine.m_file];
 
 	// Update the source view if the current source file has changed
-	if (m_currentSourceFile != fileLine.m_file)
+	if (m_currentSourceFile != fileLine.m_file) {
+		m_currentSourceFile = fileLine.m_file;
+		m_ui->sourceTextLabel->setText(QString(m_currentSourceFile.c_str()));
 		m_ui->sourceTextEdit->setText(QString(data.c_str()));
-	m_currentSourceFile = fileLine.m_file;
+	}
 
 	if (data == "")
 		return;
