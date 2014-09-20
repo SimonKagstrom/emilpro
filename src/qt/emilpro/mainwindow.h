@@ -37,8 +37,10 @@ public:
 
 	bool init(int argc, char *argv[]);
 
+    // On quit etc
+	void updatePreferences();
 
-	private slots:
+private slots:
 	void on_symbolTableView_activated(const QModelIndex &index);
 
 	void on_instructionTableView_activated(const QModelIndex &index);

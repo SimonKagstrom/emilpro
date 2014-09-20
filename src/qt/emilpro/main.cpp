@@ -10,5 +10,8 @@ int main(int argc, char *argv[])
 
     w.show();
     
-    return a.exec();
+    int out = a.exec();
+    w.updatePreferences();
+
+    return out;
 }

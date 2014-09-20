@@ -55,6 +55,7 @@ bool MainWindow::init(int argc, char* argv[])
 	Model::instance().registerSymbolListener(this);
 	NameMangler::instance().registerListener(this);
 	Preferences::instance().registerListener("X86InstructionSyntax", this);
+	Preferences::instance().registerListener("QtMainWindowSize", this);
 
 	Configuration &conf = Configuration::instance();
 
@@ -733,8 +734,26 @@ void MainWindow::on_action_About_triggered(bool activated)
 void MainWindow::onPreferencesChanged(const std::string& key,
 		const std::string& oldValue, const std::string& newValue)
 {
-	if (key == "X86InstructionSyntax")
+	if (key == "X86InstructionSyntax") {
 		m_ui->actionAT_T_syntax_x86->setChecked(newValue == "att");
+	} else if (key == "QtMainWindowSize") {
+		size_t comma = newValue.find(",");
+		// Malformed, fix it
+		if (comma == std::string::npos) {
+			updatePreferences();
+			return;
+		}
+
+		std::string w = newValue.substr(0, comma);
+		std::string h = newValue.substr(comma + 1, newValue.size());
+
+		if (string_to_integer(w) < 1024)
+			w = "1024";
+		if (string_to_integer(h) < 768)
+			h = "768";
+
+		setGeometry(geometry().left(), geometry().top(), string_to_integer(w), string_to_integer(h));
+	}
 }
 
 
@@ -765,6 +784,10 @@ void MainWindow::on_action_Refresh_triggered(bool activated)
 
 void MainWindow::on_action_Quit_triggered(bool activated)
 {
-	// Fixme! Store window size in preferences
 	QApplication::quit();
+}
+
+void MainWindow::updatePreferences()
+{
+	Preferences::instance().setValue("QtMainWindowSize", fmt("%d,%d", width(), height()));
 }
