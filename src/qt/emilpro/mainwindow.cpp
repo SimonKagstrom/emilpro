@@ -574,6 +574,10 @@ void MainWindow::addHistoryEntry(uint64_t address)
 					p ? ")" : ""));
 
 	m_addressHistoryViewModel->appendRow(new QStandardItem(str));
+
+	// Highlight current item
+	auto idx = m_addressHistoryViewModel->index(m_addressHistoryViewModel->rowCount() - 1, 0);
+	m_ui->addressHistoryListView->setCurrentIndex(idx);
 }
 
 void MainWindow::updateSymbolView(uint64_t address, const std::string &name)
@@ -642,7 +646,13 @@ void MainWindow::updateHistoryEntry(const AddressHistory::Entry& e)
 
 	m_addressHistoryDisabled = true;
 	updateSymbolView(e.getAddress());
+	int historyIdx = m_addressHistory.currentIndex();
 	m_addressHistoryDisabled = false;
+
+	// Highlight current item
+	auto idx = m_addressHistoryViewModel->index(historyIdx, 0);
+	m_ui->addressHistoryListView->setCurrentIndex(idx);
+
 }
 
 

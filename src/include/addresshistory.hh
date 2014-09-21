@@ -32,6 +32,10 @@ namespace emilpro
 
 		void clear();
 
+		int currentIndex()
+		{
+			return m_currentEntry;
+		}
 
 		const Entry &current();
 
