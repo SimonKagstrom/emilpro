@@ -21,8 +21,17 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
+    <property name="margin">
+     <number>2</number>
+    </property>
+    <property name="spacing">
+     <number>2</number>
+    </property>
     <item row="0" column="0">
      <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="spacing">
+       <number>2</number>
+      </property>
       <item>
        <widget class="QLineEdit" name="locationLineEdit">
         <property name="font">
@@ -107,6 +116,9 @@
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
+      <property name="handleWidth">
+       <number>6</number>
+      </property>
       <widget class="QTabWidget" name="tabWidget">
        <property name="currentIndex">
         <number>0</number>
@@ -116,13 +128,34 @@
          <string>Instructions</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_3">
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>2</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <property name="spacing">
+          <number>2</number>
+         </property>
          <item row="0" column="0">
           <widget class="QSplitter" name="splitter_2">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
+           <property name="handleWidth">
+            <number>6</number>
+           </property>
            <widget class="QWidget" name="layoutWidget">
             <layout class="QVBoxLayout" name="verticalLayout_6">
+             <property name="spacing">
+              <number>0</number>
+             </property>
              <item>
               <widget class="QTableView" name="instructionTableView">
                <property name="minimumSize">
@@ -181,8 +214,14 @@
            </widget>
            <widget class="QWidget" name="layoutWidget2">
             <layout class="QVBoxLayout" name="verticalLayout_2">
+             <property name="spacing">
+              <number>0</number>
+             </property>
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout">
+               <property name="spacing">
+                <number>2</number>
+               </property>
                <item>
                 <widget class="QLabel" name="currentInstructionLabel">
                  <property name="text">
@@ -213,7 +252,14 @@
               </layout>
              </item>
              <item>
-              <widget class="QTextEdit" name="instructionTextEdit"/>
+              <widget class="QTextEdit" name="instructionTextEdit">
+               <property name="minimumSize">
+                <size>
+                 <width>262</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -235,10 +281,16 @@
         </layout>
        </widget>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <property name="spacing">
+         <number>2</number>
+        </property>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_4">
+          <property name="spacing">
+           <number>0</number>
+          </property>
           <item>
            <widget class="QLabel" name="sourceTextLabel">
             <property name="font">
@@ -276,6 +328,9 @@
         </item>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_3">
+          <property name="spacing">
+           <number>0</number>
+          </property>
           <item>
            <widget class="QLabel" name="addressHistoryLabel">
             <property name="text">
@@ -285,6 +340,18 @@
           </item>
           <item>
            <widget class="QListView" name="addressHistoryListView">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>262</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="font">
              <font>
               <family>Monospace</family>
