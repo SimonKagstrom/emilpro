@@ -85,6 +85,18 @@
          </attribute>
         </widget>
         <widget class="QTableView" name="referencesTableView">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>262</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <family>Monospace</family>
@@ -421,6 +433,9 @@
    <property name="text">
     <string>&amp;Open</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="action_Quit">
    <property name="text">
@@ -481,6 +496,9 @@
   <action name="action_Refresh">
    <property name="text">
     <string>&amp;Refresh</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
  </widget>

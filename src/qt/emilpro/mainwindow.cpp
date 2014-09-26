@@ -785,6 +785,23 @@ void MainWindow::on_locationLineEdit_returnPressed()
 
 void MainWindow::on_action_Open_triggered(bool activated)
 {
+	auto fileName = QFileDialog::getOpenFileName(this, tr("Open binary")).toStdString();
+
+	if (fileName == "")
+		return;
+
+	Model &model = Model::instance();
+
+	m_data = read_file(&m_dataSize, "%s", fileName.c_str());
+	if (!m_data) {
+		error("Can't read %s, exiting", fileName.c_str());
+		exit(1);
+	}
+
+	model.addData(m_data, m_dataSize);
+	model.parseAll();
+
+	refresh();
 }
 
 void MainWindow::on_action_Refresh_triggered(bool activated)
