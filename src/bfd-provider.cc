@@ -204,13 +204,6 @@ public:
 			guessArchitecture(data, dataSize);
 		ArchitectureFactory::instance().provideArchitecture((ArchitectureFactory::Architecture_t)bfd_get_arch(m_bfd), bfd_get_mach(m_bfd));
 
-		if ((bfd_get_file_flags(m_bfd) & HAS_SYMS) == 0) {
-			error("no symbols");
-			bfd_close(m_bfd);
-			m_bfd =  NULL;
-			return false;
-		}
-
 		m_listener = listener;
 
 		long symcount, dynsymcount, syntsymcount;
