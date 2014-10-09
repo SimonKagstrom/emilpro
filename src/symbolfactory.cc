@@ -21,7 +21,8 @@ public:
 			const char *name,
 			bool isAllocated,
 			bool isWriteable,
-			bool isExecutable) :
+			bool isExecutable,
+			unsigned int nr) :
 				m_type(type),
 				m_linkage(linkage),
 				m_data(data),
@@ -31,7 +32,8 @@ public:
 				m_name(name),
 				m_isAllocated(isAllocated),
 				m_isWriteable(isWriteable),
-				m_isExecutable(isExecutable)
+				m_isExecutable(isExecutable),
+				m_nr(nr)
 	{
 	}
 
@@ -90,6 +92,11 @@ public:
 		m_size = size;
 	}
 
+	unsigned int getNr() const
+	{
+		return m_nr;
+	}
+
 private:
 	enum ISymbol::SymbolType m_type;
 	enum ISymbol::LinkageType m_linkage;
@@ -101,6 +108,7 @@ private:
 	bool m_isAllocated;
 	bool m_isWriteable;
 	bool m_isExecutable;
+	unsigned int m_nr;
 };
 
 
@@ -137,10 +145,11 @@ ISymbol &SymbolFactory::createSymbol(enum ISymbol::LinkageType linkage,
 		uint64_t fileOffset,
 		bool isAllocated,
 		bool isWriteable,
-		bool isExecutable)
+		bool isExecutable,
+		unsigned int nr)
 {
 	Symbol *cur = new Symbol(type, linkage, data, address, size, fileOffset,
-			name, isAllocated, isWriteable, isExecutable);
+			name, isAllocated, isWriteable, isExecutable, nr);
 
 	m_symbols.push_back(cur);
 

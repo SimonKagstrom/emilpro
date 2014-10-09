@@ -371,10 +371,17 @@ void SymbolView::onSymbolImpl(const emilpro::ISymbol &sym)
 	const char *w = sym.isWriteable() ? "W" : " ";
 	const char *x = sym.isExecutable() ? "X" : " ";
 	const char *a = sym.isAllocated() ? "A" : " ";
+	const char *link_str = "";
+
+	auto linkage = sym.getLinkage();
+	if (linkage == ISymbol::LINK_DYNAMIC)
+		link_str = "D";
+	else if (linkage == ISymbol::LINK_UNDEFINED)
+		link_str = "U";
 
 	row[m_symbolColumns->m_address] = fmt("0x%llx", (long long)sym.getAddress()).c_str();
 	row[m_symbolColumns->m_size] = fmt("0x%08llx", (long long)sym.getSize()).c_str();
-	row[m_symbolColumns->m_l] = sym.getLinkage() == ISymbol::LINK_DYNAMIC ? "D" : "";
+	row[m_symbolColumns->m_l] = link_str;
 	row[m_symbolColumns->m_r] = r;
 	row[m_symbolColumns->m_w] = w;
 	row[m_symbolColumns->m_x] = x;

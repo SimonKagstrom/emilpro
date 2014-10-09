@@ -45,7 +45,8 @@ namespace emilpro
 				uint64_t fileOffset,
 				bool isAllocated,
 				bool isWriteable,
-				bool isExecutable);
+				bool isExecutable,
+				unsigned int nr);
 
 		static SymbolFactory &instance();
 

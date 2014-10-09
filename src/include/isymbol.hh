@@ -14,6 +14,7 @@ namespace emilpro
 		{
 			LINK_NORMAL,
 			LINK_DYNAMIC,
+			LINK_UNDEFINED
 		};
 
 		enum SymbolType
@@ -50,6 +51,7 @@ namespace emilpro
 
 		virtual uint64_t getFileOffset() const = 0;
 
+		virtual unsigned int getNr() const = 0;
 
 		virtual void setSize(uint64_t size) = 0;
 	};

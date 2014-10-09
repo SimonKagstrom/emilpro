@@ -285,7 +285,8 @@ public:
 				0,
 				false,
 				false,
-				false
+				false,
+				0
 		);
 
 		m_listener->onSymbol(sym);
@@ -364,10 +365,7 @@ private:
 			symAddr = bfd_asymbol_value(cur);
 
 			// An interesting symbol?
-			if (cur->flags & (BSF_DEBUGGING | BSF_DEBUGGING_RELOC | BSF_FILE | BSF_RELC | BSF_WARNING | BSF_SRELC))
-				continue;
-
-			if ((cur->section->flags & SEC_ALLOC) == 0)
+			if (cur->flags & (BSF_DEBUGGING | BSF_FILE | BSF_WARNING))
 				continue;
 
 			// Remove ARM $a/$t/$d symbols
@@ -412,8 +410,15 @@ private:
 					symType = ISymbol::SYM_DATA;
 			}
 
+			ISymbol::LinkageType linkage = ISymbol::LINK_NORMAL;
+
+			if (dynamic)
+				linkage = ISymbol::LINK_DYNAMIC;
+			if ((cur->section->flags & SEC_ALLOC) == 0)
+				linkage = ISymbol::LINK_UNDEFINED;
+
 			ISymbol &sym = SymbolFactory::instance().createSymbol(
-					dynamic ? ISymbol::LINK_DYNAMIC : ISymbol::LINK_NORMAL,
+					linkage,
 					symType,
 					symName,
 					section + cur->value,

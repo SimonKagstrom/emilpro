@@ -251,7 +251,7 @@ void Model::addDerivedSymbol(const ISymbol *section, uint64_t address, int64_t s
 			fmt("fn_0x%llx_0x%llx", (unsigned long long)address, (unsigned long long)(address + size)).c_str(),
 			data, address, size,
 			section->getFileOffset() + address - section->getAddress(),
-			true, false, true);
+			true, false, true, 0);
 
 	onSymbol(sym);
 	m_pendingListenerSymbols.push_back(&sym);

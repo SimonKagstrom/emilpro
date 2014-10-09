@@ -556,7 +556,8 @@ TESTSUITE(model)
 				base,
 				true,
 				false,
-				true);
+				true,
+				1);
 
 		// Create with a gap between
 		ISymbol &s2 = SymbolFactory::instance().createSymbol(ISymbol::LINK_NORMAL,
@@ -568,7 +569,8 @@ TESTSUITE(model)
 				base,
 				true,
 				false,
-				true);
+				true,
+				2);
 
 		// Add to the model
 		model.onSymbol(s1);
@@ -628,7 +630,8 @@ TESTSUITE(model)
 				base,
 				true,
 				false,
-				true);
+				true,
+				1);
 
 		// Create with a gap between
 		ISymbol &s2 = SymbolFactory::instance().createSymbol(ISymbol::LINK_NORMAL,
@@ -640,7 +643,8 @@ TESTSUITE(model)
 				base,
 				true,
 				false,
-				true);
+				true,
+				2);
 
 
 		ISymbol &s3 = SymbolFactory::instance().createSymbol(ISymbol::LINK_NORMAL,
@@ -652,7 +656,8 @@ TESTSUITE(model)
 				base,
 				true,
 				false,
-				true);
+				true,
+				3);
 
 		// Add to the model
 		model.onSymbol(s1);

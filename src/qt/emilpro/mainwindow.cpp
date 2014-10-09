@@ -140,12 +140,18 @@ void MainWindow::handleSymbol(emilpro::ISymbol& sym)
 
 	QString addr = QString::fromStdString(fmt("0x%llx", (unsigned long long)sym.getAddress()));
 	QString size = QString::fromStdString(fmt("0x%llx", (unsigned long long)sym.getSize()));
-	QString lnk = sym.getLinkage() == ISymbol::LINK_DYNAMIC ? "D" : " ";
+	QString lnk = " ";
 	QString r = "R";
 	QString w = sym.isWriteable() ? "W" : " ";
 	QString x = sym.isExecutable() ? "X" : " ";
 	QString a = sym.isAllocated() ? "A" : " ";
 	QString name = QString::fromStdString(NameMangler::instance().mangle(sym.getName()));
+
+	auto linkage = sym.getLinkage();
+	if (linkage == ISymbol::LINK_DYNAMIC)
+		lnk = "D";
+	else if (linkage == ISymbol::LINK_UNDEFINED)
+		lnk = "U";
 
 	lst.append(new QStandardItem(addr));
 	lst.append(new QStandardItem(size));

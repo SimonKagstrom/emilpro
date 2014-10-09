@@ -41,7 +41,8 @@ public:
 				start,
 				true,
 				true,
-				true);
+				true,
+				1);
 
 		m_listener->onSymbol(p);
 	}
