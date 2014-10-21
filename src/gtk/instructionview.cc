@@ -480,7 +480,11 @@ void InstructionView::update(uint64_t address, const emilpro::ISymbol& sym)
 		row[m_instructionColumns->m_address] = fmt("0x%0llx", (long long)cur->getAddress()).c_str();
 		row[m_instructionColumns->m_instruction] = cur->getString();
 
-		if (cur->getBranchTargetAddress() != IInstruction::INVALID_ADDRESS) {
+		const auto reloc = model.getRelocation(cur->getAddress(), cur->getSize());
+
+		if (reloc) {
+			row[m_instructionColumns->m_target] = reloc->getTargetSymbol().getName() + " (reloc)";
+		} else if (cur->getBranchTargetAddress() != IInstruction::INVALID_ADDRESS) {
 			uint64_t target = cur->getBranchTargetAddress();
 			Model::SymbolList_t targetSyms = model.getSymbolExact(target);
 

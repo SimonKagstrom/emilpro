@@ -51,7 +51,7 @@ Model::Model() :
 	for (unsigned i = 0; i < cores; i++)
 		m_threads[i] = NULL;
 
-	SymbolFactory::instance().registerListener(this);
+	SymbolFactory::instance().registerListener(this, this);
 	ArchitectureFactory::instance().registerListener(this);
 }
 
@@ -476,6 +476,13 @@ void Model::onSymbol(ISymbol &sym)
 		m_mutex.unlock();
 }
 
+void Model::onRelocation(IRelocation &reloc)
+{
+	m_mutex.lock();
+	m_relocations[reloc.getSourceAddress()] = &reloc;
+	m_mutex.unlock();
+}
+
 const Model::SymbolList_t &Model::getSymbolsLocked()
 {
 	if (m_symbols.size() != 0)
@@ -570,6 +577,43 @@ const Model::SymbolList_t Model::getNearestSymbol(uint64_t address)
 	m_mutex.unlock();
 
 	return out;
+}
+
+
+const IRelocation *Model::getRelocation(uint64_t address, size_t size)
+{
+	const IRelocation *out;
+
+	out = getRelocationLocked(address, size);
+
+	return out;
+}
+
+const IRelocation *Model::getRelocationLocked(uint64_t address, size_t size)
+{
+	auto it = m_relocations.lower_bound(address + size);
+
+	if (it == m_relocations.end())
+		return nullptr;
+	--it;
+
+	// Above the last symbol
+	if (it == m_relocations.end())
+		return nullptr;
+
+	IRelocation *cur = it->second;
+	auto end = cur->getSourceAddress() + cur->getSize() - 1;
+
+	// Below nearest relocation
+	if (end < address)
+		return nullptr;
+
+	// Too large relocation
+	if (end > address + size)
+		return nullptr;
+
+	// Just right!
+	return cur;
 }
 
 const Model::SymbolList_t Model::getSymbolsByName(const std::string& name)

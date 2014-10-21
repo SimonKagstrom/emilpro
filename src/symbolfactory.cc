@@ -111,10 +111,50 @@ private:
 	unsigned int m_nr;
 };
 
+class Relocation : public IRelocation
+{
+public:
+	Relocation(const ISymbol &symbol, uint64_t sourceAddress,
+			size_t size, int64_t offset) :
+		m_symbol(symbol),
+		m_sourceAddress(sourceAddress),
+		m_size(size),
+		m_offset(offset)
+	{
+	}
 
-void SymbolFactory::registerListener(ISymbolListener *listener)
+	uint64_t getSourceAddress() const
+	{
+		return m_sourceAddress;
+	}
+
+	size_t getSize() const
+	{
+		return m_size;
+	}
+
+	const ISymbol &getTargetSymbol() const
+	{
+		return m_symbol;
+	}
+
+	int64_t getTargetOffset() const
+	{
+		return m_offset;
+	}
+
+private:
+	const ISymbol &m_symbol;
+	uint64_t m_sourceAddress;
+	size_t m_size;
+	int64_t m_offset;
+};
+
+
+void SymbolFactory::registerListener(ISymbolListener *listener, IRelocationListener *relocListener)
 {
 	m_listeners.push_back(listener);
+	m_relocationListeners.push_back(relocListener);
 }
 
 void SymbolFactory::registerProvider(ISymbolProvider *provider)
@@ -156,6 +196,13 @@ ISymbol &SymbolFactory::createSymbol(enum ISymbol::LinkageType linkage,
 	return *cur;
 }
 
+IRelocation &SymbolFactory::createRelocation(const ISymbol &symbol, uint64_t sourceAddress, size_t size, int64_t offset)
+{
+	// FIXME!
+	return *new Relocation(symbol, sourceAddress, size, offset);
+}
+
+
 unsigned SymbolFactory::parseBestProvider(void *data, size_t size)
 {
 	unsigned highest = ISymbolProvider::NO_MATCH;
@@ -176,7 +223,7 @@ unsigned SymbolFactory::parseBestProvider(void *data, size_t size)
 	if (!best)
 		return highest;
 
-	bool res = best->parse(data, size, &m_metaListener);
+	bool res = best->parse(data, size, &m_metaListener, &m_metaListener);
 
 	if (!res)
 		return ISymbolProvider::NO_MATCH;
@@ -197,6 +244,15 @@ void SymbolFactory::MetaListener::onSymbol(ISymbol &sym)
 		ISymbolListener *cur = *it;
 
 		cur->onSymbol(sym);
+	}
+}
+
+void SymbolFactory::MetaListener::onRelocation(IRelocation &reloc)
+{
+	for (auto it : m_parent.m_relocationListeners) {
+		IRelocationListener *cur = it;
+
+		cur->onRelocation(reloc);
 	}
 }
 

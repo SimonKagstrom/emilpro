@@ -279,7 +279,11 @@ void MainWindow::updateInstructionView(uint64_t address, const ISymbol& sym)
 		QString f = "";
 		QString target;
 
-		if (cur->getBranchTargetAddress() != IInstruction::INVALID_ADDRESS) {
+		const auto reloc = model.getRelocation(cur->getAddress(), cur->getSize());
+
+		if (reloc) {
+			target = QString::fromStdString(reloc->getTargetSymbol().getName() + " (reloc)");
+		} else if (cur->getBranchTargetAddress() != IInstruction::INVALID_ADDRESS) {
 			uint64_t targetAddress = cur->getBranchTargetAddress();
 			Model::SymbolList_t targetSyms = model.getSymbolExact(targetAddress);
 

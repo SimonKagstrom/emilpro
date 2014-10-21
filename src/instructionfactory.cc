@@ -1,4 +1,5 @@
 #include <instructionfactory.hh>
+#include <model.hh>
 #include <configuration.hh>
 #include <utils.hh>
 

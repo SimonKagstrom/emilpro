@@ -20,7 +20,7 @@ public:
 		return ISymbolProvider::PERFECT_MATCH;
 	}
 
-	bool parse(void *data, size_t dataSize, ISymbolListener *listener)
+	bool parse(void *data, size_t dataSize, ISymbolListener *listener, IRelocationListener *relocListener)
 	{
 		m_listener = listener;
 

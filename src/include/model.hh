@@ -24,7 +24,7 @@ namespace model
 
 namespace emilpro
 {
-	class Model : private ISymbolListener, private ArchitectureFactory::IArchitectureListener
+	class Model : private ISymbolListener, private IRelocationListener, private ArchitectureFactory::IArchitectureListener
 	{
 	public:
 		class IBasicBlock
@@ -46,6 +46,7 @@ namespace emilpro
 		typedef std::list<uint64_t> AddressList_t;
 		typedef std::list<IBasicBlock *> BasicBlockList_t;
 		typedef std::list<ISymbol *> SymbolList_t;
+		typedef std::vector<IRelocation *> RelocationList_t;
 		typedef std::list<uint64_t> CrossReferenceList_t;
 
 		bool addData(void *data, size_t size);
@@ -82,6 +83,16 @@ namespace emilpro
 
 		const SymbolList_t getNearestSymbol(uint64_t address);
 
+		/**
+		 * Lookup relocations in [address, address+size].
+		 *
+		 * Typically within an instruction, so that address can be x, and size 5 bytes.
+		 *
+		 * @param address the address to lookup
+		 * @param size the size to match
+		 */
+		const IRelocation *getRelocation(uint64_t address, size_t size);
+
 		const ILineProvider::FileLine getLineByAddress(uint64_t addr);
 
 		const CrossReferenceList_t &getReferences(uint64_t addr) const;
@@ -117,6 +128,7 @@ namespace emilpro
 		};
 
 		typedef std::map<uint64_t, SymbolList_t> SymbolOrderedMap_t;
+		typedef std::map<uint64_t, IRelocation *> RelocationOrderedMap_t;
 		typedef std::unordered_map<uint64_t, SymbolList_t> SymbolMap_t;
 		typedef std::map<std::string, SymbolList_t> SymbolsByNameMap_t;
 		typedef std::unordered_map<uint64_t, ILineProvider::FileLine> AddressFileLineMap_t;
@@ -153,6 +165,8 @@ namespace emilpro
 
 		const SymbolList_t getNearestSymbolLockedMap(const SymbolOrderedMap_t &map, uint64_t address);
 
+		const IRelocation *getRelocationLocked(uint64_t address, size_t size);
+
 		uint64_t lookupOneSymbol(const std::string &str);
 
 		uint64_t lookupOneSymbolByName(const std::string &name);
@@ -162,6 +176,8 @@ namespace emilpro
 
 		// From ISymbolListener
 		void onSymbol(ISymbol &sym);
+
+		void onRelocation(IRelocation &reloc);
 
 		std::mutex m_mutex;
 		InstructionMap_t m_instructionCache;
@@ -175,6 +191,7 @@ namespace emilpro
 		CrossReferenceList_t m_emptyReferenceList;
 		SymbolListeners_t m_symbolListeners;
 		SymbolOrderedMap_t m_sections;
+		RelocationOrderedMap_t m_relocations;
 
 		SymbolList_t m_pendingListenerSymbols;
 

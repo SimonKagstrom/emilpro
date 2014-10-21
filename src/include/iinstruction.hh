@@ -16,6 +16,7 @@ namespace emilpro
 		T_unknown,
 	} Ternary_t;
 
+	class ISymbol;
 
 	class IOperand
 	{

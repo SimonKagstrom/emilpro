@@ -54,17 +54,21 @@ TESTSUITE(symbol_provider)
 		}
 	};
 
-	class DuplicateFixture : public ISymbolListener
+	class DuplicateFixture : public ISymbolListener, public IRelocationListener
 	{
 	public:
 		DuplicateFixture()
 		{
-			SymbolFactory::instance().registerListener(this);
+			SymbolFactory::instance().registerListener(this, this);
 		}
 
 		virtual void onSymbol(ISymbol &sym)
 		{
 			m_symbolsByName[sym.getName()].push_back(&sym);
+		}
+
+		void onRelocation(IRelocation &reloc)
+		{
 		}
 
 		std::unordered_map<std::string, std::list<ISymbol *>> m_symbolsByName;

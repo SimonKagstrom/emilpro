@@ -5,6 +5,7 @@
 namespace emilpro
 {
 	class ISymbolListener;
+	class IRelocationListener;
 
 	class ISymbolProvider
 	{
@@ -21,6 +22,6 @@ namespace emilpro
 
 		virtual unsigned match(void *data, size_t dataSize) = 0;
 
-		virtual bool parse(void *data, size_t dataSize, ISymbolListener *) = 0;
+		virtual bool parse(void *data, size_t dataSize, ISymbolListener *, IRelocationListener *) = 0;
 	};
 };

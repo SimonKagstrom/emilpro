@@ -7,20 +7,24 @@
 
 using namespace emilpro;
 
-class SymbolFixture : public ISymbolListener
+class SymbolFixture : public ISymbolListener, public IRelocationListener
 {
 public:
 	SymbolFixture()
 	{
 		SymbolFactory &factory = SymbolFactory::instance();
 
-		factory.registerListener(this);
+		factory.registerListener(this, this);
 	}
 
 	void onSymbol(ISymbol &sym)
 	{
 		m_symbolNames[sym.getName()] = &sym;
 		m_symbolAddrs[sym.getAddress()] = &sym;
+	}
+
+	void onRelocation(IRelocation &reloc)
+	{
 	}
 
 	std::unordered_map<std::string, ISymbol *> m_symbolNames;

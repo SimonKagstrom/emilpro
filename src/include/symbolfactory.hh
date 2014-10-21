@@ -1,8 +1,10 @@
 #pragma once
 
 #include <list>
+#include <vector>
 
 #include "isymbol.hh"
+#include "irelocation.hh"
 
 namespace emilpro
 {
@@ -20,12 +22,22 @@ namespace emilpro
 		virtual void onSymbol(ISymbol &sym) = 0;
 	};
 
+	class IRelocationListener
+	{
+	public:
+		virtual ~IRelocationListener()
+		{
+		}
+
+		virtual void onRelocation(IRelocation &reloc) = 0;
+	};
+
 	class SymbolFactory
 	{
 	public:
 		void destroy();
 
-		void registerListener(ISymbolListener *listener);
+		void registerListener(ISymbolListener *listener, IRelocationListener *relocListener);
 
 		void registerProvider(ISymbolProvider *provider);
 
@@ -48,15 +60,19 @@ namespace emilpro
 				bool isExecutable,
 				unsigned int nr);
 
+		virtual IRelocation &createRelocation(const ISymbol &symbol, uint64_t sourceAddress, size_t size, int64_t offset);
+
 		static SymbolFactory &instance();
 
 	private:
-		class MetaListener : public ISymbolListener
+		class MetaListener : public ISymbolListener, public IRelocationListener
 		{
 		public:
 			MetaListener(SymbolFactory &parent);
 
 			void onSymbol(ISymbol &sym);
+
+			void onRelocation(IRelocation &reloc);
 
 		private:
 			SymbolFactory &m_parent;
@@ -64,6 +80,7 @@ namespace emilpro
 
 		typedef std::list<ISymbolProvider *> SymbolProviders_t;
 		typedef std::list<ISymbolListener *> SymbolListeners_t;
+		typedef std::vector<IRelocationListener *> RelocationListeners_t;
 		typedef std::list<ILineProvider *> LineProviders_t;
 		typedef std::list<ISymbol *> Symbols_t;
 
@@ -73,6 +90,7 @@ namespace emilpro
 
 		SymbolProviders_t m_providers;
 		SymbolListeners_t m_listeners;
+		RelocationListeners_t m_relocationListeners;
 		Symbols_t m_symbols;
 		LineProviders_t m_lineProviders;
 

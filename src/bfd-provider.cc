@@ -89,8 +89,11 @@ class BfdProvider : public ISymbolProvider, public ILineProvider
 {
 public:
 	BfdProvider() :
+		m_rawData(NULL),
+		m_rawDataSize(0),
 		m_bfd(NULL),
 		m_listener(NULL),
+		m_relocationListener(NULL),
 		m_bfdSyms(NULL),
 		m_dynamicBfdSyms(NULL),
 		m_syntheticBfdSyms(NULL),
@@ -166,11 +169,12 @@ public:
 		return ISymbolProvider::PERFECT_MATCH - 1;
 	}
 
-	bool parse(void *data, size_t dataSize, ISymbolListener *listener)
+	bool parse(void *data, size_t dataSize, ISymbolListener *listener, IRelocationListener *relocListener)
 	{
 		char **matching;
 		unsigned int sz;
 		struct target_buffer *buffer = (struct target_buffer *)xmalloc(sizeof(struct target_buffer));
+		bool isElf;
 
 		if (m_bfd) {
 			free (m_bfdSyms);
@@ -182,6 +186,8 @@ public:
 
 		buffer->base = (uint8_t *)data;
 		buffer->size = dataSize;
+		m_rawData = (uint8_t *)data;
+		m_rawDataSize = dataSize;
 		m_bfd = bfd_openr_iovec ("", NULL,
                           mem_bfd_iovec_open,
                           buffer,
@@ -200,11 +206,14 @@ public:
 			return false;
 		}
 
+		isElf = memcmp(m_rawData, ELFMAG, SELFMAG) == 0;
+
 		if (bfd_get_arch(m_bfd) == bfd_arch_unknown)
 			guessArchitecture(data, dataSize);
 		ArchitectureFactory::instance().provideArchitecture((ArchitectureFactory::Architecture_t)bfd_get_arch(m_bfd), bfd_get_mach(m_bfd));
 
 		m_listener = listener;
+		m_relocationListener = relocListener;
 
 		long symcount, dynsymcount, syntsymcount;
 
@@ -268,10 +277,19 @@ public:
 					section->filepos,
 					section->flags & SEC_ALLOC,
 					!(section->flags & SEC_READONLY),
-					section->flags & SEC_CODE
+					section->flags & SEC_CODE,
+					0
 					);
 
 			m_listener->onSymbol(sym);
+		}
+
+		// The first pass has created symbols, now look for relocations
+		for (section = m_bfd->sections; section != NULL; section = section->next) {
+			m_sectionByAddress[(uint64_t)bfd_section_vma(m_bfd, section)] = section;
+
+			if (isElf && section->reloc_count > 0)
+				handleRelocations(section);
 		}
 
 		// Add the file symbol
@@ -295,6 +313,99 @@ public:
 	}
 
 private:
+	void handleRelocations(asection *sec)
+	{
+		if (!m_bfd)
+			return;
+
+		if (!m_bfd->arch_info)
+			return;
+
+		auto bits = m_bfd->arch_info->bits_per_address;
+
+		if (bits == 64)
+			handleRelocationsRela64(sec);
+		else if (bits == 32)
+			handleRelocationsRela32(sec);
+	}
+
+	void handleRelocationsRela32(asection *sec)
+	{
+		uint8_t *data = m_rawData + sec->rel_filepos;
+		Elf32_Rela *p = (Elf32_Rela *)data;
+
+		for (unsigned int i = 0; i < sec->reloc_count; i++, p++)
+			addRelocation(ELF32_R_SYM(p->r_info), ELF32_R_TYPE(p->r_info),
+					bfd_section_vma(m_bfd, sec) + p->r_offset, p->r_addend);
+	}
+
+	void handleRelocationsRela64(asection *sec)
+	{
+		uint8_t *data = m_rawData + sec->rel_filepos;
+		Elf64_Rela *p = (Elf64_Rela *)data;
+
+		for (unsigned int i = 0; i < sec->reloc_count; i++, p++)
+			addRelocation(ELF64_R_SYM(p->r_info), ELF64_R_TYPE(p->r_info),
+					bfd_section_vma(m_bfd, sec) + p->r_offset, p->r_addend);
+	}
+
+	void addRelocation(unsigned int symIdx, unsigned int type, uint64_t address, int64_t addend)
+	{
+		if (m_symbolsByNr.find(symIdx) == m_symbolsByNr.end())
+			return;
+
+		auto size = deriveRelocationSize(type);
+		auto cur = m_symbolsByNr[symIdx];
+
+		auto &reloc = SymbolFactory::instance().createRelocation(
+				*cur, address, size, addend);
+
+		m_relocationListener->onRelocation(reloc);
+	}
+
+	size_t deriveRelocationSize(unsigned int type)
+	{
+		auto arch = bfd_get_arch(m_bfd);
+		auto mach = bfd_get_mach(m_bfd);
+
+		if (arch == bfd_arch_i386 &&
+				(mach == bfd_mach_x86_64 || mach == bfd_mach_x86_64_intel_syntax)) {
+			switch (type) {
+			case R_X86_64_8:
+			case R_X86_64_PC8:
+				return 1;
+
+			case R_X86_64_16:
+			case R_X86_64_PC16:
+				return 2;
+
+			case R_X86_64_64:
+			case R_X86_64_PC64:
+			case R_X86_64_GOTOFF64:
+				return 8;
+			default:
+				break;
+			}
+		} else if (arch == bfd_arch_i386 &&
+				(mach == bfd_mach_i386_i386 || mach == bfd_mach_i386_i386_intel_syntax)) {
+			switch (type) {
+			case R_386_8:
+			case R_386_PC8:
+				return 1;
+
+			case R_386_16:
+			case R_386_PC16:
+				return 2;
+
+			default:
+				break;
+			}
+		}
+
+		// If all else fails, guess conservatively
+		return 4;
+	}
+
 	void guessArchitecture(void *data, size_t dataSize)
 	{
 		struct Elf *elf;
@@ -427,10 +538,13 @@ private:
 					cur->section->filepos + cur->value,
 					cur->section->flags & SEC_ALLOC,
 					!(cur->section->flags & SEC_READONLY),
-					cur->section->flags & SEC_CODE
-					);
+					cur->section->flags & SEC_CODE,
+					i + 1); // Nr starts at 1
 			symbolsByAddress[symAddr].push_back(&sym);
 			sectionEndAddresses[&sym] = bfd_section_vma(m_bfd, cur->section) + bfd_section_size(m_bfd, cur->section);
+
+			// FIXME! Can we have this map global, or one for each symbol table?
+			m_symbolsByNr[sym.getNr()] = &sym;
 
 			if (size == 0)
 				fixupSyms.push_back(&sym);
@@ -483,10 +597,14 @@ private:
 	typedef std::map<uint64_t, asection *> BfdSectionByAddress_t;
 	typedef std::map<ISymbol *, uint64_t> SectionAddressBySymbol_t;
 	typedef std::map<uint64_t, std::list<ISymbol *> > SymbolsByAddress_t;
+	typedef std::unordered_map<unsigned int, ISymbol *> SymbolsByNr_t;
 	typedef std::list<ISymbol *> SymbolList_t;
 
+	uint8_t *m_rawData;
+	size_t m_rawDataSize;
 	struct bfd *m_bfd;
 	ISymbolListener *m_listener;
+	IRelocationListener *m_relocationListener;
 	asymbol **m_bfdSyms;
 	asymbol **m_dynamicBfdSyms;
 	asymbol **m_syntheticBfdSyms;
@@ -498,6 +616,7 @@ private:
 	SectionAddressBySymbol_t sectionEndAddresses;
 	SymbolsByAddress_t symbolsByAddress;
 	SymbolList_t fixupSyms;
+	SymbolsByNr_t m_symbolsByNr;
 };
 
 namespace emilpro
