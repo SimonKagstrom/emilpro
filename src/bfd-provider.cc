@@ -323,10 +323,18 @@ private:
 
 		auto bits = m_bfd->arch_info->bits_per_address;
 
-		if (bits == 64)
-			handleRelocationsRela64(sec);
-		else if (bits == 32)
-			handleRelocationsRela32(sec);
+		// RELA (with addend) or REL (without addend) relocations?
+		if (sec->use_rela_p) {
+			if (bits == 64)
+				handleRelocationsRela64(sec);
+			else if (bits == 32)
+				handleRelocationsRela32(sec);
+		} else {
+			if (bits == 64)
+				handleRelocationsRel64(sec);
+			else if (bits == 32)
+				handleRelocationsRel32(sec);
+		}
 	}
 
 	void handleRelocationsRela32(asection *sec)
@@ -347,6 +355,26 @@ private:
 		for (unsigned int i = 0; i < sec->reloc_count; i++, p++)
 			addRelocation(ELF64_R_SYM(p->r_info), ELF64_R_TYPE(p->r_info),
 					bfd_section_vma(m_bfd, sec) + p->r_offset, p->r_addend);
+	}
+
+	void handleRelocationsRel32(asection *sec)
+	{
+		uint8_t *data = m_rawData + sec->rel_filepos;
+		Elf32_Rel *p = (Elf32_Rel *)data;
+
+		for (unsigned int i = 0; i < sec->reloc_count; i++, p++)
+			addRelocation(ELF32_R_SYM(p->r_info), ELF32_R_TYPE(p->r_info),
+					bfd_section_vma(m_bfd, sec) + p->r_offset, 0);
+	}
+
+	void handleRelocationsRel64(asection *sec)
+	{
+		uint8_t *data = m_rawData + sec->rel_filepos;
+		Elf64_Rel *p = (Elf64_Rel *)data;
+
+		for (unsigned int i = 0; i < sec->reloc_count; i++, p++)
+			addRelocation(ELF64_R_SYM(p->r_info), ELF64_R_TYPE(p->r_info),
+					bfd_section_vma(m_bfd, sec) + p->r_offset, 0);
 	}
 
 	void addRelocation(unsigned int symIdx, unsigned int type, uint64_t address, int64_t addend)
