@@ -591,7 +591,7 @@ const IRelocation *Model::getRelocation(uint64_t address, size_t size)
 
 const IRelocation *Model::getRelocationLocked(uint64_t address, size_t size)
 {
-	auto it = m_relocations.lower_bound(address + size);
+	auto it = m_relocations.lower_bound(address);
 
 	if (it == m_relocations.end())
 		return nullptr;
