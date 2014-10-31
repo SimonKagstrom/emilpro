@@ -18,7 +18,7 @@ public:
 		return ISymbolProvider::NO_MATCH;
 	}
 
-	virtual bool parse(void *data, size_t dataSize, ISymbolListener *)
+	virtual bool parse(void *data, size_t dataSize, ISymbolListener *, IRelocationListener *)
 	{
 		return false;
 	}
