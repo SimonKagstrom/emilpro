@@ -71,6 +71,7 @@ include_directories(
 	../tools/
 	../src/gtk/include/
 	../src/include/
+	/home/ska/local/include/
 	${CMAKE_BINARY_DIR}
 	${LIBELF_INCLUDE_DIRS}
 	${CMAKE_BINARY_DIR}/install-binutils/include/
@@ -116,6 +117,7 @@ target_link_libraries(server/cgi-server
 	)
 
 target_link_libraries(server/cgi-handler
+	/home/ska/local/lib/libcgicc.a
 	${CGICC_LIBRARIES}
 	)
 

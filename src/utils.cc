@@ -12,6 +12,7 @@
 
 #include "utils.hh"
 
+#include <fstream>
 #include <sstream>
 
 static void* (*mocked_read_callback)(size_t* out_size, const char* path);
@@ -110,6 +111,46 @@ void *read_file(size_t *out_size, const char *fmt, ...)
 		return mocked_read_callback(out_size, path);
 
 	return read_file_int(out_size, 0, path);
+}
+
+void *peek_file(size_t *out_size, const char *fmt, ...)
+{
+	char path[2048];
+	va_list ap;
+	int r;
+
+	/* Create the filename */
+	va_start(ap, fmt);
+	r = vsnprintf(path, 2048, fmt, ap);
+	va_end(ap);
+
+	panic_if (r >= 2048,
+			"Too long string!");
+
+	// Read a little bit of the file
+	const size_t to_read = 512;
+	char *out = static_cast<char*>(xmalloc(to_read));
+
+	std::ifstream str(path);
+	if (str.is_open()) {
+		str.read(out,to_read);
+		// If successful (all desired characters) or
+		// a non-zero number of characters were read, then succeed
+		if (str || str.gcount() > 0) {
+			*out_size = str.gcount();
+		} else {
+			// No characters read, so fail
+			free(out);
+			out = NULL;
+		}
+		str.close();
+
+	} else {
+		free(out);
+		out = NULL;
+	}
+
+	return out;
 }
 
 

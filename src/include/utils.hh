@@ -88,6 +88,8 @@ void *read_file(size_t *out_size, const char *fmt, ...);
 
 void *read_file_timeout(size_t *out_size, uint64_t timeout_ms, const char *fmt, ...);
 
+void *peek_file(size_t *out_size, const char *fmt, ...);
+
 int write_file_timeout(const void *data, size_t len, uint64_t timeout_ms, const char *fmt, ...);
 
 int write_file(const void *data, size_t len, const char *fmt, ...);
