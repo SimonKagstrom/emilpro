@@ -15,25 +15,22 @@ set (BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../)
 
 
 find_package (LibElf REQUIRED)
-find_package (LibGeoIP REQUIRED)
-find_package (LibCRPCUT REQUIRED)
 find_package (PkgConfig REQUIRED)
 include (${CMAKE_CURRENT_SOURCE_DIR}/../cmake/BuildBinutils.cmake)
 
-pkg_check_modules(GTKMM gtkmm-3.0)
 pkg_check_modules(LIBXMLPP libxml++-2.6)
 pkg_check_modules(LIBCURL libcurl)
 
 set (TGT relink)
 
-set (CMAKE_CXX_FLAGS "-std=c++0x -Wall -D_GLIBCXX_USE_NANOSLEEP -DPACKAGE=emilpro -DPACKAGE_VERSION=1")
+set (CMAKE_CXX_FLAGS "-std=c++0x -g -Wall -D_GLIBCXX_USE_NANOSLEEP -DPACKAGE=emilpro -DPACKAGE_VERSION=1")
 LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/install-binutils/lib ${CMAKE_BINARY_DIR}/install-binutils/lib64 /home/ska/local/lib)
 
 if (HAVE_BFD_MULTIARCH)
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_BFD_MULTIARCH")
 endif (HAVE_BFD_MULTIARCH)
 
-set (CMAKE_BUILD_TYPE debug)
+set (CMAKE_BUILD_TYPE Relase)
 
 set (${TGT}_SRCS
 	../src/architecturefactory.cc
@@ -59,11 +56,8 @@ include_directories(
 	${CMAKE_BINARY_DIR}
 	${LIBELF_INCLUDE_DIRS}
 	${CMAKE_BINARY_DIR}/install-binutils/include/
-	${LIBCRPCUT_INCLUDE_DIRS}
-	${GTKMM_INCLUDE_DIRS}
 	${LIBXMLPP_INCLUDE_DIRS}
 	${LIBCURL_INCLUDE_DIRS}
-	${LibGeoIP_INCLUDE_DIR}
 	)
 
 add_executable (file-to-source
@@ -92,7 +86,6 @@ target_link_libraries(${TGT}
 	opcodes.a
 	bfd.a
 	iberty.a
-	${GTKMM_LIBRARIES}
 	${LIBXMLPP_LIBRARIES}
 	${LIBCURL_LIBRARIES}
 	z

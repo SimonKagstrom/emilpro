@@ -73,6 +73,8 @@ namespace emilpro
 
 		const SymbolList_t &getSymbols();
 
+		const RelocationList_t &getRelocations();
+
 		const ISymbol *getSection(uint64_t address);
 
 		void registerSymbolListener(ISymbolListener *listener);
@@ -192,6 +194,7 @@ namespace emilpro
 		SymbolListeners_t m_symbolListeners;
 		SymbolOrderedMap_t m_sections;
 		RelocationOrderedMap_t m_relocations;
+		RelocationList_t m_relocationList;
 
 		SymbolList_t m_pendingListenerSymbols;
 

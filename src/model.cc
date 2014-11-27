@@ -480,6 +480,7 @@ void Model::onRelocation(IRelocation &reloc)
 {
 	m_mutex.lock();
 	m_relocations[reloc.getSourceAddress()] = &reloc;
+	m_relocationList.push_back(&reloc);
 	m_mutex.unlock();
 }
 
@@ -512,6 +513,11 @@ const Model::SymbolList_t &Model::getSymbols()
 	m_mutex.unlock();
 
 	return out;
+}
+
+const Model::RelocationList_t &Model::getRelocations()
+{
+	return m_relocationList;
 }
 
 const Model::SymbolList_t Model::getSymbolExactLocked(uint64_t address)
