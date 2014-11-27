@@ -182,6 +182,42 @@ static void parseSolibsRelocs(const std::string &path)
 	free(p);
 }
 
+static void zeroSolibUnused(const std::string &path)
+{
+	size_t sz;
+	void *p = checkElf(path, ET_DYN, sz);
+	uint8_t *bp = (uint8_t*)p;
+
+	if (!p)
+		return;
+	EmilPro::destroy();
+	auto &model = Model::instance();
+
+	model.addData(p, sz);
+	model.parseAll();
+	while (!model.parsingComplete())
+		;
+
+	auto syms = model.getSymbols();
+	unsigned int keeps = 0;
+
+	for (auto &it : syms) {
+		const ISymbol *cur = it;
+
+		if (cur->getType() != ISymbol::SYM_TEXT)
+		    continue;
+
+		if (keepSymbols.find(cur->getName()) != keepSymbols.end())
+		    continue;
+
+		memset(bp + cur->getFileOffset(), 0, cur->getSize());
+	}
+
+	write_file(p, sz, "%s", path.c_str());
+
+	free(p);
+}
+
 int main(int argc, const char *argv[])
 {
 	if (argc < 2)
@@ -192,6 +228,7 @@ int main(int argc, const char *argv[])
 	walkDir(argv[1], parseFile);
 	walkDir(argv[1], parseSolibs);
 	walkDir(argv[1], parseSolibsRelocs);
+	walkDir(argv[1], zeroSolibUnused);
 
 	printf("Will keep %lld / %lld symbols (zero %lld KB, keep %lld KB)\n",
 			(unsigned long long)keepSymbols.size(), totalSyms,
