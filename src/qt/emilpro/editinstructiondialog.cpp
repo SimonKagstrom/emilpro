@@ -2,6 +2,8 @@
 #include "ui_editinstructiondialog.h"
 
 #include <instructionfactory.hh>
+#include <configuration.hh>
+#include <server.hh>
 #include <utils.hh>
 
 using namespace emilpro;
@@ -10,14 +12,22 @@ EditInstructionDialog::EditInstructionDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::EditInstructionDialog),
     m_currentModel(NULL),
-    m_currentInstruction(NULL)
+    m_currentInstruction(NULL),
+    m_currentArchitecture(bfd_arch_unknown)
 {
     m_ui->setupUi(this);
+    ArchitectureFactory::instance().registerListener(this);
 }
 
 EditInstructionDialog::~EditInstructionDialog()
 {
     delete m_ui;
+}
+
+void EditInstructionDialog::onArchitectureDetected(ArchitectureFactory::Architecture_t arch,
+                            ArchitectureFactory::Machine_t mach)
+{
+    m_currentArchitecture = arch;
 }
 
 void EditInstructionDialog::edit(const IInstruction* insn)
@@ -112,8 +122,27 @@ void EditInstructionDialog::on_buttonBox_accepted()
 	m_currentModel->setType(type);
 	m_currentModel->setPrivileged(privileged);
 	m_currentModel->setDescription(descriptionStr.toStdString());
+	m_currentModel->setTimeStamp(get_utc_timestamp());
 
-#warning Actually save the model
+	Configuration &conf = Configuration::instance();
+
+	std::string archStr = ArchitectureFactory::instance().getNameFromArchitecture(m_currentArchitecture);
+
+	// Create architecture dir
+	std::string archDir = fmt("%s/%s",
+	                          conf.getPath(Configuration::DIR_LOCAL).c_str(),
+	                          archStr.c_str());
+	::mkdir(archDir.c_str(), 0744);
+
+	std::string fileName = fmt("%s/%s.xml",
+	                           archDir.c_str(),
+	                           m_currentInstruction->getMnemonic().c_str());
+
+	std::string xml = m_currentModel->toXml();
+
+	write_file((void *)xml.c_str(), xml.size(),
+	           "%s", fileName.c_str());
+	Server::instance().sendAndReceive();
 }
 
 void EditInstructionDialog::on_buttonBox_rejected()
