@@ -95,6 +95,12 @@ target_link_libraries(${TGT}
 
 set_property(TARGET ${TGT} APPEND PROPERTY OBJECT_DEPENDS binutils)
 
+add_library(first SHARED example/first.cc)
+add_library(second SHARED example/second.cc)
+add_executable(example example/example.cc)
+
+target_link_libraries(first second)
+target_link_libraries(example first)
 
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
 set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)

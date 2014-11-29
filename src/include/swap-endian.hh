@@ -1,0 +1,51 @@
+#pragma once
+
+#include <stdint.h>
+
+#include "utils.hh"
+
+// From http://stackoverflow.com/questions/105252/how-do-i-convert-between-big-endian-and-little-endian-values-in-c
+template <typename T>
+T swap_endian(T u)
+{
+	union
+	{
+		T u;
+		unsigned char u8[sizeof(T)];
+	} source, dest;
+
+	source.u = u;
+
+	for (size_t k = 0; k < sizeof(T); k++)
+		dest.u8[k] = source.u8[sizeof(T) - k - 1];
+
+	return dest.u;
+}
+
+
+template <typename T>
+T to_be(T u)
+{
+	if (cpu_is_little_endian())
+		return swap_endian<T>(u);
+	else
+		return u;
+}
+
+template <typename T>
+T be_to_host(T u)
+{
+	if (cpu_is_little_endian())
+		return swap_endian<T>(u);
+	else
+		return u;
+}
+
+template <typename T>
+T le_to_host(T u)
+{
+	if (cpu_is_little_endian())
+		return u;
+	else
+		return swap_endian<T>(u);
+}
