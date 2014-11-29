@@ -284,12 +284,14 @@ public:
 			m_listener->onSymbol(sym);
 		}
 
-		// The first pass has created symbols, now look for relocations
-		for (section = m_bfd->sections; section != NULL; section = section->next) {
-			m_sectionByAddress[(uint64_t)bfd_section_vma(m_bfd, section)] = section;
+		if (isElf) {
+			// The first pass has created symbols, now look for relocations
+			for (section = m_bfd->sections; section != NULL; section = section->next) {
+				m_sectionByAddress[(uint64_t)bfd_section_vma(m_bfd, section)] = section;
 
-			if (isElf && section->reloc_count > 0)
-				handleRelocations(section);
+				if (section->reloc_count > 0)
+					handleRelocations(section);
+			}
 		}
 
 		// Add the file symbol
