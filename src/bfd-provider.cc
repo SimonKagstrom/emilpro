@@ -288,7 +288,6 @@ public:
 		for (section = m_bfd->sections; section != NULL; section = section->next) {
 			m_sectionByAddress[(uint64_t)bfd_section_vma(m_bfd, section)] = section;
 
-			printf("XXX: %s:%d\n", section->name, section->reloc_count);
 			if (isElf && section->reloc_count > 0)
 				handleRelocations(section);
 		}
