@@ -469,10 +469,11 @@ void Model::onSymbol(ISymbol &sym)
 	bool locked;
 
 	locked = m_mutex.try_lock();
-	if (sym.getType() == ISymbol::SYM_SECTION && sym.getSize() > 0) {
-		m_data[sym.getAddress()] = new DataChunk(sym.getAddress(),
-						0, sym.getSize(), (uint8_t *)sym.getDataPtr());
-
+	if (sym.getType() == ISymbol::SYM_SECTION) {
+		if (sym.getSize() > 0)
+			m_data[sym.getAddress()] = new DataChunk(sym.getAddress(),
+					0, sym.getSize(), (uint8_t *)sym.getDataPtr());
+		m_sections[sym.getAddress()].push_back(&sym);
 	}
 
 	m_symbolsByAddress[sym.getAddress()].push_back(&sym);
