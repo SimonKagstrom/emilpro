@@ -278,6 +278,7 @@ public:
 					0
 					);
 
+			m_sectionsByAddress[sym.getAddress()] = &sym;
 			m_listener->onSymbol(sym);
 		}
 
@@ -335,6 +336,10 @@ private:
 			} else {
 				continue;
 			}
+
+			auto sym = m_sectionsByAddress[sh_addr];
+			if (sym)
+				sym->setRawType(sh_type);
 
 			if (sh_type != SHT_REL &&
 					sh_type != SHT_RELA)
@@ -657,6 +662,7 @@ private:
 	typedef std::map<uint64_t, asection *> BfdSectionByAddress_t;
 	typedef std::map<ISymbol *, uint64_t> SectionAddressBySymbol_t;
 	typedef std::map<uint64_t, std::list<ISymbol *> > SymbolsByAddress_t;
+	typedef std::map<uint64_t, ISymbol *> SectionsByAddress_t;
 	typedef std::unordered_map<unsigned int, ISymbol *> SymbolsByNr_t;
 	typedef std::list<ISymbol *> SymbolList_t;
 
@@ -675,6 +681,7 @@ private:
 	BfdSectionByAddress_t m_sectionByAddress;
 	SectionAddressBySymbol_t sectionEndAddresses;
 	SymbolsByAddress_t symbolsByAddress;
+	SectionsByAddress_t m_sectionsByAddress;
 	SymbolList_t fixupSyms;
 	SymbolsByNr_t m_symbolsByNr;
 };
