@@ -137,48 +137,53 @@ static void parseSolibs(const std::string &path)
 		;
 
 	auto syms = model.getSymbols();
-	unsigned int keeps = 0;
+	auto relocs = model.getRelocations();
+
+	unsigned int keeps = keepSymbols.size();
 	for (auto &it : syms) {
 		const ISymbol *cur = it;
 
-		if (cur->getType() != ISymbol::SYM_TEXT ||
-				(cur->getLinkage() == ISymbol::LINK_DYNAMIC &&
-				binarySymbols.find(cur->getName()) != binarySymbols.end())) {
+		totalSyms++;
+
+		// Keep all non-code symbols
+		if (cur->getType() != ISymbol::SYM_TEXT) {
 			keepSymbols[cur->getName()]++;
-			if (cur->getType() == ISymbol::SYM_TEXT)
-				keepSize += cur->getSize();
-			keeps++;
+
+			continue;
+		}
+		symSize += cur->getSize();
+
+		auto sec = model.getSection(cur->getAddress());
+		if (!sec)
+			continue;
+
+		// Keep everything outside the regular text segment
+		if (sec->getName() != ".text") {
+			keepSymbols[cur->getName()]++;
+			keepSize += cur->getSize();
+
+			continue;
 		}
 
-		totalSyms++;
-		if (cur->getType() == ISymbol::SYM_TEXT)
-			symSize += cur->getSize();
+
+		// Used by the binary or other solibs
+		if (cur->getLinkage() == ISymbol::LINK_DYNAMIC &&
+				binarySymbols.find(cur->getName()) != binarySymbols.end()) {
+			keepSymbols[cur->getName()]++;
+			keepSize += cur->getSize();
+		}
 	}
-	printf("%u keep\n", keeps);
-	free(p);
-}
+	keeps = keepSymbols.size() - keeps;
 
-static void parseSolibsRelocs(const std::string &path)
-{
-	size_t sz;
-	void *p = checkElf(path, ET_DYN, sz);
-
-	if (!p)
-		return;
-
-	EmilPro::destroy();
-	auto &model = Model::instance();
-
-	model.addData(p, sz);
-	model.parseAll();
-	while (!model.parsingComplete())
-		;
-
-	auto relocs = model.getRelocations();
 	for (auto &it : relocs) {
-		printf("XXX: 0x%llx and %s\n", it->getSourceAddress(), it->getTargetSymbol().getName().c_str());
+		const auto &sym = it->getTargetSymbol();
+
+		auto sec = model.getSection(it->getSourceAddress());
+
+		printf("XXX: 0x%llx and %s is in %s\n", it->getSourceAddress(), sym.getName().c_str(), sec ? sec->getName().c_str() : "huh?");
 	}
 
+	printf("%u keep\n", keeps);
 	free(p);
 }
 
@@ -227,8 +232,7 @@ int main(int argc, const char *argv[])
 
 	walkDir(argv[1], parseFile);
 	walkDir(argv[1], parseSolibs);
-	walkDir(argv[1], parseSolibsRelocs);
-	walkDir(argv[1], zeroSolibUnused);
+//	walkDir(argv[1], zeroSolibUnused);
 
 	printf("Will keep %lld / %lld symbols (zero %lld KB, keep %lld KB)\n",
 			(unsigned long long)keepSymbols.size(), totalSyms,
