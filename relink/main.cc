@@ -176,7 +176,7 @@ static void parseSolibsRelocs(const std::string &path)
 
 	auto relocs = model.getRelocations();
 	for (auto &it : relocs) {
-		printf("XXX: 0x%llx\n", it->getTargetOffset());
+		printf("XXX: 0x%llx and %s\n", it->getSourceAddress(), it->getTargetSymbol().getName().c_str());
 	}
 
 	free(p);
