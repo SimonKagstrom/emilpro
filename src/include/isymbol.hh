@@ -35,6 +35,10 @@ namespace emilpro
 
 		virtual enum SymbolType getType() const = 0;
 
+		virtual uint32_t getRawType() const = 0;
+
+		virtual void setRawType(uint32_t rawType) = 0;
+
 		virtual bool isAllocated() const = 0;
 
 		virtual bool isWriteable() const = 0;

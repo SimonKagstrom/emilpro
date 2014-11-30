@@ -24,6 +24,7 @@ public:
 			bool isExecutable,
 			unsigned int nr) :
 				m_type(type),
+				m_rawType(0),
 				m_linkage(linkage),
 				m_data(data),
 				m_address(address),
@@ -45,6 +46,16 @@ public:
 	enum ISymbol::SymbolType getType() const
 	{
 		return m_type;
+	}
+
+	void setRawType(uint32_t rawType)
+	{
+		m_rawType = rawType;
+	}
+
+	uint32_t getRawType() const
+	{
+		return m_rawType;
 	}
 
 	bool isAllocated() const
@@ -99,6 +110,7 @@ public:
 
 private:
 	enum ISymbol::SymbolType m_type;
+	uint32_t m_rawType;
 	enum ISymbol::LinkageType m_linkage;
 	void *m_data;
 	uint64_t m_address;
