@@ -150,6 +150,12 @@ const InstructionList_t Model::getInstructions(uint64_t start, uint64_t end)
 
 void Model::fillCacheWithSymbol(ISymbol *sym)
 {
+// FIXME!
+	if (sym->getType() == ISymbol::SYM_SECTION) {
+		m_sections[sym->getAddress()].push_back(sym);
+		return;
+	}
+
 	InstructionList_t lst = IDisassembly::instance().execute(sym->getDataPtr(), sym->getSize(), sym->getAddress());
 	InstructionList_t cleanupList;
 
@@ -265,7 +271,7 @@ void Model::worker(unsigned queueNr)
 		ISymbol *cur = queue->front();
 
 		m_mutex.lock();
-//		fillCacheWithSymbol(cur);
+		fillCacheWithSymbol(cur);
 		m_mutex.unlock();
 
 		queue->pop_front();
