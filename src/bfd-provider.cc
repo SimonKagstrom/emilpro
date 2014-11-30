@@ -174,7 +174,6 @@ public:
 		char **matching;
 		unsigned int sz;
 		struct target_buffer *buffer = (struct target_buffer *)xmalloc(sizeof(struct target_buffer));
-		bool isElf;
 
 		if (m_bfd) {
 			free (m_bfdSyms);
@@ -205,8 +204,6 @@ public:
 			m_bfd =  NULL;
 			return false;
 		}
-
-		isElf = memcmp(m_rawData, ELFMAG, SELFMAG) == 0;
 
 		if (bfd_get_arch(m_bfd) == bfd_arch_unknown)
 			guessArchitecture(data, dataSize);
@@ -284,15 +281,8 @@ public:
 			m_listener->onSymbol(sym);
 		}
 
-		if (isElf) {
-			// The first pass has created symbols, now look for relocations
-			for (section = m_bfd->sections; section != NULL; section = section->next) {
-				m_sectionByAddress[(uint64_t)bfd_section_vma(m_bfd, section)] = section;
-
-				if (section->reloc_count > 0)
-					handleRelocations(section);
-			}
-		}
+		// Handle relocations
+		parseElf(data, dataSize);
 
 		// Add the file symbol
 		ISymbol &sym = SymbolFactory::instance().createSymbol(
@@ -315,6 +305,50 @@ public:
 	}
 
 private:
+	void parseElf(void *dataIn, size_t dataSz)
+	{
+		Elf_Scn *scn = NULL;
+		Elf *elf;
+
+		elf = elf_memory((char *)dataIn, dataSz);
+		// Not an ELF?
+		if (!elf)
+			return;
+
+		auto bits = m_bfd->arch_info->bits_per_address;
+
+		/* Iterate through sections */
+		while ( (scn = elf_nextscn(elf, scn)) != NULL ) {
+			uint64_t sh_addr = 0;
+			unsigned long sh_type = SHT_NULL;
+
+			if (bits == 32) {
+				Elf32_Shdr *shdr = elf32_getshdr(scn);
+
+				sh_type = shdr->sh_type;
+				sh_addr = shdr->sh_addr;
+			} else if (bits == 64) {
+				Elf64_Shdr *shdr = elf64_getshdr(scn);
+
+				sh_type = shdr->sh_type;
+				sh_addr = shdr->sh_addr;
+			} else {
+				continue;
+			}
+
+			if (sh_type != SHT_REL &&
+					sh_type != SHT_RELA)
+				continue;
+
+			auto sec = m_sectionByAddress[sh_addr];
+			if (sec)
+				handleRelocations(sec);
+		}
+
+		elf_end(elf);
+	}
+
+
 	void handleRelocations(asection *sec)
 	{
 		if (!m_bfd)
@@ -341,42 +375,38 @@ private:
 
 	void handleRelocationsRela32(asection *sec)
 	{
-		uint8_t *data = m_rawData + sec->rel_filepos;
+		uint8_t *data = m_rawData + sec->filepos;
 		Elf32_Rela *p = (Elf32_Rela *)data;
 
-		for (unsigned int i = 0; i < sec->reloc_count; i++, p++)
-			addRelocation(ELF32_R_SYM(p->r_info), ELF32_R_TYPE(p->r_info),
-					bfd_section_vma(m_bfd, sec) + p->r_offset, p->r_addend);
+		for (unsigned int i = 0; i < sec->size / sizeof(Elf32_Rela); i++, p++)
+			addRelocation(ELF32_R_SYM(p->r_info), ELF32_R_TYPE(p->r_info), p->r_offset, p->r_addend);
 	}
 
 	void handleRelocationsRela64(asection *sec)
 	{
-		uint8_t *data = m_rawData + sec->rel_filepos;
+		uint8_t *data = m_rawData + sec->filepos;
 		Elf64_Rela *p = (Elf64_Rela *)data;
 
-		for (unsigned int i = 0; i < sec->reloc_count; i++, p++)
-			addRelocation(ELF64_R_SYM(p->r_info), ELF64_R_TYPE(p->r_info),
-					bfd_section_vma(m_bfd, sec) + p->r_offset, p->r_addend);
+		for (unsigned int i = 0; i < sec->size / sizeof(Elf64_Rela); i++, p++)
+			addRelocation(ELF64_R_SYM(p->r_info), ELF64_R_TYPE(p->r_info), p->r_offset, p->r_addend);
 	}
 
 	void handleRelocationsRel32(asection *sec)
 	{
-		uint8_t *data = m_rawData + sec->rel_filepos;
+		uint8_t *data = m_rawData + sec->filepos;
 		Elf32_Rel *p = (Elf32_Rel *)data;
 
-		for (unsigned int i = 0; i < sec->reloc_count; i++, p++)
-			addRelocation(ELF32_R_SYM(p->r_info), ELF32_R_TYPE(p->r_info),
-					bfd_section_vma(m_bfd, sec) + p->r_offset, 0);
+		for (unsigned int i = 0; i < sec->size / sizeof(Elf32_Rel); i++, p++)
+			addRelocation(ELF32_R_SYM(p->r_info), ELF32_R_TYPE(p->r_info), p->r_offset, 0);
 	}
 
 	void handleRelocationsRel64(asection *sec)
 	{
-		uint8_t *data = m_rawData + sec->rel_filepos;
+		uint8_t *data = m_rawData + sec->filepos;
 		Elf64_Rel *p = (Elf64_Rel *)data;
 
-		for (unsigned int i = 0; i < sec->reloc_count; i++, p++)
-			addRelocation(ELF64_R_SYM(p->r_info), ELF64_R_TYPE(p->r_info),
-					bfd_section_vma(m_bfd, sec) + p->r_offset, 0);
+		for (unsigned int i = 0; i < sec->size / sizeof(Elf64_Rel); i++, p++)
+			addRelocation(ELF64_R_SYM(p->r_info), ELF64_R_TYPE(p->r_info), p->r_offset, 0);
 	}
 
 	void addRelocation(unsigned int symIdx, unsigned int type, uint64_t address, int64_t addend)
@@ -657,6 +687,8 @@ namespace emilpro
 	{
 		if (!g_bfdInited) {
 			bfd_init();
+			panic_if(elf_version(EV_CURRENT) == EV_NONE, "ELF version failed\n");
+
 			g_bfdInited = true;
 		}
 
