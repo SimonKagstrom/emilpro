@@ -31,7 +31,7 @@
 enum debug_mask
 {
 	INFO_MSG   = 1,
-	PTRACE_MSG = 2,
+	ENGINE_MSG = 2,
 	ELF_MSG    = 4,
 	BP_MSG     = 8,
 };
