@@ -38,7 +38,7 @@ public:
 	    m_arch[bfd_arch_m68k] = BfdArch(bfd_arch_m68k, bfd_mach_m68040, print_insn_m68k);      /* Motorola 68xxx */
 	    m_arch[bfd_arch_vax] = BfdArch(bfd_arch_vax, 0, print_insn_vax);       /* DEC Vax */
 	    m_arch[bfd_arch_i960] = BfdArch(bfd_arch_i960, 0, print_insn_i960);      /* Intel 960 */
-	    m_arch[bfd_arch_or32] = BfdArch(bfd_arch_or32, 0, print_insn_little_or32);      /* OpenRISC 32 */
+	    m_arch[bfd_arch_or1k] = BfdArch(bfd_arch_or1k, 0, print_insn_little_or1k);      /* OpenRISC 32 */
 	    m_arch[bfd_arch_sparc] = BfdArch(bfd_arch_sparc, 0, print_insn_sparc);     /* SPARC */
 	    m_arch[bfd_arch_spu] = BfdArch(bfd_arch_spu, 0, print_insn_spu);       /* PowerPC SPU */
 	    m_arch[bfd_arch_i860] = BfdArch(bfd_arch_i860, 0, print_insn_i860);      /* Intel 860 */
@@ -89,7 +89,6 @@ public:
 	    m_arch[bfd_arch_rl78] = BfdArch(bfd_arch_rl78, 0, print_insn_rl78);
 	    m_arch[bfd_arch_rx] = BfdArch(bfd_arch_rx, 0, print_insn_rx);        /* Renesas RX.  */
 	    m_arch[bfd_arch_s390] = BfdArch(bfd_arch_s390, bfd_mach_s390_64, print_insn_s390);      /* IBM s390 */
-	    m_arch[bfd_arch_openrisc] = BfdArch(bfd_arch_openrisc, 0, print_insn_openrisc);  /* OpenRISC */
 	    m_arch[bfd_arch_mmix] = BfdArch(bfd_arch_mmix, 0, print_insn_mmix);      /* Donald Knuth's educational processor.  */
 	    m_arch[bfd_arch_xstormy16] = BfdArch(bfd_arch_xstormy16, 0, print_insn_xstormy16);
 	    m_arch[bfd_arch_msp430] = BfdArch(bfd_arch_msp430, 0, print_insn_msp430);    /* Texas Instruments MSP430 architecture.  */
