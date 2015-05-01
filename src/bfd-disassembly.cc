@@ -38,7 +38,7 @@ public:
 	    m_arch[bfd_arch_m68k] = BfdArch(bfd_arch_m68k, bfd_mach_m68040, print_insn_m68k);      /* Motorola 68xxx */
 	    m_arch[bfd_arch_vax] = BfdArch(bfd_arch_vax, 0, print_insn_vax);       /* DEC Vax */
 	    m_arch[bfd_arch_i960] = BfdArch(bfd_arch_i960, 0, print_insn_i960);      /* Intel 960 */
-	    m_arch[bfd_arch_or1k] = BfdArch(bfd_arch_or1k, 0, print_insn_little_or1k);      /* OpenRISC 32 */
+	    m_arch[bfd_arch_or1k] = BfdArch(bfd_arch_or1k, 0, print_insn_or1k);      /* OpenRISC 32 */
 	    m_arch[bfd_arch_sparc] = BfdArch(bfd_arch_sparc, 0, print_insn_sparc);     /* SPARC */
 	    m_arch[bfd_arch_spu] = BfdArch(bfd_arch_spu, 0, print_insn_spu);       /* PowerPC SPU */
 	    m_arch[bfd_arch_i860] = BfdArch(bfd_arch_i860, 0, print_insn_i860);      /* Intel 860 */
