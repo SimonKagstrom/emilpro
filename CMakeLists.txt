@@ -29,7 +29,7 @@ pkg_check_modules(GTKSOURCEVIEWMM REQUIRED gtksourceviewmm-3.0)
 pkg_check_modules(LIBXMLPP REQUIRED libxml++-2.6)
 pkg_check_modules(LIBCURL REQUIRED libcurl)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -D_GLIBCXX_USE_NANOSLEEP -DPACKAGE=emilpro -DPACKAGE_VERSION=1")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -D_GLIBCXX_USE_NANOSLEEP -DPACKAGE=emilpro -DPACKAGE_VERSION=1")
 LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/install-binutils/lib ${CMAKE_BINARY_DIR}/install-binutils/lib64)
 
 if (HAVE_BFD_MULTIARCH)
