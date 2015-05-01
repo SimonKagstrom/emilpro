@@ -139,6 +139,8 @@ set (BASE_LIBS
 	${LIBXMLPP_LIBRARIES}
 	${LIBCURL_LIBRARIES}
 	z
+	pthread
+	dl
 	)
 
 target_link_libraries(emilpro
