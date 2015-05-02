@@ -10,7 +10,7 @@ ArchitectureFactory::ArchitectureFactory() :
 	m_architectureNameMap[(unsigned)bfd_arch_m68k] = "m68k";
 	m_architectureNameMap[(unsigned)bfd_arch_vax] = "vax";
 	m_architectureNameMap[(unsigned)bfd_arch_i960] = "i960";
-	m_architectureNameMap[(unsigned)bfd_arch_or32] = "or32";
+	m_architectureNameMap[(unsigned)bfd_arch_or1k] = "or1k";
 	m_architectureNameMap[(unsigned)bfd_arch_sparc] = "sparc";
 	m_architectureNameMap[(unsigned)bfd_arch_mips] = "mips";
 	m_architectureNameMap[(unsigned)bfd_arch_i386] = "i386";
@@ -68,7 +68,6 @@ ArchitectureFactory::ArchitectureFactory() :
 	m_architectureNameMap[(unsigned)bfd_arch_cris] = "cris";
 	m_architectureNameMap[(unsigned)bfd_arch_s390] = "s390";
 	m_architectureNameMap[(unsigned)bfd_arch_score] = "score";
-	m_architectureNameMap[(unsigned)bfd_arch_openrisc] = "openrisc";
 	m_architectureNameMap[(unsigned)bfd_arch_mmix] = "mmix";
 	m_architectureNameMap[(unsigned)bfd_arch_xstormy16] =  "xstormy16";
 	m_architectureNameMap[(unsigned)bfd_arch_xc16x] = "xc16x";
@@ -81,7 +80,7 @@ ArchitectureFactory::ArchitectureFactory() :
 	m_nameArchitectureMap["m68k"] = (unsigned)bfd_arch_m68k;
 	m_nameArchitectureMap["vax"] = (unsigned)bfd_arch_vax;
 	m_nameArchitectureMap["i960"] = (unsigned)bfd_arch_i960;
-	m_nameArchitectureMap["or32"] = (unsigned)bfd_arch_or32;
+	m_nameArchitectureMap["or1k"] = (unsigned)bfd_arch_or1k;
 	m_nameArchitectureMap["sparc"] = (unsigned)bfd_arch_sparc;
 	m_nameArchitectureMap["mips"] = (unsigned)bfd_arch_mips;
 	m_nameArchitectureMap["i386"] = (unsigned)bfd_arch_i386;
@@ -139,7 +138,6 @@ ArchitectureFactory::ArchitectureFactory() :
 	m_nameArchitectureMap["cris"] = (unsigned)bfd_arch_cris;
 	m_nameArchitectureMap["s390"] = (unsigned)bfd_arch_s390;
 	m_nameArchitectureMap["score"] = (unsigned)bfd_arch_score;
-	m_nameArchitectureMap["openrisc"] = (unsigned)bfd_arch_openrisc;
 	m_nameArchitectureMap["mmix"] = (unsigned)bfd_arch_mmix;
 	m_nameArchitectureMap["xstormy16"] =  (unsigned)bfd_arch_xstormy16;
 	m_nameArchitectureMap["xc16x"] = (unsigned)bfd_arch_xc16x;
