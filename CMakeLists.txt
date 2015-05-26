@@ -109,11 +109,11 @@ set_property(SOURCE src/gtk/main.cc APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_BINAR
 set_property(SOURCE src/emilpro.cc APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_BINARY_DIR}/built_in_instruction_models.hh)
 
 include_directories(
+	${CMAKE_BINARY_DIR}/install-binutils/include/
 	src/gtk/include/
 	src/include/
 	${CMAKE_BINARY_DIR}
 	${LIBELF_INCLUDE_DIRS}
-	${CMAKE_BINARY_DIR}/install-binutils/include/
 	${GTKMM_INCLUDE_DIRS}
 	${GTKSOURCEVIEWMM_INCLUDE_DIRS}
 	${LIBXMLPP_INCLUDE_DIRS}
