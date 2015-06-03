@@ -143,6 +143,7 @@ set (BASE_LIBS
 	${LIBXMLPP_LIBRARIES}
 	${LIBCURL_LIBRARIES}
 	z
+	dl
 	)
 
 
