@@ -10,7 +10,7 @@ build:
 	make -C build
 
 prepare_linux:
-	sudo apt-get update -qq
+	sudo apt-get update -y
 	sudo apt-get install -y ${emilpro_deps} gcc-multilib debootstrap git time
 	sudo pip install robotframework
 
