@@ -205,7 +205,7 @@ IRelocation &SymbolFactory::createRelocation(const ISymbol &symbol, uint64_t sou
 
 unsigned SymbolFactory::parseBestProvider(void *data, size_t size)
 {
-	unsigned highest = ISymbolProvider::NO_MATCH;
+	unsigned highest = IProvider::NO_MATCH;
 	ISymbolProvider *best = NULL;
 
 	for (SymbolProviders_t::iterator it = m_providers.begin();
@@ -226,7 +226,7 @@ unsigned SymbolFactory::parseBestProvider(void *data, size_t size)
 	bool res = best->parse(data, size, &m_metaListener, &m_metaListener);
 
 	if (!res)
-		return ISymbolProvider::NO_MATCH;
+		return IProvider::NO_MATCH;
 
 	return highest;
 }
