@@ -1,7 +1,7 @@
 #include <model.hh>
 #include <symbolfactory.hh>
 #include <isymbolprovider.hh>
-#include <idisassembly.hh>
+#include <instructionfactory.hh>
 #include <utils.hh>
 
 #include <unordered_map>
@@ -90,13 +90,19 @@ Model::~Model()
 
 bool Model::addData(void *data, size_t size)
 {
-	SymbolFactory &factory = SymbolFactory::instance();
+	auto &symbolFactory = SymbolFactory::instance();
+	auto &instructionFactory = InstructionFactory::instance();
 	unsigned res;
 
-	res = factory.parseBestProvider(data, size);
+	res = symbolFactory.parseBestProvider(data, size);
 
 	// Should really never happen
-	if (res == ISymbolProvider::NO_MATCH)
+	if (res == IProvider::NO_MATCH)
+		return false;
+
+	res = instructionFactory.parseBestProvider(data, size);
+	// ... and neither should this
+	if (res == IProvider::NO_MATCH)
 		return false;
 
 	return true;
@@ -150,7 +156,7 @@ const InstructionList_t Model::getInstructions(uint64_t start, uint64_t end)
 
 void Model::fillCacheWithSymbol(ISymbol *sym)
 {
-	InstructionList_t lst = IDisassembly::instance().execute(sym->getDataPtr(), sym->getSize(), sym->getAddress());
+	InstructionList_t lst = InstructionFactory::instance().disassemble(sym->getDataPtr(), sym->getSize(), sym->getAddress());
 	InstructionList_t cleanupList;
 
 	for (InstructionList_t::iterator it = lst.begin();

@@ -2,7 +2,6 @@
 
 #include <architecturefactory.hh>
 #include <instructionfactory.hh>
-#include <idisassembly.hh>
 #include <iinstruction.hh>
 #include <configuration.hh>
 #include <preferences.hh>
@@ -47,10 +46,9 @@ TESTSUITE(disassembly)
 	{
 		EmilPro::init();
 
-		IDisassembly &dis = IDisassembly::instance();
 		ArchitectureFactory::instance().provideArchitecture(bfd_arch_i386, bfd_mach_i386_i386);
 
-		InstructionList_t lst = dis.execute((void *)ia32_dump, sizeof(ia32_dump), 0x1000);
+		InstructionList_t lst = InstructionFactory::instance().disassemble((void *)ia32_dump, sizeof(ia32_dump), 0x1000);
 		ASSERT_TRUE(lst.size() == 11U);
 
 		AddressMap_t m = listToAddressMap(lst);
@@ -109,13 +107,12 @@ TESTSUITE(disassembly)
 
 		EmilPro::init();
 
-		IDisassembly &dis = IDisassembly::instance();
 		ArchitectureFactory::instance().provideArchitecture(bfd_arch_i386, bfd_mach_i386_i386);
 
 		InstructionList_t lst;
 
 		Preferences::instance().setValue("X86InstructionSyntax", "att");
-		lst = dis.execute((void *)ia32_dump, sizeof(ia32_dump), 0x1000);
+		lst = InstructionFactory::instance().disassemble((void *)ia32_dump, sizeof(ia32_dump), 0x1000);
 		ASSERT_TRUE(lst.size() == 11U);
 
 		AddressMap_t m = listToAddressMap(lst);
@@ -127,7 +124,7 @@ TESTSUITE(disassembly)
 
 
 		Preferences::instance().setValue("X86InstructionSyntax", "intel");
-		lst = dis.execute((void *)ia32_dump, sizeof(ia32_dump), 0x1000);
+		lst = InstructionFactory::instance().disassemble((void *)ia32_dump, sizeof(ia32_dump), 0x1000);
 		ASSERT_TRUE(lst.size() == 11U);
 
 		m = listToAddressMap(lst);
@@ -141,10 +138,9 @@ TESTSUITE(disassembly)
 	{
 		EmilPro::init();
 
-		IDisassembly &dis = IDisassembly::instance();
 		ArchitectureFactory::instance().provideArchitecture(bfd_arch_i386);
 
-		InstructionList_t lst = dis.execute((void *)ia32_dump, sizeof(ia32_dump), 0x1000);
+		InstructionList_t lst = InstructionFactory::instance().disassemble((void *)ia32_dump, sizeof(ia32_dump), 0x1000);
 		ASSERT_TRUE(lst.size() == 11U);
 
 		AddressMap_t m = listToAddressMap(lst);
@@ -167,10 +163,9 @@ TESTSUITE(disassembly)
 
 	TEST(ia32Prefixes, DisassemblyFixture)
 	{
-		IDisassembly &dis = IDisassembly::instance();
 		ArchitectureFactory::instance().provideArchitecture(bfd_arch_i386);
 
-		InstructionList_t lst = dis.execute((void *)ia32_prefix_dump, sizeof(ia32_prefix_dump), 0x1000);
+		InstructionList_t lst = InstructionFactory::instance().disassemble((void *)ia32_prefix_dump, sizeof(ia32_prefix_dump), 0x1000);
 		ASSERT_TRUE(lst.size() == 1U);
 
 		AddressMap_t m = listToAddressMap(lst);
@@ -182,10 +177,9 @@ TESTSUITE(disassembly)
 
 	TEST(otherArchs, DisassemblyFixture)
 	{
-		IDisassembly &dis = IDisassembly::instance();
 		ArchitectureFactory::instance().provideArchitecture(bfd_arch_powerpc);
 
-		InstructionList_t lst = dis.execute((void *)ppc32_dump, sizeof(ppc32_dump), 0x1000);
+		InstructionList_t lst = InstructionFactory::instance().disassemble((void *)ppc32_dump, sizeof(ppc32_dump), 0x1000);
 		ASSERT_TRUE(lst.size() == 8U);
 
 
@@ -206,7 +200,7 @@ TESTSUITE(disassembly)
 
 
 		ArchitectureFactory::instance().provideArchitecture(bfd_arch_mips);
-		lst = dis.execute((void *)mips_dump, sizeof(mips_dump), 0x1000);
+		lst = InstructionFactory::instance().disassemble((void *)mips_dump, sizeof(mips_dump), 0x1000);
 		ASSERT_TRUE(lst.size() == 17U);
 
 		m = listToAddressMap(lst);
@@ -225,7 +219,7 @@ TESTSUITE(disassembly)
 
 
 		ArchitectureFactory::instance().provideArchitecture(bfd_arch_arm);
-		lst = dis.execute((void *)arm_dump, sizeof(arm_dump), 0x1000);
+		lst = InstructionFactory::instance().disassemble((void *)arm_dump, sizeof(arm_dump), 0x1000);
 		ASSERT_TRUE(lst.size() == 10U);
 
 		m = listToAddressMap(lst);
@@ -242,7 +236,7 @@ TESTSUITE(disassembly)
 
 
 		ArchitectureFactory::instance().provideArchitecture(bfd_arch_avr);
-		lst = dis.execute((void *)avr_dump, sizeof(avr_dump), 0x1000);
+		lst = InstructionFactory::instance().disassemble((void *)avr_dump, sizeof(avr_dump), 0x1000);
 		ASSERT_TRUE(lst.size() == 11U);
 
 		m = listToAddressMap(lst);
@@ -263,10 +257,9 @@ TESTSUITE(disassembly)
 	{
 		ASSERT_SCOPE_HEAP_LEAK_FREE
 		{
-			IDisassembly &dis = IDisassembly::instance();
 			uint8_t breakpoint = 0xcc;
 
-			InstructionList_t lst = dis.execute((void *)&breakpoint, sizeof(breakpoint), 0x1000);
+			InstructionList_t lst = InstructionFactory::instance().disassemble((void *)&breakpoint, sizeof(breakpoint), 0x1000);
 			ASSERT_TRUE(lst.size() == 1U);
 
 			for (InstructionList_t::iterator it = lst.begin();

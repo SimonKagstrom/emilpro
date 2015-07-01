@@ -9,14 +9,14 @@
 
 #include <architecturefactory.hh>
 #include <instructionfactory.hh>
-#include <idisassembly.hh>
+#include <idisassemblyprovider.hh>
 #include <iinstruction.hh>
 #include <preferences.hh>
 #include <utils.hh>
 
 using namespace emilpro;
 
-class Disassembly : public IDisassembly,
+class Disassembly : public
 	ArchitectureFactory::IArchitectureListener,
 	Preferences::IListener
 {
@@ -266,22 +266,49 @@ private:
 	bool m_useIntelSyntax;
 };
 
-static Disassembly *g_instance;
-void Disassembly::destroy()
+
+class BfdDisassemblerProvider : public IDisassemblyProvider,
+	public std::enable_shared_from_this<IDisassemblyProvider>
 {
-	g_instance = NULL;
-
-	delete this;
-}
-
-
-IDisassembly &IDisassembly::instance()
-{
-	if (!g_instance) {
-		g_instance = new Disassembly();
-
-		g_instance->init();
+public:
+	BfdDisassemblerProvider()
+	{
+		InstructionFactory::instance().registerProvider(std::shared_ptr<IDisassemblyProvider>(this));
 	}
 
-	return *g_instance;
-}
+	virtual ~BfdDisassemblerProvider()
+	{
+	}
+
+	unsigned match(void *data, size_t dataSize)
+	{
+		if (!m_instance) {
+			m_instance = std::unique_ptr<Disassembly>(new Disassembly());
+
+			m_instance->init();
+		}
+
+		// BFD should be the fallback solution - but not a perfect one
+		return 100;
+	}
+
+	InstructionList_t execute(void *data, size_t size, uint64_t address)
+	{
+		return m_instance->execute(data, size, address);
+	}
+
+private:
+	std::unique_ptr<Disassembly> m_instance;
+};
+
+class DisassemblyCreator
+{
+public:
+	DisassemblyCreator()
+	{
+		// Deleted by the shared_ptr above
+		new BfdDisassemblerProvider();
+	}
+};
+
+static DisassemblyCreator g_bfdDisassembler;

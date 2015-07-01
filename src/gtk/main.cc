@@ -4,7 +4,6 @@
 #include <gtksourceviewmm.h>
 
 #include <model.hh>
-#include <idisassembly.hh>
 #include <architecturefactory.hh>
 #include <configuration.hh>
 #include <symbolfactory.hh>

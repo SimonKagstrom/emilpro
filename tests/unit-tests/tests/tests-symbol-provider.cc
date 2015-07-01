@@ -3,7 +3,7 @@
 
 #include <symbolfactory.hh>
 #include <isymbolprovider.hh>
-#include <idisassembly.hh>
+#include <instructionfactory.hh>
 
 #include <utils.hh>
 
@@ -27,10 +27,9 @@ TESTSUITE(symbol_provider)
 			ASSERT_TRUE(sym->getDataPtr() != (void *)NULL);
 			ASSERT_TRUE(sym->isWriteable() == false);
 			ASSERT_TRUE(sym->isExecutable() == true);
-			IDisassembly &dis = IDisassembly::instance();
 
 			// Disassemble main()
-			InstructionList_t insns = dis.execute(sym->getDataPtr(), sym->getSize(), sym->getAddress());
+			InstructionList_t insns = InstructionFactory::instance().disassemble(sym->getDataPtr(), sym->getSize(), sym->getAddress());
 			ASSERT_TRUE(insns.size() > 0U);
 
 

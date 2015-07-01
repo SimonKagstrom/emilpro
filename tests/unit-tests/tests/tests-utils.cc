@@ -1,7 +1,6 @@
 #include "../test.hh"
 
 #include <xmlfactory.hh>
-#include <idisassembly.hh>
 
 #include <utils.hh>
 

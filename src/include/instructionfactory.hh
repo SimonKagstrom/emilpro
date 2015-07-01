@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <mutex>
+#include <memory>
 
 #include <unordered_map>
 
@@ -24,6 +25,7 @@ namespace instruction_factory
 namespace emilpro
 {
 	class InstructionModel;
+	class IDisassemblyProvider;
 
 	class InstructionFactory : public ArchitectureFactory::IArchitectureListener
 	{
@@ -124,6 +126,14 @@ namespace emilpro
 
 		InstructionModelList_t getInstructionModels(uint64_t fromTimestamp = 0);
 
+
+		// Provider stuff
+		void registerProvider(std::shared_ptr<IDisassemblyProvider> provider);
+
+		unsigned parseBestProvider(void *data, size_t size);
+
+		InstructionList_t disassemble(void *data, size_t size, uint64_t address) const;
+
 	private:
 		class XmlListener : public XmlFactory::IXmlListener
 		{
@@ -147,6 +157,7 @@ namespace emilpro
 		typedef std::unordered_map<unsigned, IEncodingHandler *> ArchitectureToEncoding_t;
 		typedef std::unordered_map<std::string, IInstructionModel*> MnemonicToModel_t;
 		typedef std::unordered_map<unsigned, MnemonicToModel_t> ArchitectureToModelMap_t;
+		typedef std::vector<std::shared_ptr<IDisassemblyProvider>> DisassemblyProviderList_t;
 
 		IEncodingHandler *m_encodingHandler;
 		IEncodingHandler *m_genericEncodingHandler;
@@ -154,6 +165,8 @@ namespace emilpro
 		ArchitectureToModelMap_t m_instructionModelByArchitecture;
 
 		ArchitectureFactory::Architecture_t m_currentArchitecture;
+		DisassemblyProviderList_t m_disassemblyProviders;
+		std::shared_ptr<IDisassemblyProvider> m_disassembler; // Best disassembler
 		XmlListener m_xmlListener;
 
 		std::mutex m_mutex;

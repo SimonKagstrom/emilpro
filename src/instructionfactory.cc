@@ -2,6 +2,7 @@
 #include <model.hh>
 #include <configuration.hh>
 #include <utils.hh>
+#include <idisassemblyprovider.hh>
 
 #include <string.h>
 #include <stdlib.h>
@@ -465,6 +466,8 @@ void InstructionFactory::destroy()
 		}
 	}
 
+	m_disassemblyProviders.clear();
+
 	delete m_genericEncodingHandler;
 
 	m_mutex.unlock();
@@ -656,4 +659,40 @@ InstructionFactory::InstructionModelList_t InstructionFactory::getInstructionMod
 	}
 
 	return out;
+}
+
+
+void InstructionFactory::registerProvider(std::shared_ptr<IDisassemblyProvider> provider)
+{
+	m_disassemblyProviders.push_back(provider);
+}
+
+unsigned InstructionFactory::parseBestProvider(void *data, size_t size)
+{
+	unsigned highest = IProvider::NO_MATCH;
+	std::shared_ptr<IDisassemblyProvider> best;
+
+	for (const auto &it : m_disassemblyProviders) {
+		unsigned cur = it->match(data, size);
+
+		if (cur > highest) {
+			highest = cur;
+			best = it;
+		}
+	}
+
+	if (!best)
+		return highest;
+
+	m_disassembler = best;
+
+	return highest;
+}
+
+InstructionList_t InstructionFactory::disassemble(void *data, size_t size, uint64_t address) const
+{
+	panic_if(!m_disassembler,
+			"Disassembling attempted without disassembler");
+
+	return m_disassembler->execute(data, size, address);
 }

@@ -1,7 +1,6 @@
 #include "../test.hh"
 
 #include <xmlfactory.hh>
-#include <idisassembly.hh>
 #include <configuration.hh>
 #include <emilpro.hh>
 
@@ -39,9 +38,8 @@ TESTSUITE(instruction_factory)
 				"</emilpro>\n";
 
 		ArchitectureFactory::instance().provideArchitecture(bfd_arch_mips);
-		IDisassembly &dis = IDisassembly::instance();
 
-		InstructionList_t lst = dis.execute((void *)mips_dump, sizeof(mips_dump), 0x1000);
+		InstructionList_t lst = InstructionFactory::instance().disassemble((void *)mips_dump, sizeof(mips_dump), 0x1000);
 		ASSERT_TRUE(lst.size() == 1U);
 		IInstruction *insn = lst.front();
 		ASSERT_TRUE(insn->getMnemonic() == "beqz");
@@ -57,7 +55,7 @@ TESTSUITE(instruction_factory)
 		ASSERT_TRUE(p->isPrivileged() == T_false);
 
 
-		lst = dis.execute((void *)mips_dump, sizeof(mips_dump), 0x1000);
+		lst = InstructionFactory::instance().disassemble((void *)mips_dump, sizeof(mips_dump), 0x1000);
 		ASSERT_TRUE(lst.size() == 1U);
 		insn = lst.front();
 		ASSERT_TRUE(insn->getMnemonic() == "beqz");

@@ -3,7 +3,6 @@
 #include <architecturefactory.hh>
 #include <symbolfactory.hh>
 #include <instructionfactory.hh>
-#include <idisassembly.hh>
 #include <xmlfactory.hh>
 #include <configuration.hh>
 #include <server.hh>
@@ -33,7 +32,6 @@ void EmilPro::init()
 	Configuration &conf = Configuration::instance();
 	Model::instance();
 	SymbolFactory::instance();
-	IDisassembly::instance();
 	ArchitectureFactory::instance();
 	InstructionFactory::instance();
 	XmlFactory::instance();
@@ -64,7 +62,6 @@ void EmilPro::destroy()
 {
 	Model::instance().destroy();
 	SymbolFactory::instance().destroy();
-	IDisassembly::instance().destroy();
 	InstructionFactory::instance().destroy();
 	ArchitectureFactory::instance().destroy();
 	//Server::instance().destroy();
