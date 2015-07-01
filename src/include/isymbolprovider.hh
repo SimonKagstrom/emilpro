@@ -1,5 +1,7 @@
 #pragma once
 
+#include "iprovider.hh"
+
 #include <stdlib.h> // size_t
 
 namespace emilpro
@@ -7,20 +9,12 @@ namespace emilpro
 	class ISymbolListener;
 	class IRelocationListener;
 
-	class ISymbolProvider
+	class ISymbolProvider : public IProvider
 	{
 	public:
-		enum MatchLimits
-		{
-			NO_MATCH = 0,
-			PERFECT_MATCH = 0xffffffff,
-		};
-
 		virtual ~ISymbolProvider()
 		{
 		}
-
-		virtual unsigned match(void *data, size_t dataSize) = 0;
 
 		virtual bool parse(void *data, size_t dataSize, ISymbolListener *, IRelocationListener *) = 0;
 	};
