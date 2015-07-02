@@ -116,6 +116,7 @@ public:
 
 	virtual ~Disassembly()
 	{
+	    Preferences::instance().unregisterListener(this);
 	}
 
 	virtual void onPreferencesChanged(const std::string &key,
