@@ -35,6 +35,16 @@ namespace emilpro
 
 		virtual void provideArchitecture(Architecture_t arch, Machine_t machine = 0);
 
+		Architecture_t getArchitecture() const
+		{
+			return m_architecture;
+		}
+
+		Machine_t getMachine() const
+		{
+			return m_machine;
+		}
+
 		static ArchitectureFactory &instance();
 
 	private:
