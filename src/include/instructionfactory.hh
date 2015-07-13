@@ -45,8 +45,6 @@ namespace emilpro
 			}
 
 			virtual std::string getMnemonic(std::vector<std::string> encodingVector) = 0;
-
-			virtual const std::vector<std::string> mangleEncodingVector(std::vector<std::string> encodingVector) = 0;
 		};
 
 		class IInstructionModel

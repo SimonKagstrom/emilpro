@@ -305,39 +305,6 @@ public:
 	{
 		return encodingVector[0];
 	}
-
-	virtual const std::vector<std::string> mangleEncodingVector(std::vector<std::string> encodingVector)
-	{
-		return encodingVector;
-	}
-};
-
-class ArmEncodingHandler : public GenericEncodingHandler
-{
-public:
-	virtual const std::vector<std::string> mangleEncodingVector(std::vector<std::string> encodingVector)
-	{
-		std::vector<std::string> out;
-
-		std::string cur;
-		for (std::vector<std::string>::iterator it = encodingVector.begin();
-				it != encodingVector.end();
-				++it) {
-			std::string s = *it;
-
-			if (s[0] == ',' || s[0] == ' ' || s[0] == '\t') {
-				out.push_back(cur);
-				cur = "";
-			}
-
-			cur += s;
-		}
-
-		if (cur != "")
-			out.push_back(cur);
-
-		return out;
-	}
 };
 
 class I386EncodingHandler : public GenericEncodingHandler
@@ -355,41 +322,11 @@ public:
 	}
 };
 
-class PowerPCEncodingHandler : public GenericEncodingHandler
-{
-public:
-	virtual const std::vector<std::string> mangleEncodingVector(std::vector<std::string> encodingVector)
-	{
-		std::vector<std::string> out;
-
-		std::string cur;
-		size_t sz = encodingVector.size();
-
-		unsigned i = 0;
-		for (std::vector<std::string>::iterator it = encodingVector.begin();
-				it != encodingVector.end();
-				++it) {
-			std::string s = *it;
-
-			cur += s;
-			if (s == "," || i == 0 || (i == sz - 1)) {
-				out.push_back(cur);
-				cur = "";
-			}
-			i++;
-		}
-
-		return out;
-	}
-};
-
 InstructionFactory::InstructionFactory() :
 		m_instructionModelByArchitecture(),
 		m_xmlListener(this)
 {
-	m_encodingMap[bfd_arch_arm] = new ArmEncodingHandler();
 	m_encodingMap[bfd_arch_i386] = new I386EncodingHandler();
-	m_encodingMap[bfd_arch_powerpc] = new PowerPCEncodingHandler();
 	m_genericEncodingHandler = new GenericEncodingHandler();
 	m_encodingHandler = m_genericEncodingHandler;
 
@@ -403,8 +340,6 @@ IInstruction* InstructionFactory::create(uint64_t startAddress, uint64_t pc, std
 
 	if (encodingVector.size() == 0)
 		return NULL;
-
-	encodingVector = m_encodingHandler->mangleEncodingVector(encodingVector);
 
 	std::string mnemonic = m_encodingHandler->getMnemonic(encodingVector);
 	uint64_t targetAddress = IInstruction::INVALID_ADDRESS;

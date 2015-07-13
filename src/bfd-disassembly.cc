@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include <functional>
 
 #include <bfd.h>
 #include <dis-asm.h>
@@ -104,6 +105,7 @@ public:
 
 	    // Some "sane" default
 		m_currentArch = BfdArch(m_arch[bfd_arch_i386]);
+		m_mangler = mangleGenericEncodingVector;
 	}
 
 	void init()
@@ -208,6 +210,59 @@ private:
 		disassembler_ftype callback;
 	};
 
+	static const std::vector<std::string> mangleGenericEncodingVector(std::vector<std::string> &encodingVector)
+	{
+		return encodingVector;
+	}
+
+	static const std::vector<std::string> mangleArmEncodingVector(std::vector<std::string> &encodingVector)
+	{
+		std::vector<std::string> out;
+
+		std::string cur;
+		for (std::vector<std::string>::iterator it = encodingVector.begin();
+				it != encodingVector.end();
+				++it) {
+			std::string s = *it;
+
+			if (s[0] == ',' || s[0] == ' ' || s[0] == '\t') {
+				out.push_back(cur);
+				cur = "";
+			}
+
+			cur += s;
+		}
+
+		if (cur != "")
+			out.push_back(cur);
+
+		return out;
+	}
+
+	static const std::vector<std::string> manglePowerPcEncodingVector(std::vector<std::string> &encodingVector)
+	{
+		std::vector<std::string> out;
+
+		std::string cur;
+		size_t sz = encodingVector.size();
+
+		unsigned i = 0;
+		for (std::vector<std::string>::iterator it = encodingVector.begin();
+				it != encodingVector.end();
+				++it) {
+			std::string s = *it;
+
+			cur += s;
+			if (s == "," || i == 0 || (i == sz - 1)) {
+				out.push_back(cur);
+				cur = "";
+			}
+			i++;
+		}
+
+		return out;
+	}
+
 	typedef std::map<ArchitectureFactory::Architecture_t, BfdArch> ArchitectureBfdMap_t;
 
 	void setArchitecture(const BfdArch &arch)
@@ -215,11 +270,17 @@ private:
 		init_disassemble_info(&m_info, (void *)this, Disassembly::opcodesFprintFuncStatic);
 		unsigned long bfd_mach = arch.bfd_mach;
 
+		m_mangler = mangleGenericEncodingVector;
+
 		if (arch.bfd_arch == bfd_arch_i386) {
 			if (m_useIntelSyntax)
 				bfd_mach |= bfd_mach_i386_intel_syntax;
 			else
 				bfd_mach &= ~bfd_mach_i386_intel_syntax;
+		} else if (arch.bfd_arch == bfd_arch_arm) {
+			m_mangler = mangleArmEncodingVector;
+		} else if (arch.bfd_arch == bfd_arch_powerpc) {
+			m_mangler = manglePowerPcEncodingVector;
 		}
 
 		m_info.arch = arch.bfd_arch;
@@ -264,6 +325,8 @@ private:
 
 	std::string m_instructionStr;
 	std::vector<std::string> m_instructionVector;
+	std::function<const std::vector<std::string>(std::vector<std::string> &encodingVector)> m_mangler;
+
 	bool m_useIntelSyntax;
 };
 
