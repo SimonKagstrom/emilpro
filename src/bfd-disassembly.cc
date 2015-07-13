@@ -361,6 +361,11 @@ public:
 		return m_instance->execute(data, size, address);
 	}
 
+	bool relativeAddressOffsets()
+	{
+		return true;
+	}
+
 private:
 	std::unique_ptr<Disassembly> m_instance;
 };

@@ -341,6 +341,8 @@ IInstruction* InstructionFactory::create(uint64_t startAddress, uint64_t pc, std
 	if (encodingVector.size() == 0)
 		return NULL;
 
+	auto relativeOffsets = m_disassembler->relativeAddressOffsets();
+
 	std::string mnemonic = m_encodingHandler->getMnemonic(encodingVector);
 	uint64_t targetAddress = IInstruction::INVALID_ADDRESS;
 	IInstruction::InstructionType_t type = IInstruction::IT_UNKNOWN;
@@ -368,7 +370,11 @@ IInstruction* InstructionFactory::create(uint64_t startAddress, uint64_t pc, std
 				if (size < 8 && (offset & (1 << 31)))
 					offset |= 0xffffffff00000000ULL;
 
-				targetAddress = startAddress + offset;
+				if (relativeOffsets)
+					targetAddress = startAddress + offset;
+				else
+					targetAddress = offset;
+
 				break;
 			}
 		}
