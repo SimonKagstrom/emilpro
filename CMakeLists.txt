@@ -14,12 +14,19 @@ set (BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 include (${CMAKE_CURRENT_SOURCE_DIR}/cmake/BuildBinutils.cmake)
 
 find_package (LibElf REQUIRED)
+find_package (LibCapstone)
 find_package (PkgConfig REQUIRED)
 
 set (PROJECT_VERSION_MAJOR  3)
 set (PROJECT_VERSION_MINOR  0)
 set (PROJECT_VERSION_PATCH  0)
 set (PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+
+if(LIBCAPSTONE_FOUND)
+	set (CAPSTONE_SRCS
+		src/capstone-disassembly.cc
+	)
+endif()
 
 set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
                         ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -80,6 +87,7 @@ set (BASE_SRCS
 	src/architecturefactory.cc
 	src/bfd-disassembly.cc
 	src/bfd-provider.cc
+	${CAPSTONE_SRCS}
 	src/configuration.cc
 	src/emilpro.cc
 	src/instructionfactory.cc
@@ -119,6 +127,7 @@ include_directories(
 	${LIBXMLPP_INCLUDE_DIRS}
 	${LIBCURL_INCLUDE_DIRS}
 	${LibGeoIP_INCLUDE_DIR}
+	${LIBCAPSTONE_INCLUDE_DIRS}
 	)
 
 add_executable (emilpro
@@ -144,6 +153,7 @@ set (BASE_LIBS
 	z
 	pthread
 	dl
+	${LIBCAPSTONE_LIBRARIES}
 	)
 
 target_link_libraries(emilpro

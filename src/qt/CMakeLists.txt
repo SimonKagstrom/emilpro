@@ -14,6 +14,7 @@ set (BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 include (${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/BuildBinutils.cmake)
 
 find_package (LibElf REQUIRED)
+find_package (LibCapstone)
 find_package (PkgConfig REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 
@@ -21,6 +22,13 @@ set (PROJECT_VERSION_MAJOR  3)
 set (PROJECT_VERSION_MINOR  0)
 set (PROJECT_VERSION_PATCH  0)
 set (PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+
+if(LIBCAPSTONE_FOUND)
+	set (CAPSTONE_SRCS
+		../capstone-disassembly.cc
+	)
+endif()
+
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -30,8 +38,8 @@ set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
 pkg_check_modules(LIBXMLPP REQUIRED libxml++-2.6)
 pkg_check_modules(LIBCURL REQUIRED libcurl)
 
-set (CMAKE_CXX_FLAGS "-std=c++0x -Wall -D_GLIBCXX_USE_NANOSLEEP -DPACKAGE=emilpro -DPACKAGE_VERSION=1 ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} -pthread")
-LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/install-binutils/lib ${CMAKE_BINARY_DIR}/install-binutils/lib64)
+set (CMAKE_CXX_FLAGS "-std=c++0x -g -O0 -Wall -D_GLIBCXX_USE_NANOSLEEP -DPACKAGE=emilpro -DPACKAGE_VERSION=1 ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} -pthread")
+LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/install-binutils/lib ${CMAKE_BINARY_DIR}/install-binutils/lib64 /home/ska/local/lib)
 
 set (CMAKE_BUILD_TYPE debug)
 set(CMAKE_AUTOMOC ON)
@@ -70,6 +78,7 @@ set (BASE_SRCS
 	../architecturefactory.cc
 	../bfd-disassembly.cc
 	../bfd-provider.cc
+	${CAPSTONE_SRCS}
 	../configuration.cc
 	../emilpro.cc
 	../instructionfactory.cc
@@ -119,6 +128,7 @@ include_directories(
 	${Qt5Widgets_INCLUDE_DIRS}
 	${LIBXMLPP_INCLUDE_DIRS}
 	${LIBCURL_INCLUDE_DIRS}
+	${LIBCAPSTONE_INCLUDE_DIRS}
 	)
 
 add_executable (emilpro
@@ -144,6 +154,7 @@ set (BASE_LIBS
 	${LIBCURL_LIBRARIES}
 	z
 	dl
+	${LIBCAPSTONE_LIBRARIES}
 	)
 
 
