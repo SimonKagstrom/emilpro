@@ -1,6 +1,7 @@
 #pragma once
 
 #include "iprovider.hh"
+#include <iinstruction.hh>
 
 namespace emilpro
 {
