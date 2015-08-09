@@ -14,6 +14,8 @@ First install dependencies on your system. EmilPRO needs development packages of
 * gtksourceviewmm-3.0
 * libxml++-2.6
 * libcurl
+* libcapstone (https://github.com/aquynh/capstone)
+* flex/bison
 
 EmilPRO uses cmake for the build, so the process for building it is basically:
 
