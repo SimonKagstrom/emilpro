@@ -49,6 +49,7 @@ bool MainWindow::init(int argc, char* argv[])
 	setupInstructionEncoding();
 	setupDataView();
 
+	m_ui->menuBar->setNativeMenuBar(false);
 	m_editInstructionDialog = new EditInstructionDialog();
 	m_highlighter = new Highlighter(m_ui->sourceTextEdit->document());
 
