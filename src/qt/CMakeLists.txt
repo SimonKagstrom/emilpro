@@ -27,6 +27,9 @@ if(LIBCAPSTONE_FOUND)
 	set (CAPSTONE_SRCS
 		../capstone-disassembly.cc
 	)
+else()
+  set(LIBCAPSTONE_INCLUDE_DIRS "")
+  set(LIBCAPSTONE_LIBRARIES "")
 endif()
 
 

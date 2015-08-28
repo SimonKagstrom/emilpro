@@ -26,6 +26,9 @@ if(LIBCAPSTONE_FOUND)
 	set (CAPSTONE_SRCS
 		src/capstone-disassembly.cc
 	)
+else()
+  set(LIBCAPSTONE_INCLUDE_DIRS "")
+  set(LIBCAPSTONE_LIBRARIES "")
 endif()
 
 set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
