@@ -1,5 +1,5 @@
 add_custom_command(OUTPUT .binutils-downloaded
-	COMMAND git clone --depth=1 git://sourceware.org/git/binutils-gdb.git binutils-gdb
+	COMMAND git clone git://sourceware.org/git/binutils-gdb.git binutils-gdb
 	COMMAND cd binutils-gdb && git checkout 6711b7f8d5f5fa24d6e44ccbe76fce12bd162a37
 	COMMAND touch .binutils-downloaded
 )
