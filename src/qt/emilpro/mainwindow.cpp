@@ -532,11 +532,11 @@ void MainWindow::setupDataView()
 	QFontMetrics metrics = QFontMetrics(font);
 	m_dataViewData = QHexEditData::fromMemory(QByteArray());
 
-	m_dataViewHexEdit = new QHexEdit(m_ui->tab_2);
+	m_dataViewHexEdit = new QHexEdit();
 	m_dataViewHexEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	m_dataViewHexEdit->setMinimumWidth(1024);
 	m_dataViewHexEdit->setData(m_dataViewData);
-	m_dataViewHexEdit->setMinimumHeight(m_ui->tab_2->height());
+	m_ui->gridLayoutHexView->addWidget(m_dataViewHexEdit);
 
 	m_dataViewHexEdit->setFont(font);
 
