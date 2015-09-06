@@ -638,6 +638,7 @@ void MainWindow::on_action_Mangle_names_triggered(bool activated)
 
 void MainWindow::on_action_Toggle_data_instructions_triggered(bool activated)
 {
+	m_ui->tabWidget->setCurrentIndex(!m_ui->tabWidget->currentIndex());
 }
 
 void MainWindow::on_actionAT_T_syntax_x86_triggered(bool activated)
