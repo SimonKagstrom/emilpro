@@ -722,6 +722,7 @@ void MainWindow::updateDataView(uint64_t address, size_t size)
 
 	m_dataViewHexEdit->clearHighlight();
 	m_dataViewHexEdit->highlightBackground(markStart, markEnd, color);
+	m_dataViewHexEdit->setCursorPos(markStart);
 }
 
 void MainWindow::updateInfoBox(const emilpro::IInstruction* insn)
