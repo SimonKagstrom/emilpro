@@ -750,8 +750,11 @@ void MainWindow::on_action_About_triggered(bool activated)
 			"<center>4 - \"Bräkne Hoby\"</center><br><br>"
 			"This application needs your help! Visit the webpage for more info and tasks to do!<br>"
 			"<center><A HERF=\"http://www.emilpro.com\">www.emilpro.com</A><br>";
-
-	QMessageBox::about(this, title, text);
+	QMessageBox about;
+	about.setWindowTitle(title);
+	about.setText(text);
+	about.setIconPixmap(QPixmap(":/images/logo.png"));
+	about.exec();
 }
 
 void MainWindow::onPreferencesChanged(const std::string& key,
