@@ -121,6 +121,9 @@ qt5_wrap_ui(UI_HEADERS
 	
 set_property(SOURCE ../emilpro.cc APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_BINARY_DIR}/built_in_instruction_models.hh)
 
+set(RESOURCE ${CMAKE_SOURCE_DIR}/emilpro.qrc)
+qt5_add_resources(RESOURCE_ADDED ${RESOURCE})
+
 add_definitions(${Qt5Widgets_DEFINITIONS})
 
 include_directories(
@@ -138,6 +141,7 @@ add_executable (emilpro
 	${BASE_SRCS}
 	${GUI_SRCS}
 	${UI_HEADERS}
+  ${RESOURCE_ADDED}
 	)
 
 add_executable (tools/squash-instruction-models

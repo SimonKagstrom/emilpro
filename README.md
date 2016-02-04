@@ -17,6 +17,12 @@ First install dependencies on your system. EmilPRO needs development packages of
 * libcapstone (https://github.com/aquynh/capstone)
 * flex/bison
 
+For Fedora users:
+```sh
+sudo dnf -y install elfutils-libelf-devel gtkmm30-devel gtksourceviewmm3-devel \
+ libxml++-devel libcurl-devel capstone-devel flex bison
+```
+
 EmilPRO uses cmake for the build, so the process for building it is basically:
 
 ```sh
