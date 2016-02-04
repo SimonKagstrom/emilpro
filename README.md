@@ -31,7 +31,10 @@ cd emilpro-VER
 mkdir build
 cd build
 
+# for the GTK ui:
 cmake ..
+# .. or for the QT ui:
+cmake ../src/qt/
 
 make
 ```
