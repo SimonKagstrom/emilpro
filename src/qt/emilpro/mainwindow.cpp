@@ -817,6 +817,8 @@ void MainWindow::on_action_Open_triggered(bool activated)
 	model.addData(m_data, m_dataSize);
 	model.parseAll();
 
+	MainWindow::setWindowTitle(QString::fromStdString(fileName));
+
 	refresh();
 }
 
