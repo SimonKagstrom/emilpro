@@ -546,6 +546,45 @@ void MainWindow::setupDataView()
 
 void MainWindow::on_addressHistoryListView_activated(const QModelIndex &index)
 {
+	int row = index.row();
+	QModelIndex parent = index.parent();
+
+    std::string s = m_addressHistoryViewModel->data(m_addressHistoryViewModel->index(row, 0, parent)).toString().toStdString();
+
+    // ugly .. we currently have to tokenise the string to extract the address
+    // look for a better option
+    char *s_cpy = strdup(s.c_str());
+    std::string s_addr = strtok(s_cpy, " ");
+    free(s_cpy);
+
+	if (!string_is_integer(s_addr, 16))
+		return;
+
+    uint64_t address = string_to_integer(s_addr);
+
+    Model &model = Model::instance();
+
+	const Model::SymbolList_t syms = model.getNearestSymbol(address);
+
+	const ISymbol *p = NULL;
+	for (Model::SymbolList_t::const_iterator sIt = syms.begin();
+			sIt != syms.end();
+			++sIt) {
+		const ISymbol *sym = *sIt;
+
+		if (sym->getType() != ISymbol::SYM_TEXT)
+			continue;
+		p = sym;
+	}
+
+	std::string symName = "";
+
+	if (p)
+		symName = NameMangler::instance().mangle(p->getName());
+
+	m_addressHistoryDisabled = true;
+	updateSymbolView(address, symName);
+	m_addressHistoryDisabled = false;
 }
 
 
