@@ -546,6 +546,42 @@ void MainWindow::setupDataView()
 
 void MainWindow::on_addressHistoryListView_activated(const QModelIndex &index)
 {
+	int row = index.row();
+	QModelIndex parent = index.parent();
+
+	std::string s = m_addressHistoryViewModel->data(m_addressHistoryViewModel->index(row, 0, parent)).toString().toStdString();
+
+	std::list<std::string> s_hist_entry = split_string(s, " ");
+	std::string s_addr = s_hist_entry.front();
+
+	if (!string_is_integer(s_addr, 16))
+		return;
+
+	uint64_t address = string_to_integer(s_addr);
+
+	Model &model = Model::instance();
+
+	const Model::SymbolList_t syms = model.getNearestSymbol(address);
+
+	const ISymbol *p = NULL;
+	for (Model::SymbolList_t::const_iterator sIt = syms.begin();
+			sIt != syms.end();
+			++sIt) {
+		const ISymbol *sym = *sIt;
+
+		if (sym->getType() != ISymbol::SYM_TEXT)
+			continue;
+		p = sym;
+	}
+
+	std::string symName = "";
+
+	if (p)
+		symName = NameMangler::instance().mangle(p->getName());
+
+	m_addressHistoryDisabled = true;
+	updateSymbolView(address, symName);
+	m_addressHistoryDisabled = false;
 }
 
 
