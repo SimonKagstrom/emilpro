@@ -42,7 +42,10 @@ pkg_check_modules(LIBXMLPP REQUIRED libxml++-2.6)
 pkg_check_modules(LIBCURL REQUIRED libcurl)
 
 set (CMAKE_CXX_FLAGS "-std=c++0x -g -O0 -Wall -D_GLIBCXX_USE_NANOSLEEP -DPACKAGE=emilpro -DPACKAGE_VERSION=1 ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} -pthread")
-LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/install-binutils/lib ${CMAKE_BINARY_DIR}/install-binutils/lib64 /home/ska/local/lib)
+LINK_DIRECTORIES(
+	${CMAKE_BINARY_DIR}/install-binutils/lib ${CMAKE_BINARY_DIR}/install-binutils/lib64
+	${CMAKE_BINARY_DIR}/binutils/libiberty
+	)
 
 set (CMAKE_BUILD_TYPE debug)
 set(CMAKE_AUTOMOC ON)
