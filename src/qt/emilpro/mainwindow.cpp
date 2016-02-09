@@ -549,20 +549,17 @@ void MainWindow::on_addressHistoryListView_activated(const QModelIndex &index)
 	int row = index.row();
 	QModelIndex parent = index.parent();
 
-    std::string s = m_addressHistoryViewModel->data(m_addressHistoryViewModel->index(row, 0, parent)).toString().toStdString();
+	std::string s = m_addressHistoryViewModel->data(m_addressHistoryViewModel->index(row, 0, parent)).toString().toStdString();
 
-    // ugly .. we currently have to tokenise the string to extract the address
-    // look for a better option
-    char *s_cpy = strdup(s.c_str());
-    std::string s_addr = strtok(s_cpy, " ");
-    free(s_cpy);
+	std::list<std::string> s_hist_entry = split_string(s, " ");
+	std::string s_addr = s_hist_entry.front();
 
 	if (!string_is_integer(s_addr, 16))
 		return;
 
-    uint64_t address = string_to_integer(s_addr);
+	uint64_t address = string_to_integer(s_addr);
 
-    Model &model = Model::instance();
+	Model &model = Model::instance();
 
 	const Model::SymbolList_t syms = model.getNearestSymbol(address);
 
