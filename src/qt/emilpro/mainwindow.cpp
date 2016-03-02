@@ -20,13 +20,9 @@ using namespace emilpro;
 MainWindow::MainWindow(QWidget *parent) :
     		QMainWindow(parent),
     		m_ui(new Ui::MainWindow),
-    		m_data(NULL),
-    		m_dataSize(0),
     		m_addressHistoryDisabled(false),
     		m_backwardItemDelegate(false),
-    		m_forwardItemDelegate(true),
-    		m_currentInstruction(NULL),
-    		m_timer(NULL)
+    		m_forwardItemDelegate(true)
 {
 }
 

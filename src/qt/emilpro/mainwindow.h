@@ -138,19 +138,19 @@ private:
 	void onPreferencesChanged(const std::string &key,
 			const std::string &oldValue, const std::string &newValue);
 
-	Ui::MainWindow *m_ui;
-	QStandardItemModel *m_symbolViewModel;
-	QStandardItemModel *m_instructionViewModel;
-	QStandardItemModel *m_referencesViewModel;
-	QStandardItemModel *m_addressHistoryViewModel;
+	Ui::MainWindow *m_ui{nullptr};
+	QStandardItemModel *m_symbolViewModel{nullptr};
+	QStandardItemModel *m_instructionViewModel{nullptr};
+	QStandardItemModel *m_referencesViewModel{nullptr};
+	QStandardItemModel *m_addressHistoryViewModel{nullptr};
 
-	void *m_data;
-	size_t m_dataSize;
+	void *m_data{nullptr};
+	size_t m_dataSize{0};
 	std::string m_currentSourceFile; // Current source file name (cache)
 	FileToStringMap_t m_sourceFileMap; // Source file data
 	RowToInstruction_t m_rowToInstruction;
 	AddressToRow_t m_addressToRow;
-	Highlighter *m_highlighter;
+	Highlighter *m_highlighter{nullptr};
 	emilpro::AddressHistory m_addressHistory;
 	bool m_addressHistoryDisabled;
 
@@ -159,22 +159,22 @@ private:
 	JumpDisplayDelegate m_backwardItemDelegate;
 	JumpDisplayDelegate m_forwardItemDelegate;
 
-	EditInstructionDialog *m_editInstructionDialog;
-	const emilpro::IInstruction *m_currentInstruction;
+	EditInstructionDialog *m_editInstructionDialog{nullptr};
+	const emilpro::IInstruction *m_currentInstruction{nullptr};
 
-	QHexEdit *m_encodingHexEdit;
-	QHexEditData *m_encodingData;
-	QHexEditDataWriter *m_encodingDataWriter;
+	QHexEdit *m_encodingHexEdit{nullptr};
+	QHexEditData *m_encodingData{nullptr};
+	QHexEditDataWriter *m_encodingDataWriter{nullptr};
 
-	QHexEdit *m_dataViewHexEdit;
-	QHexEditData *m_dataViewData;
-	QHexEditDataWriter *m_dataViewDataWriter;
+	QHexEdit *m_dataViewHexEdit{nullptr};
+	QHexEditData *m_dataViewData{nullptr};
+	QHexEditDataWriter *m_dataViewDataWriter{nullptr};
 
-	uint64_t m_dataViewStart;
-	uint64_t m_dataViewEnd;
+	uint64_t m_dataViewStart{0};
+	uint64_t m_dataViewEnd{0};
 
 	emilpro::Model::SymbolList_t m_currentSymbols;
-	QTimer *m_timer;
+	QTimer *m_timer{nullptr};
 	std::mutex m_symbolMutex;
 	QString fileName;
 	std::string curSymName;
