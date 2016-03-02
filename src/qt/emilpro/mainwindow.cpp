@@ -14,6 +14,7 @@
 #include <QTextBlock>
 #include <QScrollBar>
 
+
 using namespace emilpro;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -98,14 +99,64 @@ void MainWindow::on_symbolTableView_activated(const QModelIndex &index)
 
 void MainWindow::refresh()
 {
+	delete m_referencesViewModel;
 	delete m_symbolViewModel;
+
 	m_addressToSymbolRowMap.clear();
 	m_addressHistoryViewModel->clear();
 	m_addressHistory.clear();
 
 	setupSymbolView();
+	setupReferencesView();
 
-	Model::instance().parseAll();
+}
+
+void MainWindow::saveState()
+{
+	// save the name of the current symbol
+	QModelIndex symIndex = m_ui->symbolTableView->currentIndex();
+	int row = symIndex.row();
+	QModelIndex parent = symIndex.parent();
+	curSymName = m_symbolViewModel->data(m_symbolViewModel->index(row, 7, parent)).toString().toStdString();
+	// calculate curInsnOffset from symbol start (curInsnAddr - curSymAddr)
+	curSymAddr = m_symbolViewModel->data(m_symbolViewModel->index(row, 0, parent)).toString().toStdString();
+	QModelIndex insnIndex = m_ui->instructionTableView->currentIndex();
+	row = insnIndex.row();
+	parent = insnIndex.parent();
+	std::string curInsnAddr = m_instructionViewModel->data(m_instructionViewModel->index(row, 0, parent)).toString().toStdString();
+	curInsnOffset = string_to_integer(curInsnAddr, 16) - string_to_integer(curSymAddr, 16);
+}
+
+void MainWindow::restoreState()
+{
+	if (curSymName == "")
+		return;
+
+	// restore symbol
+	Model &model = Model::instance();
+	Model::AddressList_t lst = model.lookupAddressesByText(curSymName);
+
+	for (Model::AddressList_t::iterator it = lst.begin();
+		it != lst.end();
+		++it) {
+		updateSymbolView(*it);
+	}
+
+	// restore instruction
+	if (curInsnOffset == 0) return;
+	QModelIndex symIndex = m_ui->symbolTableView->currentIndex();
+	int row = symIndex.row();
+	QModelIndex parent = symIndex.parent();
+	curSymAddr = m_symbolViewModel->data(m_symbolViewModel->index(row, 0, parent)).toString().toStdString();
+	uint64_t curInsnAddr = curInsnOffset + string_to_integer(curSymAddr, 16);
+
+	const ISymbol *sym = UiHelpers::getBestSymbol(string_to_integer(curSymAddr, 16), curSymName);
+
+	if (!sym)
+		return;
+
+	if (sym->getType() == ISymbol::SYM_TEXT)
+		updateInstructionView(curInsnAddr, *sym);
 }
 
 void MainWindow::on_symbolTimerTriggered()
@@ -114,8 +165,10 @@ void MainWindow::on_symbolTimerTriggered()
 
 	m_symbolMutex.lock();
 	for (unsigned n = 0; n < 1000; n++) {
-		if (m_currentSymbols.empty())
+		if (m_currentSymbols.empty()) {
+			m_timer->stop();
 			break;
+		}
 
 		ISymbol *cur = m_currentSymbols.front();
 		m_currentSymbols.pop_front();
@@ -128,6 +181,10 @@ void MainWindow::on_symbolTimerTriggered()
 			it != syms.end();
 			++it) {
 		handleSymbol(**it);
+	}
+
+	if (Model::instance().parsingComplete()) {
+		restoreState();
 	}
 }
 
@@ -198,7 +255,7 @@ void MainWindow::setupSymbolView()
 	m_ui->symbolTableView->resizeColumnsToContents();
 	m_ui->symbolTableView->setColumnWidth(0, 100);
 	m_ui->symbolTableView->setColumnWidth(1, 80);
-
+	m_ui->symbolTableView->setSelectionMode(QAbstractItemView::SingleSelection);
 
 	// Start the symbol timer
 	m_timer = new QTimer(this);
@@ -370,7 +427,6 @@ void MainWindow::on_instructionTableView_doubleClicked(const QModelIndex &index)
 	on_instructionTableView_activated(index);
 }
 
-
 void MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelIndex& previous)
 {
 	int row = index.row();
@@ -487,7 +543,6 @@ void MainWindow::on_symbolTableView_entered(const QModelIndex &index)
 		}
 	}
 }
-
 
 void MainWindow::setupAddressHistoryView()
 {
@@ -639,6 +694,9 @@ void MainWindow::updateSymbolView(uint64_t address, const std::string &name)
 	if (m_addressToSymbolRowMap.find(key) != m_addressToSymbolRowMap.end())
 		m_ui->symbolTableView->selectRow(m_addressToSymbolRowMap[key]);
 
+	// Scroll to the current index
+	m_ui->symbolTableView->scrollTo(m_ui->symbolTableView->currentIndex());
+
 	updateDataView(sym->getAddress(), sym->getSize());
 	if (sym->getType() == ISymbol::SYM_TEXT)
 		updateInstructionView(address, *sym);
@@ -694,10 +752,10 @@ void MainWindow::updateHistoryEntry(const AddressHistory::Entry& e)
 
 	m_addressHistoryDisabled = true;
 	updateSymbolView(e.getAddress());
-	int historyIdx = m_addressHistory.currentIndex();
 	m_addressHistoryDisabled = false;
 
 	// Highlight current item
+	int historyIdx = m_addressHistory.currentIndex();
 	auto idx = m_addressHistoryViewModel->index(historyIdx, 0);
 	m_ui->addressHistoryListView->setCurrentIndex(idx);
 
@@ -837,30 +895,36 @@ void MainWindow::on_locationLineEdit_returnPressed()
 
 void MainWindow::on_action_Open_triggered(bool activated)
 {
-	auto fileName = QFileDialog::getOpenFileName(this, tr("Open binary")).toStdString();
+	// open and read file, if fileName is not empty we're doing a refresh
+	if (fileName.isEmpty())
+		fileName = QFileDialog::getOpenFileName(this, tr("Open binary"));
 
-	if (fileName == "")
+	if (fileName.isEmpty())
 		return;
 
-	Model &model = Model::instance();
-
-	m_data = read_file(&m_dataSize, "%s", fileName.c_str());
+	m_data = read_file(&m_dataSize, "%s", fileName.toStdString().c_str());
 	if (!m_data) {
-		error("Can't read %s, exiting", fileName.c_str());
+		error("Can't read %s, exiting", fileName.toStdString().c_str());
 		exit(1);
 	}
 
+	MainWindow::setWindowTitle(fileName);
+
+	loadData();
+}
+
+void MainWindow::loadData()
+{
+	Model &model = Model::instance();
 	model.addData(m_data, m_dataSize);
 	model.parseAll();
-
-	MainWindow::setWindowTitle(QString::fromStdString(fileName));
-
 	refresh();
 }
 
 void MainWindow::on_action_Refresh_triggered(bool activated)
 {
-	refresh();
+	saveState();
+	on_action_Open_triggered(true);
 }
 
 void MainWindow::on_action_Quit_triggered(bool activated)
