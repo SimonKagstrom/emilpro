@@ -40,6 +40,7 @@ public:
     // On quit etc
 	void updatePreferences();
 
+
 private slots:
 	void on_symbolTableView_activated(const QModelIndex &index);
 
@@ -107,6 +108,12 @@ private:
 
 	void refresh();
 
+	void saveState();
+
+	void restoreState();
+
+	void loadData();
+
 	void updateInstructionView(uint64_t address, const emilpro::ISymbol &sym);
 
 	void updateSymbolView(uint64_t address, const std::string &name = "");
@@ -118,7 +125,6 @@ private:
 	void updateInstructionEncoding(const emilpro::IInstruction *insn);
 
 	void updateDataView(uint64_t address, size_t size);
-
 
 	void handleSymbol(emilpro::ISymbol &sym);
 
@@ -170,4 +176,8 @@ private:
 	emilpro::Model::SymbolList_t m_currentSymbols;
 	QTimer *m_timer{nullptr};
 	std::mutex m_symbolMutex;
+	QString fileName;
+	std::string curSymName;
+	std::string curSymAddr;
+	int64_t curInsnOffset;
 };
