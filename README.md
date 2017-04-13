@@ -16,6 +16,7 @@ First install dependencies on your system. EmilPRO needs development packages of
 * libcurl
 * libcapstone (https://github.com/aquynh/capstone)
 * flex/bison
+* texinfo
 
 For Fedora users:
 ```sh
