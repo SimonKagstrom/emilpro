@@ -5,6 +5,8 @@
 #include <vector>
 #include <functional>
 
+#include <string.h> // binutils 2.29 wants strchr
+
 #include <bfd.h>
 #include <dis-asm.h>
 
