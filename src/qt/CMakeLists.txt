@@ -38,7 +38,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set (CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}
                         ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-pkg_check_modules(LIBXMLPP REQUIRED libxml++-2.6)
+pkg_check_modules(LIBXMLPP REQUIRED libxml++-3.0)
 pkg_check_modules(LIBCURL REQUIRED libcurl)
 
 set (CMAKE_CXX_FLAGS "-std=c++0x -g -O0 -Wall -D_GLIBCXX_USE_NANOSLEEP -DPACKAGE=emilpro -DPACKAGE_VERSION=1 ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} -pthread")
@@ -176,3 +176,5 @@ target_link_libraries(emilpro
 target_link_libraries(tools/squash-instruction-models
 	${BASE_LIBS}
 	)
+
+install(TARGETS emilpro RUNTIME DESTINATION bin)
