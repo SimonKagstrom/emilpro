@@ -176,3 +176,5 @@ target_link_libraries(emilpro
 target_link_libraries(tools/squash-instruction-models
 	${BASE_LIBS}
 	)
+
+install(TARGETS emilpro RUNTIME DESTINATION bin)
