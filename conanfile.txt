@@ -1,0 +1,13 @@
+[requires]
+doctest/2.4.11
+trompeloeil/47
+fmt/10.2.1
+libelfin/0.3
+capstone/5.0.1
+
+[generators]
+CMakeDeps
+CMakeToolchain
+
+[layout]
+cmake_layout
