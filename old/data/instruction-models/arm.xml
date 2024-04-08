@@ -1,5 +1,0 @@
-  <InstructionModel name="b" architecture="arm" timestamp="0">
-    <type>call</type>
-    <privileged>false</privileged>
-    <description>Branch and Link (call)</description>
-  </InstructionModel>

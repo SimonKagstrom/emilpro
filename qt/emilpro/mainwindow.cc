@@ -40,6 +40,10 @@ MainWindow::init(int argc, char* argv[])
 
     m_ui->menuBar->setNativeMenuBar(false);
 
+    auto x = emilpro::IBinaryParser::FromFile(argv[1]);
+    x->ForAllSections([](auto section) {
+    });
+
     return true;
 }
 

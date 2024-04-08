@@ -1,5 +1,7 @@
 #pragma once
 
+#include "emilpro/i_binary_parser.hh"
+
 #include <QMainWindow>
 #include <qstandarditemmodel.h>
 
