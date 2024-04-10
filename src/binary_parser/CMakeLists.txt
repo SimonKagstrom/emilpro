@@ -6,6 +6,12 @@ target_link_libraries(elf_binary_parser
 PUBLIC
     emilpro_interface
     p::bfd
+    /usr/local/opt/binutils/lib/libctf.a
+    /usr/local/opt/binutils/lib/libopcodes.a
+    /usr/local/opt/binutils/lib/libiberty.a
+    /usr/local/opt/binutils/lib/libsframe.a
+    -lz
+    /usr/local/opt/zstd/lib/libzstd.a
     fmt::fmt
 PRIVATE
     section

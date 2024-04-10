@@ -43,6 +43,7 @@ MainWindow::init(int argc, char* argv[])
     auto x = emilpro::IBinaryParser::FromFile(argv[1]);
     x->ForAllSections([](auto section) {
     });
+    exit(1);
 
     return true;
 }
