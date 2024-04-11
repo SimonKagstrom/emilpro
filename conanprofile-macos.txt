@@ -4,3 +4,4 @@ arch=x86_64
 compiler=apple-clang
 compiler.version=14
 compiler.libcxx=libc++
+build_type=Debug

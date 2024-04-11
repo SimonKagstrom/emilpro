@@ -4,3 +4,4 @@ arch=x86_64
 compiler=gcc
 compiler.version=13
 compiler.libcxx=libstdc++
+build_type=Debug
