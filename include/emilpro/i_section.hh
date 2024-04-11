@@ -1,3 +1,5 @@
+#include <cstdint>
+#include <memory>
 #include <span>
 
 namespace emilpro
@@ -22,7 +24,8 @@ public:
     virtual size_t Size() const = 0;
 
 
-    static std::unique_ptr<ISection> Create(std::span<const std::byte> data, uint64_t start_address, Type type);
+    static std::unique_ptr<ISection>
+    Create(std::span<const std::byte> data, uint64_t start_address, Type type);
 };
 
 } // namespace emilpro
