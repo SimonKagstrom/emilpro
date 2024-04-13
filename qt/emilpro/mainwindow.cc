@@ -45,6 +45,7 @@ MainWindow::init(int argc, char* argv[])
     auto dis = emilpro::IDisassembler::CreateFromArchitecture(x->GetMachine());
     auto disp = dis.get();
     x->ForAllSections([disp, this](auto section) {
+
         if (section->GetType() == emilpro::ISection::Type::kInstructions)
         {
             disp->Disassemble(section->Data(), section->StartAddress(), [this](auto insn) {
