@@ -1,11 +1,12 @@
 #pragma once
 
+#include "emilpro/i_instruction.hh"
 #include "emilpro/i_section.hh"
 #include "symbol.hh"
 
+#include <map>
 #include <memory>
 #include <vector>
-#include <map>
 
 namespace emilpro
 {
@@ -20,6 +21,9 @@ public:
     void FixupSymbolSizes();
 
 private:
+    void Disassemble(IDisassembler& disassembler) final;
+
+    std::span<const std::reference_wrapper<IInstruction>> GetInstructions() const final;
     std::span<const std::byte> Data() const final;
 
     uint64_t StartAddress() const final;
@@ -34,8 +38,9 @@ private:
 
     std::vector<std::unique_ptr<Symbol>> m_symbols;
     std::map<uint64_t, std::vector<Symbol*>> m_sorted_symbols;
-
     std::vector<std::reference_wrapper<const Symbol>> m_relocations;
+
+    std::vector<std::unique_ptr<IInstruction>> m_instructions;
 };
 
 } // namespace emilpro

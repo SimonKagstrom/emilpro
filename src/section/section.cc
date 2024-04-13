@@ -1,5 +1,7 @@
 #include "section.hh"
 
+#include "emilpro/i_disassembler.hh"
+
 #include <fmt/format.h>
 #include <vector>
 
@@ -74,6 +76,19 @@ Section::FixupSymbolSizes()
         }
     }
 }
+
+void
+Section::Disassemble(IDisassembler& disassembler)
+{
+    disassembler.Disassemble(Data(), StartAddress(), [this](auto insn) {});
+}
+
+std::span<const std::reference_wrapper<IInstruction>>
+Section::GetInstructions() const
+{
+    return {};
+}
+
 
 std::unique_ptr<ISection>
 ISection::Create(std::span<const std::byte> data, uint64_t start_address, Type type)

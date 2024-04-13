@@ -277,7 +277,7 @@
            <widget class="QLabel" name="sourceTextLabel">
             <property name="font">
              <font>
-              <family>Monospace</family>
+              <family>Courier New</family>
               <pointsize>10</pointsize>
              </font>
             </property>
