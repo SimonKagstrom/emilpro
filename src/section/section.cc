@@ -1,5 +1,5 @@
 #include "section.hh"
-
+#include <fmt/format.h>
 #include <vector>
 
 using namespace emilpro;
@@ -36,11 +36,30 @@ Section::GetType() const
 }
 
 void
-Section::AddSymbol(std::unique_ptr<ISymbol> symbol)
+Section::AddSymbol(std::unique_ptr<Symbol> symbol)
 {
+    m_sorted_symbols[symbol->GetOffset()].push_back(symbol.get());
     m_symbols.push_back(std::move(symbol));
 }
 
+void
+Section::FixupSymbolSizes()
+{
+    size_t last_offset = Size();
+
+    for (auto it = m_sorted_symbols.rbegin(); it != m_sorted_symbols.rend(); ++it)
+    {
+        auto& symbols = it->second;
+
+        for (auto* symbol : symbols)
+        {
+            symbol->SetSize(last_offset - symbol->GetOffset());
+
+            fmt::print("Symbol {} @{:08x} size: {:x}. Last offset {:x} and section size {:x}\n", symbol->GetDemangledName(), symbol->GetOffset(), symbol->Size(), last_offset, Size());
+            last_offset = symbol->GetOffset();
+        }
+    }
+}
 
 std::unique_ptr<ISection>
 ISection::Create(std::span<const std::byte> data, uint64_t start_address, Type type)

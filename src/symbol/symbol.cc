@@ -28,7 +28,6 @@ Symbol::Symbol(const ISection& section,
         m_demanged_name = m_name;
     }
 
-    fmt::print("Symbol {} / {} @{:08x} added!\n", m_name, m_demanged_name, m_offset);
     free(demangled);
 }
 
@@ -51,9 +50,9 @@ Symbol::GetSection()
 }
 
 uint64_t
-Symbol::StartAddress() const
+Symbol::GetOffset() const
 {
-    return m_section.StartAddress() + m_offset;
+    return m_offset;
 }
 
 size_t

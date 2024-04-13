@@ -5,6 +5,9 @@ add_library(section EXCLUDE_FROM_ALL
 target_link_libraries(section
 PUBLIC
     emilpro_interface
+    symbol
+PRIVATE
+    fmt::fmt
 )
 
 target_include_directories(section

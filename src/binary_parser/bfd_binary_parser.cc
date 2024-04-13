@@ -118,7 +118,7 @@ BfdBinaryParser::GetMachine() const
 void
 BfdBinaryParser::ForAllSections(std::function<void(std::unique_ptr<ISection>)> on_section)
 {
-    for (auto &[bfd_section, sec] : m_pending_sections)
+    for (auto& [bfd_section, sec] : m_pending_sections)
     {
         on_section(std::move(sec));
     }
@@ -351,6 +351,10 @@ BfdBinaryParser::Parse()
         handleSymbols(syntsymcount, m_syntheticBfdSyms, false);
     }
 
+    for (auto& [section, sec] : m_pending_sections)
+    {
+        sec->FixupSymbolSizes();
+    }
     //    deriveSymbolSizes();
 
     // The first pass has created symbols, now look for relocations
@@ -371,14 +375,15 @@ BfdBinaryParser::Parse()
                 if (section->relocation)
                 {
                     auto& reloc = section->relocation[i];
-                    printf("IReloc for 0x%08llx in section: %14s: 0x%08llx addend: 0x%08llx, address "
-                           "0x%08llx. Type 0x%08x\n",
-                           (*reloc.sym_ptr_ptr)->value,
-                           (*reloc.sym_ptr_ptr)->section->name,
-                           (*reloc.sym_ptr_ptr)->section->filepos,
-                           reloc.addend,
-                           reloc.address,
-                           reloc.howto->type);
+                    printf(
+                        "IReloc for 0x%08llx in section: %14s: 0x%08llx addend: 0x%08llx, address "
+                        "0x%08llx. Type 0x%08x\n",
+                        (*reloc.sym_ptr_ptr)->value,
+                        (*reloc.sym_ptr_ptr)->section->name,
+                        (*reloc.sym_ptr_ptr)->section->filepos,
+                        reloc.addend,
+                        reloc.address,
+                        reloc.howto->type);
                 }
                 if (section->orelocation)
                 {
@@ -419,11 +424,28 @@ BfdBinaryParser::handleSymbols(long symcount, bfd_symbol** syms, bool dynamic)
         auto cur = syms[i];
 
         if (!cur)
+        {
             continue;
+        }
+
+        // An interesting symbol?
+        if (cur->flags & (BSF_DEBUGGING | BSF_FILE | BSF_WARNING))
+        {
+            continue;
+        }
 
         auto sym_name = bfd_asymbol_name(cur);
         auto sym_addr = cur->value;
         auto section = bfd_asymbol_section(cur);
+
+
+        if (bfd_get_arch(m_bfd) == bfd_arch_arm && sym_name)
+        {
+            // Skip ARM $a $d symbols
+            if (strlen(sym_name) >= 2 && sym_name[0] == '$' && strchr("atd", sym_name[1]) &&
+                (sym_name[2] == '\0' || sym_name[2] == '.'))
+                continue;
+        }
 
         auto sect_it = m_pending_sections.find(section);
         if (sect_it == m_pending_sections.end())
@@ -431,7 +453,9 @@ BfdBinaryParser::handleSymbols(long symcount, bfd_symbol** syms, bool dynamic)
             fmt::print("Dropping symbol {}, since it has no section\n", sym_name);
             continue;
         }
+        fmt::print("SYM {} with flags {:08x}\n", sym_name, cur->flags);
 
-        sect_it->second->AddSymbol(std::make_unique<Symbol>(*sect_it->second, sym_addr, "", sym_name));
+        sect_it->second->AddSymbol(
+            std::make_unique<Symbol>(*sect_it->second, sym_addr, "", sym_name));
     }
 }

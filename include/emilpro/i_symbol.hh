@@ -19,7 +19,7 @@ public:
     virtual const ISection& GetSection() = 0;
 
     /// Relative to the section
-    virtual uint64_t StartAddress() const = 0;
+    virtual uint64_t GetOffset() const = 0;
 
     virtual size_t Size() const = 0;
 
