@@ -7,7 +7,7 @@ using namespace emilpro;
 
 std::unique_ptr<IBinaryParser> IBinaryParser::FromFile(std::string_view path)
 {
-    auto out = std::make_unique<ElfBinaryParser>(path);
+    auto out = std::make_unique<BfdBinaryParser>(path);
 
     if (!out->Parse())
     {

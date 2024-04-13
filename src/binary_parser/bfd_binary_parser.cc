@@ -81,7 +81,7 @@ mem_bfd_iovec_stat(struct bfd* abfd, void* stream, struct stat* sb)
 }
 
 
-ElfBinaryParser::ElfBinaryParser(std::string_view path)
+BfdBinaryParser::BfdBinaryParser(std::string_view path)
     : m_path(path)
     , m_rawData(NULL)
     , m_rawDataSize(0)
@@ -93,7 +93,7 @@ ElfBinaryParser::ElfBinaryParser(std::string_view path)
 {
 }
 
-ElfBinaryParser::~ElfBinaryParser()
+BfdBinaryParser::~BfdBinaryParser()
 {
     for (BfdSectionContents_t::iterator it = m_sectionContents.begin();
          it != m_sectionContents.end();
@@ -116,13 +116,13 @@ ElfBinaryParser::~ElfBinaryParser()
 }
 
 Machine
-ElfBinaryParser::GetMachine() const
+BfdBinaryParser::GetMachine() const
 {
     return Machine::kArm;
 }
 
 void
-ElfBinaryParser::ForAllSections(std::function<void(std::unique_ptr<ISection>)> on_section)
+BfdBinaryParser::ForAllSections(std::function<void(std::unique_ptr<ISection>)> on_section)
 {
     // Provide section symbols
     for (auto section = m_bfd->sections; section != NULL; section = section->next)
@@ -157,7 +157,7 @@ ElfBinaryParser::ForAllSections(std::function<void(std::unique_ptr<ISection>)> o
 
 
 bool
-ElfBinaryParser::lookupLine(bfd_section* section, bfd_symbol** symTbl, uint64_t addr)
+BfdBinaryParser::lookupLine(bfd_section* section, bfd_symbol** symTbl, uint64_t addr)
 {
     const char* fileName;
     const char* function;
@@ -177,7 +177,7 @@ ElfBinaryParser::lookupLine(bfd_section* section, bfd_symbol** symTbl, uint64_t 
 
 // From ILineProvider
 bool
-ElfBinaryParser::getLineByAddress(uint64_t addr)
+BfdBinaryParser::getLineByAddress(uint64_t addr)
 {
     //ILineProvider::FileLine out;
     bool out = false;
@@ -267,7 +267,7 @@ dump_relocs_in_section(bfd* abfd, asection* section, auto syms)
 }
 
 bool
-ElfBinaryParser::Parse()
+BfdBinaryParser::Parse()
 {
     char** matching;
     unsigned int sz;
@@ -409,7 +409,7 @@ ElfBinaryParser::Parse()
 }
 
 void
-ElfBinaryParser::handleSymbols(long symcount, bfd_symbol** syms, bool dynamic)
+BfdBinaryParser::handleSymbols(long symcount, bfd_symbol** syms, bool dynamic)
 {
     for (long i = 0; i < symcount; i++)
     {
