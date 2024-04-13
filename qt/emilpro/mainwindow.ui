@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1036</width>
-    <height>578</height>
+    <width>1427</width>
+    <height>896</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -182,13 +182,13 @@
                <property name="minimumSize">
                 <size>
                  <width>750</width>
-                 <height>0</height>
+                 <height>400</height>
                 </size>
                </property>
                <property name="font">
                 <font>
                  <family>Courier New</family>
-                 <pointsize>10</pointsize>
+                 <pointsize>12</pointsize>
                  <italic>false</italic>
                 </font>
                </property>
@@ -293,7 +293,7 @@
            <widget class="QTextEdit" name="sourceTextEdit">
             <property name="minimumSize">
              <size>
-              <width>750</width>
+              <width>400</width>
               <height>128</height>
              </size>
             </property>
@@ -358,7 +358,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1036</width>
+     <width>1427</width>
      <height>24</height>
     </rect>
    </property>
