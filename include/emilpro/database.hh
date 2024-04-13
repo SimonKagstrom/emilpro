@@ -1,3 +1,5 @@
+#pragma once
+
 #include "i_binary_parser.hh"
 #include "i_disassembler.hh"
 

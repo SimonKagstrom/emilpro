@@ -1,3 +1,5 @@
+#pragma once
+
 #include "emilpro/i_disassembler.hh"
 
 #include <capstone/capstone.h>

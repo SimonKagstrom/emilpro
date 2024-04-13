@@ -1,4 +1,5 @@
 #include "section.hh"
+
 #include <fmt/format.h>
 #include <vector>
 
@@ -51,11 +52,17 @@ Section::FixupSymbolSizes()
     {
         auto& symbols = it->second;
 
+        auto adjust = last_offset;
         for (auto* symbol : symbols)
         {
-            symbol->SetSize(last_offset - symbol->GetOffset());
+            symbol->SetSize(adjust - symbol->GetOffset());
 
-            fmt::print("Symbol {} @{:08x} size: {:x}. Last offset {:x} and section size {:x}\n", symbol->GetDemangledName(), symbol->GetOffset(), symbol->Size(), last_offset, Size());
+            fmt::print("Symbol {} @{:08x} size: {:x}. Last offset {:x} and section size {:x}\n",
+                       symbol->GetDemangledName(),
+                       symbol->GetOffset(),
+                       symbol->Size(),
+                       adjust,
+                       Size());
             last_offset = symbol->GetOffset();
         }
     }
