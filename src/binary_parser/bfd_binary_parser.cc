@@ -1,4 +1,7 @@
-#include "elf_binary_parser.hh"
+#include "bfd_binary_parser.hh"
+
+#include "section.hh"
+#include "symbol.hh"
 
 #include <array>
 #include <bfd.h>
@@ -95,15 +98,6 @@ BfdBinaryParser::BfdBinaryParser(std::string_view path)
 
 BfdBinaryParser::~BfdBinaryParser()
 {
-    for (BfdSectionContents_t::iterator it = m_sectionContents.begin();
-         it != m_sectionContents.end();
-         ++it)
-    {
-        void* p = it->second;
-
-        free(p);
-    }
-
     if (m_bfd)
     {
         free(m_bfd_syms);
@@ -118,41 +112,17 @@ BfdBinaryParser::~BfdBinaryParser()
 Machine
 BfdBinaryParser::GetMachine() const
 {
-    return Machine::kArm;
+    return m_machine;
 }
 
 void
 BfdBinaryParser::ForAllSections(std::function<void(std::unique_ptr<ISection>)> on_section)
 {
-    // Provide section symbols
-    for (auto section = m_bfd->sections; section != NULL; section = section->next)
+    for (auto &[bfd_section, sec] : m_pending_sections)
     {
-        // Skip non-allocated sections
-        if ((section->flags & SEC_ALLOC) == 0)
-        {
-            continue;
-        }
-
-        auto size = bfd_section_size(section);
-        auto p = new bfd_byte[size];
-
-        if (bfd_get_section_contents(m_bfd, section, p, 0, size))
-        {
-            auto type = ISection::Type::kData;
-
-            if ((section->flags & SEC_CODE))
-            {
-                type = ISection::Type::kInstructions;
-            }
-
-            auto sec = ISection::Create(std::span<const std::byte>((const std::byte*)p, size),
-                                        bfd_section_vma(section),
-                                        type);
-
-            on_section(std::move(sec));
-        }
-        delete[] p;
+        on_section(std::move(sec));
     }
+    m_pending_sections.clear();
 }
 
 
@@ -250,7 +220,7 @@ dump_relocs_in_section(bfd* abfd, asection* section, auto syms)
         return;
     }
 
-//    auto syms = slurp_symtab(abfd);
+    //    auto syms = slurp_symtab(abfd);
     relpp = (arelent**)malloc(relsize);
     relcount = bfd_canonicalize_reloc(abfd, section, relpp, syms);
 
@@ -260,7 +230,7 @@ dump_relocs_in_section(bfd* abfd, asection* section, auto syms)
         for (auto p = relpp; relcount && *p != NULL; p++, relcount--)
         {
             arelent* q = *p;
-            printf("XXX 0x%08x: %s\n", q->address, (*q->sym_ptr_ptr)->name);
+            printf("XXX 0x%08llx: %s\n", q->address, (*q->sym_ptr_ptr)->name);
         }
     }
     free(relpp);
@@ -318,6 +288,39 @@ BfdBinaryParser::Parse()
 
     auto arch = bfd_get_arch(m_bfd);
 
+    auto it_machine = std::find_if(
+        kMachineMap.begin(), kMachineMap.end(), [arch](auto& p) { return p.first == arch; });
+    if (it_machine)
+    {
+        m_machine = it_machine->second;
+    }
+
+    // Create sections
+    for (auto section = m_bfd->sections; section != NULL; section = section->next)
+    {
+        auto size = bfd_section_size(section);
+        auto p = new bfd_byte[size];
+
+        if (bfd_get_section_contents(m_bfd, section, p, 0, size))
+        {
+            auto type = ISection::Type::kData;
+
+            if ((section->flags & SEC_CODE))
+            {
+                type = ISection::Type::kInstructions;
+            }
+
+            auto sec =
+                std::make_unique<Section>(std::span<const std::byte>((const std::byte*)p, size),
+                                          bfd_section_vma(section),
+                                          type);
+
+            m_pending_sections[section] = std::move(sec);
+        }
+        delete[] p;
+    }
+
+
     //        isElf = memcmp(m_rawData, ELFMAG, SELFMAG) == 0;
     //
     //        if (bfd_get_arch(m_bfd) == bfd_arch_unknown)
@@ -368,8 +371,8 @@ BfdBinaryParser::Parse()
                 if (section->relocation)
                 {
                     auto& reloc = section->relocation[i];
-                    printf("IReloc for 0x%08x in section: %14s: 0x%08x addend: 0x%08x, address "
-                           "0x%08x. Type 0x%08x\n",
+                    printf("IReloc for 0x%08llx in section: %14s: 0x%08llx addend: 0x%08llx, address "
+                           "0x%08llx. Type 0x%08x\n",
                            (*reloc.sym_ptr_ptr)->value,
                            (*reloc.sym_ptr_ptr)->section->name,
                            (*reloc.sym_ptr_ptr)->section->filepos,
@@ -380,7 +383,7 @@ BfdBinaryParser::Parse()
                 if (section->orelocation)
                 {
                     auto reloc = section->orelocation[i];
-                    printf("OReloc for %20s: addend: 0x%08x, address 0x%08x.\n",
+                    printf("OReloc for %20s: addend: 0x%08llx, address 0x%08llx.\n",
                            (*reloc->sym_ptr_ptr)->name,
                            reloc->addend,
                            reloc->address);
@@ -418,15 +421,17 @@ BfdBinaryParser::handleSymbols(long symcount, bfd_symbol** syms, bool dynamic)
         if (!cur)
             continue;
 
-        auto symName = bfd_asymbol_name(cur);
-        auto symAddr = bfd_asymbol_value(cur);
+        auto sym_name = bfd_asymbol_name(cur);
+        auto sym_addr = cur->value;
         auto section = bfd_asymbol_section(cur);
-        printf("%s Symbol: %s @ 0x%08x in section %s\n",
-               dynamic ? "DYNAMIC" : "",
-               symName,
-               (int)symAddr,
-               bfd_is_und_section(section) ? "(in some other .o file)" : section->name);
 
-        lookupLine(section, m_bfd_syms, symAddr);
+        auto sect_it = m_pending_sections.find(section);
+        if (sect_it == m_pending_sections.end())
+        {
+            fmt::print("Dropping symbol {}, since it has no section\n", sym_name);
+            continue;
+        }
+
+        sect_it->second->AddSymbol(std::make_unique<Symbol>(*sect_it->second, sym_addr, "", sym_name));
     }
 }

@@ -35,6 +35,12 @@ Section::GetType() const
     return m_type;
 }
 
+void
+Section::AddSymbol(std::unique_ptr<ISymbol> symbol)
+{
+    m_symbols.push_back(std::move(symbol));
+}
+
 
 std::unique_ptr<ISection>
 ISection::Create(std::span<const std::byte> data, uint64_t start_address, Type type)

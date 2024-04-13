@@ -1,10 +1,16 @@
 #include "emilpro/i_binary_parser.hh"
+#include "section.hh"
 
+// For libbfd: "error: config.h must be included before this header"
 #define PACKAGE         1
 #define PACKAGE_VERSION 1
 
 #include <bfd.h>
 #include <map>
+#include <memory>
+#include <unordered_map>
+#include <vector>
+
 namespace emilpro
 {
 
@@ -23,12 +29,12 @@ private:
 
     bool lookupLine(bfd_section* section, bfd_symbol** symTbl, uint64_t addr);
     bool getLineByAddress(uint64_t addr);
-	void handleSymbols(long symcount, bfd_symbol **syms, bool dynamic);
+    void handleSymbols(long symcount, bfd_symbol** syms, bool dynamic);
 
 private:
-    typedef std::map<asection*, void*> BfdSectionContents_t;
     typedef std::map<uint64_t, asection*> BfdSectionByAddress_t;
 
+    Machine m_machine {Machine::kUnknown};
     std::string_view m_path;
 
     uint8_t* m_rawData;
@@ -39,8 +45,8 @@ private:
     bfd_symbol** m_syntheticBfdSyms;
     bfd_symbol* m_rawSyntheticBfdSyms;
 
+    std::unordered_map<bfd_section*, std::unique_ptr<Section>> m_pending_sections;
 
-    BfdSectionContents_t m_sectionContents;
     BfdSectionByAddress_t m_sectionByAddress;
 };
 

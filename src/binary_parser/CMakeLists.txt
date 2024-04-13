@@ -7,7 +7,8 @@ PUBLIC
     emilpro_interface
     p::bfd
     fmt::fmt
-PRIVATE
+PUBLIC
+    symbol
     section
 )
 

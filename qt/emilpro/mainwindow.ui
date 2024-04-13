@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1034</width>
+    <width>1036</width>
     <height>578</height>
    </rect>
   </property>
@@ -45,7 +45,7 @@
        <widget class="QLineEdit" name="locationLineEdit">
         <property name="font">
          <font>
-          <family>Monospace</family>
+          <family>Courier New</family>
           <pointsize>10</pointsize>
           <italic>false</italic>
          </font>
@@ -72,7 +72,7 @@
          </property>
          <property name="font">
           <font>
-           <family>Monospace</family>
+           <family>Courier New</family>
            <pointsize>10</pointsize>
            <kerning>true</kerning>
           </font>
@@ -108,7 +108,7 @@
          </property>
          <property name="font">
           <font>
-           <family>Monospace</family>
+           <family>Courier New</family>
            <pointsize>10</pointsize>
           </font>
          </property>
@@ -187,7 +187,7 @@
                </property>
                <property name="font">
                 <font>
-                 <family>Monospace</family>
+                 <family>Courier New</family>
                  <pointsize>10</pointsize>
                  <italic>false</italic>
                 </font>
@@ -356,7 +356,7 @@
             </property>
             <property name="font">
              <font>
-              <family>Monospace</family>
+              <family>Courier New</family>
               <pointsize>10</pointsize>
               <italic>false</italic>
              </font>
@@ -393,7 +393,7 @@
             </property>
             <property name="font">
              <font>
-              <family>Monospace</family>
+              <family>Courier New</family>
               <pointsize>10</pointsize>
              </font>
             </property>
@@ -415,8 +415,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1034</width>
-     <height>27</height>
+     <width>1036</width>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

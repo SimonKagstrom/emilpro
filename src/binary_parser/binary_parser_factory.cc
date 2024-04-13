@@ -1,7 +1,6 @@
 #include "emilpro/i_binary_parser.hh"
 
-#include "elf_binary_parser.hh"
-// And later the Mach-O parser
+#include "bfd_binary_parser.hh"
 
 using namespace emilpro;
 

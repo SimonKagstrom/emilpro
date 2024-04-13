@@ -50,7 +50,6 @@ MainWindow::init(int argc, char* argv[])
             disp->Disassemble(section->Data(), section->StartAddress(), [this](auto insn) {
 //                fmt::print("{:08x} {}\n", insn->GetOffset(), insn->AsString());
 
-#if 0
                 QList<QStandardItem*> lst;
                 lst.append(new QStandardItem(fmt::format("{:08x}", insn->GetOffset()).c_str()));
                 lst.append(new QStandardItem(""));
@@ -58,7 +57,6 @@ MainWindow::init(int argc, char* argv[])
                 lst.append(new QStandardItem(""));
                 lst.append(new QStandardItem(""));
                 m_instructionViewModel->appendRow(lst);
-#endif
             });
         }
     });
