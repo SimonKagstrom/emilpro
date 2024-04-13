@@ -2,6 +2,9 @@
 
 #include <cstdint>
 
+namespace emilpro
+{
+
 enum class Machine : uint8_t
 {
     kX86,
@@ -13,3 +16,5 @@ enum class Machine : uint8_t
 
     kUnknown,
 };
+
+}

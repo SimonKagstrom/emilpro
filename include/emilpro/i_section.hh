@@ -23,6 +23,7 @@ public:
 
     virtual size_t Size() const = 0;
 
+    virtual Type GetType() const = 0;
 
     static std::unique_ptr<ISection>
     Create(std::span<const std::byte> data, uint64_t start_address, Type type);

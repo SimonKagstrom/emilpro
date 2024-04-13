@@ -34,7 +34,7 @@ private:
     uint8_t* m_rawData;
     size_t m_rawDataSize;
     struct bfd* m_bfd;
-    bfd_symbol** m_bfdSyms;
+    bfd_symbol** m_bfd_syms;
     bfd_symbol** m_dynamicBfdSyms;
     bfd_symbol** m_syntheticBfdSyms;
     bfd_symbol* m_rawSyntheticBfdSyms;

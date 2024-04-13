@@ -86,7 +86,7 @@ ElfBinaryParser::ElfBinaryParser(std::string_view path)
     , m_rawData(NULL)
     , m_rawDataSize(0)
     , m_bfd(NULL)
-    , m_bfdSyms(NULL)
+    , m_bfd_syms(NULL)
     , m_dynamicBfdSyms(NULL)
     , m_syntheticBfdSyms(NULL)
     , m_rawSyntheticBfdSyms(NULL)
@@ -106,7 +106,7 @@ ElfBinaryParser::~ElfBinaryParser()
 
     if (m_bfd)
     {
-        free(m_bfdSyms);
+        free(m_bfd_syms);
         free(m_dynamicBfdSyms);
         free(m_syntheticBfdSyms);
         free(m_rawSyntheticBfdSyms);
@@ -118,12 +118,41 @@ ElfBinaryParser::~ElfBinaryParser()
 Machine
 ElfBinaryParser::GetMachine() const
 {
-    return Machine::kUnknown;
+    return Machine::kArm;
 }
 
 void
 ElfBinaryParser::ForAllSections(std::function<void(std::unique_ptr<ISection>)> on_section)
 {
+    // Provide section symbols
+    for (auto section = m_bfd->sections; section != NULL; section = section->next)
+    {
+        // Skip non-allocated sections
+        if ((section->flags & SEC_ALLOC) == 0)
+        {
+            continue;
+        }
+
+        auto size = bfd_section_size(section);
+        auto p = new bfd_byte[size];
+
+        if (bfd_get_section_contents(m_bfd, section, p, 0, size))
+        {
+            auto type = ISection::Type::kData;
+
+            if ((section->flags & SEC_CODE))
+            {
+                type = ISection::Type::kInstructions;
+            }
+
+            auto sec = ISection::Create(std::span<const std::byte>((const std::byte*)p, size),
+                                        bfd_section_vma(section),
+                                        type);
+
+            on_section(std::move(sec));
+        }
+        delete[] p;
+    }
 }
 
 
@@ -171,6 +200,70 @@ ElfBinaryParser::getLineByAddress(uint64_t addr)
     //            return out;
 
     return out;
+}
+
+static asymbol**
+slurp_symtab(bfd* abfd)
+{
+    asymbol** sy = NULL;
+    long storage;
+
+    if (!(bfd_get_file_flags(abfd) & HAS_SYMS))
+    {
+        return NULL;
+    }
+
+    storage = bfd_get_symtab_upper_bound(abfd);
+    if (storage < 0)
+        exit(1);
+    if (storage)
+        sy = (asymbol**)malloc(storage);
+
+    auto symcount = bfd_canonicalize_symtab(abfd, sy);
+    if (symcount < 0)
+        exit(1);
+    return sy;
+}
+
+static void
+dump_relocs_in_section(bfd* abfd, asection* section, auto syms)
+{
+    arelent** relpp;
+    long relcount;
+    long relsize;
+
+    if (bfd_is_abs_section(section) || bfd_is_und_section(section) || bfd_is_com_section(section) ||
+        ((section->flags & SEC_RELOC) == 0))
+        return;
+    if ((section->flags & SEC_ALLOC) == 0)
+    {
+        return;
+    }
+
+    relsize = bfd_get_reloc_upper_bound(abfd, section);
+
+    printf("RELOCATION RECORDS FOR [%s]:", section->name);
+
+    if (relsize == 0)
+    {
+        printf(" (none)\n\n");
+        return;
+    }
+
+//    auto syms = slurp_symtab(abfd);
+    relpp = (arelent**)malloc(relsize);
+    relcount = bfd_canonicalize_reloc(abfd, section, relpp, syms);
+
+    if (relcount > 0)
+    {
+        printf("\n");
+        for (auto p = relpp; relcount && *p != NULL; p++, relcount--)
+        {
+            arelent* q = *p;
+            printf("XXX 0x%08x: %s\n", q->address, (*q->sym_ptr_ptr)->name);
+        }
+    }
+    free(relpp);
 }
 
 bool
@@ -235,16 +328,16 @@ ElfBinaryParser::Parse()
     //
     long symcount, dynsymcount, syntsymcount;
 
-    symcount = bfd_read_minisymbols(m_bfd, FALSE, (void**)&m_bfdSyms, &sz);
+    symcount = bfd_read_minisymbols(m_bfd, FALSE, (void**)&m_bfd_syms, &sz);
 
-    handleSymbols(symcount, m_bfdSyms, false);
+    handleSymbols(symcount, m_bfd_syms, false);
 
     dynsymcount = bfd_read_minisymbols(m_bfd, TRUE /* dynamic */, (void**)&m_dynamicBfdSyms, &sz);
     handleSymbols(dynsymcount, m_dynamicBfdSyms, true);
 
     bfd_symbol* syntheticSyms;
     syntsymcount = bfd_get_synthetic_symtab(
-        m_bfd, symcount, m_bfdSyms, dynsymcount, m_dynamicBfdSyms, &syntheticSyms);
+        m_bfd, symcount, m_bfd_syms, dynsymcount, m_dynamicBfdSyms, &syntheticSyms);
 
     if (syntheticSyms)
     {
@@ -257,54 +350,40 @@ ElfBinaryParser::Parse()
 
     //    deriveSymbolSizes();
 
-    // Provide section symbols
-    bfd_section* section;
-    for (section = m_bfd->sections; section != NULL; section = section->next)
-    {
-        //            m_sectionByAddress[(uint64_t)bfd_section_vma(m_bfd, section)] = section;
-
-        // Skip non-allocated sections
-        if ((section->flags & SEC_ALLOC) == 0)
-            continue;
-
-        BfdSectionContents_t::iterator it = m_sectionContents.find(section);
-        if (it == m_sectionContents.end())
-        {
-            bfd_size_type size;
-            bfd_byte* p;
-
-            size = bfd_section_size(section);
-            p = (bfd_byte*)malloc(size);
-
-            if (!bfd_get_section_contents(m_bfd, section, p, 0, size))
-            {
-                free((void*)p);
-                continue;
-            }
-
-            m_sectionContents[section] = p;
-            it = m_sectionContents.find(section);
-        }
-    }
-
     // The first pass has created symbols, now look for relocations
-    for (section = m_bfd->sections; section != NULL; section = section->next)
+    for (auto section = m_bfd->sections; section != NULL; section = section->next)
     {
+        dump_relocs_in_section(m_bfd, section, m_bfd_syms);
+        continue;
+
+        printf("SECT: %s\n", section->name);
         uint64_t addr = bfd_section_vma(section);
         //            m_sectionByAddress[(uint64_t)bfd_section_vma(m_bfd, section)] = section;
 
         if (section->reloc_count > 0)
         {
+            printf("RELOCS! %d\n", section->reloc_count);
             for (auto i = 0; i < section->reloc_count; i++)
             {
                 if (section->relocation)
                 {
                     auto& reloc = section->relocation[i];
-                    printf("Reloc for %20s: addend: 0x%08x, address 0x%08x. sz: %d\n",
-                           (*reloc.sym_ptr_ptr)->name,
+                    printf("IReloc for 0x%08x in section: %14s: 0x%08x addend: 0x%08x, address "
+                           "0x%08x. Type 0x%08x\n",
+                           (*reloc.sym_ptr_ptr)->value,
+                           (*reloc.sym_ptr_ptr)->section->name,
+                           (*reloc.sym_ptr_ptr)->section->filepos,
                            reloc.addend,
                            reloc.address,
-                           bfd_get_reloc_size(reloc.howto));
+                           reloc.howto->type);
+                }
+                if (section->orelocation)
+                {
+                    auto reloc = section->orelocation[i];
+                    printf("OReloc for %20s: addend: 0x%08x, address 0x%08x.\n",
+                           (*reloc->sym_ptr_ptr)->name,
+                           reloc->addend,
+                           reloc->address);
                 }
             }
             //handleRelocations(section);
@@ -346,8 +425,8 @@ ElfBinaryParser::handleSymbols(long symcount, bfd_symbol** syms, bool dynamic)
                dynamic ? "DYNAMIC" : "",
                symName,
                (int)symAddr,
-               section->name);
+               bfd_is_und_section(section) ? "(in some other .o file)" : section->name);
 
-        lookupLine(section, m_bfdSyms, symAddr);
+        lookupLine(section, m_bfd_syms, symAddr);
     }
 }

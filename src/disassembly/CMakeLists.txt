@@ -6,6 +6,7 @@ target_link_libraries(capstone_disassembler
 PUBLIC
     emilpro_interface
     capstone::capstone
+PRIVATE
     fmt::fmt
 )
 

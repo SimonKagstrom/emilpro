@@ -1,12 +1,13 @@
 #include "mainwindow.hh"
 
+#include "emilpro/i_disassembler.hh"
 #include "ui_mainwindow.h"
 
 #include <QMessageBox>
 #include <QScrollBar>
 #include <QTextBlock>
+#include <fmt/format.h>
 #include <qstandarditemmodel.h>
-
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -41,9 +42,27 @@ MainWindow::init(int argc, char* argv[])
     m_ui->menuBar->setNativeMenuBar(false);
 
     auto x = emilpro::IBinaryParser::FromFile(argv[1]);
-    x->ForAllSections([](auto section) {
+    auto dis = emilpro::IDisassembler::CreateFromArchitecture(x->GetMachine());
+    auto disp = dis.get();
+    x->ForAllSections([disp, this](auto section) {
+        if (section->GetType() == emilpro::ISection::Type::kInstructions)
+        {
+            disp->Disassemble(section->Data(), section->StartAddress(), [this](auto insn) {
+//                fmt::print("{:08x} {}\n", insn->GetOffset(), insn->AsString());
+
+#if 0
+                QList<QStandardItem*> lst;
+                lst.append(new QStandardItem(fmt::format("{:08x}", insn->GetOffset()).c_str()));
+                lst.append(new QStandardItem(""));
+                lst.append(new QStandardItem(std::string(insn->AsString()).c_str()));
+                lst.append(new QStandardItem(""));
+                lst.append(new QStandardItem(""));
+                m_instructionViewModel->appendRow(lst);
+#endif
+            });
+        }
     });
-    exit(1);
+
 
     return true;
 }
@@ -214,8 +233,8 @@ MainWindow::setupInstructionView()
 {
     m_instructionViewModel = new QStandardItemModel(0, 5, this);
 
-//    m_ui->instructionTableView->setItemDelegateForColumn(1, &m_backwardItemDelegate);
-//    m_ui->instructionTableView->setItemDelegateForColumn(3, &m_forwardItemDelegate);
+    //    m_ui->instructionTableView->setItemDelegateForColumn(1, &m_backwardItemDelegate);
+    //    m_ui->instructionTableView->setItemDelegateForColumn(3, &m_forwardItemDelegate);
 
     m_ui->instructionTableView->setModel(m_instructionViewModel);
     m_ui->instructionTableView->horizontalHeader()->setStretchLastSection(true);
