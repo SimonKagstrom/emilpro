@@ -16,6 +16,7 @@ public:
     Section(std::span<const std::byte> data, uint64_t start_address, Type type);
 
     void AddSymbol(std::unique_ptr<Symbol> symbol);
+    void AddRelocation(uint64_t offset, const Symbol& symbol);
     void FixupSymbolSizes();
 
 private:
@@ -33,6 +34,8 @@ private:
 
     std::vector<std::unique_ptr<Symbol>> m_symbols;
     std::map<uint64_t, std::vector<Symbol*>> m_sorted_symbols;
+
+    std::vector<std::reference_wrapper<const Symbol>> m_relocations;
 };
 
 } // namespace emilpro

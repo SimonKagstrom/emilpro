@@ -44,6 +44,13 @@ Section::AddSymbol(std::unique_ptr<Symbol> symbol)
 }
 
 void
+Section::AddRelocation(uint64_t offset, const Symbol& symbol)
+{
+    fmt::print("Sec add reloc to sym {}. Offset {}\n", symbol.GetDemangledName(), offset);
+    m_relocations.push_back(symbol);
+}
+
+void
 Section::FixupSymbolSizes()
 {
     size_t last_offset = Size();

@@ -2,6 +2,7 @@
 
 #include "emilpro/i_binary_parser.hh"
 #include "section.hh"
+#include "symbol.hh"
 
 // For libbfd: "error: config.h must be included before this header"
 #define PACKAGE         1
@@ -32,6 +33,7 @@ private:
     bool lookupLine(bfd_section* section, bfd_symbol** symTbl, uint64_t addr);
     bool getLineByAddress(uint64_t addr);
     void handleSymbols(long symcount, bfd_symbol** syms, bool dynamic);
+    void HandleRelocations(asection* section, bfd_symbol** syms);
 
 private:
     typedef std::map<uint64_t, asection*> BfdSectionByAddress_t;
@@ -43,11 +45,12 @@ private:
     size_t m_rawDataSize;
     struct bfd* m_bfd;
     bfd_symbol** m_bfd_syms;
-    bfd_symbol** m_dynamicBfdSyms;
-    bfd_symbol** m_syntheticBfdSyms;
-    bfd_symbol* m_rawSyntheticBfdSyms;
+    bfd_symbol** m_dynamic_bfd_syms;
+    bfd_symbol** m_synthetic_bfd_syms;
+    bfd_symbol* m_rawSynthetic_bfd_syms;
 
     std::unordered_map<bfd_section*, std::unique_ptr<Section>> m_pending_sections;
+    std::unordered_map<bfd_symbol*, Symbol*> m_symbol_map;
 
     BfdSectionByAddress_t m_sectionByAddress;
 };

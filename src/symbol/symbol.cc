@@ -1,7 +1,7 @@
 #include "symbol.hh"
 
-#include <libiberty/demangle.h>
 #include <fmt/format.h>
+#include <libiberty/demangle.h>
 
 using namespace emilpro;
 
@@ -77,4 +77,12 @@ std::string_view
 Symbol::GetDemangledName() const
 {
     return m_demanged_name;
+}
+
+void
+Symbol::AddRelocation(const ISection& src_section, uint64_t offset)
+{
+    m_relocations.push_back(src_section);
+    auto start_addr = m_relocations.back().get().StartAddress();
+    fmt::print("SYM {} add reloc from sect {:x}. Offset {}\n", GetDemangledName(), start_addr, offset);
 }

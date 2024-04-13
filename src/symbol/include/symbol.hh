@@ -15,6 +15,8 @@ public:
 
     void SetSize(size_t size);
 
+    void AddRelocation(const ISection& src_section, uint64_t offset);
+
     std::span<const std::byte> Data() const final;
     const ISection& GetSection() final;
     uint64_t GetOffset() const final;
@@ -30,6 +32,8 @@ private:
     std::string m_flags;
     std::string m_name;
     std::string m_demanged_name;
+
+    std::vector<std::reference_wrapper<const ISection>> m_relocations;
 };
 
 } // namespace emilpro
