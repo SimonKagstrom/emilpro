@@ -1,6 +1,7 @@
 #pragma once
 
 #include "emilpro/i_binary_parser.hh"
+#include "emilpro/database.hh"
 
 #include <QMainWindow>
 #include <qstandarditemmodel.h>
@@ -60,6 +61,7 @@ private slots:
 
     void on_symbolTimerTriggered();
 
+    void on_locationLineEdit_textChanged(const QString& text);
     void on_locationLineEdit_returnPressed();
 
 private:
@@ -98,6 +100,8 @@ private:
     QStandardItemModel* m_instructionViewModel {nullptr};
     QStandardItemModel* m_referencesViewModel {nullptr};
     QStandardItemModel* m_addressHistoryViewModel {nullptr};
+
+    emilpro::Database m_database;
 
     std::span<const std::reference_wrapper<emilpro::IInstruction>> m_visible_instructions;
 };

@@ -41,43 +41,10 @@ MainWindow::init(int argc, char* argv[])
 
     m_ui->menuBar->setNativeMenuBar(false);
 
-    auto x = emilpro::IBinaryParser::FromFile(argv[1]);
-    auto dis = emilpro::IDisassembler::CreateFromArchitecture(x->GetMachine());
-    auto disp = dis.get();
-
-    bool first = false;
-    // Hack hack hack
-    static std::vector<std::unique_ptr<emilpro::ISection>> kalkon;
-
-    x->ForAllSections([&first, disp, this](auto section) {
-        if (section->GetType() == emilpro::ISection::Type::kInstructions)
-        {
-            if (first)
-            {
-                return;
-            }
-            first = true;
-            section->Disassemble(*disp);
-
-            for (auto& ref : section->GetInstructions())
-            {
-                auto& ri = ref.get();
-
-                QList<QStandardItem*> lst;
-                lst.append(new QStandardItem(
-                    fmt::format("{:08x}", section->StartAddress() + ri.GetOffset()).c_str()));
-                lst.append(new QStandardItem(""));
-                lst.append(new QStandardItem(std::string(ri.AsString()).c_str()));
-                lst.append(new QStandardItem(ri.GetRefersTo().empty() ? "" : "->"));
-                lst.append(new QStandardItem(""));
-                m_instructionViewModel->appendRow(lst);
-            }
-            m_visible_instructions = section->GetInstructions();
-        }
-
-        kalkon.push_back(std::move(section));
-    });
-
+    for (auto &section_ref : m_database.GetSections())
+    {
+        auto &section  = section_ref.get();
+    }
 
     return true;
 }
@@ -181,6 +148,11 @@ MainWindow::on_instructionTableView_activated(const QModelIndex& index)
 
 void
 MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
+{
+}
+
+void
+MainWindow::on_locationLineEdit_textChanged(const QString& text)
 {
 }
 
