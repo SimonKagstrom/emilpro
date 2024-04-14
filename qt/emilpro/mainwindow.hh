@@ -58,8 +58,6 @@ private slots:
 
     void on_action_About_triggered(bool activated);
 
-    void on_editInstructionPushButton_clicked();
-
     void on_symbolTimerTriggered();
 
     void on_locationLineEdit_returnPressed();
@@ -100,4 +98,6 @@ private:
     QStandardItemModel* m_instructionViewModel {nullptr};
     QStandardItemModel* m_referencesViewModel {nullptr};
     QStandardItemModel* m_addressHistoryViewModel {nullptr};
+
+    std::span<const std::reference_wrapper<emilpro::IInstruction>> m_visible_instructions;
 };

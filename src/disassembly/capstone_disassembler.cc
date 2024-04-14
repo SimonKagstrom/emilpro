@@ -1,9 +1,9 @@
 #include "capstone_disassembler.hh"
 
 #include <array>
+#include <etl/vector.h>
 #include <fmt/format.h>
 #include <ranges>
-#include <etl/vector.h>
 
 using namespace emilpro;
 
@@ -50,7 +50,8 @@ private:
         {
             refers_to_.push_back(insn->detail->arm.operands[0].imm);
         }
-        else if (IsJump(insn))
+        else if (IsJump(insn) && insn->detail->arm.op_count > 0 &&
+                 insn->detail->arm.operands[0].type == ARM_OP_IMM)
         {
             refers_to_.push_back(insn->detail->arm.operands[0].imm);
         }
@@ -64,7 +65,7 @@ private:
         }
     }
 
-    bool IsJump(const cs_insn *insn) const
+    bool IsJump(const cs_insn* insn) const
     {
         for (auto i = 0u; i < insn->detail->groups_count; i++)
         {
@@ -77,7 +78,10 @@ private:
         return false;
     }
 
-
+    std::span<const std::byte> Data() const final
+    {
+        return data_;
+    }
 
     uint32_t GetOffset() const final
     {
@@ -149,10 +153,12 @@ CapstoneDisassembler::Disassemble(std::span<const std::byte> data,
                        start_address,
                        0,
                        &insns);
+
     for (auto i = 0; i < n; i++)
     {
         auto p = &insns[i];
         on_instruction(std::make_unique<CapstoneInstruction>(m_arch, data, p));
+        data = data.subspan(p->size);
     }
 }
 

@@ -17,9 +17,9 @@ class Database
 public:
     struct LookupResult
     {
-        ISection &section;
-        std::optional<std::reference_wrapper<ISymbol>> symbol;
-        std::optional<std::span<const IInstruction>> instructions;
+        ISection& section;
+        std::optional<std::reference_wrapper<const ISymbol>> symbol;
+        std::optional<std::span<std::reference_wrapper<const IInstruction>>> instructions;
     };
 
     Database(std::unique_ptr<IDisassembler> disassembler);

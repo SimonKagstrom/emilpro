@@ -44,9 +44,19 @@ MainWindow::init(int argc, char* argv[])
     auto x = emilpro::IBinaryParser::FromFile(argv[1]);
     auto dis = emilpro::IDisassembler::CreateFromArchitecture(x->GetMachine());
     auto disp = dis.get();
-    x->ForAllSections([disp, this](auto section) {
+
+    bool first = false;
+    // Hack hack hack
+    static std::vector<std::unique_ptr<emilpro::ISection>> kalkon;
+
+    x->ForAllSections([&first, disp, this](auto section) {
         if (section->GetType() == emilpro::ISection::Type::kInstructions)
         {
+            if (first)
+            {
+                return;
+            }
+            first = true;
             section->Disassemble(*disp);
 
             for (auto& ref : section->GetInstructions())
@@ -58,11 +68,14 @@ MainWindow::init(int argc, char* argv[])
                     fmt::format("{:08x}", section->StartAddress() + ri.GetOffset()).c_str()));
                 lst.append(new QStandardItem(""));
                 lst.append(new QStandardItem(std::string(ri.AsString()).c_str()));
-                lst.append(new QStandardItem(""));
+                lst.append(new QStandardItem(ri.GetRefersTo().empty() ? "" : "->"));
                 lst.append(new QStandardItem(""));
                 m_instructionViewModel->appendRow(lst);
             }
+            m_visible_instructions = section->GetInstructions();
         }
+
+        kalkon.push_back(std::move(section));
     });
 
 
@@ -141,13 +154,18 @@ MainWindow::on_addressHistoryListView_activated(const QModelIndex& index)
 }
 
 void
-MainWindow::on_editInstructionPushButton_clicked()
-{
-}
-
-void
 MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelIndex& previous)
 {
+    auto row = index.row();
+    if (row < 0 || row >= m_visible_instructions.size())
+    {
+        return;
+    }
+
+    auto& insn = m_visible_instructions[row].get();
+
+    auto encoding = fmt::format("{:02x}", fmt::join(insn.Data(), " "));
+    m_ui->instructionEncodingLine->setText(encoding.c_str());
 }
 
 void

@@ -13,6 +13,8 @@ class IInstruction
 public:
     virtual ~IInstruction() = default;
 
+    virtual std::span<const std::byte> Data() const = 0;
+
     virtual uint32_t GetOffset() const = 0;
 
     virtual std::string_view AsString() const = 0;
