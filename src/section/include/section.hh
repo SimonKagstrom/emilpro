@@ -15,7 +15,9 @@ class Section : public ISection
 {
 public:
     Section(std::string_view name,
-        std::span<const std::byte> data, uint64_t start_address, Type type);
+            std::span<const std::byte> data,
+            uint64_t start_address,
+            Type type);
 
     void AddSymbol(std::unique_ptr<Symbol> symbol);
     void AddRelocation(uint64_t offset, const Symbol& symbol);

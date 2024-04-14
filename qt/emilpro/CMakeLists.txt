@@ -8,7 +8,7 @@ target_link_libraries(mainwindow
 PUBLIC
     Qt6::Widgets
     fmt::fmt
-    emilpro_interface
+    database
 )
 
 add_executable(emilpro

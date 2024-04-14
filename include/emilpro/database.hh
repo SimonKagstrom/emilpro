@@ -3,7 +3,7 @@
 #include "i_binary_parser.hh"
 #include "i_disassembler.hh"
 
-#include <optional>
+#include <vector>
 
 namespace emilpro
 {
@@ -28,9 +28,9 @@ public:
 
     std::span<const std::reference_wrapper<const ISection>> GetSections() const;
 
-    std::optional<LookupResult> LookupByAddress(uint64_t address);
+    std::vector<LookupResult> LookupByAddress(uint64_t address);
 
-    std::optional<LookupResult> LookupByName(std::string_view name);
+    std::vector<LookupResult> LookupByName(std::string_view name);
 };
 
 } // namespace emilpro
