@@ -4,6 +4,7 @@
 #include "emilpro/i_section.hh"
 #include "symbol.hh"
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <vector>
@@ -14,10 +15,17 @@ namespace emilpro
 class Section : public ISection
 {
 public:
+    struct FileLine
+    {
+        std::string_view file;
+        uint32_t line;
+    };
+
     Section(std::string_view name,
             std::span<const std::byte> data,
             uint64_t start_address,
-            Type type);
+            Type type,
+            std::function<std::optional<FileLine>(uint64_t offset)> line_lookup);
 
     void AddSymbol(std::unique_ptr<Symbol> symbol);
     void AddRelocation(uint64_t offset, const Symbol& symbol);
@@ -43,6 +51,7 @@ private:
     const uint64_t m_start_address;
     const Type m_type;
     const std::string m_name;
+    std::function<std::optional<FileLine>(uint64_t offset)> m_line_lookup;
 
     std::vector<std::unique_ptr<Symbol>> m_symbols;
     std::map<uint64_t, std::vector<Symbol*>> m_sorted_symbols;

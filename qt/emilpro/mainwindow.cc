@@ -166,6 +166,12 @@ MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelIndex& p
 
     auto encoding = fmt::format("{:02x}", fmt::join(insn.Data(), " "));
     m_ui->instructionEncodingLine->setText(encoding.c_str());
+
+    auto fl = insn.GetSourceLocation();
+    if (fl)
+    {
+        fmt::print("Source location: {}:{}\n", fl->first, fl->second);
+    }
 }
 
 void

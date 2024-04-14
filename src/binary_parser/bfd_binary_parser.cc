@@ -124,23 +124,24 @@ BfdBinaryParser::ForAllSections(std::function<void(std::unique_ptr<ISection>)> o
 }
 
 
-bool
-BfdBinaryParser::lookupLine(bfd_section* section, bfd_symbol** symTbl, uint64_t addr)
+std::optional<Section::FileLine>
+BfdBinaryParser::LookupLine(bfd_section* section, bfd_symbol** symTbl, uint64_t offset)
 {
-    const char* fileName;
+    const char* file_name;
     const char* function;
-    unsigned int lineNr;
+    unsigned int line_nr;
 
-    if (bfd_find_nearest_line(
-            m_bfd, section, symTbl, addr - section->vma, &fileName, &function, &lineNr))
+    if (bfd_find_nearest_line(m_bfd, section, symTbl, offset, &file_name, &function, &line_nr))
     {
-        if (!fileName)
-            return false;
+        if (!file_name)
+        {
+            return std::nullopt;
+        }
 
-        //printf("Mopping: %s, %s: %d\n", fileName, function, lineNr);
+        return Section::FileLine {file_name, line_nr};
     }
 
-    return false; // lp->m_isValid;
+    return std::nullopt;
 }
 
 // From ILineProvider
@@ -293,6 +294,16 @@ BfdBinaryParser::Parse()
         m_machine = it_machine->second;
     }
 
+
+    long symcount, dynsymcount, syntsymcount;
+    bfd_symbol* syntheticSyms;
+
+    symcount = bfd_read_minisymbols(m_bfd, FALSE, (void**)&m_bfd_syms, &sz);
+    dynsymcount = bfd_read_minisymbols(m_bfd, TRUE /* dynamic */, (void**)&m_dynamic_bfd_syms, &sz);
+    syntsymcount = bfd_get_synthetic_symtab(
+        m_bfd, symcount, m_bfd_syms, dynsymcount, m_dynamic_bfd_syms, &syntheticSyms);
+
+
     // Create sections
     for (auto section = m_bfd->sections; section != NULL; section = section->next)
     {
@@ -314,12 +325,16 @@ BfdBinaryParser::Parse()
                 name,
                 std::span<const std::byte>(reinterpret_cast<const std::byte*>(p), size),
                 bfd_section_vma(section),
-                type);
+                type,
+                [this, section](auto offset) { return LookupLine(section, m_bfd_syms, offset); });
         }
         else
         {
-            sec = std::make_unique<Section>(
-                name, std::span<const std::byte> {}, bfd_section_vma(section), type);
+            sec = std::make_unique<Section>(name,
+                                            std::span<const std::byte> {},
+                                            bfd_section_vma(section),
+                                            type,
+                                            [](auto offset) { return std::nullopt; });
         }
 
         m_pending_sections[section] = std::move(sec);
@@ -329,31 +344,14 @@ BfdBinaryParser::Parse()
     if (auto undef_section = bfd_und_section_ptr)
     {
         m_pending_sections[undef_section] = std::make_unique<Section>(
-            "*UNDEF*", std::span<const std::byte> {}, 0, ISection::Type::kOther);
+            "*UNDEF*", std::span<const std::byte> {}, 0, ISection::Type::kOther, [](auto offset) {
+                return std::nullopt;
+            });
     }
 
 
-    //        isElf = memcmp(m_rawData, ELFMAG, SELFMAG) == 0;
-    //
-    //        if (bfd_get_arch(m_bfd) == bfd_arch_unknown)
-    //            guessArchitecture(data, dataSize);
-    //        ArchitectureFactory::instance().provideArchitecture(
-    //            (ArchitectureFactory::Architecture_t)bfd_get_arch(m_bfd), bfd_get_mach(m_bfd));
-    //
-    //
-    long symcount, dynsymcount, syntsymcount;
-
-    symcount = bfd_read_minisymbols(m_bfd, FALSE, (void**)&m_bfd_syms, &sz);
-
     handleSymbols(symcount, m_bfd_syms, false);
-
-    dynsymcount = bfd_read_minisymbols(m_bfd, TRUE /* dynamic */, (void**)&m_dynamic_bfd_syms, &sz);
     handleSymbols(dynsymcount, m_dynamic_bfd_syms, true);
-
-    bfd_symbol* syntheticSyms;
-    syntsymcount = bfd_get_synthetic_symtab(
-        m_bfd, symcount, m_bfd_syms, dynsymcount, m_dynamic_bfd_syms, &syntheticSyms);
-
     if (syntheticSyms)
     {
         m_synthetic_bfd_syms = (bfd_symbol**)malloc(syntsymcount * sizeof(bfd_symbol*));
@@ -366,7 +364,6 @@ BfdBinaryParser::Parse()
     {
         sec->FixupSymbolSizes();
     }
-    //    deriveSymbolSizes();
 
     // The first pass has created symbols, now look for relocations
     for (auto section = m_bfd->sections; section != NULL; section = section->next)

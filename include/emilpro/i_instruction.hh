@@ -24,6 +24,10 @@ public:
     virtual std::span<const uint64_t> GetRefersTo() const = 0;
 
     virtual std::span<std::string_view> GetUsedRegisters() const = 0;
+
+    virtual std::optional<std::pair<std::string_view, uint32_t>> GetSourceLocation() const = 0;
+
+    virtual void SetSourceLocation(std::string_view file, uint32_t line) = 0;
 };
 
 } // namespace emilpro

@@ -108,12 +108,32 @@ private:
         return {};
     }
 
+    std::optional<std::pair<std::string_view, uint32_t>> GetSourceLocation() const final
+    {
+        std::optional<std::pair<std::string_view, uint32_t>> out = std::nullopt;
+
+        if (source_file_ && source_line_)
+        {
+            out = {*source_file_, *source_line_};
+        }
+
+        return out;
+    }
+
+    void SetSourceLocation(std::string_view file, uint32_t line) final
+    {
+        source_file_ = file;
+        source_line_ = line;
+    }
 
     std::span<const std::byte> data_;
     // I don't think there are instructions with more than one immediate reference, but just in case
     etl::vector<uint64_t, 2> refers_to_;
     const std::string encoding_;
     const uint32_t offset_;
+
+    std::optional<std::string> source_file_;
+    std::optional<uint32_t> source_line_;
 };
 
 } // namespace

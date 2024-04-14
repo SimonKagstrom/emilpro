@@ -10,11 +10,13 @@ using namespace emilpro;
 Section::Section(std::string_view name,
                  std::span<const std::byte> data,
                  uint64_t start_address,
-                 Type type)
+                 Type type,
+                 std::function<std::optional<FileLine>(uint64_t offset)> line_lookup)
     : m_data(data.begin(), data.end())
     , m_start_address(start_address)
     , m_type(type)
     , m_name(name)
+    , m_line_lookup(std::move(line_lookup))
 {
     fmt::print("Section {} created with start address {:x} and size {:x}\n",
                m_name,
@@ -98,6 +100,11 @@ Section::Disassemble(IDisassembler& disassembler)
 
     for (auto& insn : m_instructions)
     {
+        auto file_line = m_line_lookup(insn->GetOffset());
+        if (file_line)
+        {
+            insn->SetSourceLocation(file_line->file, file_line->line);
+        }
         m_instruction_refs.push_back(*insn);
     }
 }
