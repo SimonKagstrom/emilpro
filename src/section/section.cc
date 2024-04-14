@@ -60,6 +60,7 @@ Section::AddSymbol(std::unique_ptr<Symbol> symbol)
 {
     m_sorted_symbols[symbol->GetOffset()].push_back(symbol.get());
     m_symbols.push_back(std::move(symbol));
+    m_symbol_refs.push_back(*m_symbols.back());
 }
 
 void
@@ -113,4 +114,10 @@ std::span<const std::reference_wrapper<IInstruction>>
 Section::GetInstructions() const
 {
     return m_instruction_refs;
+}
+
+std::span<const std::reference_wrapper<ISymbol>>
+Section::Symbols() const
+{
+    return m_symbol_refs;
 }

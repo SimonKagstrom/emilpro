@@ -36,6 +36,8 @@ private:
 
     std::span<const std::reference_wrapper<IInstruction>> GetInstructions() const final;
 
+    std::span<const std::reference_wrapper<ISymbol>> Symbols() const final;
+
     std::span<const std::byte> Data() const final;
 
     std::string_view Name() const final;
@@ -54,6 +56,7 @@ private:
     std::function<std::optional<FileLine>(uint64_t offset)> m_line_lookup;
 
     std::vector<std::unique_ptr<Symbol>> m_symbols;
+    std::vector<std::reference_wrapper<ISymbol>> m_symbol_refs;
     std::map<uint64_t, std::vector<Symbol*>> m_sorted_symbols;
     std::vector<std::reference_wrapper<const Symbol>> m_relocations;
 

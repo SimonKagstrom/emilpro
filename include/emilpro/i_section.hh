@@ -9,6 +9,7 @@ namespace emilpro
 
 class IDisassembler;
 class IInstruction;
+class ISymbol;
 
 class ISection
 {
@@ -25,6 +26,8 @@ public:
     virtual void Disassemble(IDisassembler& disassembler) = 0;
 
     virtual std::span<const std::reference_wrapper<IInstruction>> GetInstructions() const = 0;
+
+    virtual std::span<const std::reference_wrapper<ISymbol>> Symbols() const = 0;
 
     virtual std::span<const std::byte> Data() const = 0;
 
