@@ -45,22 +45,23 @@ MainWindow::init(int argc, char* argv[])
     auto dis = emilpro::IDisassembler::CreateFromArchitecture(x->GetMachine());
     auto disp = dis.get();
     x->ForAllSections([disp, this](auto section) {
-
-        section->Disassemble(*disp);
-
         if (section->GetType() == emilpro::ISection::Type::kInstructions)
         {
-            disp->Disassemble(section->Data(), section->StartAddress(), [this](auto insn) {
-//                fmt::print("{:08x} {}\n", insn->GetOffset(), insn->AsString());
+            section->Disassemble(*disp);
+
+            for (auto& ref : section->GetInstructions())
+            {
+                auto& ri = ref.get();
 
                 QList<QStandardItem*> lst;
-                lst.append(new QStandardItem(fmt::format("{:08x}", insn->GetOffset()).c_str()));
+                lst.append(new QStandardItem(
+                    fmt::format("{:08x}", section->StartAddress() + ri.GetOffset()).c_str()));
                 lst.append(new QStandardItem(""));
-                lst.append(new QStandardItem(std::string(insn->AsString()).c_str()));
+                lst.append(new QStandardItem(std::string(ri.AsString()).c_str()));
                 lst.append(new QStandardItem(""));
                 lst.append(new QStandardItem(""));
                 m_instructionViewModel->appendRow(lst);
-            });
+            }
         }
     });
 

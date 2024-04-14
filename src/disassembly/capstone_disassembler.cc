@@ -85,6 +85,7 @@ CapstoneDisassembler::Disassemble(std::span<const std::byte> data,
 {
     cs_insn* insns = nullptr;
 
+    printf("Disassembling at 0x%08llx\n", start_address);
     auto n = cs_disasm(m_handle,
                        reinterpret_cast<const uint8_t*>(data.data()),
                        data.size(),

@@ -428,7 +428,7 @@ BfdBinaryParser::handleSymbols(long symcount, bfd_symbol** syms, bool dynamic)
             fmt::print("Dropping symbol {}, since it has no section\n", sym_name);
             continue;
         }
-        fmt::print("SYM {} with flags {:08x}\n", sym_name, cur->flags);
+        fmt::print("SYM {} @ {:08x} with flags {:08x}\n", sym_name, cur->value, cur->flags);
 
         auto symbol = std::make_unique<Symbol>(*sect_it->second, sym_addr, "", sym_name);
         m_symbol_map[cur] = symbol.get();

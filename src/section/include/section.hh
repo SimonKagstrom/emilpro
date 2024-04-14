@@ -41,6 +41,7 @@ private:
     std::vector<std::reference_wrapper<const Symbol>> m_relocations;
 
     std::vector<std::unique_ptr<IInstruction>> m_instructions;
+    std::vector<std::reference_wrapper<IInstruction>> m_instruction_refs;
 };
 
 } // namespace emilpro

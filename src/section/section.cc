@@ -12,6 +12,7 @@ Section::Section(std::span<const std::byte> data, uint64_t start_address, Type t
     , m_start_address(start_address)
     , m_type(type)
 {
+    fmt::print("Section created with start address {:x} and size {:x}\n", start_address, data.size());
 }
 
 std::span<const std::byte>
@@ -66,12 +67,6 @@ Section::FixupSymbolSizes()
         {
             symbol->SetSize(adjust - symbol->GetOffset());
 
-            fmt::print("Symbol {} @{:08x} size: {:x}. Last offset {:x} and section size {:x}\n",
-                       symbol->GetDemangledName(),
-                       symbol->GetOffset(),
-                       symbol->Size(),
-                       adjust,
-                       Size());
             last_offset = symbol->GetOffset();
         }
     }
@@ -80,13 +75,24 @@ Section::FixupSymbolSizes()
 void
 Section::Disassemble(IDisassembler& disassembler)
 {
-    disassembler.Disassemble(Data(), StartAddress(), [this](auto insn) {});
+    // Should already be done, but anyway
+    m_instruction_refs.clear();
+    m_instructions.clear();
+
+    disassembler.Disassemble(Data(), StartAddress(), [this](auto insn) {
+        m_instructions.push_back(std::move(insn));
+    });
+
+    for (auto& insn : m_instructions)
+    {
+        m_instruction_refs.push_back(*insn);
+    }
 }
 
 std::span<const std::reference_wrapper<IInstruction>>
 Section::GetInstructions() const
 {
-    return {};
+    return m_instruction_refs;
 }
 
 
