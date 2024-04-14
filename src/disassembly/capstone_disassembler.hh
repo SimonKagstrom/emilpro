@@ -19,8 +19,9 @@ private:
                      uint64_t start_address,
                      std::function<void(std::unique_ptr<IInstruction>)> on_instruction) final;
 
-    CapstoneDisassembler(cs_arch machine);
+    CapstoneDisassembler(cs_arch arch);
     csh m_handle;
+    cs_arch m_arch;
 };
 
 } // namespace emilpro

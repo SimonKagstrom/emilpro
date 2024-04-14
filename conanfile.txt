@@ -3,6 +3,7 @@ doctest/2.4.11
 trompeloeil/47
 fmt/10.2.1
 capstone/5.0.1
+etl/20.38.10
 
 [generators]
 CMakeDeps

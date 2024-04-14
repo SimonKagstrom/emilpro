@@ -8,5 +8,5 @@ PUBLIC
     capstone::capstone
 PRIVATE
     fmt::fmt
+    etl::etl
 )
-

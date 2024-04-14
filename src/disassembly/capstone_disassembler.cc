@@ -3,6 +3,7 @@
 #include <array>
 #include <fmt/format.h>
 #include <ranges>
+#include <etl/vector.h>
 
 using namespace emilpro;
 
@@ -14,20 +15,70 @@ constexpr auto kMachineMap = std::array {
     std::pair {Machine::kPpc, cs_arch::CS_ARCH_PPC},
 };
 
+constexpr auto kArmCallMap = std::array {
+    arm_insn::ARM_INS_BL,
+};
+
 namespace
 {
 
 class CapstoneInstruction : public IInstruction
 {
 public:
-    CapstoneInstruction(std::span<const std::byte> data, cs_insn* insn)
+    CapstoneInstruction(cs_arch arch, std::span<const std::byte> data, const cs_insn* insn)
         : data_(data.subspan(0, insn->size))
         , encoding_(fmt::format("{:16s} {}", insn->mnemonic, insn->op_str))
         , offset_(insn->address)
     {
+        switch (arch)
+        {
+        case cs_arch::CS_ARCH_ARM:
+            ProcessArm(insn);
+            break;
+        case cs_arch::CS_ARCH_X86:
+            ProcessArm(insn);
+            break;
+        default:
+            break;
+        }
     }
 
 private:
+    void ProcessArm(const cs_insn* insn)
+    {
+        if (insn->id == arm_insn::ARM_INS_BL)
+        {
+            refers_to_.push_back(insn->detail->arm.operands[0].imm);
+        }
+        else if (IsJump(insn))
+        {
+            refers_to_.push_back(insn->detail->arm.operands[0].imm);
+        }
+    }
+
+    void ProcessX86(const cs_insn* insn)
+    {
+        if (insn->id == x86_insn::X86_INS_CALL)
+        {
+            refers_to_.push_back(insn->detail->x86.operands[0].imm);
+        }
+    }
+
+    bool IsJump(const cs_insn *insn) const
+    {
+        for (auto i = 0u; i < insn->detail->groups_count; i++)
+        {
+            if (insn->detail->groups[i] == cs_group_type::CS_GRP_JUMP)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+
     uint32_t GetOffset() const final
     {
         return offset_;
@@ -45,7 +96,7 @@ private:
 
     std::span<const uint64_t> GetRefersTo() const final
     {
-        return {};
+        return refers_to_;
     }
 
     std::span<std::string_view> GetUsedRegisters() const final
@@ -55,6 +106,8 @@ private:
 
 
     std::span<const std::byte> data_;
+    // I don't think there are instructions with more than one immediate reference, but just in case
+    etl::vector<uint64_t, 2> refers_to_;
     const std::string encoding_;
     const uint32_t offset_;
 };
@@ -62,13 +115,17 @@ private:
 } // namespace
 
 
-CapstoneDisassembler::CapstoneDisassembler(cs_arch machine)
+CapstoneDisassembler::CapstoneDisassembler(cs_arch arch)
+    : m_arch(arch)
 {
-    cs_open(machine, CS_MODE_LITTLE_ENDIAN, &m_handle);
+    cs_open(m_arch, CS_MODE_LITTLE_ENDIAN, &m_handle);
 
-    if (machine == cs_arch::CS_ARCH_X86)
+    size_t option = CS_OPT_ON;
+
+    cs_option(m_handle, CS_OPT_DETAIL, option);
+    if (m_arch == cs_arch::CS_ARCH_X86)
     {
-        size_t option = CS_OPT_SYNTAX_ATT;
+        option = CS_OPT_SYNTAX_ATT;
         cs_option(m_handle, CS_OPT_SYNTAX, option);
     }
 }
@@ -95,7 +152,7 @@ CapstoneDisassembler::Disassemble(std::span<const std::byte> data,
     for (auto i = 0; i < n; i++)
     {
         auto p = &insns[i];
-        on_instruction(std::make_unique<CapstoneInstruction>(data, p));
+        on_instruction(std::make_unique<CapstoneInstruction>(m_arch, data, p));
     }
 }
 
