@@ -7,12 +7,19 @@
 
 using namespace emilpro;
 
-Section::Section(std::span<const std::byte> data, uint64_t start_address, Type type)
+Section::Section(std::string_view name,
+                 std::span<const std::byte> data,
+                 uint64_t start_address,
+                 Type type)
     : m_data(data.begin(), data.end())
     , m_start_address(start_address)
     , m_type(type)
+    , m_name(name)
 {
-    fmt::print("Section created with start address {:x} and size {:x}\n", start_address, data.size());
+    fmt::print("Section {} created with start address {:x} and size {:x}\n",
+               m_name,
+               start_address,
+               data.size());
 }
 
 std::span<const std::byte>
@@ -38,6 +45,13 @@ Section::GetType() const
 {
     return m_type;
 }
+
+std::string_view
+Section::Name() const
+{
+    return m_name;
+}
+
 
 void
 Section::AddSymbol(std::unique_ptr<Symbol> symbol)
@@ -79,9 +93,8 @@ Section::Disassemble(IDisassembler& disassembler)
     m_instruction_refs.clear();
     m_instructions.clear();
 
-    disassembler.Disassemble(Data(), StartAddress(), [this](auto insn) {
-        m_instructions.push_back(std::move(insn));
-    });
+    disassembler.Disassemble(
+        Data(), StartAddress(), [this](auto insn) { m_instructions.push_back(std::move(insn)); });
 
     for (auto& insn : m_instructions)
     {
@@ -93,11 +106,4 @@ std::span<const std::reference_wrapper<IInstruction>>
 Section::GetInstructions() const
 {
     return m_instruction_refs;
-}
-
-
-std::unique_ptr<ISection>
-ISection::Create(std::span<const std::byte> data, uint64_t start_address, Type type)
-{
-    return std::make_unique<Section>(data, start_address, type);
 }

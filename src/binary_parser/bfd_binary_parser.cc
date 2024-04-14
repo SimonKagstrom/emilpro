@@ -297,6 +297,7 @@ BfdBinaryParser::Parse()
     for (auto section = m_bfd->sections; section != NULL; section = section->next)
     {
         auto size = bfd_section_size(section);
+        auto name = bfd_section_name(section);
         auto p = new bfd_byte[size];
 
         auto type = ISection::Type::kOther;
@@ -309,14 +310,16 @@ BfdBinaryParser::Parse()
                 type = ISection::Type::kInstructions;
             }
 
-            sec = std::make_unique<Section>(std::span<const std::byte>((const std::byte*)p, size),
-                                            bfd_section_vma(section),
-                                            type);
+            sec = std::make_unique<Section>(
+                name,
+                std::span<const std::byte>(reinterpret_cast<const std::byte*>(p), size),
+                bfd_section_vma(section),
+                type);
         }
         else
         {
             sec = std::make_unique<Section>(
-                std::span<const std::byte> {}, bfd_section_vma(section), type);
+                name, std::span<const std::byte> {}, bfd_section_vma(section), type);
         }
 
         m_pending_sections[section] = std::move(sec);
@@ -325,8 +328,8 @@ BfdBinaryParser::Parse()
 
     if (auto undef_section = bfd_und_section_ptr)
     {
-        m_pending_sections[undef_section] =
-            std::make_unique<Section>(std::span<const std::byte> {}, 0, ISection::Type::kOther);
+        m_pending_sections[undef_section] = std::make_unique<Section>(
+            "*UNDEF*", std::span<const std::byte> {}, 0, ISection::Type::kOther);
     }
 
 

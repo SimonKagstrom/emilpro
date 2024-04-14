@@ -26,6 +26,8 @@ public:
 
     void ParseFile(std::unique_ptr<IBinaryParser> parser);
 
+    std::span<const std::reference_wrapper<const ISection>> GetSections() const;
+
     std::optional<LookupResult> LookupByAddress(uint64_t address);
 
     std::optional<LookupResult> LookupByName(std::string_view name);

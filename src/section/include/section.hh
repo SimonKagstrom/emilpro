@@ -14,7 +14,8 @@ namespace emilpro
 class Section : public ISection
 {
 public:
-    Section(std::span<const std::byte> data, uint64_t start_address, Type type);
+    Section(std::string_view name,
+        std::span<const std::byte> data, uint64_t start_address, Type type);
 
     void AddSymbol(std::unique_ptr<Symbol> symbol);
     void AddRelocation(uint64_t offset, const Symbol& symbol);
@@ -24,7 +25,10 @@ private:
     void Disassemble(IDisassembler& disassembler) final;
 
     std::span<const std::reference_wrapper<IInstruction>> GetInstructions() const final;
+
     std::span<const std::byte> Data() const final;
+
+    std::string_view Name() const final;
 
     uint64_t StartAddress() const final;
 
@@ -32,9 +36,11 @@ private:
 
     Type GetType() const final;
 
+
     const std::vector<std::byte> m_data;
     const uint64_t m_start_address;
     const Type m_type;
+    const std::string m_name;
 
     std::vector<std::unique_ptr<Symbol>> m_symbols;
     std::map<uint64_t, std::vector<Symbol*>> m_sorted_symbols;
