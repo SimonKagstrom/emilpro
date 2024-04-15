@@ -1,9 +1,17 @@
 #include "symbol.hh"
 
 #include <fmt/format.h>
-#include <libiberty/demangle.h>
 
 using namespace emilpro;
+
+// From libiberty. Including demangle.h conflicts with string.h though
+#define DMGL_PARAMS	 (1 << 0)	/* Include function args */
+#define DMGL_ANSI	 (1 << 1)	/* Include const, volatile, etc */
+#define DMGL_VERBOSE	 (1 << 3)	/* Include implementation details.  */
+
+extern "C" char *
+cplus_demangle (const char *mangled, int options);
+
 
 Symbol::Symbol(const ISection& section,
                uint64_t offset,
@@ -84,5 +92,6 @@ Symbol::AddRelocation(const ISection& src_section, uint64_t offset)
 {
     m_relocations.push_back(src_section);
     auto start_addr = m_relocations.back().get().StartAddress();
-    fmt::print("SYM {} add reloc from sect {:x}. Offset {}\n", GetDemangledName(), start_addr, offset);
+    fmt::print(
+        "SYM {} add reloc from sect {:x}. Offset {}\n", GetDemangledName(), start_addr, offset);
 }

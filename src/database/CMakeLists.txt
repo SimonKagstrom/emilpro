@@ -7,4 +7,6 @@ PUBLIC
     emilpro_interface
 PRIVATE
     fmt::fmt
+    capstone_disassembler
+    binary_parser_factory
 )
