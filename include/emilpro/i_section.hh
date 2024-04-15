@@ -25,7 +25,7 @@ public:
 
     virtual void Disassemble(IDisassembler& disassembler) = 0;
 
-    virtual std::span<const std::reference_wrapper<IInstruction>> GetInstructions() const = 0;
+    virtual std::span<const std::reference_wrapper<IInstruction>> Instructions() const = 0;
 
     virtual std::span<const std::reference_wrapper<ISymbol>> Symbols() const = 0;
 

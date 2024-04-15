@@ -54,7 +54,7 @@ MainWindow::init(int argc, char* argv[])
 
         QList<QStandardItem*> lst;
 
-        QString addr = QString::fromStdString(fmt::format("0x{:x}", sym.GetOffset()));
+        QString addr = QString::fromStdString(fmt::format("0x{:x}", sym.Offset()));
         QString size = QString::fromStdString(fmt::format("0x{:x}", sym.Size()));
         QString lnk = " ";
         QString r = "R";
@@ -75,14 +75,11 @@ MainWindow::init(int argc, char* argv[])
 
         m_symbolViewModel->appendRow(lst);
     }
+    m_visible_symbols = m_database.Symbols();
 
     return true;
 }
 
-void
-MainWindow::loadData()
-{
-}
 
 void
 MainWindow::on_action_About_triggered(bool activated)
@@ -204,6 +201,16 @@ MainWindow::on_sourceTextEdit_cursorPositionChanged()
 void
 MainWindow::on_symbolTableView_activated(const QModelIndex& index)
 {
+    auto row = index.row();
+
+    if (row < 0 || row >= m_visible_symbols.size())
+    {
+        return;
+    }
+
+    auto& sym = m_visible_symbols[row].get();
+    m_visible_instructions = m_database.InstructionsForSymbol(sym);
+    UpdateInstructionView();
 }
 
 void
@@ -254,6 +261,15 @@ MainWindow::setupInstructionEncoding()
 void
 MainWindow::setupInstructionLabels()
 {
+	QStringList labels;
+
+	labels << "Address"
+			<< "B"
+			<< "Instruction"
+			<< "F"
+			<< "Target";
+
+	m_instructionViewModel->setHorizontalHeaderLabels(labels);
 }
 
 void
@@ -314,6 +330,26 @@ MainWindow::setupSymbolView()
 void
 MainWindow::updateSymbolView(uint64_t address, const std::string& name)
 {
+}
+
+void
+MainWindow::UpdateInstructionView()
+{
+    m_instructionViewModel->clear();
+    for (auto& ref : m_visible_instructions)
+    {
+        auto& ri = ref.get();
+        auto& section = ri.Section();
+
+        QList<QStandardItem*> lst;
+        lst.append(
+            new QStandardItem(fmt::format("{:08x}", section.StartAddress() + ri.Offset()).c_str()));
+        lst.append(new QStandardItem(""));
+        lst.append(new QStandardItem(std::string(ri.AsString()).c_str()));
+        lst.append(new QStandardItem(ri.GetRefersTo().empty() ? "" : "->"));
+        lst.append(new QStandardItem(""));
+        m_instructionViewModel->appendRow(lst);
+    }
 }
 
 void

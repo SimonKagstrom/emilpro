@@ -16,12 +16,14 @@ public:
 
     virtual std::span<const std::byte> Data() const = 0;
 
-    virtual const ISection& GetSection() = 0;
+    virtual const ISection& Section() const = 0;
 
     /// Relative to the section
-    virtual uint64_t GetOffset() const = 0;
+    virtual uint64_t Offset() const = 0;
 
     virtual size_t Size() const = 0;
+
+    virtual size_t InstructionCount() const = 0;
 
     virtual std::string_view GetFlags() const = 0;
 

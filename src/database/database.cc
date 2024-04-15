@@ -23,7 +23,7 @@ Database::ParseFile(std::string_view file_path)
         m_section_refs.push_back(*m_sections.back());
     });
 
-    for (auto &section : m_sections)
+    for (auto& section : m_sections)
     {
         section->Disassemble(*m_disassembler);
 
@@ -57,4 +57,14 @@ std::vector<Database::LookupResult>
 Database::LookupByName(std::string_view name)
 {
     return {};
+}
+
+std::span<const std::reference_wrapper<IInstruction>>
+Database::InstructionsForSymbol(const ISymbol& symbol)
+{
+    const auto &section = symbol.Section();
+    const auto &instructions = section.Instructions();
+
+    // FIXME! Should use the instruction count... Now hardcode to ARM
+    return instructions.subspan(symbol.Offset(), symbol.Size() / 4);
 }

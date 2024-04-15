@@ -7,6 +7,7 @@
 
 namespace emilpro
 {
+class ISection;
 
 class IInstruction
 {
@@ -15,7 +16,7 @@ public:
 
     virtual std::span<const std::byte> Data() const = 0;
 
-    virtual uint32_t GetOffset() const = 0;
+    virtual uint32_t Offset() const = 0;
 
     virtual std::string_view AsString() const = 0;
 
@@ -27,7 +28,11 @@ public:
 
     virtual std::optional<std::pair<std::string_view, uint32_t>> GetSourceLocation() const = 0;
 
+    virtual const ISection& Section() const = 0;
+
     virtual void SetSourceLocation(std::string_view file, uint32_t line) = 0;
+
+    virtual void SetSection(ISection &section) = 0;
 };
 
 } // namespace emilpro

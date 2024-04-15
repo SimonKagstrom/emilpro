@@ -34,7 +34,7 @@ public:
 private:
     void Disassemble(IDisassembler& disassembler) final;
 
-    std::span<const std::reference_wrapper<IInstruction>> GetInstructions() const final;
+    std::span<const std::reference_wrapper<IInstruction>> Instructions() const final;
 
     std::span<const std::reference_wrapper<ISymbol>> Symbols() const final;
 

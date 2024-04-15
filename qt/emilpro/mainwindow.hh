@@ -89,7 +89,7 @@ private:
 
     void restoreState();
 
-    void loadData();
+    void UpdateInstructionView();
 
     void updateSymbolView(uint64_t address, const std::string& name = "");
 
@@ -104,4 +104,5 @@ private:
     emilpro::Database m_database;
 
     std::span<const std::reference_wrapper<emilpro::IInstruction>> m_visible_instructions;
+    std::span<const std::reference_wrapper<emilpro::ISymbol>> m_visible_symbols;
 };

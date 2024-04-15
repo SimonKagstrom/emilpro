@@ -5,12 +5,11 @@
 using namespace emilpro;
 
 // From libiberty. Including demangle.h conflicts with string.h though
-#define DMGL_PARAMS	 (1 << 0)	/* Include function args */
-#define DMGL_ANSI	 (1 << 1)	/* Include const, volatile, etc */
-#define DMGL_VERBOSE	 (1 << 3)	/* Include implementation details.  */
+#define DMGL_PARAMS  (1 << 0) /* Include function args */
+#define DMGL_ANSI    (1 << 1) /* Include const, volatile, etc */
+#define DMGL_VERBOSE (1 << 3) /* Include implementation details.  */
 
-extern "C" char *
-cplus_demangle (const char *mangled, int options);
+extern "C" char* cplus_demangle(const char* mangled, int options);
 
 
 Symbol::Symbol(const ISection& section,
@@ -45,6 +44,13 @@ Symbol::SetSize(size_t size)
     m_size = size;
 }
 
+void
+Symbol::SetInstructionCount(size_t count)
+{
+    m_instruction_count = count;
+}
+
+
 std::span<const std::byte>
 Symbol::Data() const
 {
@@ -52,13 +58,13 @@ Symbol::Data() const
 }
 
 const ISection&
-Symbol::GetSection()
+Symbol::Section() const
 {
     return m_section;
 }
 
 uint64_t
-Symbol::GetOffset() const
+Symbol::Offset() const
 {
     return m_offset;
 }
@@ -67,6 +73,12 @@ size_t
 Symbol::Size() const
 {
     return m_size;
+}
+
+size_t
+Symbol::InstructionCount() const
+{
+    return m_instruction_count;
 }
 
 std::string_view

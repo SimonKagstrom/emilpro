@@ -1,6 +1,7 @@
 #include "capstone_disassembler.hh"
 
 #include <array>
+#include <cassert>
 #include <etl/vector.h>
 #include <fmt/format.h>
 #include <ranges>
@@ -83,7 +84,7 @@ private:
         return data_;
     }
 
-    uint32_t GetOffset() const final
+    uint32_t Offset() const final
     {
         return offset_;
     }
@@ -120,10 +121,21 @@ private:
         return out;
     }
 
+    const ISection& Section() const final
+    {
+        assert(section_);
+        return *section_;
+    }
+
     void SetSourceLocation(std::string_view file, uint32_t line) final
     {
         source_file_ = file;
         source_line_ = line;
+    }
+
+    virtual void SetSection(ISection& section) final
+    {
+        section_ = &section;
     }
 
     std::span<const std::byte> data_;
@@ -134,6 +146,8 @@ private:
 
     std::optional<std::string> source_file_;
     std::optional<uint32_t> source_line_;
+
+    ISection* section_;
 };
 
 } // namespace

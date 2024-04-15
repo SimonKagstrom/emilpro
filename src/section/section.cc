@@ -58,7 +58,7 @@ Section::Name() const
 void
 Section::AddSymbol(std::unique_ptr<Symbol> symbol)
 {
-    m_sorted_symbols[symbol->GetOffset()].push_back(symbol.get());
+    m_sorted_symbols[symbol->Offset()].push_back(symbol.get());
     m_symbols.push_back(std::move(symbol));
     m_symbol_refs.push_back(*m_symbols.back());
 }
@@ -82,9 +82,9 @@ Section::FixupSymbolSizes()
         auto adjust = last_offset;
         for (auto* symbol : symbols)
         {
-            symbol->SetSize(adjust - symbol->GetOffset());
+            symbol->SetSize(adjust - symbol->Offset());
 
-            last_offset = symbol->GetOffset();
+            last_offset = symbol->Offset();
         }
     }
 }
@@ -99,19 +99,22 @@ Section::Disassemble(IDisassembler& disassembler)
     disassembler.Disassemble(
         Data(), StartAddress(), [this](auto insn) { m_instructions.push_back(std::move(insn)); });
 
+    ISymbol* current_symbol_ {nullptr};
+
     for (auto& insn : m_instructions)
     {
-        auto file_line = m_line_lookup(insn->GetOffset());
+        auto file_line = m_line_lookup(insn->Offset());
         if (file_line)
         {
             insn->SetSourceLocation(file_line->file, file_line->line);
         }
+        insn->SetSection(*this);
         m_instruction_refs.push_back(*insn);
     }
 }
 
 std::span<const std::reference_wrapper<IInstruction>>
-Section::GetInstructions() const
+Section::Instructions() const
 {
     return m_instruction_refs;
 }
