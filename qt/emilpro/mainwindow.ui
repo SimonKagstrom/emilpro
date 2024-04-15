@@ -105,8 +105,11 @@
                <property name="showGrid">
                 <bool>false</bool>
                </property>
-               <attribute name="horizontalHeaderVisible">
+               <property name="wordWrap">
                 <bool>false</bool>
+               </property>
+               <attribute name="horizontalHeaderVisible">
+                <bool>true</bool>
                </attribute>
                <attribute name="verticalHeaderVisible">
                 <bool>false</bool>
@@ -304,7 +307,7 @@
            <property name="font">
             <font>
              <family>Courier New</family>
-             <pointsize>10</pointsize>
+             <pointsize>12</pointsize>
              <kerning>true</kerning>
             </font>
            </property>
@@ -318,6 +321,9 @@
             <enum>QAbstractItemView::SelectRows</enum>
            </property>
            <property name="showGrid">
+            <bool>false</bool>
+           </property>
+           <property name="wordWrap">
             <bool>false</bool>
            </property>
            <attribute name="verticalHeaderVisible">

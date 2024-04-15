@@ -28,7 +28,7 @@ class CapstoneInstruction : public IInstruction
 public:
     CapstoneInstruction(cs_arch arch, std::span<const std::byte> data, const cs_insn* insn)
         : data_(data.subspan(0, insn->size))
-        , encoding_(fmt::format("{:16s} {}", insn->mnemonic, insn->op_str))
+        , encoding_(fmt::format("{:8s} {}", insn->mnemonic, insn->op_str))
         , offset_(insn->address)
     {
         switch (arch)

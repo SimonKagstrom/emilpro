@@ -277,6 +277,12 @@ MainWindow::setupInstructionView()
 {
     m_instructionViewModel = new QStandardItemModel(0, 5, this);
 
+    m_instructionViewModel->setHorizontalHeaderItem(0, new QStandardItem(QString("Address")));
+    m_instructionViewModel->setHorizontalHeaderItem(1, new QStandardItem(QString("B")));
+    m_instructionViewModel->setHorizontalHeaderItem(2, new QStandardItem(QString("Instruction")));
+    m_instructionViewModel->setHorizontalHeaderItem(3, new QStandardItem(QString("F")));
+    m_instructionViewModel->setHorizontalHeaderItem(4, new QStandardItem(QString("Target")));
+
     //    m_ui->instructionTableView->setItemDelegateForColumn(1, &m_backwardItemDelegate);
     //    m_ui->instructionTableView->setItemDelegateForColumn(3, &m_forwardItemDelegate);
 
@@ -335,11 +341,12 @@ MainWindow::updateSymbolView(uint64_t address, const std::string& name)
 void
 MainWindow::UpdateInstructionView()
 {
-    m_instructionViewModel->clear();
+    m_instructionViewModel->removeRows(0, m_instructionViewModel->rowCount());
     for (auto& ref : m_visible_instructions)
     {
         auto& ri = ref.get();
         auto& section = ri.Section();
+        fmt::print("INSN: {}\n", ri.AsString());
 
         QList<QStandardItem*> lst;
         lst.append(
