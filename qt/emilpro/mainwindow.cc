@@ -41,9 +41,39 @@ MainWindow::init(int argc, char* argv[])
 
     m_ui->menuBar->setNativeMenuBar(false);
 
-    for (auto &section_ref : m_database.GetSections())
+    m_database.ParseFile(argv[1]);
+
+    for (auto& section_ref : m_database.Sections())
     {
-        auto &section  = section_ref.get();
+        auto& section = section_ref.get();
+    }
+
+    for (auto& sym_ref : m_database.Symbols())
+    {
+        auto& sym = sym_ref.get();
+
+        QList<QStandardItem*> lst;
+
+        QString addr = QString::fromStdString(fmt::format("0x{:x}", sym.GetOffset()));
+        QString size = QString::fromStdString(fmt::format("0x{:x}", sym.Size()));
+        QString lnk = " ";
+        QString r = "R";
+        QString w = " "; //sym.isWriteable() ? "W" : " ";
+        QString x = " "; //sym.isExecutable() ? "X" : " ";
+        QString a = " "; //sym.isAllocated() ? "A" : " ";
+        QString name = std::string(sym.GetDemangledName()).c_str();
+
+
+        lst.append(new QStandardItem(addr));
+        lst.append(new QStandardItem(size));
+        lst.append(new QStandardItem("")); // linkage
+        lst.append(new QStandardItem(r));
+        lst.append(new QStandardItem(w));
+        lst.append(new QStandardItem(x));
+        lst.append(new QStandardItem(a));
+        lst.append(new QStandardItem(name));
+
+        m_symbolViewModel->appendRow(lst);
     }
 
     return true;

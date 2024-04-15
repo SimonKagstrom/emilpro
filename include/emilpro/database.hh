@@ -1,5 +1,7 @@
 #pragma once
 
+#include "emilpro/i_section.hh"
+#include "emilpro/i_symbol.hh"
 #include "i_binary_parser.hh"
 #include "i_disassembler.hh"
 
@@ -8,10 +10,6 @@
 
 namespace emilpro
 {
-
-class ISection;
-class ISymbol;
-class IInstruction;
 
 class Database
 {
@@ -26,7 +24,9 @@ public:
 
     bool ParseFile(std::string_view file_path);
 
-    std::span<const std::reference_wrapper<ISection>> GetSections() const;
+    std::span<const std::reference_wrapper<ISection>> Sections() const;
+
+    std::span<const std::reference_wrapper<ISymbol>> Symbols() const;
 
     std::vector<LookupResult> LookupByAddress(uint64_t address);
 
@@ -38,6 +38,8 @@ private:
 
     std::vector<std::unique_ptr<ISection>> m_sections;
     std::vector<std::reference_wrapper<ISection>> m_section_refs;
+
+    std::vector<std::reference_wrapper<ISymbol>> m_symbol_refs;
 };
 
 } // namespace emilpro

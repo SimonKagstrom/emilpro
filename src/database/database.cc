@@ -26,6 +26,8 @@ Database::ParseFile(std::string_view file_path)
     for (auto &section : m_sections)
     {
         section->Disassemble(*m_disassembler);
+
+        std::ranges::copy(section->Symbols(), std::back_inserter(m_symbol_refs));
     }
 
     m_parsers.push_back(std::move(parser));
@@ -34,9 +36,15 @@ Database::ParseFile(std::string_view file_path)
 }
 
 std::span<const std::reference_wrapper<ISection>>
-Database::GetSections() const
+Database::Sections() const
 {
     return m_section_refs;
+}
+
+std::span<const std::reference_wrapper<ISymbol>>
+Database::Symbols() const
+{
+    return m_symbol_refs;
 }
 
 std::vector<Database::LookupResult>
