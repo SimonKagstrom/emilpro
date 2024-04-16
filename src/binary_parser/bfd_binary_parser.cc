@@ -171,70 +171,6 @@ BfdBinaryParser::getLineByAddress(uint64_t addr)
     return out;
 }
 
-static asymbol**
-slurp_symtab(bfd* abfd)
-{
-    asymbol** sy = NULL;
-    long storage;
-
-    if (!(bfd_get_file_flags(abfd) & HAS_SYMS))
-    {
-        return NULL;
-    }
-
-    storage = bfd_get_symtab_upper_bound(abfd);
-    if (storage < 0)
-        exit(1);
-    if (storage)
-        sy = (asymbol**)malloc(storage);
-
-    auto symcount = bfd_canonicalize_symtab(abfd, sy);
-    if (symcount < 0)
-        exit(1);
-    return sy;
-}
-
-static void
-dump_relocs_in_section(bfd* abfd, asection* section, auto syms)
-{
-    arelent** relpp;
-    long relcount;
-    long relsize;
-
-    if (bfd_is_abs_section(section) || bfd_is_und_section(section) || bfd_is_com_section(section) ||
-        ((section->flags & SEC_RELOC) == 0))
-        return;
-    if ((section->flags & SEC_ALLOC) == 0)
-    {
-        return;
-    }
-
-    relsize = bfd_get_reloc_upper_bound(abfd, section);
-
-    printf("RELOCATION RECORDS FOR [%s]:", section->name);
-
-    if (relsize == 0)
-    {
-        printf(" (none)\n\n");
-        return;
-    }
-
-    //    auto syms = slurp_symtab(abfd);
-    relpp = (arelent**)malloc(relsize);
-    relcount = bfd_canonicalize_reloc(abfd, section, relpp, syms);
-
-    if (relcount > 0)
-    {
-        printf("\n");
-        for (auto p = relpp; relcount && *p != NULL; p++, relcount--)
-        {
-            arelent* q = *p;
-            printf("XXX 0x%08llx: %s\n", q->address, (*q->sym_ptr_ptr)->name);
-        }
-    }
-    free(relpp);
-}
-
 bool
 BfdBinaryParser::Parse()
 {
@@ -279,7 +215,6 @@ BfdBinaryParser::Parse()
     }
     if (!bfd_check_format_matches(m_bfd, bfd_object, &matching))
     {
-        printf("not matching %s\n", bfd_errmsg(bfd_get_error()));
         bfd_close(m_bfd);
         m_bfd = NULL;
         return false;
