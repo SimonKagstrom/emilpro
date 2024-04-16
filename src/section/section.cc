@@ -60,7 +60,6 @@ Section::AddSymbol(std::unique_ptr<Symbol> symbol)
 {
     m_sorted_symbols[symbol->Offset()].push_back(symbol.get());
     m_symbols.push_back(std::move(symbol));
-    m_symbol_refs.push_back(*m_symbols.back());
 }
 
 void
@@ -85,6 +84,7 @@ Section::FixupSymbolSizes()
             symbol->SetSize(adjust - symbol->Offset());
 
             last_offset = symbol->Offset();
+            m_symbol_refs.push_back(*symbol);
         }
     }
 }

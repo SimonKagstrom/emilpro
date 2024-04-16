@@ -27,6 +27,7 @@ public:
 
     virtual std::span<const std::reference_wrapper<IInstruction>> Instructions() const = 0;
 
+    /// Symbols for this section, sorted by offset
     virtual std::span<const std::reference_wrapper<ISymbol>> Symbols() const = 0;
 
     virtual std::span<const std::byte> Data() const = 0;
