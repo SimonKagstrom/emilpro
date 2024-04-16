@@ -290,6 +290,7 @@ MainWindow::setupInstructionView()
 
     m_ui->instructionTableView->setModel(m_instructionViewModel);
     m_ui->instructionTableView->horizontalHeader()->setStretchLastSection(true);
+    m_ui->instructionTableView->resizeColumnsToContents();
 
     m_ui->instructionTableView->setColumnWidth(0, 100);
     m_ui->instructionTableView->setColumnWidth(1, 80);
@@ -310,7 +311,7 @@ MainWindow::setupReferencesView()
     m_referencesViewModel = new QStandardItemModel(0, 2, this);
 
     m_ui->referencesTableView->setModel(m_referencesViewModel);
-    m_ui->instructionTableView->setColumnWidth(0, 80);
+    m_ui->referencesTableView->setColumnWidth(0, 80);
     m_ui->referencesTableView->horizontalHeader()->setStretchLastSection(true);
 }
 
