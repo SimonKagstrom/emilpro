@@ -23,8 +23,6 @@ public:
 
     virtual size_t Size() const = 0;
 
-    virtual size_t InstructionCount() const = 0;
-
     virtual std::string_view GetFlags() const = 0;
 
     virtual std::string_view GetName() const = 0;

@@ -44,11 +44,6 @@ Symbol::SetSize(size_t size)
     m_size = size;
 }
 
-void
-Symbol::SetInstructionCount(size_t count)
-{
-    m_instruction_count = count;
-}
 
 
 std::span<const std::byte>
@@ -73,12 +68,6 @@ size_t
 Symbol::Size() const
 {
     return m_size;
-}
-
-size_t
-Symbol::InstructionCount() const
-{
-    return m_instruction_count;
 }
 
 std::string_view

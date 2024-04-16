@@ -32,8 +32,6 @@ public:
 
     std::vector<LookupResult> LookupByName(std::string_view name);
 
-    std::span<const std::reference_wrapper<IInstruction>> InstructionsForSymbol(const ISymbol& symbol);
-
 private:
     std::vector<std::unique_ptr<IBinaryParser>> m_parsers;
     std::unique_ptr<IDisassembler> m_disassembler;

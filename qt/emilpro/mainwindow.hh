@@ -89,7 +89,7 @@ private:
 
     void restoreState();
 
-    void UpdateInstructionView();
+    void UpdateInstructionView(uint64_t offset);
 
     void updateSymbolView(uint64_t address, const std::string& name = "");
 

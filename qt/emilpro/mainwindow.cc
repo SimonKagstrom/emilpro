@@ -209,8 +209,10 @@ MainWindow::on_symbolTableView_activated(const QModelIndex& index)
     }
 
     auto& sym = m_visible_symbols[row].get();
-    m_visible_instructions = m_database.InstructionsForSymbol(sym);
-    UpdateInstructionView();
+    auto& section = sym.Section();
+
+    m_visible_instructions = section.Instructions();
+    UpdateInstructionView(sym.Offset());
 }
 
 void
@@ -261,15 +263,15 @@ MainWindow::setupInstructionEncoding()
 void
 MainWindow::setupInstructionLabels()
 {
-	QStringList labels;
+    QStringList labels;
 
-	labels << "Address"
-			<< "B"
-			<< "Instruction"
-			<< "F"
-			<< "Target";
+    labels << "Address"
+           << "B"
+           << "Instruction"
+           << "F"
+           << "Target";
 
-	m_instructionViewModel->setHorizontalHeaderLabels(labels);
+    m_instructionViewModel->setHorizontalHeaderLabels(labels);
 }
 
 void
@@ -339,14 +341,15 @@ MainWindow::updateSymbolView(uint64_t address, const std::string& name)
 }
 
 void
-MainWindow::UpdateInstructionView()
+MainWindow::UpdateInstructionView(uint64_t offset)
 {
     m_instructionViewModel->removeRows(0, m_instructionViewModel->rowCount());
+    auto row = 0;
+
     for (auto& ref : m_visible_instructions)
     {
         auto& ri = ref.get();
         auto& section = ri.Section();
-        fmt::print("INSN: {}\n", ri.AsString());
 
         QList<QStandardItem*> lst;
         lst.append(
@@ -355,8 +358,15 @@ MainWindow::UpdateInstructionView()
         lst.append(new QStandardItem(std::string(ri.AsString()).c_str()));
         lst.append(new QStandardItem(ri.GetRefersTo().empty() ? "" : "->"));
         lst.append(new QStandardItem(""));
+        if (ri.Offset() == offset)
+        {
+            row = m_instructionViewModel->rowCount();
+        }
+
         m_instructionViewModel->appendRow(lst);
     }
+
+    m_ui->instructionTableView->selectRow(row);
 }
 
 void
