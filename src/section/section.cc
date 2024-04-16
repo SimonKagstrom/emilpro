@@ -66,7 +66,8 @@ void
 Section::AddRelocation(uint64_t offset, const Symbol& symbol)
 {
     fmt::print("Sec add reloc to sym {}. Offset {}\n", symbol.GetDemangledName(), offset);
-    m_relocations.push_back(symbol);
+    m_relocations.push_back({symbol, offset});
+    m_sorted_relocations[offset] = &m_relocations.back();
 }
 
 void
@@ -96,8 +97,8 @@ Section::Disassemble(IDisassembler& disassembler)
     m_instruction_refs.clear();
     m_instructions.clear();
 
-    disassembler.Disassemble(
-        Data(), StartAddress(), [this](auto insn) { m_instructions.push_back(std::move(insn)); });
+    disassembler.Disassemble(*this,
+                             [this](auto insn) { m_instructions.push_back(std::move(insn)); });
 
     ISymbol* current_symbol_ {nullptr};
 
@@ -108,7 +109,13 @@ Section::Disassemble(IDisassembler& disassembler)
         {
             insn->SetSourceLocation(file_line->file, file_line->line);
         }
-        insn->SetSection(*this);
+        auto rel_it = m_sorted_relocations.find(insn->Offset());
+        if (rel_it != m_sorted_relocations.end())
+        {
+            auto &sym = rel_it->second->symbol.get();
+
+            insn->SetRefersTo(sym.Section(), sym.Offset(), &sym);
+        }
         m_instruction_refs.push_back(*insn);
     }
 }

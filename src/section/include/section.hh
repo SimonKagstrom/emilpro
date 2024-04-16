@@ -32,6 +32,12 @@ public:
     void FixupSymbolSizes();
 
 private:
+    struct Relocation
+    {
+        std::reference_wrapper<const ISymbol> symbol;
+        uint64_t offset;
+    };
+
     void Disassemble(IDisassembler& disassembler) final;
 
     std::span<const std::reference_wrapper<IInstruction>> Instructions() const final;
@@ -58,7 +64,9 @@ private:
     std::vector<std::unique_ptr<Symbol>> m_symbols;
     std::vector<std::reference_wrapper<ISymbol>> m_symbol_refs;
     std::map<uint64_t, std::vector<Symbol*>> m_sorted_symbols;
-    std::vector<std::reference_wrapper<const Symbol>> m_relocations;
+
+    std::vector<Relocation> m_relocations;
+    std::map<uint64_t, const Relocation*> m_sorted_relocations;
 
     std::vector<std::unique_ptr<IInstruction>> m_instructions;
     std::vector<std::reference_wrapper<IInstruction>> m_instruction_refs;

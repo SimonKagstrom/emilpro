@@ -1,6 +1,7 @@
 #pragma once
 
 #include "i_instruction.hh"
+#include "i_section.hh"
 #include "machine.hh"
 
 #include <functional>
@@ -14,8 +15,7 @@ class IDisassembler
 public:
     virtual ~IDisassembler() = default;
 
-    virtual void Disassemble(std::span<const std::byte> data,
-                             uint64_t start_address,
+    virtual void Disassemble(const ISection& section,
                              std::function<void(std::unique_ptr<IInstruction>)> on_instruction) = 0;
 
     static std::unique_ptr<IDisassembler> CreateFromArchitecture(Machine machine);

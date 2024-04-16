@@ -15,8 +15,7 @@ public:
     ~CapstoneDisassembler() final;
 
 private:
-    void Disassemble(std::span<const std::byte> data,
-                     uint64_t start_address,
+    void Disassemble(const ISection& section,
                      std::function<void(std::unique_ptr<IInstruction>)> on_instruction) final;
 
     CapstoneDisassembler(cs_arch arch);

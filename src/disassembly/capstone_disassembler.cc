@@ -26,8 +26,12 @@ namespace
 class CapstoneInstruction : public IInstruction
 {
 public:
-    CapstoneInstruction(cs_arch arch, std::span<const std::byte> data, const cs_insn* insn)
-        : data_(data.subspan(0, insn->size))
+    CapstoneInstruction(const ISection& section,
+                        cs_arch arch,
+                        std::span<const std::byte> data,
+                        const cs_insn* insn)
+        : section_(section)
+        , data_(data.subspan(0, insn->size))
         , encoding_(fmt::format("{:8s} {}", insn->mnemonic, insn->op_str))
         , offset_(insn->address)
     {
@@ -49,12 +53,16 @@ private:
     {
         if (insn->id == arm_insn::ARM_INS_BL)
         {
-            refers_to_.push_back(insn->detail->arm.operands[0].imm);
+            refers_to_.push_back(IInstruction::Referer {
+                nullptr, static_cast<uint64_t>(insn->detail->arm.operands[0].imm), nullptr});
         }
         else if (IsJump(insn) && insn->detail->arm.op_count > 0 &&
                  insn->detail->arm.operands[0].type == ARM_OP_IMM)
         {
-            refers_to_.push_back(insn->detail->arm.operands[0].imm);
+            refers_to_.push_back(IInstruction::Referer {
+                &section_,
+                static_cast<uint64_t>(insn->address + insn->detail->arm.operands[0].imm),
+                nullptr});
         }
     }
 
@@ -62,7 +70,8 @@ private:
     {
         if (insn->id == x86_insn::X86_INS_CALL)
         {
-            refers_to_.push_back(insn->detail->x86.operands[0].imm);
+            refers_to_.push_back(IInstruction::Referer {
+                nullptr, static_cast<uint64_t>(insn->detail->arm.operands[0].imm), nullptr});
         }
     }
 
@@ -94,15 +103,22 @@ private:
         return encoding_;
     }
 
-    std::span<const uint64_t> GetReferredBy() const final
+    std::span<const Referer> ReferredBy() const final
     {
         return {};
     }
 
-    std::span<const uint64_t> GetRefersTo() const final
+    std::span<const Referer> RefersTo() const final
     {
         return refers_to_;
     }
+
+    void SetRefersTo(const ISection& section, uint64_t offset, const ISymbol* symbol) final
+    {
+        refers_to_.clear();
+        refers_to_.push_back(IInstruction::Referer {&section, offset, symbol});
+    }
+
 
     std::span<std::string_view> GetUsedRegisters() const final
     {
@@ -123,8 +139,7 @@ private:
 
     const ISection& Section() const final
     {
-        assert(section_);
-        return *section_;
+        return section_;
     }
 
     void SetSourceLocation(std::string_view file, uint32_t line) final
@@ -133,21 +148,16 @@ private:
         source_line_ = line;
     }
 
-    virtual void SetSection(ISection& section) final
-    {
-        section_ = &section;
-    }
 
+    const ISection& section_;
     std::span<const std::byte> data_;
     // I don't think there are instructions with more than one immediate reference, but just in case
-    etl::vector<uint64_t, 2> refers_to_;
+    etl::vector<IInstruction::Referer, 2> refers_to_;
     const std::string encoding_;
     const uint32_t offset_;
 
     std::optional<std::string> source_file_;
     std::optional<uint32_t> source_line_;
-
-    ISection* section_;
 };
 
 } // namespace
@@ -174,23 +184,23 @@ CapstoneDisassembler::~CapstoneDisassembler()
 }
 
 void
-CapstoneDisassembler::Disassemble(std::span<const std::byte> data,
-                                  uint64_t start_address,
+CapstoneDisassembler::Disassemble(const ISection& section,
                                   std::function<void(std::unique_ptr<IInstruction>)> on_instruction)
 {
     cs_insn* insns = nullptr;
+    auto data = section.Data();
 
     auto n = cs_disasm(m_handle,
                        reinterpret_cast<const uint8_t*>(data.data()),
                        data.size(),
-                       start_address,
+                       section.StartAddress(),
                        0,
                        &insns);
 
     for (auto i = 0; i < n; i++)
     {
         auto p = &insns[i];
-        on_instruction(std::make_unique<CapstoneInstruction>(m_arch, data, p));
+        on_instruction(std::make_unique<CapstoneInstruction>(section, m_arch, data, p));
         data = data.subspan(p->size);
     }
 }

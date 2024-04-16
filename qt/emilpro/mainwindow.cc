@@ -352,13 +352,24 @@ MainWindow::UpdateInstructionView(uint64_t offset)
         auto& ri = ref.get();
         auto& section = ri.Section();
 
+        auto refers_to = ri.RefersTo();
+
         QList<QStandardItem*> lst;
         lst.append(
             new QStandardItem(fmt::format("{:08x}", section.StartAddress() + ri.Offset()).c_str()));
         lst.append(new QStandardItem(""));
         lst.append(new QStandardItem(std::string(ri.AsString()).c_str()));
-        lst.append(new QStandardItem(ri.GetRefersTo().empty() ? "" : "->"));
-        lst.append(new QStandardItem(""));
+        lst.append(new QStandardItem(refers_to.empty() ? "" : "->"));
+        if (refers_to.size() == 1 && refers_to[0].symbol)
+        {
+            lst.append(new QStandardItem(std::string(refers_to[0].symbol->GetDemangledName()).c_str()));
+        }
+        else
+        {
+            lst.append(new QStandardItem(""));
+        }
+
+
         if (ri.Offset() == offset)
         {
             row = m_instructionViewModel->rowCount();
