@@ -17,8 +17,8 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
-    delete m_instructionViewModel;
-    delete m_symbolViewModel;
+    delete m_instruction_view_model;
+    delete m_symbol_view_model;
     delete m_ui;
 }
 
@@ -73,7 +73,7 @@ MainWindow::init(int argc, char* argv[])
         lst.append(new QStandardItem(a));
         lst.append(new QStandardItem(name));
 
-        m_symbolViewModel->appendRow(lst);
+        m_symbol_view_model->appendRow(lst);
     }
     m_visible_symbols = m_database.Symbols();
 
@@ -271,24 +271,24 @@ MainWindow::setupInstructionLabels()
            << "F"
            << "Target";
 
-    m_instructionViewModel->setHorizontalHeaderLabels(labels);
+    m_instruction_view_model->setHorizontalHeaderLabels(labels);
 }
 
 void
 MainWindow::setupInstructionView()
 {
-    m_instructionViewModel = new QStandardItemModel(0, 5, this);
+    m_instruction_view_model = new QStandardItemModel(0, 5, this);
 
-    m_instructionViewModel->setHorizontalHeaderItem(0, new QStandardItem(QString("Address")));
-    m_instructionViewModel->setHorizontalHeaderItem(1, new QStandardItem(QString("B")));
-    m_instructionViewModel->setHorizontalHeaderItem(2, new QStandardItem(QString("Instruction")));
-    m_instructionViewModel->setHorizontalHeaderItem(3, new QStandardItem(QString("F")));
-    m_instructionViewModel->setHorizontalHeaderItem(4, new QStandardItem(QString("Target")));
+    m_instruction_view_model->setHorizontalHeaderItem(0, new QStandardItem(QString("Address")));
+    m_instruction_view_model->setHorizontalHeaderItem(1, new QStandardItem(QString("B")));
+    m_instruction_view_model->setHorizontalHeaderItem(2, new QStandardItem(QString("Instruction")));
+    m_instruction_view_model->setHorizontalHeaderItem(3, new QStandardItem(QString("F")));
+    m_instruction_view_model->setHorizontalHeaderItem(4, new QStandardItem(QString("Target")));
 
     //    m_ui->instructionTableView->setItemDelegateForColumn(1, &m_backwardItemDelegate);
     //    m_ui->instructionTableView->setItemDelegateForColumn(3, &m_forwardItemDelegate);
 
-    m_ui->instructionTableView->setModel(m_instructionViewModel);
+    m_ui->instructionTableView->setModel(m_instruction_view_model);
     m_ui->instructionTableView->horizontalHeader()->setStretchLastSection(true);
     m_ui->instructionTableView->resizeColumnsToContents();
 
@@ -308,9 +308,9 @@ MainWindow::setupInstructionView()
 void
 MainWindow::setupReferencesView()
 {
-    m_referencesViewModel = new QStandardItemModel(0, 2, this);
+    m_references_view_model = new QStandardItemModel(0, 2, this);
 
-    m_ui->referencesTableView->setModel(m_referencesViewModel);
+    m_ui->referencesTableView->setModel(m_references_view_model);
     m_ui->referencesTableView->setColumnWidth(0, 80);
     m_ui->referencesTableView->horizontalHeader()->setStretchLastSection(true);
 }
@@ -318,16 +318,16 @@ MainWindow::setupReferencesView()
 void
 MainWindow::setupSymbolView()
 {
-    m_symbolViewModel = new QStandardItemModel(0, 8, this);
-    m_symbolViewModel->setHorizontalHeaderItem(0, new QStandardItem(QString("Address")));
-    m_symbolViewModel->setHorizontalHeaderItem(1, new QStandardItem(QString("Size")));
-    m_symbolViewModel->setHorizontalHeaderItem(2, new QStandardItem(QString("Lnk")));
-    m_symbolViewModel->setHorizontalHeaderItem(3, new QStandardItem(QString("R")));
-    m_symbolViewModel->setHorizontalHeaderItem(4, new QStandardItem(QString("W")));
-    m_symbolViewModel->setHorizontalHeaderItem(5, new QStandardItem(QString("X")));
-    m_symbolViewModel->setHorizontalHeaderItem(6, new QStandardItem(QString("A")));
-    m_symbolViewModel->setHorizontalHeaderItem(7, new QStandardItem(QString("Symbol name")));
-    m_ui->symbolTableView->setModel(m_symbolViewModel);
+    m_symbol_view_model = new QStandardItemModel(0, 8, this);
+    m_symbol_view_model->setHorizontalHeaderItem(0, new QStandardItem(QString("Address")));
+    m_symbol_view_model->setHorizontalHeaderItem(1, new QStandardItem(QString("Size")));
+    m_symbol_view_model->setHorizontalHeaderItem(2, new QStandardItem(QString("Lnk")));
+    m_symbol_view_model->setHorizontalHeaderItem(3, new QStandardItem(QString("R")));
+    m_symbol_view_model->setHorizontalHeaderItem(4, new QStandardItem(QString("W")));
+    m_symbol_view_model->setHorizontalHeaderItem(5, new QStandardItem(QString("X")));
+    m_symbol_view_model->setHorizontalHeaderItem(6, new QStandardItem(QString("A")));
+    m_symbol_view_model->setHorizontalHeaderItem(7, new QStandardItem(QString("Symbol name")));
+    m_ui->symbolTableView->setModel(m_symbol_view_model);
     m_ui->symbolTableView->horizontalHeader()->setStretchLastSection(true);
     m_ui->symbolTableView->resizeColumnsToContents();
     m_ui->symbolTableView->setColumnWidth(0, 100);
@@ -344,7 +344,7 @@ MainWindow::updateSymbolView(uint64_t address, const std::string& name)
 void
 MainWindow::UpdateInstructionView(uint64_t offset)
 {
-    m_instructionViewModel->removeRows(0, m_instructionViewModel->rowCount());
+    m_instruction_view_model->removeRows(0, m_instruction_view_model->rowCount());
     auto row = 0;
 
     for (auto& ref : m_visible_instructions)
@@ -362,7 +362,8 @@ MainWindow::UpdateInstructionView(uint64_t offset)
         lst.append(new QStandardItem(refers_to.empty() ? "" : "->"));
         if (refers_to.size() == 1 && refers_to[0].symbol)
         {
-            lst.append(new QStandardItem(std::string(refers_to[0].symbol->GetDemangledName()).c_str()));
+            lst.append(
+                new QStandardItem(std::string(refers_to[0].symbol->GetDemangledName()).c_str()));
         }
         else
         {
@@ -372,10 +373,10 @@ MainWindow::UpdateInstructionView(uint64_t offset)
 
         if (ri.Offset() == offset)
         {
-            row = m_instructionViewModel->rowCount();
+            row = m_instruction_view_model->rowCount();
         }
 
-        m_instructionViewModel->appendRow(lst);
+        m_instruction_view_model->appendRow(lst);
     }
 
     m_ui->instructionTableView->selectRow(row);

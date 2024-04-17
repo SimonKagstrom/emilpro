@@ -1,7 +1,7 @@
 #pragma once
 
-#include "emilpro/i_binary_parser.hh"
 #include "emilpro/database.hh"
+#include "emilpro/i_binary_parser.hh"
 
 #include <QMainWindow>
 #include <qstandarditemmodel.h>
@@ -96,10 +96,10 @@ private:
     void updateDataView(uint64_t address, size_t size);
 
     Ui::MainWindow* m_ui {nullptr};
-    QStandardItemModel* m_symbolViewModel {nullptr};
-    QStandardItemModel* m_instructionViewModel {nullptr};
-    QStandardItemModel* m_referencesViewModel {nullptr};
-    QStandardItemModel* m_addressHistoryViewModel {nullptr};
+    QStandardItemModel* m_symbol_view_model {nullptr};
+    QStandardItemModel* m_instruction_view_model {nullptr};
+    QStandardItemModel* m_references_view_model {nullptr};
+    QStandardItemModel* m_addressHistory_view_model {nullptr};
 
     emilpro::Database m_database;
 
