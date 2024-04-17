@@ -211,10 +211,10 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
     auto& insn = m_visible_instructions[row].get();
 
     auto refers_to = insn.RefersTo();
-    if (!refers_to.empty())
+    if (refers_to)
     {
         uint64_t offset = 0;
-        auto sym = refers_to[0].symbol;
+        auto sym = refers_to->symbol;
         if (sym)
         {
             auto& section = sym->Section();
@@ -224,7 +224,7 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
         }
         else
         {
-            auto lookup_result = m_database.LookupByAddress(refers_to[0].offset);
+            auto lookup_result = m_database.LookupByAddress(&insn.Section(), refers_to->offset);
 
             for (auto& result : lookup_result)
             {
@@ -414,13 +414,13 @@ MainWindow::UpdateInstructionView(uint64_t offset)
         QList<QStandardItem*> lst;
         lst.append(
             new QStandardItem(fmt::format("{:08x}", section.StartAddress() + ri.Offset()).c_str()));
-        lst.append(new QStandardItem(""));
+        lst.append(new QStandardItem(ri.ReferredBy().empty() ? "" : "->"));
         lst.append(new QStandardItem(std::string(ri.AsString()).c_str()));
-        lst.append(new QStandardItem(refers_to.empty() ? "" : "->"));
-        if (refers_to.size() == 1 && refers_to[0].symbol)
+        lst.append(new QStandardItem(refers_to == std::nullopt ? "" : "->"));
+        if (refers_to && refers_to->symbol)
         {
             lst.append(
-                new QStandardItem(std::string(refers_to[0].symbol->GetDemangledName()).c_str()));
+                new QStandardItem(std::string(refers_to->symbol->GetDemangledName()).c_str()));
         }
         else
         {

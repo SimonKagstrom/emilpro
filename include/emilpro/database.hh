@@ -16,7 +16,7 @@ class Database
 public:
     struct LookupResult
     {
-        ISection& section;
+        const ISection& section;
         uint64_t offset;
         std::optional<std::reference_wrapper<const ISymbol>> symbol;
         std::optional<std::span<std::reference_wrapper<const IInstruction>>> instructions;
@@ -28,7 +28,7 @@ public:
 
     std::span<const std::reference_wrapper<ISymbol>> Symbols() const;
 
-    std::vector<LookupResult> LookupByAddress(uint64_t address);
+    std::vector<LookupResult> LookupByAddress(const ISection* hint, uint64_t address);
 
     std::vector<LookupResult> LookupByName(std::string_view name);
 

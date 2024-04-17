@@ -32,7 +32,7 @@ public:
 
     virtual std::span<const Referer> ReferredBy() const = 0;
 
-    virtual std::span<const Referer> RefersTo() const = 0;
+    virtual std::optional<Referer> RefersTo() const = 0;
 
     /// From relocations
     virtual void SetRefersTo(const ISection& section, uint64_t offset, const ISymbol* symbol) = 0;

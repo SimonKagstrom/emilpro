@@ -54,16 +54,14 @@ private:
     {
         if (insn->id == arm_insn::ARM_INS_BL)
         {
-            refers_to_.push_back(IInstruction::Referer {
-                nullptr, static_cast<uint64_t>(insn->detail->arm.operands[0].imm), nullptr});
+            refers_to_ = IInstruction::Referer {
+                nullptr, static_cast<uint64_t>(insn->detail->arm.operands[0].imm), nullptr};
         }
         else if (IsJump(insn) && insn->detail->arm.op_count > 0 &&
                  insn->detail->arm.operands[0].type == ARM_OP_IMM)
         {
-            refers_to_.push_back(IInstruction::Referer {
-                &section_,
-                static_cast<uint64_t>(insn->address + insn->detail->arm.operands[0].imm),
-                nullptr});
+            refers_to_ = IInstruction::Referer {
+                &section_, static_cast<uint64_t>(insn->detail->arm.operands[0].imm), nullptr};
         }
     }
 
@@ -71,10 +69,10 @@ private:
     {
         if (insn->id == x86_insn::X86_INS_CALL)
         {
-            refers_to_.push_back(IInstruction::Referer {
+            refers_to_ = IInstruction::Referer {
                 nullptr,
                 static_cast<uint64_t>(insn->address + insn->detail->arm.operands[0].imm),
-                nullptr});
+                nullptr};
         }
     }
 
@@ -116,15 +114,14 @@ private:
         return {};
     }
 
-    std::span<const Referer> RefersTo() const final
+    std::optional<Referer> RefersTo() const final
     {
         return refers_to_;
     }
 
     void SetRefersTo(const ISection& section, uint64_t offset, const ISymbol* symbol) final
     {
-        refers_to_.clear();
-        refers_to_.push_back(IInstruction::Referer {&section, offset, symbol});
+        refers_to_ = IInstruction::Referer {&section, offset, symbol};
     }
 
 
@@ -159,8 +156,7 @@ private:
 
     const ISection& section_;
     std::span<const std::byte> data_;
-    // I don't think there are instructions with more than one immediate reference, but just in case
-    etl::vector<IInstruction::Referer, 2> refers_to_;
+    std::optional<IInstruction::Referer> refers_to_;
     const std::string encoding_;
     const uint32_t offset_;
 

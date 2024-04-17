@@ -159,3 +159,11 @@ Section::Symbols() const
 {
     return m_symbol_refs;
 }
+
+bool
+Section::ContainsAddress(uint64_t address) const
+{
+    auto start = StartAddress();
+
+    return address >= start && address < start + Size();
+}

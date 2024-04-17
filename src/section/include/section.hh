@@ -54,6 +54,8 @@ private:
 
     Type GetType() const final;
 
+    bool ContainsAddress(uint64_t address) const final;
+
 
     const std::vector<std::byte> m_data;
     const uint64_t m_start_address;
