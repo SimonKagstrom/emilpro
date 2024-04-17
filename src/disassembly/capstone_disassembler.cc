@@ -34,7 +34,7 @@ public:
         : section_(section)
         , data_(data.subspan(0, insn->size))
         , encoding_(fmt::format("{:8s} {}", insn->mnemonic, insn->op_str))
-        , offset_(offset)
+        , m_offset(offset)
     {
         switch (arch)
         {
@@ -74,6 +74,12 @@ private:
                 static_cast<uint64_t>(insn->address + insn->detail->arm.operands[0].imm),
                 nullptr};
         }
+        else if (IsJump(insn) && insn->detail->x86.op_count > 0 &&
+                 insn->detail->x86.operands[0].type == X86_OP_IMM)
+        {
+            refers_to_ = IInstruction::Referer {
+                &section_, static_cast<uint64_t>(insn->detail->x86.operands[0].imm), nullptr};
+        }
     }
 
     bool IsJump(const cs_insn* insn) const
@@ -101,7 +107,7 @@ private:
 
     uint32_t Offset() const final
     {
-        return offset_;
+        return m_offset;
     }
 
     std::string_view AsString() const final
@@ -158,7 +164,7 @@ private:
     std::span<const std::byte> data_;
     std::optional<IInstruction::Referer> refers_to_;
     const std::string encoding_;
-    const uint32_t offset_;
+    const uint32_t m_offset;
 
     std::optional<std::string> source_file_;
     std::optional<uint32_t> source_line_;
