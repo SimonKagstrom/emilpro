@@ -32,6 +32,7 @@ private:
     std::string m_flags;
     std::string m_name;
     std::string m_demanged_name;
+    std::span<const std::byte> m_data;
 
     std::vector<std::reference_wrapper<const ISection>> m_relocations;
 };

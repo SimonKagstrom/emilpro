@@ -25,7 +25,7 @@ constexpr auto kMachineMap = std::array {
     std::pair {bfd_arch_mips, Machine::kMips},
     std::pair {bfd_arch_powerpc, Machine::kPpc},
     std::pair {bfd_arch_arm, Machine::kArm},
-    std::pair {bfd_arch_aarch64, Machine::kAmd64},
+    std::pair {bfd_arch_aarch64, Machine::kArm64},
 };
 
 
@@ -348,7 +348,6 @@ BfdBinaryParser::handleSymbols(long symcount, bfd_symbol** syms, bool dynamic)
         auto sym_addr = cur->value;
         auto section = bfd_asymbol_section(cur);
 
-
         if (bfd_get_arch(m_bfd) == bfd_arch_arm && sym_name)
         {
             // Skip ARM $a $d symbols
@@ -363,7 +362,6 @@ BfdBinaryParser::handleSymbols(long symcount, bfd_symbol** syms, bool dynamic)
             fmt::print("Dropping symbol {}, since it has no section\n", sym_name);
             continue;
         }
-        fmt::print("SYM {} @ {:08x} with flags {:08x}\n", sym_name, cur->value, cur->flags);
 
         auto symbol = std::make_unique<Symbol>(*sect_it->second, sym_addr, "", sym_name);
         m_symbol_map[cur] = symbol.get();

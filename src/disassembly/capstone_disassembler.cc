@@ -28,12 +28,13 @@ class CapstoneInstruction : public IInstruction
 public:
     CapstoneInstruction(const ISection& section,
                         cs_arch arch,
+                        uint64_t offset,
                         std::span<const std::byte> data,
                         const cs_insn* insn)
         : section_(section)
         , data_(data.subspan(0, insn->size))
         , encoding_(fmt::format("{:8s} {}", insn->mnemonic, insn->op_str))
-        , offset_(insn->address)
+        , offset_(offset)
     {
         switch (arch)
         {
@@ -41,7 +42,7 @@ public:
             ProcessArm(insn);
             break;
         case cs_arch::CS_ARCH_X86:
-            ProcessArm(insn);
+            ProcessX86(insn);
             break;
         default:
             break;
@@ -71,7 +72,9 @@ private:
         if (insn->id == x86_insn::X86_INS_CALL)
         {
             refers_to_.push_back(IInstruction::Referer {
-                nullptr, static_cast<uint64_t>(insn->detail->arm.operands[0].imm), nullptr});
+                nullptr,
+                static_cast<uint64_t>(insn->address + insn->detail->arm.operands[0].imm),
+                nullptr});
         }
     }
 
@@ -190,22 +193,25 @@ CapstoneDisassembler::~CapstoneDisassembler()
 
 void
 CapstoneDisassembler::Disassemble(const ISection& section,
+                                  uint64_t start_address,
+                                  std::span<const std::byte> data,
                                   std::function<void(std::unique_ptr<IInstruction>)> on_instruction)
 {
     cs_insn* insns = nullptr;
-    auto data = section.Data();
 
     auto n = cs_disasm(m_handle,
                        reinterpret_cast<const uint8_t*>(data.data()),
                        data.size(),
-                       section.StartAddress(),
+                       start_address,
                        0,
                        &insns);
 
+    uint64_t offset = start_address - section.StartAddress();
     for (auto i = 0; i < n; i++)
     {
         auto p = &insns[i];
-        on_instruction(std::make_unique<CapstoneInstruction>(section, m_arch, data, p));
+        on_instruction(std::make_unique<CapstoneInstruction>(section, m_arch, offset, data, p));
+        offset += p->size;
         data = data.subspan(p->size);
     }
 }

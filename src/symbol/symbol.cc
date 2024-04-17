@@ -20,6 +20,7 @@ Symbol::Symbol(const ISection& section,
     , m_offset(offset)
     , m_flags(flags)
     , m_name(name)
+    , m_data(section.Data().subspan(offset))
 {
     // Use what c++filt uses...
     int demangle_flags = DMGL_PARAMS | DMGL_ANSI | DMGL_VERBOSE;
@@ -41,15 +42,19 @@ Symbol::Symbol(const ISection& section,
 void
 Symbol::SetSize(size_t size)
 {
-    m_size = size;
-}
+    size_t max = std::distance(m_section.Data().begin() + m_offset, m_section.Data().end());
 
+    m_size = std::min(size, max);
+    m_data = m_section.Data().subspan(m_offset, m_size);
+
+    fmt::print("SYM {} @ {:08x} with size {:08x}\n", m_name, m_offset, m_size);
+}
 
 
 std::span<const std::byte>
 Symbol::Data() const
 {
-    return {};
+    return m_data;
 }
 
 const ISection&

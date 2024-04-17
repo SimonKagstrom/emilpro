@@ -50,6 +50,15 @@ Database::Symbols() const
 std::vector<Database::LookupResult>
 Database::LookupByAddress(uint64_t address)
 {
+    for (auto& section : m_sections)
+    {
+        if (section->StartAddress() >= address &&
+            section->StartAddress() + section->Size() < address)
+        {
+            return {Database::LookupResult {*section, address - section->StartAddress(), {}}};
+        }
+    }
+
     return {};
 }
 

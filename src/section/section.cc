@@ -82,7 +82,11 @@ Section::FixupSymbolSizes()
         auto adjust = last_offset;
         for (auto* symbol : symbols)
         {
-            symbol->SetSize(adjust - symbol->Offset());
+            int64_t size = adjust - symbol->Offset();
+            if (size >= 0)
+            {
+                symbol->SetSize(size);
+            }
 
             last_offset = symbol->Offset();
             m_symbol_refs.push_back(*symbol);
@@ -93,12 +97,31 @@ Section::FixupSymbolSizes()
 void
 Section::Disassemble(IDisassembler& disassembler)
 {
+    if (m_type != Type::kInstructions)
+    {
+        return;
+    }
+
     // Should already be done, but anyway
     m_instruction_refs.clear();
     m_instructions.clear();
 
-    disassembler.Disassemble(*this,
-                             [this](auto insn) { m_instructions.push_back(std::move(insn)); });
+    for (auto& sym : m_symbols)
+    {
+        if (static_cast<int64_t>(sym->Offset()) < 0)
+        {
+            continue;
+        }
+        fmt::print("DA {}. From {:x}+{:x}, sect size {:x}\n",
+                   sym->GetDemangledName(),
+                   sym->Offset(),
+                   sym->Size(),
+                   Size());
+        disassembler.Disassemble(*this,
+                                 StartAddress() + sym->Offset(),
+                                 sym->Data(),
+                                 [this](auto insn) { m_instructions.push_back(std::move(insn)); });
+    }
 
     ISymbol* current_symbol_ {nullptr};
 
