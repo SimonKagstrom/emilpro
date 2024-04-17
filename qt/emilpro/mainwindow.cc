@@ -176,6 +176,26 @@ MainWindow::on_instructionTableView_activated(const QModelIndex& index)
 void
 MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
 {
+    auto row = index.row();
+    if (row < 0 || row >= m_visible_instructions.size())
+    {
+        return;
+    }
+
+    auto& insn = m_visible_instructions[row].get();
+
+    auto refers_to = insn.RefersTo();
+    if (!refers_to.empty())
+    {
+        auto sym = refers_to[0].symbol;
+        if (sym)
+        {
+            auto& section = sym->Section();
+
+            m_visible_instructions = section.Instructions();
+            UpdateInstructionView(sym->Offset());
+        }
+    }
 }
 
 void

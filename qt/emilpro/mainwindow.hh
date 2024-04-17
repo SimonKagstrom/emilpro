@@ -2,6 +2,7 @@
 
 #include "emilpro/database.hh"
 #include "emilpro/i_binary_parser.hh"
+#include "emilpro/i_instruction.hh"
 
 #include <QMainWindow>
 #include <qstandarditemmodel.h>
