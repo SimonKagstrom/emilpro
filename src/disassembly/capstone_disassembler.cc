@@ -93,6 +93,11 @@ private:
         return data_;
     }
 
+    uint32_t Size() const final
+    {
+        return data_.size();
+    }
+
     uint32_t Offset() const final
     {
         return offset_;

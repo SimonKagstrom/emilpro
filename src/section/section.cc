@@ -109,12 +109,17 @@ Section::Disassemble(IDisassembler& disassembler)
         {
             insn->SetSourceLocation(file_line->file, file_line->line);
         }
-        auto rel_it = m_sorted_relocations.find(insn->Offset());
+        auto rel_it = m_sorted_relocations.lower_bound(insn->Offset());
         if (rel_it != m_sorted_relocations.end())
         {
-            auto &sym = rel_it->second->symbol.get();
+            auto reloc_dst = rel_it->first;
+            auto& sym = rel_it->second->symbol.get();
+            auto insn_offset = insn->Offset();
 
-            insn->SetRefersTo(sym.Section(), sym.Offset(), &sym);
+            if (reloc_dst >= insn_offset && reloc_dst < insn_offset + insn->Size())
+            {
+                insn->SetRefersTo(sym.Section(), sym.Offset(), &sym);
+            }
         }
         m_instruction_refs.push_back(*insn);
     }
