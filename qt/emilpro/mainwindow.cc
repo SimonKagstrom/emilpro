@@ -28,16 +28,16 @@ MainWindow::addHistoryEntry(uint64_t address)
 }
 
 bool
-MainWindow::init(int argc, char* argv[])
+MainWindow::Init(int argc, char* argv[])
 {
     m_ui->setupUi(this);
 
-    setupSymbolView();
-    setupInstructionView();
-    setupReferencesView();
-    setupAddressHistoryView();
-    setupInstructionEncoding();
-    setupDataView();
+    SetupSymbolView();
+    SetupInstructionView();
+    SetupReferencesView();
+    SetupAddressHistoryView();
+    SetupInstructionEncoding();
+    SetupDataView();
 
     m_ui->menuBar->setNativeMenuBar(false);
 
@@ -261,27 +261,27 @@ MainWindow::saveState()
 }
 
 void
-MainWindow::setupAddressHistoryView()
+MainWindow::SetupAddressHistoryView()
 {
 }
 
 void
-MainWindow::setupDataView()
+MainWindow::SetupDataView()
 {
 }
 
 void
-MainWindow::setupInfoBox()
+MainWindow::SetupInfoBox()
 {
 }
 
 void
-MainWindow::setupInstructionEncoding()
+MainWindow::SetupInstructionEncoding()
 {
 }
 
 void
-MainWindow::setupInstructionLabels()
+MainWindow::SetupInstructionLabels()
 {
     QStringList labels;
 
@@ -295,7 +295,7 @@ MainWindow::setupInstructionLabels()
 }
 
 void
-MainWindow::setupInstructionView()
+MainWindow::SetupInstructionView()
 {
     m_instruction_view_model = new QStandardItemModel(0, 5, this);
 
@@ -322,11 +322,11 @@ MainWindow::setupInstructionView()
             this,
             SLOT(on_insnCurrentChanged(QModelIndex, QModelIndex)));
 
-    setupInstructionLabels();
+    SetupInstructionLabels();
 }
 
 void
-MainWindow::setupReferencesView()
+MainWindow::SetupReferencesView()
 {
     m_references_view_model = new QStandardItemModel(0, 2, this);
 
@@ -336,7 +336,7 @@ MainWindow::setupReferencesView()
 }
 
 void
-MainWindow::setupSymbolView()
+MainWindow::SetupSymbolView()
 {
     m_symbol_view_model = new QStandardItemModel(0, 8, this);
     m_symbol_view_model->setHorizontalHeaderItem(0, new QStandardItem(QString("Address")));
@@ -357,7 +357,7 @@ MainWindow::setupSymbolView()
 
 
 void
-MainWindow::updateSymbolView(uint64_t address, const std::string& name)
+MainWindow::UpdateSymbolView(uint64_t address, const std::string& name)
 {
 }
 
@@ -403,11 +403,11 @@ MainWindow::UpdateInstructionView(uint64_t offset)
 }
 
 void
-MainWindow::updateDataView(uint64_t address, size_t size)
+MainWindow::UpdateDataView(uint64_t address, size_t size)
 {
 }
 
 void
-MainWindow::updatePreferences()
+MainWindow::UpdatePreferences()
 {
 }

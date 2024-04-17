@@ -20,10 +20,10 @@ public:
     explicit MainWindow(QWidget* parent = 0);
     ~MainWindow();
 
-    bool init(int argc, char* argv[]);
+    bool Init(int argc, char* argv[]);
 
     // On quit etc
-    void updatePreferences();
+    void UpdatePreferences();
 
 private slots:
     void on_symbolTableView_activated(const QModelIndex& index);
@@ -66,21 +66,21 @@ private slots:
     void on_locationLineEdit_returnPressed();
 
 private:
-    void setupSymbolView();
+    void SetupSymbolView();
 
-    void setupInstructionView();
+    void SetupInstructionView();
 
-    void setupReferencesView();
+    void SetupReferencesView();
 
-    void setupAddressHistoryView();
+    void SetupAddressHistoryView();
 
-    void setupInstructionLabels();
+    void SetupInstructionLabels();
 
-    void setupInstructionEncoding();
+    void SetupInstructionEncoding();
 
-    void setupDataView();
+    void SetupDataView();
 
-    void setupInfoBox();
+    void SetupInfoBox();
 
     void addHistoryEntry(uint64_t addr);
 
@@ -92,9 +92,9 @@ private:
 
     void UpdateInstructionView(uint64_t offset);
 
-    void updateSymbolView(uint64_t address, const std::string& name = "");
+    void UpdateSymbolView(uint64_t address, const std::string& name = "");
 
-    void updateDataView(uint64_t address, size_t size);
+    void UpdateDataView(uint64_t address, size_t size);
 
     Ui::MainWindow* m_ui {nullptr};
     QStandardItemModel* m_symbol_view_model {nullptr};
