@@ -13,7 +13,7 @@ main(int argc, char* argv[])
     w.show();
 
     int out = a.exec();
-    w.updatePreferences();
+    w.UpdatePreferences();
 
     return out;
 }
