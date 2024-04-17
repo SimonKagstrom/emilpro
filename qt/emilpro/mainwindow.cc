@@ -3,11 +3,13 @@
 #include "emilpro/i_disassembler.hh"
 #include "ui_mainwindow.h"
 
+#include <QFile>
 #include <QMessageBox>
 #include <QScrollBar>
 #include <QTextBlock>
 #include <fmt/format.h>
 #include <qstandarditemmodel.h>
+#include <string>
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -39,14 +41,19 @@ MainWindow::Init(int argc, char* argv[])
     SetupInstructionEncoding();
     SetupDataView();
 
+    m_highlighter = new Highlighter(m_ui->sourceTextEdit->document());
+    QTextEdit::ExtraSelection highlight;
+    highlight.cursor = m_ui->sourceTextEdit->textCursor();
+    highlight.format.setProperty(QTextFormat::FullWidthSelection, true);
+    highlight.format.setBackground(Qt::green);
+
+    QList<QTextEdit::ExtraSelection> extras;
+    extras << highlight;
+    m_ui->sourceTextEdit->setExtraSelections(extras);
+
     m_ui->menuBar->setNativeMenuBar(false);
 
     m_database.ParseFile(argv[1]);
-
-    for (auto& section_ref : m_database.Sections())
-    {
-        auto& section = section_ref.get();
-    }
 
     for (auto& sym_ref : m_database.Symbols())
     {
@@ -54,7 +61,8 @@ MainWindow::Init(int argc, char* argv[])
 
         QList<QStandardItem*> lst;
 
-        QString addr = QString::fromStdString(fmt::format("0x{:x}", sym.Offset()));
+        QString addr = QString::fromStdString(
+            fmt::format("0x{:x}", sym.Section().StartAddress() + sym.Offset()));
         QString size = QString::fromStdString(fmt::format("0x{:x}", sym.Size()));
         QString lnk = " ";
         QString r = "R";
@@ -158,13 +166,31 @@ MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelIndex& p
 
     auto& insn = m_visible_instructions[row].get();
 
-    auto encoding = fmt::format("{:02x}", fmt::join(insn.Data(), " "));
+    // Workaround an UBSAN issue with fmt::format, when fmt::join is used
+    std::string encoding;
+    for (auto x : insn.Data())
+    {
+        encoding += fmt::format("{:02x} ", x);
+    }
     m_ui->instructionEncodingLine->setText(encoding.c_str());
 
     auto fl = insn.GetSourceLocation();
     if (fl)
     {
-        fmt::print("Source location: {}:{}\n", fl->first, fl->second);
+        fmt::print("Source location for {}: {}:{}\n", insn.Offset(), fl->first, fl->second);
+        auto& source = LookupSourceFile(fl->first);
+        auto line = fl->second == 0 ? 0 : fl->second - 1;
+
+        if (source != m_current_source_file)
+        {
+            m_ui->sourceTextEdit->setText(source);
+        }
+        if (source != "")
+        {
+            QTextCursor cursor(m_ui->sourceTextEdit->document()->findBlockByLineNumber(line));
+            cursor.select(QTextCursor::LineUnderCursor);
+            m_ui->sourceTextEdit->setTextCursor(cursor);
+        }
     }
 }
 
@@ -187,14 +213,29 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
     auto refers_to = insn.RefersTo();
     if (!refers_to.empty())
     {
+        uint64_t offset = 0;
         auto sym = refers_to[0].symbol;
         if (sym)
         {
             auto& section = sym->Section();
 
             m_visible_instructions = section.Instructions();
-            UpdateInstructionView(sym->Offset());
+            offset = sym->Offset();
         }
+        else
+        {
+            auto lookup_result = m_database.LookupByAddress(refers_to[0].offset);
+
+            for (auto& result : lookup_result)
+            {
+                auto& section = result.section;
+
+                m_visible_instructions = section.Instructions();
+                offset = result.offset;
+            }
+        }
+
+        UpdateInstructionView(offset);
     }
 }
 
@@ -285,11 +326,7 @@ MainWindow::SetupInstructionLabels()
 {
     QStringList labels;
 
-    labels << "Address"
-           << "B"
-           << "Instruction"
-           << "F"
-           << "Target";
+    labels << "Address" << "B" << "Instruction" << "F" << "Target";
 
     m_instruction_view_model->setHorizontalHeaderLabels(labels);
 }
@@ -410,4 +447,29 @@ MainWindow::UpdateDataView(uint64_t address, size_t size)
 void
 MainWindow::UpdatePreferences()
 {
+}
+
+const QString&
+MainWindow::LookupSourceFile(std::string_view path)
+{
+    auto it = m_source_file_map.find(std::string());
+    auto sp = std::string(path);
+
+    if (it == m_source_file_map.end())
+    {
+        QFile f(sp.c_str());
+
+        if (f.open(QFile::ReadOnly | QFile::Text))
+        {
+            QTextStream in(&f);
+
+            m_source_file_map.emplace(sp, in.readAll());
+        }
+        else
+        {
+            m_source_file_map.emplace(sp, "");
+        }
+    }
+
+    return m_source_file_map[sp];
 }

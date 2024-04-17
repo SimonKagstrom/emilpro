@@ -3,6 +3,7 @@
 #include "emilpro/database.hh"
 #include "emilpro/i_binary_parser.hh"
 #include "emilpro/i_instruction.hh"
+#include "highlighter.hh"
 
 #include <QMainWindow>
 #include <qstandarditemmodel.h>
@@ -96,11 +97,18 @@ private:
 
     void UpdateDataView(uint64_t address, size_t size);
 
+    const QString& LookupSourceFile(std::string_view);
+
     Ui::MainWindow* m_ui {nullptr};
     QStandardItemModel* m_symbol_view_model {nullptr};
     QStandardItemModel* m_instruction_view_model {nullptr};
     QStandardItemModel* m_references_view_model {nullptr};
     QStandardItemModel* m_addressHistory_view_model {nullptr};
+
+    Highlighter* m_highlighter {nullptr};
+    std::unordered_map<std::string, QString> m_source_file_map;
+    QString m_current_source_file;
+
 
     emilpro::Database m_database;
 

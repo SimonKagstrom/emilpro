@@ -1,5 +1,6 @@
 
 add_library(mainwindow EXCLUDE_FROM_ALL
+    highlighter.cc
     mainwindow.ui
     mainwindow.cc
 )
