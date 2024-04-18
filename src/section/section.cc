@@ -112,11 +112,6 @@ Section::Disassemble(IDisassembler& disassembler)
         {
             continue;
         }
-        fmt::print("DA {}. From {:x}+{:x}, sect size {:x}\n",
-                   sym->GetDemangledName(),
-                   sym->Offset(),
-                   sym->Size(),
-                   Size());
         disassembler.Disassemble(*this,
                                  StartAddress() + sym->Offset(),
                                  sym->Data(),
