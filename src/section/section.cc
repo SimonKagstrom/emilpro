@@ -140,6 +140,7 @@ Section::Disassemble(IDisassembler& disassembler)
             }
         }
         m_instruction_refs.push_back(*insn);
+        m_sorted_instructions[insn->Offset()] = insn.get();
     }
 }
 
@@ -161,4 +162,10 @@ Section::ContainsAddress(uint64_t address) const
     auto start = StartAddress();
 
     return address >= start && address < start + Size();
+}
+
+IInstruction*
+Section::InstructionAt(uint64_t) const
+{
+    return nullptr;
 }

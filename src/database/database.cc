@@ -6,7 +6,7 @@ using namespace emilpro;
 
 bool
 Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
-                   std::unique_ptr<IDisassembler> disassembler)
+                    std::unique_ptr<IDisassembler> disassembler)
 {
     m_disassembler = std::move(disassembler);
 
@@ -25,14 +25,21 @@ Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
     }
 
     // Calculate referenced by
-    std::vector<std::pair<std::reference_wrapper<IInstruction>, IInstruction::Referer>> refs;
+    std::vector<std::pair<std::reference_wrapper<IInstruction>, IInstruction::Referer>>
+        all_refers_to;
     for (auto& insn : m_instruction_refs)
     {
         auto refers_to = insn.get().RefersTo();
         if (refers_to)
         {
-            refs.push_back({insn, *refers_to});
+            all_refers_to.push_back({insn, *refers_to});
         }
+    }
+
+    for (auto& [insn, ref] : all_refers_to)
+    {
+        auto &hint = insn.get().Section();
+
     }
 
     m_parsers.push_back(std::move(parser));

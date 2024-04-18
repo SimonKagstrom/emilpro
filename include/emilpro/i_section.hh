@@ -41,6 +41,8 @@ public:
     virtual Type GetType() const = 0;
 
     virtual bool ContainsAddress(uint64_t address) const = 0;
+
+    virtual IInstruction* InstructionAt(uint64_t) const = 0;
 };
 
 } // namespace emilpro

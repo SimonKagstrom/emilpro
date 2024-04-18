@@ -56,6 +56,8 @@ private:
 
     bool ContainsAddress(uint64_t address) const final;
 
+    IInstruction* InstructionAt(uint64_t) const final;
+
 
     const std::vector<std::byte> m_data;
     const uint64_t m_start_address;
@@ -72,6 +74,7 @@ private:
 
     std::vector<std::unique_ptr<IInstruction>> m_instructions;
     std::vector<std::reference_wrapper<IInstruction>> m_instruction_refs;
+    std::map<uint64_t, IInstruction*> m_sorted_instructions;
 };
 
 } // namespace emilpro
