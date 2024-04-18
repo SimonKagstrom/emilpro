@@ -23,11 +23,24 @@ Database::ParseFile(std::string_view file_path)
         m_section_refs.push_back(*m_sections.back());
     });
 
+    // Disassemble all sections
     for (auto& section : m_sections)
     {
         section->Disassemble(*m_disassembler);
 
         std::ranges::copy(section->Symbols(), std::back_inserter(m_symbol_refs));
+        std::ranges::copy(section->Instructions(), std::back_inserter(m_instruction_refs));
+    }
+
+    // Calculate referenced by
+    std::vector<std::pair<std::reference_wrapper<IInstruction>, IInstruction::Referer>> refs;
+    for (auto& insn : m_instruction_refs)
+    {
+        auto refers_to = insn.get().RefersTo();
+        if (refers_to)
+        {
+            refs.push_back({insn, *refers_to});
+        }
     }
 
     m_parsers.push_back(std::move(parser));

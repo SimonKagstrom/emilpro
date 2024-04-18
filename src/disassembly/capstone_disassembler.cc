@@ -31,9 +31,9 @@ public:
                         uint64_t offset,
                         std::span<const std::byte> data,
                         const cs_insn* insn)
-        : section_(section)
-        , data_(data.subspan(0, insn->size))
-        , encoding_(fmt::format("{:8s} {}", insn->mnemonic, insn->op_str))
+        : m_section(section)
+        , m_data(data.subspan(0, insn->size))
+        , m_encoding(fmt::format("{:8s} {}", insn->mnemonic, insn->op_str))
         , m_offset(offset)
     {
         switch (arch)
@@ -54,14 +54,16 @@ private:
     {
         if (insn->id == arm_insn::ARM_INS_BL)
         {
-            refers_to_ = IInstruction::Referer {
+            m_refers_to = IInstruction::Referer {
                 nullptr, static_cast<uint64_t>(insn->detail->arm.operands[0].imm), nullptr};
         }
         else if (IsJump(insn) && insn->detail->arm.op_count > 0 &&
                  insn->detail->arm.operands[0].type == ARM_OP_IMM)
         {
-            refers_to_ = IInstruction::Referer {
-                &section_, static_cast<uint64_t>(insn->detail->arm.operands[0].imm), nullptr};
+            m_refers_to = IInstruction::Referer {
+                &m_section,
+                static_cast<uint64_t>(insn->detail->arm.operands[0].imm) + m_section.StartAddress(),
+                nullptr};
         }
     }
 
@@ -69,7 +71,7 @@ private:
     {
         if (insn->id == x86_insn::X86_INS_CALL)
         {
-            refers_to_ = IInstruction::Referer {
+            m_refers_to = IInstruction::Referer {
                 nullptr,
                 static_cast<uint64_t>(insn->address + insn->detail->arm.operands[0].imm),
                 nullptr};
@@ -77,8 +79,10 @@ private:
         else if (IsJump(insn) && insn->detail->x86.op_count > 0 &&
                  insn->detail->x86.operands[0].type == X86_OP_IMM)
         {
-            refers_to_ = IInstruction::Referer {
-                &section_, static_cast<uint64_t>(insn->detail->x86.operands[0].imm), nullptr};
+            m_refers_to = IInstruction::Referer {
+                &m_section,
+                static_cast<uint64_t>(insn->detail->x86.operands[0].imm) + m_section.StartAddress(),
+                nullptr};
         }
     }
 
@@ -97,12 +101,12 @@ private:
 
     std::span<const std::byte> Data() const final
     {
-        return data_;
+        return m_data;
     }
 
     uint32_t Size() const final
     {
-        return data_.size();
+        return m_data.size();
     }
 
     uint32_t Offset() const final
@@ -112,7 +116,7 @@ private:
 
     std::string_view AsString() const final
     {
-        return encoding_;
+        return m_encoding;
     }
 
     std::span<const Referer> ReferredBy() const final
@@ -122,12 +126,12 @@ private:
 
     std::optional<Referer> RefersTo() const final
     {
-        return refers_to_;
+        return m_refers_to;
     }
 
     void SetRefersTo(const ISection& section, uint64_t offset, const ISymbol* symbol) final
     {
-        refers_to_ = IInstruction::Referer {&section, offset, symbol};
+        m_refers_to = IInstruction::Referer {&section, offset, symbol};
     }
 
 
@@ -150,7 +154,7 @@ private:
 
     const ISection& Section() const final
     {
-        return section_;
+        return m_section;
     }
 
     void SetSourceLocation(std::string_view file, uint32_t line) final
@@ -160,10 +164,10 @@ private:
     }
 
 
-    const ISection& section_;
-    std::span<const std::byte> data_;
-    std::optional<IInstruction::Referer> refers_to_;
-    const std::string encoding_;
+    const ISection& m_section;
+    std::span<const std::byte> m_data;
+    std::optional<IInstruction::Referer> m_refers_to;
+    const std::string m_encoding;
     const uint32_t m_offset;
 
     std::optional<std::string> source_file_;

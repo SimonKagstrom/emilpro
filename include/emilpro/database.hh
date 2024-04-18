@@ -40,6 +40,8 @@ private:
     std::vector<std::reference_wrapper<ISection>> m_section_refs;
 
     std::vector<std::reference_wrapper<ISymbol>> m_symbol_refs;
+
+    std::vector<std::reference_wrapper<IInstruction>> m_instruction_refs;
 };
 
 } // namespace emilpro
