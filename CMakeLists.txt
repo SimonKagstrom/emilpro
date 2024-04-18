@@ -25,6 +25,7 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets Network)
 add_subdirectory(src)
 add_subdirectory(qt)
 add_subdirectory(tools)
+add_subdirectory(test)
 
 add_library(emilpro_interface INTERFACE)
 target_include_directories(emilpro_interface INTERFACE include)
