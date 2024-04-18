@@ -5,18 +5,10 @@
 using namespace emilpro;
 
 bool
-Database::ParseFile(std::string_view file_path)
+Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
+                   std::unique_ptr<IDisassembler> disassembler)
 {
-    auto parser = IBinaryParser::FromFile(file_path);
-    if (!parser)
-    {
-        return false;
-    }
-    m_disassembler = IDisassembler::CreateFromArchitecture(parser->GetMachine());
-    if (!m_disassembler)
-    {
-        return false;
-    }
+    m_disassembler = std::move(disassembler);
 
     parser->ForAllSections([this](auto section) {
         m_sections.push_back(std::move(section));

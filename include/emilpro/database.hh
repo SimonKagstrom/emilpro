@@ -22,7 +22,8 @@ public:
         std::optional<std::span<std::reference_wrapper<const IInstruction>>> instructions;
     };
 
-    bool ParseFile(std::string_view file_path);
+    bool ParseFile(std::unique_ptr<IBinaryParser> parser,
+                   std::unique_ptr<IDisassembler> disassembler);
 
     std::span<const std::reference_wrapper<ISection>> Sections() const;
 

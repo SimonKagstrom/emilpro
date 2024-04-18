@@ -53,7 +53,21 @@ MainWindow::Init(int argc, char* argv[])
 
     m_ui->menuBar->setNativeMenuBar(false);
 
-    m_database.ParseFile(argv[1]);
+    auto parser = emilpro::IBinaryParser::FromFile(argv[1]);
+    if (!parser)
+    {
+        // for now
+        exit(1);
+    }
+    auto disassembler = emilpro::IDisassembler::CreateFromArchitecture(parser->GetMachine());
+    if (!disassembler)
+    {
+        // for now
+        exit(1);
+    }
+
+
+    m_database.ParseFile(std::move(parser), std::move(disassembler));
 
     for (auto& sym_ref : m_database.Symbols())
     {
@@ -326,7 +340,11 @@ MainWindow::SetupInstructionLabels()
 {
     QStringList labels;
 
-    labels << "Address" << "B" << "Instruction" << "F" << "Target";
+    labels << "Address"
+           << "B"
+           << "Instruction"
+           << "F"
+           << "Target";
 
     m_instruction_view_model->setHorizontalHeaderLabels(labels);
 }
