@@ -33,7 +33,7 @@ public:
         auto section_up = std::make_unique<mock::MockSection>();
         auto section = section_up.get();
 
-        return std::make_pair(std::move(section_up), section);
+        return std::pair {std::move(section_up), section};
     }
 
     auto CreateInstructions(auto& section, auto count)
@@ -53,7 +53,7 @@ public:
             insns.push_back(std::move(insn_up));
         }
 
-        return std::make_pair(std::move(insns), insn_refs);
+        return std::pair {std::make_pair(std::move(insns), insn_refs)};
     }
 
     std::unique_ptr<mock::MockBinaryParser> binary_parser_up;
@@ -74,10 +74,15 @@ TEST_CASE_FIXTURE(Fixture, "the database can resolve references")
 {
     GIVEN("a .text section with four instructions and one symbol")
     {
-        auto [text_up, text] = CreateSection();
+        auto section = CreateSection();
+        auto text_up = std::move(section.first);
+        auto text = section.second;
         auto symbol = mock::MockSymbol();
         auto sym_refs = std::vector<std::reference_wrapper<ISymbol>> {symbol};
-        auto [insns, insn_refs] = CreateInstructions(*text, 4);
+
+        auto insn_pair = CreateInstructions(*text, 4);
+        auto insns = std::move(insn_pair.first);
+        auto insn_refs = std::move(insn_pair.second);
 
         REQUIRE_CALL(*binary_parser, ForAllSections(_)).LR_SIDE_EFFECT(_1(std::move(text_up)));
         auto r_disassembly = NAMED_REQUIRE_CALL(*text, Disassemble(_));
