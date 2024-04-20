@@ -83,7 +83,7 @@ TEST_CASE_FIXTURE(Fixture, "the database can resolve references")
 {
     GIVEN("a .text section with a few instructions and one symbol")
     {
-        auto section = CreateSection(0, 5);
+        auto section = CreateSection(0x1000, 5);
         auto text_up = std::move(section.first);
         auto text = section.second;
         auto symbol = mock::MockSymbol();

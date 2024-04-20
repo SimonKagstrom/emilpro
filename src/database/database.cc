@@ -43,11 +43,10 @@ Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
         auto& insn = insn_ref.get();
         auto& hint = insn.Section();
 
-        if (hint.ContainsAddress(ref.offset))
+        if (hint.ContainsAddress(hint.StartAddress() + ref.offset))
         {
             if (auto dst = hint.InstructionAt(ref.offset))
             {
-                fmt::print("REF {} to {}\n", insn.Offset(), dst->Offset());
                 dst->AddReferredBy(hint, insn.Offset(), nullptr);
             }
         }

@@ -78,7 +78,9 @@ private:
                  insn->detail->x86.operands[0].type == X86_OP_IMM)
         {
             m_refers_to = IInstruction::Referer {
-                &m_section, static_cast<uint64_t>(insn->detail->x86.operands[0].imm), nullptr};
+                &m_section,
+                static_cast<uint64_t>(insn->detail->x86.operands[0].imm) - m_section.StartAddress(),
+                nullptr};
         }
     }
 

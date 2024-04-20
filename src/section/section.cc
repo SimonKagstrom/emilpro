@@ -165,9 +165,9 @@ Section::ContainsAddress(uint64_t address) const
 }
 
 IInstruction*
-Section::InstructionAt(uint64_t) const
+Section::InstructionAt(uint64_t offset) const
 {
-    if (auto it = m_sorted_instructions.find(0); it != m_sorted_instructions.end())
+    if (auto it = m_sorted_instructions.find(offset); it != m_sorted_instructions.end())
     {
         return it->second;
     }

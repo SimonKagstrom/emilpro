@@ -224,6 +224,11 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
 
     auto& insn = m_visible_instructions[row].get();
 
+    for (auto &r : insn.ReferredBy())
+    {
+        fmt::print("REF {:x} by {:x}\n", r.offset, insn.Offset());
+    }
+
     auto refers_to = insn.RefersTo();
     if (refers_to)
     {
