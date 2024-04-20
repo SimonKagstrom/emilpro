@@ -2,6 +2,8 @@
 
 #include "emilpro/i_binary_parser.hh"
 
+#include <fmt/format.h>
+
 using namespace emilpro;
 
 bool
@@ -36,10 +38,19 @@ Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
         }
     }
 
-    for (auto& [insn, ref] : all_refers_to)
+    for (auto& [insn_ref, ref] : all_refers_to)
     {
-        auto &hint = insn.get().Section();
+        auto& insn = insn_ref.get();
+        auto& hint = insn.Section();
 
+        if (hint.ContainsAddress(ref.offset))
+        {
+            if (auto dst = hint.InstructionAt(ref.offset))
+            {
+                fmt::print("REF {} to {}\n", insn.Offset(), dst->Offset());
+                dst->AddReferredBy(hint, insn.Offset(), nullptr);
+            }
+        }
     }
 
     m_parsers.push_back(std::move(parser));

@@ -18,6 +18,10 @@ public:
     MAKE_CONST_MOCK0(ReferredBy, std::span<const Referer>(), final);
     MAKE_CONST_MOCK0(RefersTo, std::optional<Referer>(), final);
     MAKE_MOCK3(SetRefersTo, void(const ISection&, uint64_t, const ISymbol*), final);
+    MAKE_MOCK3(AddReferredBy,
+               void(const ISection& section, uint64_t offset, const ISymbol* symbol),
+               final);
+
     MAKE_CONST_MOCK0(GetUsedRegisters, std::span<std::string_view>(), final);
     MAKE_CONST_MOCK0(GetSourceLocation,
                      (std::optional<std::pair<std::string_view, uint32_t>>)(),

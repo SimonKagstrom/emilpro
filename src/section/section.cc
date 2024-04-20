@@ -167,5 +167,10 @@ Section::ContainsAddress(uint64_t address) const
 IInstruction*
 Section::InstructionAt(uint64_t) const
 {
+    if (auto it = m_sorted_instructions.find(0); it != m_sorted_instructions.end())
+    {
+        return it->second;
+    }
+
     return nullptr;
 }

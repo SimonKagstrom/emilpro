@@ -117,7 +117,7 @@ private:
 
     std::span<const Referer> ReferredBy() const final
     {
-        return {};
+        return m_referred_by;
     }
 
     std::optional<Referer> RefersTo() const final
@@ -128,6 +128,11 @@ private:
     void SetRefersTo(const ISection& section, uint64_t offset, const ISymbol* symbol) final
     {
         m_refers_to = IInstruction::Referer {&section, offset, symbol};
+    }
+
+    void AddReferredBy(const ISection& section, uint64_t offset, const ISymbol* symbol) final
+    {
+        m_referred_by.push_back({&section, offset, symbol});
     }
 
 
@@ -163,6 +168,7 @@ private:
     const ISection& m_section;
     std::span<const std::byte> m_data;
     std::optional<IInstruction::Referer> m_refers_to;
+    std::vector<IInstruction::Referer> m_referred_by;
     const std::string m_encoding;
     const uint32_t m_offset;
 
