@@ -13,6 +13,13 @@ class ISymbol;
 class IInstruction
 {
 public:
+    enum class InstructionType
+    {
+        kBranch,
+        kCall,
+        kOther,
+    };
+
     struct Referer
     {
         const ISection* section;
@@ -23,6 +30,8 @@ public:
     virtual ~IInstruction() = default;
 
     virtual std::span<const std::byte> Data() const = 0;
+
+    virtual InstructionType Type() const = 0;
 
     virtual uint32_t Size() const = 0;
 

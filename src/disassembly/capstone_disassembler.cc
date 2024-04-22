@@ -33,6 +33,7 @@ public:
                         const cs_insn* insn)
         : m_section(section)
         , m_data(data.subspan(0, insn->size))
+        , m_type(DetermineType(insn))
         , m_encoding(fmt::format("{:8s} {}", insn->mnemonic, insn->op_str))
         , m_offset(offset)
     {
@@ -50,6 +51,23 @@ public:
     }
 
 private:
+    IInstruction::InstructionType DetermineType(const cs_insn* insn)
+    {
+        for (auto i = 0u; i < insn->detail->groups_count; i++)
+        {
+            if (insn->detail->groups[i] == cs_group_type::CS_GRP_CALL)
+            {
+                return IInstruction::InstructionType::kCall;
+            }
+            else if (insn->detail->groups[i] == cs_group_type::CS_GRP_JUMP)
+            {
+                return IInstruction::InstructionType::kBranch;
+            }
+        }
+
+        return IInstruction::InstructionType::kOther;
+    }
+
     void ProcessArm(const cs_insn* insn)
     {
         if (insn->id == arm_insn::ARM_INS_BL)
@@ -100,6 +118,11 @@ private:
     std::span<const std::byte> Data() const final
     {
         return m_data;
+    }
+
+    InstructionType Type() const final
+    {
+        return InstructionType::kOther;
     }
 
     uint32_t Size() const final
@@ -169,6 +192,7 @@ private:
 
     const ISection& m_section;
     std::span<const std::byte> m_data;
+    const IInstruction::InstructionType m_type;
     std::optional<IInstruction::Referer> m_refers_to;
     std::vector<IInstruction::Referer> m_referred_by;
     const std::string m_encoding;

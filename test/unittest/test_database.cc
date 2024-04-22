@@ -4,12 +4,9 @@
 #include "emilpro/mock/mock_instruction.hh"
 #include "emilpro/mock/mock_section.hh"
 #include "emilpro/mock/mock_symbol.hh"
-
-#include <doctest/doctest.h>
-#include <doctest/trompeloeil.hpp>
+#include "test.h"
 
 using namespace emilpro;
-using trompeloeil::_;
 
 namespace
 {
