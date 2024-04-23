@@ -8,4 +8,5 @@ target_link_libraries(ut
     trompeloeil::trompeloeil
     doctest::doctest
     database
+    jump_lanes
 )
