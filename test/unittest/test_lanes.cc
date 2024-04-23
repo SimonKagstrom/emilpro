@@ -26,11 +26,11 @@ public:
          *  7:         nop      |  |
          *  8:         nop    <-   |
          *  9:         nop         |
-         * 10:         nop   <------
-         * 11:     ->  nop
-         * 12:    |    nop
-         * 13:    |    nop
-         * 14:    <-   je  11
+         * 10:      -> nop   <------
+         * 11:    ->|  nop
+         * 12:   |  |  nop
+         * 13:   |   - je  10
+         * 14:   <-    je  11
          */
         for (auto i = 0u; i < 15; i++)
         {
@@ -46,6 +46,7 @@ public:
         CreateReference(0, 2);
         CreateReference(4, 10);
         CreateReference(6, 8);
+        CreateReference(13, 10);
         CreateReference(14, 11);
     }
 
