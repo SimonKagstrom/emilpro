@@ -2,6 +2,8 @@
 
 #include "i_instruction.hh"
 
+#include <cmath>
+#include <cstdlib>
 #include <span>
 #include <vector>
 
@@ -32,8 +34,14 @@ public:
 
     struct Lanes
     {
-        Type backward_lanes[kNumberOfLanes] {Type::kNone, Type::kNone, Type::kNone};
-        Type forward_lanes[kNumberOfLanes] {Type::kNone, Type::kNone, Type::kNone};
+        Lanes()
+        {
+            std::fill(backward_lanes.begin(), backward_lanes.end(), Type::kNone);
+            std::fill(forward_lanes.begin(), forward_lanes.end(), Type::kNone);
+        }
+
+        std::array<Type, kNumberOfLanes> backward_lanes;
+        std::array<Type, kNumberOfLanes> forward_lanes;
     };
 
     void Calculate(unsigned max_distance,
@@ -42,8 +50,45 @@ public:
     std::span<const Lanes> GetLanes() const;
 
 private:
-    LaneState m_state[kNumberOfLanes] {LaneState::kNone, LaneState::kNone, LaneState::kNone};
+    class Lane
+    {
+    public:
+        Lane(uint32_t start, uint32_t end)
+            : m_start(start)
+            , m_end(end)
+        {
+        }
+
+        Type Calculate(uint32_t offset)
+        {
+            if (offset == m_start)
+            {
+                return Type::kStart;
+            }
+            else if (offset == m_end)
+            {
+                return Type::kEnd;
+            }
+            else if (offset > m_start && offset < m_end)
+            {
+                return Type::kTraffic;
+            }
+
+            return Type::kNone;
+        }
+
+        auto Size() const
+        {
+            return std::abs(static_cast<int32_t>(m_end) - static_cast<int32_t>(m_start));
+        }
+
+    private:
+        const uint32_t m_start;
+        const uint32_t m_end;
+    };
+
     std::vector<Lanes> m_lanes;
+    std::vector<Lane> m_lane_states;
 };
 
 } // namespace emilpro
