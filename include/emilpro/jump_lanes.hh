@@ -11,6 +11,16 @@ namespace emilpro
 class JumpLanes
 {
 public:
+    constexpr static auto kNumberOfLanes = 3;
+
+    enum class LaneState
+    {
+        kNone,
+        kStart,
+        kTraffic,
+        kEnd,
+    };
+
     enum class Type
     {
         kNone,
@@ -22,8 +32,8 @@ public:
 
     struct Lanes
     {
-        Type backward_lanes[3];
-        Type forward_lanes[3];
+        Type backward_lanes[kNumberOfLanes] {Type::kNone, Type::kNone, Type::kNone};
+        Type forward_lanes[kNumberOfLanes] {Type::kNone, Type::kNone, Type::kNone};
     };
 
     void Calculate(unsigned max_distance,
@@ -32,6 +42,7 @@ public:
     std::span<const Lanes> GetLanes() const;
 
 private:
+    LaneState m_state[kNumberOfLanes] {LaneState::kNone, LaneState::kNone, LaneState::kNone};
     std::vector<Lanes> m_lanes;
 };
 

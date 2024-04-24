@@ -15,6 +15,8 @@ class Fixture
 public:
     Fixture()
     {
+        REQUIRE(instruction_refs.size() == instructions.size());
+
         /*
          *  0:         je   2 ->
          *  1:         nop      |
@@ -32,15 +34,15 @@ public:
          * 13:   |   - je  10
          * 14:   <-    je  11
          */
-        for (auto i = 0u; i < 15; i++)
+        for (auto i = 0u; i < instructions.size(); i++)
         {
-            auto cur = &instructions.back();
+            auto& cur = instructions[i];
 
             expecations.push_back(
-                NAMED_ALLOW_CALL(*cur, Type()).RETURN(IInstruction::InstructionType::kOther));
-            expecations.push_back(NAMED_ALLOW_CALL(*cur, RefersTo()).RETURN(std::nullopt));
-            expecations.push_back(NAMED_ALLOW_CALL(*cur, ReferredBy()).RETURN(no_referers));
-            expecations.push_back(NAMED_ALLOW_CALL(*cur, Offset()).RETURN(i));
+                NAMED_ALLOW_CALL(cur, Type()).RETURN(IInstruction::InstructionType::kOther));
+            expecations.push_back(NAMED_ALLOW_CALL(cur, RefersTo()).RETURN(std::nullopt));
+            expecations.push_back(NAMED_ALLOW_CALL(cur, ReferredBy()).RETURN(no_referers));
+            expecations.push_back(NAMED_ALLOW_CALL(cur, Offset()).RETURN(i));
         }
 
         CreateReference(0, 2);
@@ -52,16 +54,16 @@ public:
 
     void CreateReference(size_t from_index, size_t to_index)
     {
-        auto from = &instructions[from_index];
-        auto to = &instructions[to_index];
+        auto& from = instructions[from_index];
+        auto& to = instructions[to_index];
 
-        expecations.push_back(NAMED_ALLOW_CALL(*from, RefersTo())
+        expecations.push_back(NAMED_ALLOW_CALL(from, RefersTo())
                                   .RETURN(IInstruction::Referer {nullptr, to_index, nullptr}));
-        expecations.push_back(NAMED_ALLOW_CALL(*to, ReferredBy())
+        expecations.push_back(NAMED_ALLOW_CALL(to, ReferredBy())
                                   .RETURN(std::vector<IInstruction::Referer> {
                                       IInstruction::Referer {nullptr, from_index, nullptr}}));
         expecations.push_back(
-            NAMED_ALLOW_CALL(*from, Type()).RETURN(IInstruction::InstructionType::kBranch));
+            NAMED_ALLOW_CALL(from, Type()).RETURN(IInstruction::InstructionType::kBranch));
     }
 
     std::array<mock::MockInstruction, 15> instructions;
@@ -87,4 +89,16 @@ TEST_CASE_FIXTURE(Fixture, "there are no lanes for instructions where no jumps p
     REQUIRE(l.size() == instructions.size());
     REQUIRE(std::ranges::equal(l[3].backward_lanes, std::array {T::kNone, T::kNone, T::kNone}));
     REQUIRE(std::ranges::equal(l[3].forward_lanes, std::array {T::kNone, T::kNone, T::kNone}));
+}
+
+TEST_CASE_FIXTURE(Fixture, "a single lane is used for a solitary jump")
+{
+    lanes.Calculate(16, instruction_refs);
+
+    auto l = lanes.GetLanes();
+
+    // 0..2
+    REQUIRE(l[0].forward_lanes[0] == T::kStart);
+    REQUIRE(l[1].forward_lanes[0] == T::kTraffic);
+    REQUIRE(l[0].forward_lanes[0] == T::kEnd);
 }

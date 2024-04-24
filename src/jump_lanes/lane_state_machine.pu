@@ -1,0 +1,14 @@
+@startuml
+
+state kNone
+state kStart
+state kEnd
+state kTraffic
+
+[*] --> kNone
+
+kNone --> kStart : refers_to X
+kStart --> kTraffic
+kTraffic --> kEnd : referenced_by X
+
+@enduml
