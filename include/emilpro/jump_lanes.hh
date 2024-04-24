@@ -61,7 +61,7 @@ private:
 
         bool EndsAt(uint32_t offset) const
         {
-            return m_end >= offset;
+            return offset >= m_end;
         }
 
         unsigned LaneNumber() const

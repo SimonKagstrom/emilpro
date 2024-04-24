@@ -26,10 +26,9 @@ JumpLanes::Calculate(unsigned max_distance,
 
         if (refers_to && Distance(insn, *refers_to) <= max_distance)
         {
-            auto lane = Lane(insn.Offset(), refers_to->offset);
-            if (lane.IsForward())
+            if (insn.Offset() < refers_to->offset)
             {
-                m_forward_lanes.push_back(lane);
+                m_forward_lanes.push_back(Lane(insn.Offset(), refers_to->offset));
             }
         }
     }
@@ -55,7 +54,7 @@ JumpLanes::Calculate(unsigned max_distance,
             auto next = it + 1;
             if (next != m_forward_lanes.end())
             {
-//                it = next;
+                it = next;
             }
         }
     }
