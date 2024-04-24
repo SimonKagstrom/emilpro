@@ -18,21 +18,21 @@ public:
         REQUIRE(instruction_refs.size() == instructions.size());
 
         /*
-         *  0:         je   2 ->
-         *  1:         nop      |
-         *  2:         nop    <-
-         *  3:         nop
-         *  4:         je  10 ----->
-         *  5:         nop         |
-         *  6:         je   8 -->  |
-         *  7:         nop      |  |
-         *  8:         nop    <-   |
-         *  9:         nop         |
-         * 10:      -> nop   <------
-         * 11:    ->|  nop
-         * 12:   |  |  nop
-         * 13:   |   - je  10
-         * 14:   <-    je  11
+         *  0:             je   2 --.
+         *  1:             nop      |
+         *  2:             nop    <-
+         *  3:             nop
+         *  4:             je  10 -----.
+         *  5:             nop         |
+         *  6:             je   8 --.  |
+         *  7:             nop      |  |
+         *  8:      ->     nop    <-   |
+         *  9:      |      nop         |
+         * 10:      |      nop   <-----'
+         * 11:    ->|- ->  nop
+         * 12:   |  |  `-  je  11
+         * 13:   |  `-     je   8
+         * 14:   `-        je  11
          */
         for (auto i = 0u; i < instructions.size(); i++)
         {
@@ -48,8 +48,9 @@ public:
         CreateReference(0, 2);
         CreateReference(4, 10);
         CreateReference(6, 8);
+        CreateReference(12, 11);
         CreateReference(13, 10);
-        CreateReference(14, 11);
+        CreateReference(14, 8);
     }
 
     void CreateReference(size_t from_index, size_t to_index)
@@ -100,5 +101,5 @@ TEST_CASE_FIXTURE(Fixture, "a single lane is used for a solitary jump")
     // 0..2
     REQUIRE(l[0].forward_lanes[0] == T::kStart);
     REQUIRE(l[1].forward_lanes[0] == T::kTraffic);
-    REQUIRE(l[0].forward_lanes[0] == T::kEnd);
+    REQUIRE(l[2].forward_lanes[0] == T::kEnd);
 }

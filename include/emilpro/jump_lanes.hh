@@ -59,6 +59,36 @@ private:
         {
         }
 
+        bool EndsAt(uint32_t offset) const
+        {
+            return m_end >= offset;
+        }
+
+        unsigned LaneNumber() const
+        {
+            return m_lane;
+        }
+
+        void PushOut()
+        {
+            m_lane++;
+        }
+
+        bool IsForward() const
+        {
+            return m_start <= m_end;
+        }
+
+        bool Overlaps(const Lane& other) const
+        {
+            return m_start < other.m_start && m_end <= other.m_end;
+        }
+
+        bool Encloses(const Lane& other) const
+        {
+            return m_start < other.m_start && m_end >= other.m_end;
+        }
+
         Type Calculate(uint32_t offset)
         {
             if (offset == m_start)
@@ -77,18 +107,18 @@ private:
             return Type::kNone;
         }
 
-        auto Size() const
-        {
-            return std::abs(static_cast<int32_t>(m_end) - static_cast<int32_t>(m_start));
-        }
-
     private:
         const uint32_t m_start;
         const uint32_t m_end;
+        unsigned m_lane {0}; // The inner lane
     };
 
+    unsigned Distance(const IInstruction& insn, const IInstruction::Referer& referer) const;
+
     std::vector<Lanes> m_lanes;
-    std::vector<Lane> m_lane_states;
+    std::vector<Lane> m_forward_lanes;
+
+    std::vector<std::reference_wrapper<Lane>> m_lane_stack;
 };
 
 } // namespace emilpro

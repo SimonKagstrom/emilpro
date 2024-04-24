@@ -11,26 +11,53 @@ JumpLanes::Calculate(unsigned max_distance,
 
     m_lanes.clear();
 
+    /*
+     * Rules:
+     *
+     * - Max 3 lanes
+     * - Longer branches are pushed out (shorter on the closest lanes)
+     * - Crossing branches are pushed out
+     */
     for (auto& insn_ref : instructions)
     {
         auto& insn = insn_ref.get();
         auto refers_to = insn.RefersTo();
         auto referenced_by = insn.ReferredBy();
 
-        if (referenced_by.empty() == false && lanes.forward_lanes[0] == Type::kTraffic)
+        if (refers_to && Distance(insn, *refers_to) <= max_distance)
         {
-            lanes.forward_lanes[0] = Type::kEnd;
+            auto lane = Lane(insn.Offset(), refers_to->offset);
+            if (lane.IsForward())
+            {
+                m_forward_lanes.push_back(lane);
+            }
         }
-        if (lanes.forward_lanes[0] == Type::kStart)
-        {
-            lanes.forward_lanes[0] = Type::kTraffic;
-        }
-        if (refers_to && refers_to->offset > insn.Offset())
-        {
-            lanes.forward_lanes[0] = Type::kStart;
-        }
+    }
 
-        m_lanes.push_back(lanes);
+    if (m_forward_lanes.empty())
+    {
+        m_lanes.resize(instructions.size());
+        return;
+    }
+
+    auto it = m_forward_lanes.begin();
+    for (auto& insn_ref : instructions)
+    {
+        auto& insn = insn_ref.get();
+        auto offset = insn.Offset();
+        Lanes cur;
+
+        cur.forward_lanes[it->LaneNumber()] = it->Calculate(offset);
+        m_lanes.push_back(cur);
+
+        if (it->EndsAt(offset))
+        {
+            auto next = it + 1;
+            if (next != m_forward_lanes.end())
+            {
+//                it = next;
+            }
+        }
     }
 }
 
@@ -38,4 +65,10 @@ std::span<const JumpLanes::Lanes>
 JumpLanes::GetLanes() const
 {
     return m_lanes;
+}
+
+unsigned
+JumpLanes::Distance(const IInstruction& insn, const IInstruction::Referer& referer) const
+{
+    return std::abs(static_cast<int32_t>(insn.Offset()) - static_cast<int32_t>(referer.offset));
 }
