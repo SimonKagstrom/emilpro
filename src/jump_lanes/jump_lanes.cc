@@ -20,9 +20,8 @@ JumpLanes::Calculate(unsigned max_distance,
      */
     for (auto& insn_ref : instructions)
     {
-        auto& insn = insn_ref.get();
+        const auto& insn = insn_ref.get();
         auto refers_to = insn.RefersTo();
-        auto referenced_by = insn.ReferredBy();
 
         if (refers_to && Distance(insn, *refers_to) <= max_distance)
         {
@@ -42,7 +41,7 @@ JumpLanes::Calculate(unsigned max_distance,
     auto it = m_forward_lanes.begin();
     for (auto& insn_ref : instructions)
     {
-        auto& insn = insn_ref.get();
+        const auto& insn = insn_ref.get();
         auto offset = insn.Offset();
         Lanes cur;
 
