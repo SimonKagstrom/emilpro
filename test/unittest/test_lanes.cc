@@ -103,3 +103,23 @@ TEST_CASE_FIXTURE(Fixture, "a single lane is used for a solitary jump")
     REQUIRE(l[1].forward_lanes[0] == T::kTraffic);
     REQUIRE(l[2].forward_lanes[0] == T::kEnd);
 }
+
+TEST_CASE_FIXTURE(Fixture, "dual lanes are used for enclosing jumps")
+{
+    lanes.Calculate(16, instruction_refs);
+
+    auto l = lanes.GetLanes();
+
+    // 4..10
+    REQUIRE(l[4].forward_lanes[1] == T::kStart);
+    for (auto i = 5u; i < 10; i++)
+    {
+        REQUIRE(l[i].forward_lanes[1] == T::kTraffic);
+    }
+    REQUIRE(l[10].forward_lanes[1] == T::kEnd);
+
+    // 6..8, enclosed
+    REQUIRE(l[6].forward_lanes[0] == T::kStart);
+    REQUIRE(l[7].forward_lanes[0] == T::kTraffic);
+    REQUIRE(l[8].forward_lanes[0] == T::kEnd);
+}

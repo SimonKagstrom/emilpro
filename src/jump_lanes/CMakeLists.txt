@@ -7,6 +7,7 @@ PUBLIC
     emilpro_interface
 PRIVATE
     fmt::fmt
+    etl::etl
 )
 
 target_include_directories(jump_lanes

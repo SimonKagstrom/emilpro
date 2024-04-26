@@ -59,6 +59,11 @@ private:
         {
         }
 
+        bool Covers(uint32_t offset) const
+        {
+            return offset >= m_start && offset <= m_end;
+        }
+
         bool EndsAt(uint32_t offset) const
         {
             return offset >= m_end;
@@ -89,7 +94,7 @@ private:
             return m_start < other.m_start && m_end >= other.m_end;
         }
 
-        Type Calculate(uint32_t offset)
+        Type Calculate(uint32_t offset) const
         {
             if (offset == m_start)
             {

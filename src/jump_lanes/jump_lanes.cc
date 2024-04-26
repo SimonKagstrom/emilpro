@@ -1,5 +1,7 @@
 #include "emilpro/jump_lanes.hh"
 
+#include <etl/vector.h>
+
 using namespace emilpro;
 
 
@@ -7,15 +9,13 @@ void
 JumpLanes::Calculate(unsigned max_distance,
                      std::span<const std::reference_wrapper<IInstruction>> instructions)
 {
-    Lanes lanes;
-
     m_lanes.clear();
 
     /*
      * Rules:
      *
      * - Max 3 lanes
-     * - Longer branches are pushed out (shorter on the closest lanes)
+     * - Longer enclsoing branches are pushed out (shorter on the closest lanes)
      * - Crossing branches are pushed out
      */
     for (auto& insn_ref : instructions)
@@ -27,7 +27,23 @@ JumpLanes::Calculate(unsigned max_distance,
         {
             if (insn.Offset() < refers_to->offset)
             {
-                m_forward_lanes.push_back(Lane(insn.Offset(), refers_to->offset));
+                m_forward_lanes.emplace_back(insn.Offset(), refers_to->offset);
+                auto lane = m_forward_lanes.back();
+                auto last = m_forward_lanes.size() > 1
+                                ? &m_forward_lanes[m_forward_lanes.size() - 2]
+                                : nullptr;
+
+                if (last)
+                {
+                    if (lane.Encloses(*last))
+                    {
+                        lane.PushOut();
+                    }
+                    else if (last->Encloses(lane))
+                    {
+                        last->PushOut();
+                    }
+                }
             }
         }
     }
@@ -38,24 +54,39 @@ JumpLanes::Calculate(unsigned max_distance,
         return;
     }
 
+    etl::vector<const Lane*, JumpLanes::kNumberOfLanes> current_lanes;
     auto it = m_forward_lanes.begin();
     for (auto& insn_ref : instructions)
     {
+        etl::vector<const Lane*, JumpLanes::kNumberOfLanes> to_erase;
         const auto& insn = insn_ref.get();
         auto offset = insn.Offset();
         Lanes cur;
 
-        cur.forward_lanes[it->LaneNumber()] = it->Calculate(offset);
-        m_lanes.push_back(cur);
-
-        if (it->EndsAt(offset))
+        if (it != m_forward_lanes.end() && it->Covers(offset))
         {
-            auto next = it + 1;
-            if (next != m_forward_lanes.end())
+            current_lanes.push_back(&(*it));
+            ++it;
+        }
+
+        for (auto lane : current_lanes)
+        {
+            if (!lane->Covers(offset))
             {
-                it = next;
+                to_erase.push_back(lane);
+            }
+            else
+            {
+                cur.forward_lanes[lane->LaneNumber()] = lane->Calculate(offset);
             }
         }
+        for (auto lane : to_erase)
+        {
+            current_lanes.erase(std::remove(current_lanes.begin(), current_lanes.end(), lane),
+                                current_lanes.end());
+        }
+
+        m_lanes.push_back(cur);
     }
 }
 
