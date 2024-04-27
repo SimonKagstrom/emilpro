@@ -5,9 +5,9 @@ add_library(jump_lanes EXCLUDE_FROM_ALL
 target_link_libraries(jump_lanes
 PUBLIC
     emilpro_interface
+    etl::etl
 PRIVATE
     fmt::fmt
-    etl::etl
 )
 
 target_include_directories(jump_lanes

@@ -2,8 +2,10 @@
 
 #include "i_instruction.hh"
 
+#include <cassert>
 #include <cmath>
 #include <cstdlib>
+#include <etl/vector.h>
 #include <span>
 #include <vector>
 
@@ -29,15 +31,23 @@ public:
         kStart,
         kTraffic,
         kEnd,
-        kStartEnd, // Jump here + start from here
+        kStartEnd,  // Jump here + start from here
+        kLongStart, // Start without lanes
+        kLongEnd,
     };
 
     struct Lanes
     {
         Lanes()
         {
-            std::fill(backward_lanes.begin(), backward_lanes.end(), Type::kNone);
-            std::fill(forward_lanes.begin(), forward_lanes.end(), Type::kNone);
+            std::ranges::fill(backward_lanes, Type::kNone);
+            std::ranges::fill(forward_lanes, Type::kNone);
+        }
+
+        Lanes(auto backward, auto forward)
+            : backward_lanes(backward)
+            , forward_lanes(forward)
+        {
         }
 
         std::array<Type, kNumberOfLanes> backward_lanes;
@@ -53,20 +63,23 @@ private:
     class Lane
     {
     public:
-        Lane(uint32_t start, uint32_t end)
-            : m_start(start)
-            , m_end(end)
+        Lane(uint32_t start, uint32_t end, uint32_t max_distance)
+            : m_forward(start <= end)
+            , m_first(m_forward ? start : end)
+            , m_last(m_forward ? end : start)
+            , m_max_distance(max_distance)
         {
+            assert(m_last >= m_first);
         }
 
         bool Covers(uint32_t offset) const
         {
-            return offset >= m_start && offset <= m_end;
+            return offset >= m_first && offset <= m_last;
         }
 
         bool EndsAt(uint32_t offset) const
         {
-            return offset >= m_end;
+            return offset >= m_last;
         }
 
         unsigned LaneNumber() const
@@ -81,30 +94,41 @@ private:
 
         bool IsForward() const
         {
-            return m_start <= m_end;
+            return m_forward;
         }
 
         bool Overlaps(const Lane& other) const
         {
-            return m_start < other.m_start && m_end <= other.m_end;
+            return m_first < other.m_first && m_last <= other.m_last;
         }
 
         bool Encloses(const Lane& other) const
         {
-            return m_start < other.m_start && m_end >= other.m_end;
+            return m_first < other.m_first && m_last >= other.m_last;
         }
 
         Type Calculate(uint32_t offset) const
         {
-            if (offset == m_start)
+            auto is_long = Distance() > m_max_distance;
+
+            if (offset == m_first)
             {
-                return Type::kStart;
+                if (IsForward())
+                {
+                    return is_long ? Type::kLongStart : Type::kStart;
+                }
+                return is_long ? Type::kLongEnd : Type::kEnd;
             }
-            else if (offset == m_end)
+            else if (offset == m_last)
             {
-                return Type::kEnd;
+                if (IsForward())
+                {
+                    return is_long ? Type::kLongEnd : Type::kEnd;
+                }
+
+                return is_long ? Type::kLongStart : Type::kStart;
             }
-            else if (offset > m_start && offset < m_end)
+            else if (offset > m_first && offset < m_last && !is_long)
             {
                 return Type::kTraffic;
             }
@@ -113,17 +137,30 @@ private:
         }
 
     private:
-        const uint32_t m_start;
-        const uint32_t m_end;
+        uint32_t Distance() const
+        {
+            return m_last - m_first;
+        }
+
+        const bool m_forward;
+        const uint32_t m_first;
+        const uint32_t m_last;
+        const uint32_t m_max_distance;
+
         unsigned m_lane {0}; // The inner lane
     };
 
     unsigned Distance(const IInstruction& insn, const IInstruction::Referer& referer) const;
 
-    std::vector<Lanes> m_lanes;
-    std::vector<Lane> m_forward_lanes;
+    void PushPredecessors(std::vector<Lane>& lanes) const;
 
-    std::vector<std::reference_wrapper<Lane>> m_lane_stack;
+    std::array<Type, kNumberOfLanes>
+    Process(const IInstruction& insn,
+            std::vector<Lane>& lanes,
+            std::vector<Lane>::iterator& it,
+            etl::vector<const Lane*, JumpLanes::kNumberOfLanes>& current_lanes) const;
+
+    std::vector<Lanes> m_lanes;
 };
 
 } // namespace emilpro

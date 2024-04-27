@@ -11,6 +11,7 @@ PUBLIC
     Qt6::Widgets
     fmt::fmt
     database
+    jump_lanes
 )
 
 add_executable(emilpro
@@ -21,5 +22,4 @@ target_link_libraries(emilpro
     mainwindow
     binary_parser_factory
     capstone_disassembler
-    jump_lanes
 )
