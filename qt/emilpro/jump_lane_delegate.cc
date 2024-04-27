@@ -6,13 +6,14 @@ using namespace emilpro;
 
 constexpr auto kNumberOfLanes = JumpLanes::kNumberOfLanes;
 
-JumpDisplayDelegate::JumpDisplayDelegate(bool isForward, QObject* parent)
-    : m_lane_width(80 / kNumberOfLanes)
+JumpLaneDelegate::JumpLaneDelegate(Direction direction, QObject* parent)
+    : m_direction(direction)
+    , m_lane_width(80 / kNumberOfLanes)
 {
 }
 
 void
-JumpDisplayDelegate::Update(
+JumpLaneDelegate::Update(
     unsigned max_distance,
     std::span<const std::reference_wrapper<emilpro::IInstruction>> instructions)
 {
@@ -20,7 +21,7 @@ JumpDisplayDelegate::Update(
 }
 
 QSize
-JumpDisplayDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
+JumpLaneDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
     QRect r = option.rect;
 
@@ -28,9 +29,9 @@ JumpDisplayDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIn
 }
 
 void
-JumpDisplayDelegate::paint(QPainter* painter,
-                           const QStyleOptionViewItem& option,
-                           const QModelIndex& index) const
+JumpLaneDelegate::paint(QPainter* painter,
+                        const QStyleOptionViewItem& option,
+                        const QModelIndex& index) const
 {
     const auto color = std::array {
         QColor {Qt::green},
@@ -46,7 +47,8 @@ JumpDisplayDelegate::paint(QPainter* painter,
 
     for (unsigned lane = 0; lane < kNumberOfLanes; lane++)
     {
-        const auto cur = lanes.forward_lanes[lane];
+        const auto& cur = m_direction == Direction::kForward ? lanes.forward_lanes[lane]
+                                                             : lanes.backward_lanes[lane];
         auto x = r.x() + m_lane_width * lane;
         auto w = r.width() / kNumberOfLanes;
 
@@ -63,13 +65,13 @@ JumpDisplayDelegate::paint(QPainter* painter,
             DrawLine(painter, x, w, &r);
             break;
         case Type::kEnd:
-            DrawLineEnd(painter, Direction::kForward, x, w, &r);
+            DrawLineEnd(painter, m_direction, x, w, &r);
             break;
             //        case JumpTargetDisplay::LANE_END_UP:
             //            DrawLineEnd(painter, true, x, w, &r);
             //            break;
         case Type::kStart:
-            DrawLineStart(painter, Direction::kForward, x, w, &r);
+            DrawLineStart(painter, m_direction, x, w, &r);
             break;
             //        case JumpTargetDisplay::LANE_START_UP:
             //            DrawLineStart(painter, true, x, w, &r);
@@ -77,7 +79,7 @@ JumpDisplayDelegate::paint(QPainter* painter,
             //        case JumpTargetDisplay::LANE_START_LONG_DOWN:
             //            pen.setStyle(Qt::DotLine);
             //            painter->setPen(pen);
-            //            DrawLineStart(painter, Direction::kForward, x, w, &r);
+            //            DrawLineStart(painter, m_direction, x, w, &r);
             //            break;
             //        case JumpTargetDisplay::LANE_START_LONG_UP:
             //            pen.setStyle(Qt::DotLine);
@@ -87,7 +89,7 @@ JumpDisplayDelegate::paint(QPainter* painter,
             //        case JumpTargetDisplay::LANE_END_LONG_DOWN:
             //            pen.setStyle(Qt::DotLine);
             //            painter->setPen(pen);
-            //            DrawLineEnd(painter, Direction::kForward, x, w, &r);
+            //            DrawLineEnd(painter, m_direction, x, w, &r);
             //            break;
             //        case JumpTargetDisplay::LANE_END_LONG_UP:
             //            pen.setStyle(Qt::DotLine);
@@ -101,13 +103,13 @@ JumpDisplayDelegate::paint(QPainter* painter,
 }
 
 void
-JumpDisplayDelegate::DrawLine(QPainter* painter, int x, int w, QRect* rect) const
+JumpLaneDelegate::DrawLine(QPainter* painter, int x, int w, QRect* rect) const
 {
     painter->drawLine(x + w / 2, rect->y(), x + w / 2, rect->y() + rect->height());
 }
 
 void
-JumpDisplayDelegate::DrawLineStart(
+JumpLaneDelegate::DrawLineStart(
     QPainter* painter, Direction direction, int x, int w, QRect* rect) const
 {
     const auto startY = rect->y() + rect->height() / 2;
@@ -119,7 +121,7 @@ JumpDisplayDelegate::DrawLineStart(
 }
 
 void
-JumpDisplayDelegate::DrawLineEnd(
+JumpLaneDelegate::DrawLineEnd(
     QPainter* painter, Direction direction, int x, int w, QRect* rect) const
 {
     const auto endY = rect->y() + rect->height() / 2;

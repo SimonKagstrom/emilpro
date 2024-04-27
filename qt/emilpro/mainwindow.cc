@@ -14,7 +14,8 @@
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , m_ui(new Ui::MainWindow)
-    , m_forward_item_delegate(true)
+    , m_forward_item_delegate(JumpLaneDelegate::Direction::kForward)
+    , m_backward_item_delegate(JumpLaneDelegate::Direction::kBackward)
 {
 }
 
@@ -225,11 +226,6 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
 
     auto& insn = m_visible_instructions[row].get();
 
-    for (auto& r : insn.ReferredBy())
-    {
-        fmt::print("REF {:x} by {:x}\n", r.offset, insn.Offset());
-    }
-
     auto refers_to = insn.RefersTo();
     if (refers_to)
     {
@@ -366,7 +362,7 @@ MainWindow::SetupInstructionView()
     m_instruction_view_model->setHorizontalHeaderItem(3, new QStandardItem(QString("F")));
     m_instruction_view_model->setHorizontalHeaderItem(4, new QStandardItem(QString("Target")));
 
-    //    m_ui->instructionTableView->setItemDelegateForColumn(1, &m_backward_item_delegate);
+    m_ui->instructionTableView->setItemDelegateForColumn(1, &m_backward_item_delegate);
     m_ui->instructionTableView->setItemDelegateForColumn(3, &m_forward_item_delegate);
 
     m_ui->instructionTableView->setModel(m_instruction_view_model);
@@ -429,6 +425,7 @@ MainWindow::UpdateInstructionView(uint64_t offset)
     auto row = 0;
 
     m_forward_item_delegate.Update(64, m_visible_instructions);
+    m_backward_item_delegate.Update(64, m_visible_instructions);
     for (auto& ref : m_visible_instructions)
     {
         auto& ri = ref.get();

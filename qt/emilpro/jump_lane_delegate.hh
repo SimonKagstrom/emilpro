@@ -4,23 +4,23 @@
 
 #include <qitemdelegate.h>
 
-class JumpDisplayDelegate : public QItemDelegate
+class JumpLaneDelegate : public QItemDelegate
 {
     Q_OBJECT
 
 public:
-    JumpDisplayDelegate(bool isForward, QObject* parent = 0);
-
-    void Update(unsigned max_distance,
-                std::span<const std::reference_wrapper<emilpro::IInstruction>> instructions);
-
-private:
     enum class Direction
     {
         kForward,
         kBackward,
     };
 
+    JumpLaneDelegate(Direction direction, QObject* parent = 0);
+
+    void Update(unsigned max_distance,
+                std::span<const std::reference_wrapper<emilpro::IInstruction>> instructions);
+
+private:
     void paint(QPainter* painter,
                const QStyleOptionViewItem& option,
                const QModelIndex& index) const final;
@@ -33,7 +33,7 @@ private:
 
     void DrawLineEnd(QPainter* painter, Direction direction, int x, int w, QRect* rect) const;
 
-
+    const Direction m_direction;
     const unsigned int m_lane_width;
     emilpro::JumpLanes m_jump_lanes;
 };

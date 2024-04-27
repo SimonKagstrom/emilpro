@@ -106,7 +106,8 @@ private:
     QStandardItemModel* m_references_view_model {nullptr};
     QStandardItemModel* m_addressHistory_view_model {nullptr};
 
-    JumpDisplayDelegate m_forward_item_delegate;
+    JumpLaneDelegate m_forward_item_delegate;
+    JumpLaneDelegate m_backward_item_delegate;
 
     Highlighter* m_highlighter {nullptr};
     std::unordered_map<std::string, QString> m_source_file_map;

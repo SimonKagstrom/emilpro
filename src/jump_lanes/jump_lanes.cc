@@ -116,7 +116,10 @@ JumpLanes::Process(const IInstruction& insn,
 
     if (it != lanes.end() && it->Covers(offset))
     {
-        current_lanes.push_back(std::to_address(it));
+        if (!current_lanes.full())
+        {
+            current_lanes.push_back(std::to_address(it));
+        }
         ++it;
     }
 
