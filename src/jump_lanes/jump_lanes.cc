@@ -17,8 +17,8 @@ JumpLanes::Calculate(unsigned max_distance,
 {
     m_lanes.clear();
     std::vector<std::reference_wrapper<IInstruction>> refering_instructions;
-    std::vector<Lane> forward_lanes;
-    std::vector<Lane> backward_lanes;
+
+    std::vector<Lane> long_jumps;
 
     /*
      * Rules:
@@ -30,12 +30,23 @@ JumpLanes::Calculate(unsigned max_distance,
     for (auto& insn_ref : instructions)
     {
         const auto& insn = insn_ref.get();
+        auto refers_to = insn.RefersTo();
 
-        if (insn.RefersTo())
+        if (refers_to)
         {
-            refering_instructions.push_back(insn_ref);
+            if (Distance(insn, *refers_to) > max_distance)
+            {
+                long_jumps.emplace_back(insn.Offset(), refers_to->offset, max_distance);
+            }
+            else
+            {
+                refering_instructions.push_back(insn_ref);
+            }
         }
     }
+
+    std::vector<Lane> forward_lanes;
+    std::vector<Lane> backward_lanes;
 
     for (const auto& insn_ref : refering_instructions)
     {
@@ -63,7 +74,7 @@ JumpLanes::Calculate(unsigned max_distance,
         }
     }
 
-    if (forward_lanes.empty() && backward_lanes.empty())
+    if (forward_lanes.empty() && backward_lanes.empty() && long_jumps.empty())
     {
         m_lanes.resize(instructions.size());
         return;
@@ -79,6 +90,20 @@ JumpLanes::Calculate(unsigned max_distance,
         auto rev = Process(insn_ref.get(), backward_lanes, it_backward, current_lanes_backward);
 
         m_lanes.emplace_back(rev, fwd);
+    }
+
+    for (auto& lane : long_jumps)
+    {
+        if (lane.IsForward())
+        {
+            m_lanes[lane.StartsAt()].forward_lanes[0] = JumpLanes::Type::kLongStart;
+            m_lanes[lane.EndsAt()].forward_lanes[0] = JumpLanes::Type::kLongEnd;
+        }
+        else
+        {
+            m_lanes[lane.StartsAt()].backward_lanes[0] = JumpLanes::Type::kLongStart;
+            m_lanes[lane.EndsAt()].backward_lanes[0] = JumpLanes::Type::kLongEnd;
+        }
     }
 }
 

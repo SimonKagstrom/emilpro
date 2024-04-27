@@ -77,9 +77,14 @@ private:
             return offset >= m_first && offset <= m_last;
         }
 
-        bool EndsAt(uint32_t offset) const
+        uint32_t StartsAt() const
         {
-            return offset >= m_last;
+            return m_first;
+        }
+
+        uint32_t EndsAt() const
+        {
+            return m_last;
         }
 
         unsigned LaneNumber() const

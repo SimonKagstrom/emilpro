@@ -26,8 +26,8 @@ public:
          *  5:             nop         |
          *  6:             je   8 --.  |
          *  7: ,-------->  nop      |  |
-         *  8: |    ->     nop    <-   |
-         *  9: |    |      nop         |
+         *  8: |    ->     nop      |  |
+         *  9: |    |      nop    <-'  |
          * 10: |    |      nop   <-----'
          * 11: |  ->|- ->  nop
          * 12: | |  |  `-  je  11
@@ -48,7 +48,7 @@ public:
 
         CreateReference(0, 2);
         CreateReference(4, 10);
-        CreateReference(6, 8);
+        CreateReference(6, 9);
         // Backward
         CreateReference(12, 11);
         CreateReference(13, 10);
@@ -68,6 +68,21 @@ public:
                                       IInstruction::Referer {nullptr, from_index, nullptr}}));
         expecations.push_back(
             NAMED_ALLOW_CALL(from, Type()).RETURN(IInstruction::InstructionType::kBranch));
+    }
+
+    void PrintLanes(auto l)
+    {
+        int i = 0;
+        for (auto insn : l)
+        {
+            printf("Instruction %2d:", i);
+            i++;
+            for (auto lane : insn.forward_lanes)
+            {
+                printf(" %d", (int)lane);
+            }
+            printf("\n");
+        }
     }
 
     std::array<mock::MockInstruction, 16> instructions;
@@ -126,12 +141,11 @@ TEST_CASE_FIXTURE(Fixture, "a short maximum size is handled")
     THEN("long jumps use only start/end")
     {
         // 4..10, long jump
-        REQUIRE(l[4].forward_lanes[1] == T::kLongStart);
-        for (auto i = 5u; i < 10; i++)
-        {
-            REQUIRE(l[i].forward_lanes[1] == T::kNone);
-        }
-        REQUIRE(l[10].forward_lanes[1] == T::kLongEnd);
+        REQUIRE(l[4].forward_lanes[0] == T::kLongStart);
+        REQUIRE(l[5].forward_lanes[1] == T::kNone);
+        REQUIRE(l[5].forward_lanes[2] == T::kNone);
+        REQUIRE(l[5].forward_lanes[3] == T::kNone);
+        REQUIRE(l[10].forward_lanes[0] == T::kLongEnd);
     }
 }
 
@@ -152,7 +166,7 @@ TEST_CASE_FIXTURE(Fixture, "dual lanes are used for enclosing jumps")
     // 6..8, enclosed
     REQUIRE(l[6].forward_lanes[0] == T::kStart);
     REQUIRE(l[7].forward_lanes[0] == T::kTraffic);
-    REQUIRE(l[8].forward_lanes[0] == T::kEnd);
+    REQUIRE(l[9].forward_lanes[0] == T::kEnd);
 }
 
 TEST_CASE_FIXTURE(Fixture, "backward lanes are also handled")
