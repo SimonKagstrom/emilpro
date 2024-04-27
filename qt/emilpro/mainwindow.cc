@@ -14,6 +14,7 @@
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , m_ui(new Ui::MainWindow)
+    , m_forward_item_delegate(true)
 {
 }
 
@@ -224,7 +225,7 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
 
     auto& insn = m_visible_instructions[row].get();
 
-    for (auto &r : insn.ReferredBy())
+    for (auto& r : insn.ReferredBy())
     {
         fmt::print("REF {:x} by {:x}\n", r.offset, insn.Offset());
     }
@@ -365,8 +366,8 @@ MainWindow::SetupInstructionView()
     m_instruction_view_model->setHorizontalHeaderItem(3, new QStandardItem(QString("F")));
     m_instruction_view_model->setHorizontalHeaderItem(4, new QStandardItem(QString("Target")));
 
-    //    m_ui->instructionTableView->setItemDelegateForColumn(1, &m_backwardItemDelegate);
-    //    m_ui->instructionTableView->setItemDelegateForColumn(3, &m_forwardItemDelegate);
+    //    m_ui->instructionTableView->setItemDelegateForColumn(1, &m_backward_item_delegate);
+    m_ui->instructionTableView->setItemDelegateForColumn(3, &m_forward_item_delegate);
 
     m_ui->instructionTableView->setModel(m_instruction_view_model);
     m_ui->instructionTableView->horizontalHeader()->setStretchLastSection(true);
@@ -427,6 +428,7 @@ MainWindow::UpdateInstructionView(uint64_t offset)
     m_instruction_view_model->removeRows(0, m_instruction_view_model->rowCount());
     auto row = 0;
 
+    m_forward_item_delegate.Update(64, m_visible_instructions);
     for (auto& ref : m_visible_instructions)
     {
         auto& ri = ref.get();

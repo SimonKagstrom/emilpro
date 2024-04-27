@@ -4,6 +4,7 @@
 #include "emilpro/i_binary_parser.hh"
 #include "emilpro/i_instruction.hh"
 #include "highlighter.hh"
+#include "jump_lane_delegate.hh"
 
 #include <QMainWindow>
 #include <qstandarditemmodel.h>
@@ -104,6 +105,8 @@ private:
     QStandardItemModel* m_instruction_view_model {nullptr};
     QStandardItemModel* m_references_view_model {nullptr};
     QStandardItemModel* m_addressHistory_view_model {nullptr};
+
+    JumpDisplayDelegate m_forward_item_delegate;
 
     Highlighter* m_highlighter {nullptr};
     std::unordered_map<std::string, QString> m_source_file_map;
