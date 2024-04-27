@@ -25,14 +25,15 @@ public:
          *  4:             je  10 -----.
          *  5:             nop         |
          *  6:             je   8 --.  |
-         *  7:             nop      |  |
-         *  8:      ->     nop    <-   |
-         *  9:      |      nop         |
-         * 10:      |      nop   <-----'
-         * 11:    ->|- ->  nop
-         * 12:   |  |  `-  je  11
-         * 13:   |  `-     je   8
-         * 14:   `-        je  11
+         *  7: ,-------->  nop      |  |
+         *  8: |    ->     nop    <-   |
+         *  9: |    |      nop         |
+         * 10: |    |      nop   <-----'
+         * 11: |  ->|- ->  nop
+         * 12: | |  |  `-  je  11
+         * 13: | |  `-     je   8
+         * 14: | `-        je  11
+         * 15: `---------- je  7
          */
         for (auto i = 0u; i < instructions.size(); i++)
         {
@@ -48,9 +49,11 @@ public:
         CreateReference(0, 2);
         CreateReference(4, 10);
         CreateReference(6, 8);
+        // Backward
         CreateReference(12, 11);
         CreateReference(13, 10);
         CreateReference(14, 8);
+        CreateReference(15, 7);
     }
 
     void CreateReference(size_t from_index, size_t to_index)
@@ -67,7 +70,7 @@ public:
             NAMED_ALLOW_CALL(from, Type()).RETURN(IInstruction::InstructionType::kBranch));
     }
 
-    std::array<mock::MockInstruction, 15> instructions;
+    std::array<mock::MockInstruction, 16> instructions;
     std::vector<std::reference_wrapper<IInstruction>> instruction_refs {instructions.begin(),
                                                                         instructions.end()};
     JumpLanes lanes;
@@ -88,8 +91,8 @@ TEST_CASE_FIXTURE(Fixture, "there are no lanes for instructions where no jumps p
 
     auto l = lanes.GetLanes();
     REQUIRE(l.size() == instructions.size());
-    REQUIRE(std::ranges::equal(l[3].backward_lanes, std::array {T::kNone, T::kNone, T::kNone}));
-    REQUIRE(std::ranges::equal(l[3].forward_lanes, std::array {T::kNone, T::kNone, T::kNone}));
+    REQUIRE(std::ranges::equal(l[3].backward_lanes, std::array {T::kNone, T::kNone, T::kNone, T::kNone}));
+    REQUIRE(std::ranges::equal(l[3].forward_lanes, std::array {T::kNone, T::kNone, T::kNone, T::kNone}));
 }
 
 TEST_CASE_FIXTURE(Fixture, "a single lane is used for a solitary jump")

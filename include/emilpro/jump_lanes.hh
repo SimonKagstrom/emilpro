@@ -13,7 +13,7 @@ namespace emilpro
 class JumpLanes
 {
 public:
-    constexpr static auto kNumberOfLanes = 3;
+    constexpr static auto kNumberOfLanes = 4;
 
     enum class LaneState
     {
