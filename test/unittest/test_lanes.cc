@@ -91,8 +91,10 @@ TEST_CASE_FIXTURE(Fixture, "there are no lanes for instructions where no jumps p
 
     auto l = lanes.GetLanes();
     REQUIRE(l.size() == instructions.size());
-    REQUIRE(std::ranges::equal(l[3].backward_lanes, std::array {T::kNone, T::kNone, T::kNone, T::kNone}));
-    REQUIRE(std::ranges::equal(l[3].forward_lanes, std::array {T::kNone, T::kNone, T::kNone, T::kNone}));
+    REQUIRE(std::ranges::equal(l[3].backward_lanes,
+                               std::array {T::kNone, T::kNone, T::kNone, T::kNone}));
+    REQUIRE(std::ranges::equal(l[3].forward_lanes,
+                               std::array {T::kNone, T::kNone, T::kNone, T::kNone}));
 }
 
 TEST_CASE_FIXTURE(Fixture, "a single lane is used for a solitary jump")
