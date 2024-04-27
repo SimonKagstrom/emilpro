@@ -441,7 +441,7 @@ MainWindow::UpdateInstructionView(uint64_t offset)
             new QStandardItem(fmt::format("{:08x}", section.StartAddress() + ri.Offset()).c_str()));
         lst.append(new QStandardItem(ri.ReferredBy().empty() ? "" : "->"));
         lst.append(new QStandardItem(std::string(ri.AsString()).c_str()));
-        lst.append(new QStandardItem(refers_to == std::nullopt ? "" : "->"));
+        lst.append(new QStandardItem());
         if (refers_to && refers_to->symbol)
         {
             lst.append(
