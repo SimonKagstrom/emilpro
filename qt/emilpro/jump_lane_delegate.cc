@@ -47,8 +47,11 @@ JumpLaneDelegate::paint(QPainter* painter,
 
     for (unsigned lane = 0; lane < kNumberOfLanes; lane++)
     {
-        const auto& cur = m_direction == Direction::kForward ? lanes.forward_lanes[lane]
-                                                             : lanes.backward_lanes[lane];
+        static_assert(kNumberOfLanes > 0);
+        const auto& cur = m_direction == Direction::kForward
+                              ? lanes.forward_lanes[lane]
+                              // Reverse order for backward
+                              : lanes.backward_lanes[kNumberOfLanes - lane - 1];
         auto x = r.x() + m_lane_width * lane;
         auto w = r.width() / kNumberOfLanes;
 
@@ -67,35 +70,19 @@ JumpLaneDelegate::paint(QPainter* painter,
         case Type::kEnd:
             DrawLineEnd(painter, m_direction, x, w, &r);
             break;
-            //        case JumpTargetDisplay::LANE_END_UP:
-            //            DrawLineEnd(painter, true, x, w, &r);
-            //            break;
         case Type::kStart:
             DrawLineStart(painter, m_direction, x, w, &r);
             break;
-            //        case JumpTargetDisplay::LANE_START_UP:
-            //            DrawLineStart(painter, true, x, w, &r);
-            //            break;
-            //        case JumpTargetDisplay::LANE_START_LONG_DOWN:
-            //            pen.setStyle(Qt::DotLine);
-            //            painter->setPen(pen);
-            //            DrawLineStart(painter, m_direction, x, w, &r);
-            //            break;
-            //        case JumpTargetDisplay::LANE_START_LONG_UP:
-            //            pen.setStyle(Qt::DotLine);
-            //            painter->setPen(pen);
-            //            DrawLineStart(painter, true, x, w, &r);
-            //            break;
-            //        case JumpTargetDisplay::LANE_END_LONG_DOWN:
-            //            pen.setStyle(Qt::DotLine);
-            //            painter->setPen(pen);
-            //            DrawLineEnd(painter, m_direction, x, w, &r);
-            //            break;
-            //        case JumpTargetDisplay::LANE_END_LONG_UP:
-            //            pen.setStyle(Qt::DotLine);
-            //            painter->setPen(pen);
-            //            DrawLineEnd(painter, true, x, w, &r);
-            //            break;
+        case Type::kLongStart:
+            pen.setStyle(Qt::DotLine);
+            painter->setPen(pen);
+            DrawLineStart(painter, m_direction, x, w, &r);
+            break;
+        case Type::kLongEnd:
+            pen.setStyle(Qt::DotLine);
+            painter->setPen(pen);
+            DrawLineEnd(painter, m_direction, x, w, &r);
+            break;
         default:
             break;
         }
