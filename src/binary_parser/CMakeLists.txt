@@ -6,8 +6,8 @@ target_link_libraries(bfd_binary_parser
 PUBLIC
     emilpro_interface
     p::bfd
+    libiberty::libiberty
     fmt::fmt
-PUBLIC
     symbol
     section
 )
