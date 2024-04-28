@@ -5,11 +5,6 @@
 
 using namespace emilpro;
 
-namespace
-{
-
-}
-
 
 void
 JumpLanes::Calculate(unsigned max_distance,
@@ -32,7 +27,7 @@ JumpLanes::Calculate(unsigned max_distance,
         const auto& insn = insn_ref.get();
         auto refers_to = insn.RefersTo();
 
-        if (refers_to)
+        if (refers_to != std::nullopt && insn.Type() == IInstruction::InstructionType::kBranch)
         {
             if (Distance(insn, *refers_to) > max_distance)
             {
@@ -94,15 +89,25 @@ JumpLanes::Calculate(unsigned max_distance,
 
     for (auto& lane : long_jumps)
     {
+        if (lane.StartsAt() >= m_lanes.size())
+        {
+            continue;
+        }
         if (lane.IsForward())
         {
             m_lanes[lane.StartsAt()].forward_lanes[0] = JumpLanes::Type::kLongStart;
-            m_lanes[lane.EndsAt()].forward_lanes[0] = JumpLanes::Type::kLongEnd;
+            if (lane.EndsAt() < m_lanes.size())
+            {
+                m_lanes[lane.EndsAt()].forward_lanes[0] = JumpLanes::Type::kLongEnd;
+            }
         }
         else
         {
             m_lanes[lane.StartsAt()].backward_lanes[0] = JumpLanes::Type::kLongStart;
-            m_lanes[lane.EndsAt()].backward_lanes[0] = JumpLanes::Type::kLongEnd;
+            if (lane.EndsAt() < m_lanes.size())
+            {
+                m_lanes[lane.EndsAt()].backward_lanes[0] = JumpLanes::Type::kLongEnd;
+            }
         }
     }
 }

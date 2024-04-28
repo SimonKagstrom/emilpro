@@ -122,7 +122,7 @@ private:
 
     InstructionType Type() const final
     {
-        return InstructionType::kOther;
+        return m_type;
     }
 
     uint32_t Size() const final
