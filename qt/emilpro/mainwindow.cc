@@ -152,7 +152,7 @@ MainWindow::on_action_Refresh_triggered(bool activated)
 void
 MainWindow::on_action_Toggle_data_instructions_triggered(bool activated)
 {
-    m_ui->tabWidget->setCurrentIndex(!m_ui->tabWidget->currentIndex());
+    //m_ui->tabWidget->setCurrentIndex(!m_ui->tabWidget->currentIndex());
 }
 
 void
