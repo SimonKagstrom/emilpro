@@ -80,15 +80,15 @@ MainWindow::Init(int argc, char* argv[])
         QString addr = QString::fromStdString(
             fmt::format("0x{:x}", sym.Section().StartAddress() + sym.Offset()));
         QString size = QString::fromStdString(fmt::format("0x{:x}", sym.Size()));
-        QString lnk = " ";
         QString flags = std::string(sym.GetFlags()).c_str();
+        QString section = std::string(sym.Section().Name()).c_str();
         QString name = std::string(sym.GetDemangledName()).c_str();
 
 
         lst.append(new QStandardItem(addr));
         lst.append(new QStandardItem(size));
-        lst.append(new QStandardItem("")); // linkage
         lst.append(new QStandardItem(flags));
+        lst.append(new QStandardItem(section));
         lst.append(new QStandardItem(name));
 
         m_symbol_view_model->appendRow(lst);
@@ -385,17 +385,18 @@ MainWindow::SetupReferencesView()
 void
 MainWindow::SetupSymbolView()
 {
-    m_symbol_view_model = new QStandardItemModel(0, 5, this);
+    m_symbol_view_model = new QStandardItemModel(0, 4, this);
     m_symbol_view_model->setHorizontalHeaderItem(0, new QStandardItem(QString("Address")));
     m_symbol_view_model->setHorizontalHeaderItem(1, new QStandardItem(QString("Size")));
-    m_symbol_view_model->setHorizontalHeaderItem(2, new QStandardItem(QString("Lnk")));
-    m_symbol_view_model->setHorizontalHeaderItem(3, new QStandardItem(QString("Flags")));
+    m_symbol_view_model->setHorizontalHeaderItem(2, new QStandardItem(QString("Flags")));
+    m_symbol_view_model->setHorizontalHeaderItem(3, new QStandardItem(QString("Section")));
     m_symbol_view_model->setHorizontalHeaderItem(4, new QStandardItem(QString("Symbol name")));
     m_ui->symbolTableView->setModel(m_symbol_view_model);
     m_ui->symbolTableView->horizontalHeader()->setStretchLastSection(true);
     m_ui->symbolTableView->resizeColumnsToContents();
     m_ui->symbolTableView->setColumnWidth(0, 100);
     m_ui->symbolTableView->setColumnWidth(1, 80);
+    m_ui->symbolTableView->setColumnWidth(3, 160);
     m_ui->symbolTableView->setSelectionMode(QAbstractItemView::SingleSelection);
 }
 
