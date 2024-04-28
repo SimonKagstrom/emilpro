@@ -68,6 +68,8 @@ private slots:
     void on_locationLineEdit_returnPressed();
 
 private:
+    void SetupSectionView();
+
     void SetupSymbolView();
 
     void SetupInstructionView();
@@ -101,6 +103,7 @@ private:
     const QString& LookupSourceFile(std::string_view);
 
     Ui::MainWindow* m_ui {nullptr};
+    QStandardItemModel* m_section_view_model {nullptr};
     QStandardItemModel* m_symbol_view_model {nullptr};
     QStandardItemModel* m_instruction_view_model {nullptr};
     QStandardItemModel* m_references_view_model {nullptr};

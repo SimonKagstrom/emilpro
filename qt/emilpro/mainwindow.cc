@@ -36,6 +36,7 @@ MainWindow::Init(int argc, char* argv[])
 {
     m_ui->setupUi(this);
 
+    SetupSectionView();
     SetupSymbolView();
     SetupInstructionView();
     SetupReferencesView();
@@ -71,9 +72,28 @@ MainWindow::Init(int argc, char* argv[])
 
     m_database.ParseFile(std::move(parser), std::move(disassembler));
 
+    for (auto& section_ref : m_database.Sections())
+    {
+        const auto &section = section_ref.get();
+        QList<QStandardItem*> lst;
+
+        QString addr = QString::fromStdString(
+            fmt::format("0x{:x}", section.StartAddress()));
+        QString size = QString::fromStdString(fmt::format("0x{:x}", section.Size()));
+        QString flags = "";
+        QString name = std::string(section.Name()).c_str();
+
+        lst.append(new QStandardItem(addr));
+        lst.append(new QStandardItem(size));
+        lst.append(new QStandardItem(flags));
+        lst.append(new QStandardItem(name));
+
+        m_section_view_model->appendRow(lst);
+    }
+
     for (auto& sym_ref : m_database.Symbols())
     {
-        auto& sym = sym_ref.get();
+        const auto& sym = sym_ref.get();
 
         QList<QStandardItem*> lst;
 
@@ -380,6 +400,22 @@ MainWindow::SetupReferencesView()
     m_ui->referencesTableView->setModel(m_references_view_model);
     m_ui->referencesTableView->setColumnWidth(0, 80);
     m_ui->referencesTableView->horizontalHeader()->setStretchLastSection(true);
+}
+
+void
+MainWindow::SetupSectionView()
+{
+    m_section_view_model = new QStandardItemModel(0, 4, this);
+    m_section_view_model->setHorizontalHeaderItem(0, new QStandardItem(QString("Address")));
+    m_section_view_model->setHorizontalHeaderItem(1, new QStandardItem(QString("Size")));
+    m_section_view_model->setHorizontalHeaderItem(2, new QStandardItem(QString("Flags")));
+    m_section_view_model->setHorizontalHeaderItem(3, new QStandardItem(QString("Name")));
+    m_ui->sectionTableView->setModel(m_section_view_model);
+    m_ui->sectionTableView->horizontalHeader()->setStretchLastSection(true);
+    m_ui->sectionTableView->resizeColumnsToContents();
+    m_ui->sectionTableView->setColumnWidth(0, 100);
+    m_ui->sectionTableView->setColumnWidth(1, 80);
+    m_ui->sectionTableView->setSelectionMode(QAbstractItemView::SingleSelection);
 }
 
 void
