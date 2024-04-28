@@ -81,20 +81,14 @@ MainWindow::Init(int argc, char* argv[])
             fmt::format("0x{:x}", sym.Section().StartAddress() + sym.Offset()));
         QString size = QString::fromStdString(fmt::format("0x{:x}", sym.Size()));
         QString lnk = " ";
-        QString r = "R";
-        QString w = " "; //sym.isWriteable() ? "W" : " ";
-        QString x = " "; //sym.isExecutable() ? "X" : " ";
-        QString a = " "; //sym.isAllocated() ? "A" : " ";
+        QString flags = std::string(sym.GetFlags()).c_str();
         QString name = std::string(sym.GetDemangledName()).c_str();
 
 
         lst.append(new QStandardItem(addr));
         lst.append(new QStandardItem(size));
         lst.append(new QStandardItem("")); // linkage
-        lst.append(new QStandardItem(r));
-        lst.append(new QStandardItem(w));
-        lst.append(new QStandardItem(x));
-        lst.append(new QStandardItem(a));
+        lst.append(new QStandardItem(flags));
         lst.append(new QStandardItem(name));
 
         m_symbol_view_model->appendRow(lst);
@@ -342,11 +336,7 @@ MainWindow::SetupInstructionLabels()
 {
     QStringList labels;
 
-    labels << "Address"
-           << "B"
-           << "Instruction"
-           << "F"
-           << "Target";
+    labels << "Address" << "B" << "Instruction" << "F" << "Target";
 
     m_instruction_view_model->setHorizontalHeaderLabels(labels);
 }
@@ -395,15 +385,12 @@ MainWindow::SetupReferencesView()
 void
 MainWindow::SetupSymbolView()
 {
-    m_symbol_view_model = new QStandardItemModel(0, 8, this);
+    m_symbol_view_model = new QStandardItemModel(0, 5, this);
     m_symbol_view_model->setHorizontalHeaderItem(0, new QStandardItem(QString("Address")));
     m_symbol_view_model->setHorizontalHeaderItem(1, new QStandardItem(QString("Size")));
     m_symbol_view_model->setHorizontalHeaderItem(2, new QStandardItem(QString("Lnk")));
-    m_symbol_view_model->setHorizontalHeaderItem(3, new QStandardItem(QString("R")));
-    m_symbol_view_model->setHorizontalHeaderItem(4, new QStandardItem(QString("W")));
-    m_symbol_view_model->setHorizontalHeaderItem(5, new QStandardItem(QString("X")));
-    m_symbol_view_model->setHorizontalHeaderItem(6, new QStandardItem(QString("A")));
-    m_symbol_view_model->setHorizontalHeaderItem(7, new QStandardItem(QString("Symbol name")));
+    m_symbol_view_model->setHorizontalHeaderItem(3, new QStandardItem(QString("Flags")));
+    m_symbol_view_model->setHorizontalHeaderItem(4, new QStandardItem(QString("Symbol name")));
     m_ui->symbolTableView->setModel(m_symbol_view_model);
     m_ui->symbolTableView->horizontalHeader()->setStretchLastSection(true);
     m_ui->symbolTableView->resizeColumnsToContents();
@@ -428,25 +415,32 @@ MainWindow::UpdateInstructionView(uint64_t offset)
     m_backward_item_delegate.Update(64, m_visible_instructions);
     for (auto& ref : m_visible_instructions)
     {
-        auto& ri = ref.get();
-        auto& section = ri.Section();
+        const auto& ri = ref.get();
+        const auto& section = ri.Section();
 
         auto refers_to = ri.RefersTo();
 
         QList<QStandardItem*> lst;
         lst.append(
             new QStandardItem(fmt::format("{:08x}", section.StartAddress() + ri.Offset()).c_str()));
-        lst.append(new QStandardItem(ri.ReferredBy().empty() ? "" : "->"));
+        lst.append(nullptr); // Backward branch
         lst.append(new QStandardItem(std::string(ri.AsString()).c_str()));
-        lst.append(new QStandardItem());
-        if (refers_to && refers_to->symbol)
+        lst.append(nullptr); // Forward branch
+        if (refers_to)
         {
-            lst.append(
-                new QStandardItem(std::string(refers_to->symbol->GetDemangledName()).c_str()));
+            if (refers_to->symbol)
+            {
+                lst.append(
+                    new QStandardItem(std::string(refers_to->symbol->GetDemangledName()).c_str()));
+            }
+            else
+            {
+                lst.append(new QStandardItem(fmt::format("0x{:08x}", refers_to->offset).c_str()));
+            }
         }
         else
         {
-            lst.append(new QStandardItem(""));
+            lst.append(nullptr);
         }
 
 

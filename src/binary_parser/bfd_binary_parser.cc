@@ -363,7 +363,30 @@ BfdBinaryParser::handleSymbols(long symcount, bfd_symbol** syms, bool dynamic)
             continue;
         }
 
-        auto symbol = std::make_unique<Symbol>(*sect_it->second, sym_addr, "", sym_name);
+        std::string flags;
+
+        if (cur->flags & BSF_LOCAL)
+        {
+            flags += "L";
+        }
+        if (cur->flags & BSF_FUNCTION)
+        {
+            flags += "F";
+        }
+        if (cur->flags & BSF_WEAK)
+        {
+            flags += "W";
+        }
+        if (cur->flags & BSF_WEAK)
+        {
+            flags += "W";
+        }
+        if (bfd_is_und_section(cur->section))
+        {
+            flags += "U";
+        }
+
+        auto symbol = std::make_unique<Symbol>(*sect_it->second, sym_addr, flags, sym_name);
         m_symbol_map[cur] = symbol.get();
         sect_it->second->AddSymbol(std::move(symbol));
     }
