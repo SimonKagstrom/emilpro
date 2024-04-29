@@ -23,7 +23,7 @@ public:
                void(const ISection& section, uint64_t offset, const ISymbol* symbol),
                final);
 
-    MAKE_CONST_MOCK0(GetUsedRegisters, std::span<std::string_view>(), final);
+    MAKE_CONST_MOCK0(UsedRegisters, std::span<std::string_view>(), final);
     MAKE_CONST_MOCK0(GetSourceLocation,
                      (std::optional<std::pair<std::string_view, uint32_t>>)(),
                      final);

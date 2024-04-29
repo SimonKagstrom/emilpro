@@ -1,7 +1,13 @@
 ## Build
 
-```bash
-conan install -of . --build=missing -s build_type=Debug -pr <SRC>/conanprofile-macos.txt <SRC-DIR>/conanfile.txt
+MacOS: Remove binutils from the PATH (for the conan build)
+
+```
+conan install -of . --build=missing -s build_type=Debug <SRC-DIR>/conanfile.txt
+```
+
+MacOS:
+```
 cmake -GNinja -DCMAKE_PREFIX_PATH="`pwd`/build/Debug/generators/;`brew --prefix binutils`" -DCMAKE_BUILD_TYPE=Debug <SRC-DIR>
 ninja
 ```

@@ -161,7 +161,7 @@ private:
     }
 
 
-    std::span<std::string_view> GetUsedRegisters() const final
+    std::span<std::string_view> UsedRegisters() const final
     {
         return {};
     }
