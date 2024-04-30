@@ -9,4 +9,5 @@ target_link_libraries(ut
     doctest::doctest
     database
     jump_lanes
+    fmt::fmt
 )

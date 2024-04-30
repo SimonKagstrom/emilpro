@@ -3,5 +3,5 @@ os=Linux
 arch=x86_64
 compiler=gcc
 compiler.version=13
-compiler.libcxx=libstdc++
+compiler.libcxx=libstdc++11
 build_type=Debug

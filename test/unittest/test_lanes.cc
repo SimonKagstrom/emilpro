@@ -5,6 +5,8 @@
 #include "emilpro/mock/mock_instruction.hh"
 #include "test.h"
 
+#include <fmt/format.h>
+
 using namespace emilpro;
 
 namespace
@@ -51,8 +53,8 @@ public:
         CreateReference(6, 9);
         // Backward
         CreateReference(12, 11);
-        CreateReference(13, 10);
-        CreateReference(14, 8);
+        CreateReference(13, 8);
+        CreateReference(14, 11);
         CreateReference(15, 7);
     }
 
@@ -75,13 +77,18 @@ public:
         int i = 0;
         for (auto insn : l)
         {
-            printf("Instruction %2d:", i);
+            fmt::print("Instruction {:2d}:  ", i);
             i++;
-            for (auto lane : insn.forward_lanes)
+            for (auto backard : insn.backward_lanes)
             {
-                printf(" %d", (int)lane);
+                fmt::print(" {}", static_cast<int>(backard));
             }
-            printf("\n");
+            fmt::print("   xxx  ");
+            for (auto forward : insn.forward_lanes)
+            {
+                fmt::print(" {}", static_cast<int>(forward));
+            }
+            fmt::print("\n");
         }
     }
 
@@ -172,8 +179,18 @@ TEST_CASE_FIXTURE(Fixture, "dual lanes are used for enclosing jumps")
 TEST_CASE_FIXTURE(Fixture, "backward lanes are also handled")
 {
     lanes.Calculate(16, instruction_refs);
+    PrintLanes(lanes.GetLanes());
 
     auto l = lanes.GetLanes();
     REQUIRE(l[11].backward_lanes[0] == T::kEnd);
     REQUIRE(l[12].backward_lanes[0] == T::kStart);
+
+    REQUIRE(l[8].backward_lanes[1] == T::kEnd);
+    REQUIRE(l[13].backward_lanes[1] == T::kStart);
+
+    REQUIRE(l[11].backward_lanes[2] == T::kEnd);
+    REQUIRE(l[14].backward_lanes[2] == T::kStart);
+
+    REQUIRE(l[7].backward_lanes[3] == T::kEnd);
+    REQUIRE(l[15].backward_lanes[3] == T::kStart);
 }
