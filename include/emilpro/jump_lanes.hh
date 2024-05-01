@@ -8,6 +8,7 @@
 #include <etl/vector.h>
 #include <span>
 #include <vector>
+#include <fmt/format.h>
 
 namespace emilpro
 {
@@ -104,7 +105,9 @@ private:
 
         bool Overlaps(const Lane& other) const
         {
-            return m_first < other.m_first && m_last <= other.m_last;
+            // Either of the two lanes cross the other
+            return m_first < other.m_first && m_last > other.m_first ||
+                   m_first < other.m_last && m_last > other.m_last;
         }
 
         bool Encloses(const Lane& other) const

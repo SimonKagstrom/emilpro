@@ -72,21 +72,43 @@ public:
             NAMED_ALLOW_CALL(from, Type()).RETURN(IInstruction::InstructionType::kBranch));
     }
 
-    void PrintLanes(auto l)
+    void PrintLanes(auto l) const
     {
+        auto lane_to_char = [](JumpLanes::Type t) {
+            switch (t)
+            {
+            case JumpLanes::Type::kNone:
+                return ' ';
+            case JumpLanes::Type::kStart:
+                return 's';
+            case JumpLanes::Type::kStartEnd:
+                return '+';
+            case JumpLanes::Type::kTraffic:
+                return '.';
+            case JumpLanes::Type::kEnd:
+                return 'e';
+            case JumpLanes::Type::kLongStart:
+                return 'S';
+            case JumpLanes::Type::kLongEnd:
+                return 'E';
+            }
+            return '?';
+        };
+
         int i = 0;
+        fmt::print("                  0 1 2 3        0 1 2 3\n");
         for (auto insn : l)
         {
             fmt::print("Instruction {:2d}:  ", i);
             i++;
-            for (auto backard : insn.backward_lanes)
+            for (auto backward : insn.backward_lanes)
             {
-                fmt::print(" {}", static_cast<int>(backard));
+                fmt::print(" {}", lane_to_char(backward));
             }
             fmt::print("   xxx  ");
             for (auto forward : insn.forward_lanes)
             {
-                fmt::print(" {}", static_cast<int>(forward));
+                fmt::print(" {}", lane_to_char(forward));
             }
             fmt::print("\n");
         }

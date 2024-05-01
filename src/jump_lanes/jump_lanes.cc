@@ -75,6 +75,7 @@ JumpLanes::Calculate(unsigned max_distance,
         return;
     }
 
+
     etl::vector<const Lane*, JumpLanes::kNumberOfLanes> current_lanes_forward;
     etl::vector<const Lane*, JumpLanes::kNumberOfLanes> current_lanes_backward;
     auto it_forward = forward_lanes.begin();
@@ -121,16 +122,15 @@ JumpLanes::PushPredecessors(std::vector<Lane>& lanes) const
         return;
     }
 
-    auto lane = lanes.back();
-    auto& last = lanes[lanes.size() - 2];
+    const auto &lane = lanes.back();
+    for (auto it = lanes.rbegin() + 1; it != lanes.rend(); ++it)
+    {
+        auto& last = *it;
 
-    if (lane.Encloses(last))
-    {
-        lane.PushOut();
-    }
-    else if (last.Encloses(lane))
-    {
-        last.PushOut();
+        if (last.Encloses(lane) || last.Overlaps(lane))
+        {
+            last.PushOut();
+        }
     }
 }
 
@@ -144,7 +144,7 @@ JumpLanes::Process(const IInstruction& insn,
     etl::vector<const Lane*, JumpLanes::kNumberOfLanes> to_erase;
     auto offset = insn.Offset();
 
-    if (it != lanes.end() && it->Covers(offset))
+    while (it != lanes.end() && it->Covers(offset))
     {
         if (!current_lanes.full())
         {
