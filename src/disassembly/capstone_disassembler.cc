@@ -57,11 +57,11 @@ public:
         // Indirect registers
         for (auto i = 0u; i < insn->detail->regs_read_count; i++)
         {
-            m_used_registers.push_back(cs_reg_name(m_handle, insn->detail->regs_read[i]));
+            m_used_registers.emplace_back(cs_reg_name(m_handle, insn->detail->regs_read[i]));
         }
         for (auto i = 0u; i < insn->detail->regs_write_count; i++)
         {
-            m_used_registers.push_back(cs_reg_name(m_handle, insn->detail->regs_write[i]));
+            m_used_registers.emplace_back(cs_reg_name(m_handle, insn->detail->regs_write[i]));
         }
     }
 
@@ -97,6 +97,26 @@ private:
             m_refers_to = IInstruction::Referer {
                 &m_section, static_cast<uint64_t>(insn->detail->arm.operands[0].imm), nullptr};
         }
+
+        for (auto i = 0u; i < insn->detail->arm.op_count; i++)
+        {
+            const auto& op = insn->detail->arm.operands[i];
+            if (op.type == ARM_OP_REG)
+            {
+                m_used_registers.emplace_back(cs_reg_name(m_handle, op.reg));
+            }
+            else if (op.type == ARM_OP_MEM)
+            {
+                if (op.mem.base != ARM_REG_INVALID)
+                {
+                    m_used_registers.emplace_back(cs_reg_name(m_handle, op.mem.base));
+                }
+                if (op.mem.index != ARM_REG_INVALID)
+                {
+                    m_used_registers.emplace_back(cs_reg_name(m_handle, op.mem.index));
+                }
+            }
+        }
     }
 
     void ProcessArm64(const cs_insn* insn)
@@ -111,6 +131,26 @@ private:
         {
             m_refers_to = IInstruction::Referer {
                 &m_section, static_cast<uint64_t>(insn->detail->arm64.operands[0].imm), nullptr};
+        }
+
+        for (auto i = 0u; i < insn->detail->arm64.op_count; i++)
+        {
+            const auto& op = insn->detail->arm64.operands[i];
+            if (op.type == ARM64_OP_REG)
+            {
+                m_used_registers.emplace_back(cs_reg_name(m_handle, op.reg));
+            }
+            else if (op.type == ARM64_OP_MEM)
+            {
+                if (op.mem.base != ARM64_REG_INVALID)
+                {
+                    m_used_registers.emplace_back(cs_reg_name(m_handle, op.mem.base));
+                }
+                if (op.mem.index != ARM64_REG_INVALID)
+                {
+                    m_used_registers.emplace_back(cs_reg_name(m_handle, op.mem.index));
+                }
+            }
         }
     }
 
@@ -134,20 +174,20 @@ private:
 
         for (auto i = 0u; i < insn->detail->x86.op_count; i++)
         {
-            auto op = insn->detail->x86.operands[i];
+            const auto& op = insn->detail->x86.operands[i];
             if (op.type == X86_OP_REG)
             {
-                m_used_registers.push_back(cs_reg_name(m_handle, op.reg));
+                m_used_registers.emplace_back(cs_reg_name(m_handle, op.reg));
             }
             if (op.type == X86_OP_MEM)
             {
                 if (op.mem.base != X86_REG_INVALID)
                 {
-                    m_used_registers.push_back(cs_reg_name(m_handle, op.mem.base));
+                    m_used_registers.emplace_back(cs_reg_name(m_handle, op.mem.base));
                 }
                 if (op.mem.index != X86_REG_INVALID)
                 {
-                    m_used_registers.push_back(cs_reg_name(m_handle, op.mem.index));
+                    m_used_registers.emplace_back(cs_reg_name(m_handle, op.mem.index));
                 }
             }
         }
