@@ -75,20 +75,20 @@ Symbol::Size() const
     return m_size;
 }
 
-std::string_view
-Symbol::GetFlags() const
+const std::string&
+Symbol::Flags() const
 {
     return m_flags;
 }
 
-std::string_view
-Symbol::GetName() const
+const std::string&
+Symbol::Name() const
 {
     return m_name;
 }
 
-std::string_view
-Symbol::GetDemangledName() const
+const std::string&
+Symbol::DemangledName() const
 {
     return m_demanged_name;
 }
@@ -99,5 +99,5 @@ Symbol::AddRelocation(const ISection& src_section, uint64_t offset)
     m_relocations.push_back(src_section);
     auto start_addr = m_relocations.back().get().StartAddress();
     fmt::print(
-        "SYM {} add reloc from sect {:x}. Offset {}\n", GetDemangledName(), start_addr, offset);
+        "SYM {} add reloc from sect {:x}. Offset {}\n", DemangledName(), start_addr, offset);
 }

@@ -23,11 +23,11 @@ public:
 
     virtual size_t Size() const = 0;
 
-    virtual std::string_view GetFlags() const = 0;
+    virtual const std::string& Flags() const = 0;
 
-    virtual std::string_view GetName() const = 0;
+    virtual const std::string& Name() const = 0;
 
-    virtual std::string_view GetDemangledName() const = 0;
+    virtual const std::string& DemangledName() const = 0;
 };
 
 } // namespace emilpro

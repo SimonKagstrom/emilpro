@@ -32,7 +32,7 @@ public:
 
     virtual std::span<const std::byte> Data() const = 0;
 
-    virtual std::string_view Name() const = 0;
+    virtual  const std::string& Name() const = 0;
 
     virtual uint64_t StartAddress() const = 0;
 

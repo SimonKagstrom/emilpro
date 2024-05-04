@@ -21,9 +21,9 @@ public:
     const ISection& Section() const final;
     uint64_t Offset() const final;
     size_t Size() const final;
-    std::string_view GetFlags() const final;
-    std::string_view GetName() const final;
-    std::string_view GetDemangledName() const final;
+    const std::string& Flags() const final;
+    const std::string& Name() const final;
+    const std::string& DemangledName() const final;
 
 private:
     const ISection& m_section;

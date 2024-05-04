@@ -48,7 +48,7 @@ Section::GetType() const
     return m_type;
 }
 
-std::string_view
+const std::string&
 Section::Name() const
 {
     return m_name;
@@ -65,7 +65,7 @@ Section::AddSymbol(std::unique_ptr<Symbol> symbol)
 void
 Section::AddRelocation(uint64_t offset, const Symbol& symbol)
 {
-    fmt::print("Sec add reloc to sym {}. Offset {}\n", symbol.GetDemangledName(), offset);
+    fmt::print("Sec add reloc to sym {}. Offset {}\n", symbol.DemangledName(), offset);
     m_relocations.push_back({symbol, offset});
     m_sorted_relocations[offset] = &m_relocations.back();
 }
@@ -77,7 +77,7 @@ Section::FixupSymbolSizes()
 
     for (auto it = m_sorted_symbols.rbegin(); it != m_sorted_symbols.rend(); ++it)
     {
-        auto& symbols = it->second;
+        const auto& symbols = it->second;
 
         auto adjust = last_offset;
         for (auto* symbol : symbols)

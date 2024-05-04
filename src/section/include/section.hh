@@ -46,7 +46,7 @@ private:
 
     std::span<const std::byte> Data() const final;
 
-    std::string_view Name() const final;
+    const std::string& Name() const final;
 
     uint64_t StartAddress() const final;
 

@@ -159,7 +159,7 @@ JumpLanes::Process(const IInstruction& insn,
         {
             to_erase.push_back(lane);
         }
-        else
+        else if (lane->LaneNumber() < kNumberOfLanes)
         {
             cur[lane->LaneNumber()] = lane->Calculate(offset);
         }
