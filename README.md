@@ -11,3 +11,5 @@ MacOS:
 cmake -GNinja -DCMAKE_PREFIX_PATH="`pwd`/build/Debug/generators/;`brew --prefix binutils`" -DCMAKE_BUILD_TYPE=Debug <SRC-DIR>
 ninja
 ```
+
+![The application on MacOS](doc/emilpro.png)
