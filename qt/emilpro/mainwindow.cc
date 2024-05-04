@@ -80,7 +80,7 @@ MainWindow::Init(int argc, char* argv[])
         QString addr = QString::fromStdString(fmt::format("0x{:x}", section.StartAddress()));
         QString size = QString::fromStdString(fmt::format("0x{:x}", section.Size()));
         QString flags = "";
-        QString name = std::string(section.Name()).c_str();
+        QString name = QString::fromStdString(section.Name());
 
         lst.append(new QStandardItem(addr));
         lst.append(new QStandardItem(size));
@@ -99,9 +99,9 @@ MainWindow::Init(int argc, char* argv[])
         QString addr = QString::fromStdString(
             fmt::format("0x{:x}", sym.Section().StartAddress() + sym.Offset()));
         QString size = QString::fromStdString(fmt::format("0x{:x}", sym.Size()));
-        QString flags = std::string(sym.GetFlags()).c_str();
-        QString section = std::string(sym.Section().Name()).c_str();
-        QString name = std::string(sym.GetDemangledName()).c_str();
+        QString flags = QString::fromStdString(sym.Flags());
+        QString section = QString::fromStdString(sym.Section().Name());
+        QString name = QString::fromStdString(sym.DemangledName());
 
 
         lst.append(new QStandardItem(addr));
@@ -276,6 +276,22 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
 void
 MainWindow::on_locationLineEdit_textChanged(const QString& text)
 {
+    // Hide all symbols which does not match the text
+    for (auto i = 0u; i < m_symbol_view_model->rowCount(); i++)
+    {
+        if (auto item = m_symbol_view_model->item(i, 4); item)
+        {
+            auto name = item->text();
+            if (name.contains(text, Qt::CaseInsensitive))
+            {
+                m_ui->symbolTableView->showRow(i);
+            }
+            else
+            {
+                m_ui->symbolTableView->hideRow(i);
+            }
+        }
+    }
 }
 
 void
@@ -360,11 +376,7 @@ MainWindow::SetupInstructionLabels()
 {
     QStringList labels;
 
-    labels << "Address"
-           << "B"
-           << "Instruction"
-           << "F"
-           << "Target";
+    labels << "Address" << "B" << "Instruction" << "F" << "Target";
 
     m_instruction_view_model->setHorizontalHeaderLabels(labels);
 }
@@ -477,7 +489,7 @@ MainWindow::UpdateInstructionView(uint64_t offset)
             if (refers_to->symbol)
             {
                 lst.append(
-                    new QStandardItem(std::string(refers_to->symbol->GetDemangledName()).c_str()));
+                    new QStandardItem(QString::fromStdString(refers_to->symbol->DemangledName())));
             }
             else
             {
