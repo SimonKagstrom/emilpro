@@ -47,8 +47,21 @@ public:
         case cs_arch::CS_ARCH_X86:
             ProcessX86(insn);
             break;
+        case cs_arch::CS_ARCH_ARM64:
+            ProcessArm64(insn);
+            break;
         default:
             break;
+        }
+
+        // Indirect registers
+        for (auto i = 0u; i < insn->detail->regs_read_count; i++)
+        {
+            m_used_registers.push_back(cs_reg_name(m_handle, insn->detail->regs_read[i]));
+        }
+        for (auto i = 0u; i < insn->detail->regs_write_count; i++)
+        {
+            m_used_registers.push_back(cs_reg_name(m_handle, insn->detail->regs_write[i]));
         }
     }
 
@@ -61,7 +74,8 @@ private:
             {
                 return IInstruction::InstructionType::kCall;
             }
-            else if (insn->detail->groups[i] == cs_group_type::CS_GRP_JUMP)
+            else if (insn->detail->groups[i] == cs_group_type::CS_GRP_JUMP ||
+                     insn->detail->groups[i] == cs_group_type::CS_GRP_BRANCH_RELATIVE)
             {
                 return IInstruction::InstructionType::kBranch;
             }
@@ -82,6 +96,21 @@ private:
         {
             m_refers_to = IInstruction::Referer {
                 &m_section, static_cast<uint64_t>(insn->detail->arm.operands[0].imm), nullptr};
+        }
+    }
+
+    void ProcessArm64(const cs_insn* insn)
+    {
+        if (insn->id == arm64_insn::ARM64_INS_BL)
+        {
+            m_refers_to = IInstruction::Referer {
+                nullptr, static_cast<uint64_t>(insn->detail->arm64.operands[0].imm), nullptr};
+        }
+        else if (IsJump(insn) && insn->detail->arm.op_count > 0 &&
+                 insn->detail->arm64.operands[0].type == ARM64_OP_IMM)
+        {
+            m_refers_to = IInstruction::Referer {
+                &m_section, static_cast<uint64_t>(insn->detail->arm64.operands[0].imm), nullptr};
         }
     }
 
@@ -122,27 +151,11 @@ private:
                 }
             }
         }
-        for (auto i = 0u; i < insn->detail->regs_read_count; i++)
-        {
-            m_used_registers.push_back(cs_reg_name(m_handle, insn->detail->regs_read[i]));
-        }
-        for (auto i = 0u; i < insn->detail->regs_write_count; i++)
-        {
-            m_used_registers.push_back(cs_reg_name(m_handle, insn->detail->regs_write[i]));
-        }
     }
 
     bool IsJump(const cs_insn* insn) const
     {
-        for (auto i = 0u; i < insn->detail->groups_count; i++)
-        {
-            if (insn->detail->groups[i] == cs_group_type::CS_GRP_JUMP)
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return m_type == IInstruction::InstructionType::kBranch;
     }
 
     std::span<const std::byte> Data() const final
