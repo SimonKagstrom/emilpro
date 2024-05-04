@@ -74,11 +74,10 @@ MainWindow::Init(int argc, char* argv[])
 
     for (auto& section_ref : m_database.Sections())
     {
-        const auto &section = section_ref.get();
+        const auto& section = section_ref.get();
         QList<QStandardItem*> lst;
 
-        QString addr = QString::fromStdString(
-            fmt::format("0x{:x}", section.StartAddress()));
+        QString addr = QString::fromStdString(fmt::format("0x{:x}", section.StartAddress()));
         QString size = QString::fromStdString(fmt::format("0x{:x}", section.Size()));
         QString flags = "";
         QString name = std::string(section.Name()).c_str();
@@ -204,6 +203,8 @@ MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelIndex& p
     }
     m_ui->instructionEncodingLine->setText(encoding.c_str());
 
+    m_instruction_item_delegate.HighlightStrings(insn.UsedRegisters());
+
     auto fl = insn.GetSourceLocation();
     if (fl)
     {
@@ -222,6 +223,9 @@ MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelIndex& p
             m_ui->sourceTextEdit->setTextCursor(cursor);
         }
     }
+
+    // Force a repaint with the new register colors
+    emit m_instruction_view_model->layoutChanged();
 }
 
 void
@@ -356,7 +360,11 @@ MainWindow::SetupInstructionLabels()
 {
     QStringList labels;
 
-    labels << "Address" << "B" << "Instruction" << "F" << "Target";
+    labels << "Address"
+           << "B"
+           << "Instruction"
+           << "F"
+           << "Target";
 
     m_instruction_view_model->setHorizontalHeaderLabels(labels);
 }
@@ -373,6 +381,7 @@ MainWindow::SetupInstructionView()
     m_instruction_view_model->setHorizontalHeaderItem(4, new QStandardItem(QString("Target")));
 
     m_ui->instructionTableView->setItemDelegateForColumn(1, &m_backward_item_delegate);
+    m_ui->instructionTableView->setItemDelegateForColumn(2, &m_instruction_item_delegate);
     m_ui->instructionTableView->setItemDelegateForColumn(3, &m_forward_item_delegate);
 
     m_ui->instructionTableView->setModel(m_instruction_view_model);

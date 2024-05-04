@@ -4,6 +4,7 @@
 #include "emilpro/i_binary_parser.hh"
 #include "emilpro/i_instruction.hh"
 #include "highlighter.hh"
+#include "instruction_delegate.hh"
 #include "jump_lane_delegate.hh"
 
 #include <QMainWindow>
@@ -111,6 +112,7 @@ private:
 
     JumpLaneDelegate m_forward_item_delegate;
     JumpLaneDelegate m_backward_item_delegate;
+    InstructionDelegate m_instruction_item_delegate;
 
     Highlighter* m_highlighter {nullptr};
     std::unordered_map<std::string, QString> m_source_file_map;

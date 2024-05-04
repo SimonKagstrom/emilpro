@@ -1,6 +1,7 @@
 
 add_library(mainwindow EXCLUDE_FROM_ALL
     highlighter.cc
+    instruction_delegate.cc
     jump_lane_delegate.cc
     mainwindow.ui
     mainwindow.cc

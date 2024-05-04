@@ -49,7 +49,7 @@ public:
     /// From instructions
     virtual void AddReferredBy(const ISection& section, uint64_t offset, const ISymbol* symbol) = 0;
 
-    virtual std::span<std::string_view> UsedRegisters() const = 0;
+    virtual std::span<const std::string> UsedRegisters() const = 0;
 
     virtual std::optional<std::pair<std::string_view, uint32_t>> GetSourceLocation() const = 0;
 

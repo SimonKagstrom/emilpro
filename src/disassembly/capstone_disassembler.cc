@@ -26,12 +26,14 @@ namespace
 class CapstoneInstruction : public IInstruction
 {
 public:
-    CapstoneInstruction(const ISection& section,
+    CapstoneInstruction(csh handle,
+                        const ISection& section,
                         cs_arch arch,
                         uint64_t offset,
                         std::span<const std::byte> data,
                         const cs_insn* insn)
-        : m_section(section)
+        : m_handle(handle)
+        , m_section(section)
         , m_data(data.subspan(0, insn->size))
         , m_type(DetermineType(insn))
         , m_encoding(fmt::format("{:8s} {}", insn->mnemonic, insn->op_str))
@@ -100,6 +102,34 @@ private:
                 static_cast<uint64_t>(insn->detail->x86.operands[0].imm) - m_section.StartAddress(),
                 nullptr};
         }
+
+        for (auto i = 0u; i < insn->detail->x86.op_count; i++)
+        {
+            auto op = insn->detail->x86.operands[i];
+            if (op.type == X86_OP_REG)
+            {
+                m_used_registers.push_back(cs_reg_name(m_handle, op.reg));
+            }
+            if (op.type == X86_OP_MEM)
+            {
+                if (op.mem.base != X86_REG_INVALID)
+                {
+                    m_used_registers.push_back(cs_reg_name(m_handle, op.mem.base));
+                }
+                if (op.mem.index != X86_REG_INVALID)
+                {
+                    m_used_registers.push_back(cs_reg_name(m_handle, op.mem.index));
+                }
+            }
+        }
+        for (auto i = 0u; i < insn->detail->regs_read_count; i++)
+        {
+            m_used_registers.push_back(cs_reg_name(m_handle, insn->detail->regs_read[i]));
+        }
+        for (auto i = 0u; i < insn->detail->regs_write_count; i++)
+        {
+            m_used_registers.push_back(cs_reg_name(m_handle, insn->detail->regs_write[i]));
+        }
     }
 
     bool IsJump(const cs_insn* insn) const
@@ -161,9 +191,9 @@ private:
     }
 
 
-    std::span<std::string_view> UsedRegisters() const final
+    std::span<const std::string> UsedRegisters() const final
     {
-        return {};
+        return m_used_registers;
     }
 
     std::optional<std::pair<std::string_view, uint32_t>> GetSourceLocation() const final
@@ -190,6 +220,7 @@ private:
     }
 
 
+    csh m_handle;
     const ISection& m_section;
     std::span<const std::byte> m_data;
     const IInstruction::InstructionType m_type;
@@ -200,6 +231,8 @@ private:
 
     std::optional<std::string> source_file_;
     std::optional<uint32_t> source_line_;
+
+    std::vector<std::string> m_used_registers;
 };
 
 } // namespace
@@ -244,7 +277,8 @@ CapstoneDisassembler::Disassemble(const ISection& section,
     for (auto i = 0; i < n; i++)
     {
         auto p = &insns[i];
-        on_instruction(std::make_unique<CapstoneInstruction>(section, m_arch, offset, data, p));
+        on_instruction(
+            std::make_unique<CapstoneInstruction>(m_handle, section, m_arch, offset, data, p));
         offset += p->size;
         data = data.subspan(p->size);
     }
