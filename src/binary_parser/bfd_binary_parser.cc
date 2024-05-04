@@ -365,6 +365,11 @@ BfdBinaryParser::handleSymbols(long symcount, bfd_symbol** syms, bool dynamic)
 
         std::string flags;
 
+        if (dynamic)
+        {
+            flags += "D";
+        }
+
         if (cur->flags & BSF_LOCAL)
         {
             flags += "L";
