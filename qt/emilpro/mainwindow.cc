@@ -193,7 +193,7 @@ MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelIndex& p
         return;
     }
 
-    auto& insn = m_visible_instructions[row].get();
+    const auto& insn = m_visible_instructions[row].get();
 
     // Workaround an UBSAN issue with fmt::format, when fmt::join is used
     std::string encoding;
@@ -205,10 +205,8 @@ MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelIndex& p
 
     m_instruction_item_delegate.HighlightStrings(insn.UsedRegisters());
 
-    auto fl = insn.GetSourceLocation();
-    if (fl)
+    if (auto fl = insn.GetSourceLocation(); fl)
     {
-        fmt::print("Source location for {}: {}:{}\n", insn.Offset(), fl->first, fl->second);
         auto& source = LookupSourceFile(fl->first);
         auto line = fl->second == 0 ? 0 : fl->second - 1;
 

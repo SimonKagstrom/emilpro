@@ -16,10 +16,6 @@ constexpr auto kMachineMap = std::array {
     std::pair {Machine::kPpc, cs_arch::CS_ARCH_PPC},
 };
 
-constexpr auto kArmCallMap = std::array {
-    arm_insn::ARM_INS_BL,
-};
-
 namespace
 {
 
