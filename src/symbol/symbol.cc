@@ -46,8 +46,6 @@ Symbol::SetSize(size_t size)
 
     m_size = std::min(size, max);
     m_data = m_section.Data().subspan(m_offset, m_size);
-
-    fmt::print("SYM {} @ {:08x} with size {:08x}\n", m_name, m_offset, m_size);
 }
 
 
