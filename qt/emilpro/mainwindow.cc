@@ -240,14 +240,14 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
         return;
     }
 
-    auto& insn = m_visible_instructions[row].get();
+    const auto& insn = m_visible_instructions[row].get();
 
     auto refers_to = insn.RefersTo();
     if (refers_to)
     {
         uint64_t offset = 0;
-        auto sym = refers_to->symbol;
-        if (sym)
+
+        if (auto sym = refers_to->symbol; sym)
         {
             auto& section = sym->Section();
 
@@ -258,7 +258,7 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
         {
             auto lookup_result = m_database.LookupByAddress(&insn.Section(), refers_to->offset);
 
-            for (auto& result : lookup_result)
+            for (const auto& result : lookup_result)
             {
                 auto& section = result.section;
 
@@ -321,6 +321,7 @@ MainWindow::on_symbolTableView_activated(const QModelIndex& index)
     auto& section = sym.Section();
 
     m_visible_instructions = section.Instructions();
+    m_visible_instruction_range = {sym.Offset(), sym.Offset() + sym.Size()};
     UpdateInstructionView(sym.Offset());
 }
 
@@ -465,10 +466,13 @@ void
 MainWindow::UpdateInstructionView(uint64_t offset)
 {
     m_instruction_view_model->removeRows(0, m_instruction_view_model->rowCount());
-    auto row = 0;
+    auto selected_row = 0;
 
     m_forward_item_delegate.Update(64, m_visible_instructions);
     m_backward_item_delegate.Update(64, m_visible_instructions);
+
+    const auto [low, high] = m_visible_instruction_range;
+
     for (auto& ref : m_visible_instructions)
     {
         const auto& ri = ref.get();
@@ -500,15 +504,24 @@ MainWindow::UpdateInstructionView(uint64_t offset)
         }
 
 
+        auto cur_row = m_instruction_view_model->rowCount();
         if (ri.Offset() == offset)
         {
-            row = m_instruction_view_model->rowCount();
+            selected_row = cur_row;
         }
 
         m_instruction_view_model->appendRow(lst);
+        if (ri.Offset() >= low && ri.Offset() <= high)
+        {
+            m_ui->instructionTableView->showRow(cur_row);
+        }
+        else
+        {
+            m_ui->instructionTableView->hideRow(cur_row);
+        }
     }
 
-    m_ui->instructionTableView->selectRow(row);
+    m_ui->instructionTableView->selectRow(selected_row);
 }
 
 void

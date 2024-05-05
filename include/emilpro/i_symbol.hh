@@ -1,5 +1,7 @@
 #pragma once
 
+#include "i_instruction.hh"
+
 #include <cstdint>
 #include <span>
 #include <string>
@@ -28,6 +30,8 @@ public:
     virtual const std::string& Name() const = 0;
 
     virtual const std::string& DemangledName() const = 0;
+
+    virtual std::span<const std::reference_wrapper<IInstruction>> Instructions() const = 0;
 };
 
 } // namespace emilpro

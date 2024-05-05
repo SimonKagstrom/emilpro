@@ -24,6 +24,8 @@ public:
     const std::string& Flags() const final;
     const std::string& Name() const final;
     const std::string& DemangledName() const final;
+    std::span<const std::reference_wrapper<IInstruction>> Instructions() const final;
+    void SetInstructions(std::span<const std::reference_wrapper<IInstruction>> instructions);
 
 private:
     const ISection& m_section;
@@ -35,6 +37,7 @@ private:
     std::span<const std::byte> m_data;
 
     std::vector<std::reference_wrapper<const ISection>> m_relocations;
+    std::span<const std::reference_wrapper<IInstruction>> m_instructions;
 };
 
 } // namespace emilpro

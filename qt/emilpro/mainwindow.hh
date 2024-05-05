@@ -123,4 +123,6 @@ private:
 
     std::span<const std::reference_wrapper<emilpro::IInstruction>> m_visible_instructions;
     std::span<const std::reference_wrapper<emilpro::ISymbol>> m_visible_symbols;
+
+    std::pair<uint64_t, uint64_t> m_visible_instruction_range;
 };

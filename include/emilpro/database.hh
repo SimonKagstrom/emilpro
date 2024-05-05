@@ -34,6 +34,9 @@ public:
     std::vector<LookupResult> LookupByName(std::string_view name);
 
 private:
+    std::optional<std::reference_wrapper<const ISymbol>>
+    SymbolBySectionOffset(const ISection& section, uint64_t offset);
+
     std::vector<std::unique_ptr<IBinaryParser>> m_parsers;
     std::unique_ptr<IDisassembler> m_disassembler;
 

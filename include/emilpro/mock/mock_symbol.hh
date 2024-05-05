@@ -15,6 +15,9 @@ public:
     MAKE_CONST_MOCK0(Section, (const ISection&)(), final);
     MAKE_CONST_MOCK0(Data, std::span<const std::byte>(), final);
     MAKE_CONST_MOCK0(Flags, const std::string&(), final);
+    MAKE_CONST_MOCK0(Instructions,
+                     (std::span<const std::reference_wrapper<IInstruction>>)(),
+                     final);
 };
 
 } // namespace emilpro::mock

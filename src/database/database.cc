@@ -74,14 +74,17 @@ Database::LookupByAddress(const ISection* hint, uint64_t address)
 {
     if (hint && hint->ContainsAddress(address))
     {
-        return {Database::LookupResult {*hint, address - hint->StartAddress(), {}}};
+        return {Database::LookupResult {
+            *hint, address - hint->StartAddress(), SymbolBySectionOffset(*hint, address)}};
     }
 
-    for (auto& section : m_sections)
+    for (const auto& section : m_sections)
     {
         if (section->ContainsAddress(address))
         {
-            return {Database::LookupResult {*section, address - section->StartAddress(), {}}};
+            return {Database::LookupResult {*section,
+                                            address - section->StartAddress(),
+                                            SymbolBySectionOffset(*section, address)}};
         }
     }
 
@@ -93,3 +96,22 @@ Database::LookupByName(std::string_view name)
 {
     return {};
 }
+
+
+std::optional<std::reference_wrapper<const ISymbol>>
+Database::SymbolBySectionOffset(const ISection& section, uint64_t offset)
+{
+    // TODO: use std::lower_bound by offset here instead
+    for (auto& sym_ref : section.Symbols())
+    {
+        const auto& sym = sym_ref.get();
+
+        if (offset >= sym.Offset() && offset < sym.Offset() + sym.Size())
+        {
+            return sym;
+        }
+    }
+
+    return std::nullopt;
+}
+

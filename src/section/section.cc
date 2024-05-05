@@ -112,10 +112,19 @@ Section::Disassemble(IDisassembler& disassembler)
         {
             continue;
         }
-        disassembler.Disassemble(*this,
-                                 StartAddress() + sym->Offset(),
-                                 sym->Data(),
-                                 [this](auto insn) { m_instructions.push_back(std::move(insn)); });
+
+        auto it_before = m_instruction_refs.end();
+        disassembler.Disassemble(
+            *this, StartAddress() + sym->Offset(), sym->Data(), [this](auto insn) {
+                m_instruction_refs.push_back(*insn);
+
+                m_instructions.push_back(std::move(insn));
+            });
+
+        if (it_before != m_instruction_refs.end())
+        {
+            sym->SetInstructions({it_before, m_instruction_refs.end()});
+        }
     }
 
     ISymbol* current_symbol_ {nullptr};
@@ -139,7 +148,6 @@ Section::Disassemble(IDisassembler& disassembler)
                 insn->SetRefersTo(sym.Section(), sym.Offset(), &sym);
             }
         }
-        m_instruction_refs.push_back(*insn);
         m_sorted_instructions[insn->Offset()] = insn.get();
     }
 }
