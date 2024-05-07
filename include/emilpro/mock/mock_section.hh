@@ -11,6 +11,7 @@ public:
     MAKE_CONST_MOCK0(StartAddress, uint64_t(), final);
     MAKE_CONST_MOCK0(Size, size_t(), final);
     MAKE_CONST_MOCK0(GetType, Type(), final);
+    MAKE_CONST_MOCK0(Flags, const std::string&(), final);
     MAKE_CONST_MOCK0(Name, const std::string&(), final);
     MAKE_CONST_MOCK0(Instructions,
                      (std::span<const std::reference_wrapper<IInstruction>>)(),

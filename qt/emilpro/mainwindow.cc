@@ -79,7 +79,7 @@ MainWindow::Init(int argc, char* argv[])
 
         QString addr = QString::fromStdString(fmt::format("0x{:x}", section.StartAddress()));
         QString size = QString::fromStdString(fmt::format("0x{:x}", section.Size()));
-        QString flags = "";
+        QString flags = QString::fromStdString(section.Flags());
         QString name = QString::fromStdString(section.Name());
 
         lst.append(new QStandardItem(addr));
@@ -435,6 +435,7 @@ MainWindow::SetupSectionView()
     m_ui->sectionTableView->resizeColumnsToContents();
     m_ui->sectionTableView->setColumnWidth(0, 100);
     m_ui->sectionTableView->setColumnWidth(1, 80);
+    m_ui->sectionTableView->setColumnWidth(2, 80);
     m_ui->sectionTableView->setSelectionMode(QAbstractItemView::SingleSelection);
 }
 

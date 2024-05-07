@@ -32,13 +32,15 @@ public:
 
     virtual std::span<const std::byte> Data() const = 0;
 
-    virtual  const std::string& Name() const = 0;
+    virtual const std::string& Name() const = 0;
 
     virtual uint64_t StartAddress() const = 0;
 
     virtual size_t Size() const = 0;
 
     virtual Type GetType() const = 0;
+
+    virtual const std::string& Flags() const = 0;
 
     virtual bool ContainsAddress(uint64_t address) const = 0;
 

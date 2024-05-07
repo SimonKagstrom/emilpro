@@ -11,10 +11,12 @@ Section::Section(std::string_view name,
                  std::span<const std::byte> data,
                  uint64_t start_address,
                  Type type,
+                 std::string_view flags,
                  std::function<std::optional<FileLine>(uint64_t offset)> line_lookup)
     : m_data(data.begin(), data.end())
     , m_start_address(start_address)
     , m_type(type)
+    , m_flags(flags)
     , m_name(name)
     , m_line_lookup(std::move(line_lookup))
 {
@@ -46,6 +48,11 @@ ISection::Type
 Section::GetType() const
 {
     return m_type;
+}
+
+const std::string &Section::Flags() const
+{
+    return m_flags;
 }
 
 const std::string&

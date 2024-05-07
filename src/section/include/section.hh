@@ -25,6 +25,7 @@ public:
             std::span<const std::byte> data,
             uint64_t start_address,
             Type type,
+            std::string_view flags,
             std::function<std::optional<FileLine>(uint64_t offset)> line_lookup);
 
     void AddSymbol(std::unique_ptr<Symbol> symbol);
@@ -54,6 +55,8 @@ private:
 
     Type GetType() const final;
 
+    const std::string& Flags() const final;
+
     bool ContainsAddress(uint64_t address) const final;
 
     IInstruction* InstructionAt(uint64_t) const final;
@@ -62,6 +65,7 @@ private:
     const std::vector<std::byte> m_data;
     const uint64_t m_start_address;
     const Type m_type;
+    const std::string m_flags;
     const std::string m_name;
     std::function<std::optional<FileLine>(uint64_t offset)> m_line_lookup;
 

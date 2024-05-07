@@ -248,6 +248,42 @@ BfdBinaryParser::Parse()
 
         auto type = ISection::Type::kOther;
 
+        std::string flags;
+
+        if (section->flags & SEC_ALLOC)
+        {
+            flags += "A";
+        }
+        if (section->flags & SEC_LOAD)
+        {
+            flags += "L";
+        }
+        if (section->flags & SEC_RELOC)
+        {
+            flags += "r";
+        }
+        if (section->flags & SEC_READONLY)
+        {
+            flags += "RO";
+        }
+        if (section->flags & SEC_CODE)
+        {
+            flags += "C";
+        }
+        if (section->flags & SEC_DATA)
+        {
+            flags += "D";
+        }
+        if (section->flags & SEC_CONSTRUCTOR)
+        {
+            flags += "C";
+        }
+        if (section->flags & SEC_KEEP)
+        {
+            flags += "K";
+        }
+
+
         std::unique_ptr<Section> sec;
         if (bfd_get_section_contents(m_bfd, section, p, 0, size))
         {
@@ -261,6 +297,7 @@ BfdBinaryParser::Parse()
                 std::span<const std::byte>(reinterpret_cast<const std::byte*>(p), size),
                 bfd_section_vma(section),
                 type,
+                flags,
                 [this, section](auto offset) { return LookupLine(section, m_bfd_syms, offset); });
         }
         else
@@ -269,6 +306,7 @@ BfdBinaryParser::Parse()
                                             std::span<const std::byte> {},
                                             bfd_section_vma(section),
                                             type,
+                                            flags,
                                             [](auto offset) { return std::nullopt; });
         }
 
@@ -278,10 +316,13 @@ BfdBinaryParser::Parse()
 
     if (auto undef_section = bfd_und_section_ptr)
     {
-        m_pending_sections[undef_section] = std::make_unique<Section>(
-            "*UNDEF*", std::span<const std::byte> {}, 0, ISection::Type::kOther, [](auto offset) {
-                return std::nullopt;
-            });
+        m_pending_sections[undef_section] =
+            std::make_unique<Section>("*UNDEF*",
+                                      std::span<const std::byte> {},
+                                      0,
+                                      ISection::Type::kOther,
+                                      "U",
+                                      [](auto offset) { return std::nullopt; });
     }
 
 
