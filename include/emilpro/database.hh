@@ -34,6 +34,8 @@ public:
     std::vector<LookupResult> LookupByName(std::string_view name);
 
 private:
+    void FixupCallRefersTo(IInstruction& instruction, const IInstruction::Referer& referer);
+
     std::optional<std::reference_wrapper<const ISymbol>>
     SymbolBySectionOffset(const ISection& section, uint64_t offset);
 

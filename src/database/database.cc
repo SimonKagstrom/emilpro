@@ -29,11 +29,17 @@ Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
     // Calculate referenced by
     std::vector<std::pair<std::reference_wrapper<IInstruction>, IInstruction::Referer>>
         all_refers_to;
-    for (auto& insn : m_instruction_refs)
+    for (auto& insn_ref : m_instruction_refs)
     {
-        auto refers_to = insn.get().RefersTo();
+        auto& insn = insn_ref.get();
+        auto refers_to = insn.RefersTo();
         if (refers_to)
         {
+            if (!refers_to->symbol && insn.Type() == IInstruction::InstructionType::kCall)
+            {
+                FixupCallRefersTo(insn, *refers_to);
+            }
+
             all_refers_to.push_back({insn, *refers_to});
         }
     }
@@ -116,4 +122,22 @@ Database::SymbolBySectionOffset(const ISection& section, uint64_t offset)
     }
 
     return std::nullopt;
+}
+
+void
+Database::FixupCallRefersTo(IInstruction& insn, const IInstruction::Referer& refers_to)
+{
+    auto results = LookupByAddress(refers_to.section, refers_to.offset);
+
+    for (auto& cur : results)
+    {
+        const ISymbol* sym = nullptr;
+
+        if (cur.symbol)
+        {
+            sym = &cur.symbol->get();
+        }
+
+        insn.SetRefersTo(cur.section, cur.offset, sym);
+    }
 }
