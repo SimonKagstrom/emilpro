@@ -44,10 +44,10 @@ Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
         }
     }
 
-    for (auto& [insn_ref, ref] : all_refers_to)
+    for (const auto& [insn_ref, ref] : all_refers_to)
     {
-        auto& insn = insn_ref.get();
-        auto& hint = insn.Section();
+        const auto& insn = insn_ref.get();
+        const auto& hint = insn.Section();
 
         if (hint.ContainsAddress(hint.StartAddress() + ref.offset))
         {
