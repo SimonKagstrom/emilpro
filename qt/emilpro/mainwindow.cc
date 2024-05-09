@@ -264,6 +264,12 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
 
                 m_visible_instructions = section.Instructions();
                 offset = result.offset;
+
+                if (auto sym_ref = result.symbol; sym_ref)
+                {
+                    const auto& sym = sym_ref->get();
+                    m_visible_instruction_range = {sym.Offset(), sym.Offset() + sym.Size()};
+                }
             }
         }
 
@@ -375,7 +381,11 @@ MainWindow::SetupInstructionLabels()
 {
     QStringList labels;
 
-    labels << "Address" << "B" << "Instruction" << "F" << "Target";
+    labels << "Address"
+           << "B"
+           << "Instruction"
+           << "F"
+           << "Target";
 
     m_instruction_view_model->setHorizontalHeaderLabels(labels);
 }
