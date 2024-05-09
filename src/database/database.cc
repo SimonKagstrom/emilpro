@@ -74,17 +74,20 @@ Database::LookupByAddress(const ISection* hint, uint64_t address)
 {
     if (hint && hint->ContainsAddress(address))
     {
-        return {Database::LookupResult {
-            *hint, address - hint->StartAddress(), SymbolBySectionOffset(*hint, address)}};
+        return {
+            Database::LookupResult {*hint,
+                                    address - hint->StartAddress(),
+                                    SymbolBySectionOffset(*hint, address - hint->StartAddress())}};
     }
 
     for (const auto& section : m_sections)
     {
         if (section->ContainsAddress(address))
         {
-            return {Database::LookupResult {*section,
-                                            address - section->StartAddress(),
-                                            SymbolBySectionOffset(*section, address)}};
+            return {Database::LookupResult {
+                *section,
+                address - section->StartAddress(),
+                SymbolBySectionOffset(*section, address - section->StartAddress())}};
         }
     }
 
@@ -114,4 +117,3 @@ Database::SymbolBySectionOffset(const ISection& section, uint64_t offset)
 
     return std::nullopt;
 }
-
