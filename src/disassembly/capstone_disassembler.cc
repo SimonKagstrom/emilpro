@@ -156,7 +156,7 @@ private:
         {
             m_refers_to = IInstruction::Referer {
                 nullptr,
-                static_cast<uint64_t>(insn->address + insn->detail->arm.operands[0].imm),
+                static_cast<uint64_t>(insn->detail->x86.operands[0].imm),
                 nullptr};
         }
         else if (IsJump(insn) && insn->detail->x86.op_count > 0 &&
