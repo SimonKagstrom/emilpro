@@ -94,9 +94,7 @@ Symbol::DemangledName() const
 void
 Symbol::AddRelocation(const ISection& src_section, uint64_t offset)
 {
-    m_relocations.push_back(src_section);
-    auto start_addr = m_relocations.back().get().StartAddress();
-    fmt::print("SYM {} add reloc from sect {:x}. Offset {}\n", DemangledName(), start_addr, offset);
+    m_relocations.emplace_back(src_section);
 }
 
 std::span<const std::reference_wrapper<IInstruction>>

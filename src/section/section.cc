@@ -65,15 +65,15 @@ Section::Name() const
 void
 Section::AddSymbol(std::unique_ptr<Symbol> symbol)
 {
-    m_sorted_symbols[symbol->Offset()].push_back(symbol.get());
-    m_symbols.push_back(std::move(symbol));
+    m_sorted_symbols[symbol->Offset()].emplace_back(symbol.get());
+    m_symbols.emplace_back(std::move(symbol));
 }
 
 void
 Section::AddRelocation(uint64_t offset, const Symbol& symbol)
 {
-    fmt::print("Sec add reloc to sym {}. Offset {}\n", symbol.DemangledName(), offset);
-    m_relocations.push_back({symbol, offset});
+    fmt::print("Sec {} add reloc to sym {}. Offset {}\n", Name(), symbol.DemangledName(), offset);
+    m_relocations.emplace_back(symbol, offset);
     m_sorted_relocations[offset] = &m_relocations.back();
 }
 
@@ -147,6 +147,8 @@ Section::Disassemble(IDisassembler& disassembler)
         if (rel_it != m_sorted_relocations.end())
         {
             auto reloc_dst = rel_it->first;
+            fmt::print("XXX: {} for {}\n", reloc_dst, insn->Offset());
+            fmt::print("YYY: {}\n", rel_it->second->offset);
             auto& sym = rel_it->second->symbol.get();
             auto insn_offset = insn->Offset();
 
