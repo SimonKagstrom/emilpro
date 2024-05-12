@@ -253,6 +253,7 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
 
             m_visible_instructions = section.Instructions();
             offset = sym->Offset();
+            m_visible_instruction_range = {offset, offset + sym->Size()};
         }
         else
         {
