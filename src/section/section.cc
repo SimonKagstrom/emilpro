@@ -50,7 +50,8 @@ Section::GetType() const
     return m_type;
 }
 
-const std::string &Section::Flags() const
+const std::string&
+Section::Flags() const
 {
     return m_flags;
 }
@@ -73,7 +74,7 @@ void
 Section::AddRelocation(uint64_t offset, const Symbol& symbol)
 {
     fmt::print("Sec {} add reloc to sym {}. Offset {}\n", Name(), symbol.DemangledName(), offset);
-    m_relocations.emplace_back(symbol, offset);
+    m_relocations.push_back(Relocation{symbol, offset});
     m_sorted_relocations[offset] = &m_relocations.back();
 }
 
