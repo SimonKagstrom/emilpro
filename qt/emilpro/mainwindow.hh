@@ -95,7 +95,7 @@ private:
 
     void restoreState();
 
-    void UpdateInstructionView(uint64_t offset);
+    void UpdateInstructionView(const emilpro::ISymbol &symbol, uint64_t offset);
 
     void UpdateSymbolView(uint64_t address, const std::string& name = "");
 
@@ -123,6 +123,4 @@ private:
 
     std::span<const std::reference_wrapper<emilpro::IInstruction>> m_visible_instructions;
     std::span<const std::reference_wrapper<emilpro::ISymbol>> m_visible_symbols;
-
-    std::pair<uint64_t, uint64_t> m_visible_instruction_range;
 };

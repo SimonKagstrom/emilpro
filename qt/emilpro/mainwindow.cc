@@ -252,8 +252,7 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
             auto& section = sym->Section();
 
             m_visible_instructions = section.Instructions();
-            offset = sym->Offset();
-            m_visible_instruction_range = {offset, offset + sym->Size()};
+            UpdateInstructionView(*sym, sym->Offset());
         }
         else
         {
@@ -269,12 +268,10 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
                 if (auto sym_ref = result.symbol; sym_ref)
                 {
                     const auto& sym = sym_ref->get();
-                    m_visible_instruction_range = {sym.Offset(), sym.Offset() + sym.Size()};
+                    UpdateInstructionView(sym, offset);
                 }
             }
         }
-
-        UpdateInstructionView(offset);
     }
 }
 
@@ -328,8 +325,7 @@ MainWindow::on_symbolTableView_activated(const QModelIndex& index)
     auto& section = sym.Section();
 
     m_visible_instructions = section.Instructions();
-    m_visible_instruction_range = {sym.Offset(), sym.Offset() + sym.Size()};
-    UpdateInstructionView(sym.Offset());
+    UpdateInstructionView(sym, sym.Offset());
 }
 
 void
@@ -382,11 +378,7 @@ MainWindow::SetupInstructionLabels()
 {
     QStringList labels;
 
-    labels << "Address"
-           << "B"
-           << "Instruction"
-           << "F"
-           << "Target";
+    labels << "Address" << "B" << "Instruction" << "F" << "Target";
 
     m_instruction_view_model->setHorizontalHeaderLabels(labels);
 }
@@ -475,7 +467,7 @@ MainWindow::UpdateSymbolView(uint64_t address, const std::string& name)
 }
 
 void
-MainWindow::UpdateInstructionView(uint64_t offset)
+MainWindow::UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offset)
 {
     m_instruction_view_model->removeRows(0, m_instruction_view_model->rowCount());
     auto selected_row = 0;
@@ -483,9 +475,7 @@ MainWindow::UpdateInstructionView(uint64_t offset)
     m_forward_item_delegate.Update(64, m_visible_instructions);
     m_backward_item_delegate.Update(64, m_visible_instructions);
 
-    const auto [low, high] = m_visible_instruction_range;
-
-    for (auto& ref : m_visible_instructions)
+    for (auto& ref : symbol.Instructions())
     {
         const auto& ri = ref.get();
         const auto& section = ri.Section();
@@ -523,14 +513,6 @@ MainWindow::UpdateInstructionView(uint64_t offset)
         }
 
         m_instruction_view_model->appendRow(lst);
-        if (ri.Offset() >= low && ri.Offset() <= high)
-        {
-            m_ui->instructionTableView->showRow(cur_row);
-        }
-        else
-        {
-            m_ui->instructionTableView->hideRow(cur_row);
-        }
     }
 
     m_ui->instructionTableView->selectRow(selected_row);

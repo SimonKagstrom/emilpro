@@ -74,7 +74,7 @@ void
 Section::AddRelocation(uint64_t offset, const Symbol& symbol)
 {
     fmt::print("Sec {} add reloc to sym {}. Offset {}\n", Name(), symbol.DemangledName(), offset);
-    m_relocations.push_back(Relocation{symbol, offset});
+    m_relocations.push_back(Relocation {symbol, offset});
     m_sorted_relocations[offset] = &m_relocations.back();
 }
 
@@ -114,24 +114,37 @@ Section::Disassemble(IDisassembler& disassembler)
     m_instruction_refs.clear();
     m_instructions.clear();
 
-    for (auto& sym : m_symbols)
+    for (auto& cur : m_sorted_symbols)
     {
+        auto sym = cur.second.front();
+        ;
+
         if (static_cast<int64_t>(sym->Offset()) < 0)
         {
             continue;
         }
 
-        auto it_before = m_instruction_refs.end();
+        auto size_before = m_instruction_refs.size();
         disassembler.Disassemble(
             *this, StartAddress() + sym->Offset(), sym->Data(), [this](auto insn) {
-                m_instruction_refs.push_back(*insn);
-
                 m_instructions.push_back(std::move(insn));
+
+                m_instruction_refs.push_back(*m_instructions.back());
             });
 
-        if (it_before != m_instruction_refs.end())
+        if (size_before != m_instruction_refs.size())
         {
-            sym->SetInstructions({it_before, m_instruction_refs.end()});
+            sym->SetInstructions(
+                {m_instruction_refs.begin() + size_before, m_instruction_refs.end()});
+        }
+
+
+        // The other symbols for the same address use the same instructions
+        for (auto it = std::next(cur.second.begin()); it != cur.second.end(); ++it)
+        {
+            auto sym = *it;
+            sym->SetInstructions(
+                {m_instruction_refs.begin() + size_before, m_instruction_refs.end()});
         }
     }
 
@@ -148,8 +161,7 @@ Section::Disassemble(IDisassembler& disassembler)
         if (rel_it != m_sorted_relocations.end())
         {
             auto reloc_dst = rel_it->first;
-            fmt::print("XXX: {} for {}\n", reloc_dst, insn->Offset());
-            fmt::print("YYY: {}\n", rel_it->second->offset);
+
             auto& sym = rel_it->second->symbol.get();
             auto insn_offset = insn->Offset();
 
