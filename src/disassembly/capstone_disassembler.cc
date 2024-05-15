@@ -53,11 +53,21 @@ public:
         // Indirect registers
         for (auto i = 0u; i < insn->detail->regs_read_count; i++)
         {
-            m_used_registers.emplace_back(cs_reg_name(m_handle, insn->detail->regs_read[i]));
+            auto name = cs_reg_name(m_handle, insn->detail->regs_read[i]);
+
+            if (name)
+            {
+                m_used_registers.emplace_back(name);
+            }
         }
         for (auto i = 0u; i < insn->detail->regs_write_count; i++)
         {
-            m_used_registers.emplace_back(cs_reg_name(m_handle, insn->detail->regs_write[i]));
+            auto name = cs_reg_name(m_handle, insn->detail->regs_write[i]);
+
+            if (name)
+            {
+                m_used_registers.emplace_back(name);
+            }
         }
     }
 
@@ -155,9 +165,7 @@ private:
         if (insn->id == x86_insn::X86_INS_CALL)
         {
             m_refers_to = IInstruction::Referer {
-                nullptr,
-                static_cast<uint64_t>(insn->detail->x86.operands[0].imm),
-                nullptr};
+                nullptr, static_cast<uint64_t>(insn->detail->x86.operands[0].imm), nullptr};
         }
         else if (IsJump(insn) && insn->detail->x86.op_count > 0 &&
                  insn->detail->x86.operands[0].type == X86_OP_IMM)
