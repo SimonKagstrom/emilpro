@@ -10,6 +10,12 @@ bool
 Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
                     std::unique_ptr<IDisassembler> disassembler)
 {
+    m_sections.clear();
+    m_section_refs.clear();
+    m_symbol_refs.clear();
+    m_instruction_refs.clear();
+    m_parsers.clear();
+
     m_disassembler = std::move(disassembler);
 
     parser->ForAllSections([this](auto section) {
@@ -18,7 +24,7 @@ Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
     });
 
     // Disassemble all sections
-    for (auto& section : m_sections)
+    for (const auto& section : m_sections)
     {
         section->Disassemble(*m_disassembler);
 
@@ -29,7 +35,7 @@ Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
     // Calculate referenced by
     std::vector<std::pair<std::reference_wrapper<IInstruction>, IInstruction::Referer>>
         all_refers_to;
-    for (auto& insn_ref : m_instruction_refs)
+    for (const auto& insn_ref : m_instruction_refs)
     {
         auto& insn = insn_ref.get();
         auto refers_to = insn.RefersTo();

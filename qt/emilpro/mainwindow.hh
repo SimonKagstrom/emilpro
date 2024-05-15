@@ -91,6 +91,8 @@ private:
 
     void refresh();
 
+    void LoadFile(const std::string& filename);
+
     void saveState();
 
     void restoreState();

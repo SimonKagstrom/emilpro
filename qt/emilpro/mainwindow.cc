@@ -4,6 +4,7 @@
 #include "ui_mainwindow.h"
 
 #include <QFile>
+#include <QFileDialog>
 #include <QMessageBox>
 #include <QScrollBar>
 #include <QTextBlock>
@@ -56,7 +57,18 @@ MainWindow::Init(int argc, char* argv[])
 
     m_ui->menuBar->setNativeMenuBar(false);
 
-    auto parser = emilpro::IBinaryParser::FromFile(argv[1]);
+    if (argc > 1)
+    {
+        LoadFile(argv[1]);
+    }
+
+    return true;
+}
+
+void
+MainWindow::LoadFile(const std::string& filename)
+{
+    auto parser = emilpro::IBinaryParser::FromFile(filename);
     if (!parser)
     {
         // for now
@@ -113,10 +125,7 @@ MainWindow::Init(int argc, char* argv[])
         m_symbol_view_model->appendRow(lst);
     }
     m_visible_symbols = m_database.Symbols();
-
-    return true;
 }
-
 
 void
 MainWindow::on_action_About_triggered(bool activated)
@@ -154,6 +163,9 @@ MainWindow::on_action_Mangle_names_triggered(bool activated)
 void
 MainWindow::on_action_Open_triggered(bool activated)
 {
+    auto filename = QFileDialog::getOpenFileName(this, tr("Open binary"));
+
+    LoadFile(filename.toStdString());
 }
 
 void
