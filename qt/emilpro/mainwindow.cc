@@ -472,8 +472,8 @@ MainWindow::UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offse
     m_instruction_view_model->removeRows(0, m_instruction_view_model->rowCount());
     auto selected_row = 0;
 
-    m_forward_item_delegate.Update(64, m_visible_instructions);
-    m_backward_item_delegate.Update(64, m_visible_instructions);
+    m_forward_item_delegate.Update(64, symbol.Instructions());
+    m_backward_item_delegate.Update(64, symbol.Instructions());
 
     for (auto& ref : symbol.Instructions())
     {
