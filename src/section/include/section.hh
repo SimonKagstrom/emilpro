@@ -73,7 +73,7 @@ private:
     std::vector<std::reference_wrapper<ISymbol>> m_symbol_refs;
     std::map<uint64_t, std::vector<Symbol*>> m_sorted_symbols;
 
-    std::vector<Relocation> m_relocations;
+    std::vector<std::unique_ptr<Relocation>> m_relocations;
     std::map<uint64_t, const Relocation*> m_sorted_relocations;
 
     std::vector<std::unique_ptr<IInstruction>> m_instructions;

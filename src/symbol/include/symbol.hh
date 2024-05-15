@@ -37,7 +37,7 @@ private:
     std::span<const std::byte> m_data;
 
     std::vector<std::reference_wrapper<const ISection>> m_relocations;
-    std::span<const std::reference_wrapper<IInstruction>> m_instructions;
+    std::vector<std::reference_wrapper<IInstruction>> m_instructions;
 };
 
 } // namespace emilpro

@@ -73,9 +73,8 @@ Section::AddSymbol(std::unique_ptr<Symbol> symbol)
 void
 Section::AddRelocation(uint64_t offset, const Symbol& symbol)
 {
-    fmt::print("Sec {} add reloc to sym {}. Offset {}\n", Name(), symbol.DemangledName(), offset);
-    m_relocations.push_back(Relocation {symbol, offset});
-    m_sorted_relocations[offset] = &m_relocations.back();
+    m_relocations.push_back(std::make_unique<Relocation>(Relocation{symbol, offset}));
+    m_sorted_relocations[offset] = m_relocations.back().get();
 }
 
 void

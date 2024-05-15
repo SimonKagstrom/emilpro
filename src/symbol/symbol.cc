@@ -106,5 +106,5 @@ Symbol::Instructions() const
 void
 Symbol::SetInstructions(std::span<const std::reference_wrapper<IInstruction>> instructions)
 {
-    m_instructions = instructions;
+    std::ranges::copy(instructions, std::back_inserter(m_instructions));
 }
