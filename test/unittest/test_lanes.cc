@@ -6,6 +6,7 @@
 #include "test.h"
 
 #include <fmt/format.h>
+#include <ranges>
 
 using namespace emilpro;
 
@@ -101,7 +102,7 @@ public:
         {
             fmt::print("Instruction {:2d}:  ", i);
             i++;
-            for (auto backward : insn.backward_lanes)
+            for (auto backward : std::ranges::reverse_view(insn.backward_lanes))
             {
                 fmt::print(" {}", lane_to_char(backward));
             }
