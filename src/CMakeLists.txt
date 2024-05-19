@@ -1,3 +1,4 @@
+add_subdirectory(address_history)
 add_subdirectory(binary_parser)
 add_subdirectory(database)
 add_subdirectory(disassembly)

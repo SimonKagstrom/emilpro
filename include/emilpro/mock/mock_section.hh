@@ -1,3 +1,4 @@
+#include "../i_disassembler.hh"
 #include "../i_section.hh"
 
 #include <trompeloeil.hpp>

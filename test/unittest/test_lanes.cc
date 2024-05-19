@@ -52,6 +52,10 @@ public:
         CreateReference(0, 2);
         CreateReference(4, 10);
         CreateReference(6, 9);
+
+        CreateReference(12, 13);
+        CreateReference(11, 13);
+
         // Backward
         CreateReference(12, 11);
         CreateReference(13, 8);

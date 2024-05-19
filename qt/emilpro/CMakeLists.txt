@@ -12,6 +12,7 @@ PUBLIC
     Qt6::Widgets
     fmt::fmt
     database
+    address_history
     jump_lanes
 )
 
