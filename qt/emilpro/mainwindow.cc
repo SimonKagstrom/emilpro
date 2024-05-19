@@ -194,6 +194,26 @@ MainWindow::on_actionAT_T_syntax_x86_triggered(bool activated)
 void
 MainWindow::on_addressHistoryListView_activated(const QModelIndex& index)
 {
+    auto entry_index = index.row();
+    if (entry_index < 0 || entry_index >= m_address_history.Entries().size())
+    {
+        return;
+    }
+
+    m_address_history.SetIndex(entry_index);
+    const auto& entry = m_address_history.Entries()[entry_index];
+    auto lookup_result =
+        m_database.LookupByAddress(entry.section, entry.section->StartAddress() + entry.offset);
+    for (const auto& result : lookup_result)
+    {
+        if (auto sym_ref = result.symbol; sym_ref)
+        {
+            const auto& sym = sym_ref->get();
+
+            m_visible_instructions = sym.Instructions();
+            UpdateInstructionView(sym, sym.Offset());
+        }
+    }
 }
 
 void
@@ -263,7 +283,7 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
         {
             auto& section = sym->Section();
 
-            m_visible_instructions = section.Instructions();
+            m_visible_instructions = sym->Instructions();
             UpdateInstructionView(*sym, sym->Offset());
         }
         else
@@ -280,6 +300,7 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
                 if (auto sym_ref = result.symbol; sym_ref)
                 {
                     const auto& sym = sym_ref->get();
+                    m_visible_instructions = sym.Instructions();
                     UpdateInstructionView(sym, offset);
                 }
             }
@@ -336,7 +357,7 @@ MainWindow::on_symbolTableView_activated(const QModelIndex& index)
     auto& sym = m_visible_symbols[row].get();
     auto& section = sym.Section();
 
-    m_visible_instructions = section.Instructions();
+    m_visible_instructions = sym.Instructions();
     UpdateInstructionView(sym, sym.Offset());
 }
 
@@ -368,6 +389,9 @@ MainWindow::saveState()
 void
 MainWindow::SetupAddressHistoryView()
 {
+    m_address_history_view_model = new QStandardItemModel(0, 1, this);
+
+    m_ui->addressHistoryListView->setModel(m_address_history_view_model);
 }
 
 void
@@ -481,6 +505,9 @@ MainWindow::UpdateSymbolView(uint64_t address, const std::string& name)
 void
 MainWindow::UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offset)
 {
+    m_address_history.PushEntry(symbol.Section(), offset);
+    UpdateHistoryView();
+
     m_instruction_view_model->removeRows(0, m_instruction_view_model->rowCount());
     auto selected_row = 0;
 
@@ -531,8 +558,34 @@ MainWindow::UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offse
 }
 
 void
-MainWindow::UpdateDataView(uint64_t address, size_t size)
+MainWindow::UpdateHistoryView()
 {
+    m_address_history_view_model->removeRows(0, m_address_history_view_model->rowCount());
+
+    for (const auto& entry : m_address_history.Entries())
+    {
+        auto lookup_result =
+            m_database.LookupByAddress(entry.section, entry.section->StartAddress() + entry.offset);
+
+        QString str;
+
+        if (lookup_result.size() > 0 && lookup_result[0].symbol)
+        {
+            const auto& sym = lookup_result[0].symbol->get();
+            str = QString::fromStdString(fmt::format(
+                "0x{:x} ({})", entry.section->StartAddress() + entry.offset, sym.DemangledName()));
+        }
+        else
+        {
+            str = QString::fromStdString(
+                fmt::format("0x{:x}", entry.section->StartAddress() + entry.offset));
+        }
+
+        m_address_history_view_model->appendRow(new QStandardItem(str));
+    }
+
+    auto idx = m_address_history_view_model->index(m_address_history.CurrentIndex(), 0);
+    m_ui->addressHistoryListView->setCurrentIndex(idx);
 }
 
 void

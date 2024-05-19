@@ -21,11 +21,15 @@ public:
         }
     };
 
+    AddressHistory();
+
     void PushEntry(const ISection& section, uint64_t offset);
 
     void SetIndex(unsigned index);
 
     unsigned CurrentIndex() const;
+
+    void Clear();
 
     // Valid until a new entry is pushed
     std::span<const Entry> Entries() const;

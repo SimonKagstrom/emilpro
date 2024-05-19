@@ -2,6 +2,12 @@
 
 using namespace emilpro;
 
+AddressHistory::AddressHistory()
+{
+    // Avoid reallocations for the span
+    m_entries.reserve(512);
+}
+
 void
 AddressHistory::PushEntry(const ISection& section, uint64_t offset)
 {
@@ -23,6 +29,13 @@ unsigned
 AddressHistory::CurrentIndex() const
 {
     return m_index;
+}
+
+void
+AddressHistory::Clear()
+{
+    m_entries.clear();
+    m_index = 0;
 }
 
 // Valid until a new entry is pushed

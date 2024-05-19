@@ -1,5 +1,6 @@
 #pragma once
 
+#include "emilpro/address_history.hh"
 #include "emilpro/database.hh"
 #include "emilpro/i_binary_parser.hh"
 #include "emilpro/i_instruction.hh"
@@ -101,7 +102,7 @@ private:
 
     void UpdateSymbolView(uint64_t address, const std::string& name = "");
 
-    void UpdateDataView(uint64_t address, size_t size);
+    void UpdateHistoryView();
 
     const QString& LookupSourceFile(std::string_view);
 
@@ -110,7 +111,7 @@ private:
     QStandardItemModel* m_symbol_view_model {nullptr};
     QStandardItemModel* m_instruction_view_model {nullptr};
     QStandardItemModel* m_references_view_model {nullptr};
-    QStandardItemModel* m_addressHistory_view_model {nullptr};
+    QStandardItemModel* m_address_history_view_model {nullptr};
 
     JumpLaneDelegate m_forward_item_delegate;
     JumpLaneDelegate m_backward_item_delegate;
@@ -122,6 +123,7 @@ private:
 
 
     emilpro::Database m_database;
+    emilpro::AddressHistory m_address_history;
 
     std::span<const std::reference_wrapper<emilpro::IInstruction>> m_visible_instructions;
     std::span<const std::reference_wrapper<emilpro::ISymbol>> m_visible_symbols;
