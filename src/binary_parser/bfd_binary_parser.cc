@@ -220,15 +220,6 @@ BfdBinaryParser::Parse()
         return false;
     }
 
-    auto arch = bfd_get_arch(m_bfd);
-
-    auto it_machine = std::find_if(
-        kMachineMap.begin(), kMachineMap.end(), [arch](auto& p) { return p.first == arch; });
-    if (it_machine)
-    {
-        m_machine = it_machine->second;
-    }
-
 
     long symcount, dynsymcount, syntsymcount;
     bfd_symbol* syntheticSyms;
@@ -349,6 +340,19 @@ BfdBinaryParser::Parse()
         HandleRelocations(section, m_synthetic_bfd_syms);
     }
 
+    auto arch = bfd_get_arch(m_bfd);
+
+    auto it_machine = std::find_if(
+        kMachineMap.begin(), kMachineMap.end(), [arch](auto& p) { return p.first == arch; });
+    if (it_machine)
+    {
+        m_machine = it_machine->second;
+        if (m_machine == Machine::kArm && m_arm_in_thumb_mode)
+        {
+            m_machine = Machine::kArmThumb;
+        }
+    }
+
     // Add the file symbol
     //        ISymbol& sym = SymbolFactory::instance().createSymbol(ISymbol::LINK_NORMAL,
     //                                                              ISymbol::SYM_FILE,
@@ -391,10 +395,16 @@ BfdBinaryParser::handleSymbols(long symcount, bfd_symbol** syms, bool dynamic)
 
         if (bfd_get_arch(m_bfd) == bfd_arch_arm && sym_name)
         {
-            // Skip ARM $a $d symbols
+            // Skip ARM $a $d $t symbols
             if (strlen(sym_name) >= 2 && sym_name[0] == '$' && strchr("atd", sym_name[1]) &&
                 (sym_name[2] == '\0' || sym_name[2] == '.'))
+            {
+                if (sym_name[1] == 't')
+                {
+                    m_arm_in_thumb_mode = true;
+                }
                 continue;
+            }
         }
 
         auto sect_it = m_pending_sections.find(section);

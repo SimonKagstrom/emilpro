@@ -30,7 +30,8 @@ private:
     Machine GetMachine() const final;
     void ForAllSections(std::function<void(std::unique_ptr<ISection>)> on_section) final;
 
-    std::optional<Section::FileLine> LookupLine(bfd_section* section, bfd_symbol** symTbl, uint64_t offset);
+    std::optional<Section::FileLine>
+    LookupLine(bfd_section* section, bfd_symbol** symTbl, uint64_t offset);
     bool getLineByAddress(uint64_t addr);
     void handleSymbols(long symcount, bfd_symbol** syms, bool dynamic);
     void HandleRelocations(asection* section, bfd_symbol** syms);
@@ -53,6 +54,8 @@ private:
     std::unordered_map<bfd_symbol*, Symbol*> m_symbol_map;
 
     BfdSectionByAddress_t m_sectionByAddress;
+
+    bool m_arm_in_thumb_mode {false};
 };
 
 } // namespace emilpro

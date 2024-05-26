@@ -11,6 +11,7 @@ using namespace emilpro;
 constexpr auto kMachineMap = std::array {
     std::pair {Machine::kX86, cs_arch::CS_ARCH_X86},
     std::pair {Machine::kArm, cs_arch::CS_ARCH_ARM},
+    std::pair {Machine::kArmThumb, cs_arch::CS_ARCH_ARM},
     std::pair {Machine::kArm64, cs_arch::CS_ARCH_ARM64},
     std::pair {Machine::kMips, cs_arch::CS_ARCH_MIPS},
     std::pair {Machine::kPpc, cs_arch::CS_ARCH_PPC},
@@ -295,10 +296,10 @@ private:
 } // namespace
 
 
-CapstoneDisassembler::CapstoneDisassembler(cs_arch arch)
+CapstoneDisassembler::CapstoneDisassembler(cs_arch arch, cs_mode mode)
     : m_arch(arch)
 {
-    cs_open(m_arch, CS_MODE_LITTLE_ENDIAN, &m_handle);
+    cs_open(m_arch, mode, &m_handle);
 
     size_t option = CS_OPT_ON;
 
@@ -352,8 +353,16 @@ CapstoneDisassembler::Create(Machine machine)
     {
         return nullptr;
     }
+    unsigned int mode = CS_MODE_LITTLE_ENDIAN;
 
-    auto p = new CapstoneDisassembler(it->second);
+    if (it->first == Machine::kArmThumb)
+    {
+        mode |= CS_MODE_THUMB;
+    }
+
+
+
+    auto p = new CapstoneDisassembler(it->second, static_cast<cs_mode>(mode));
 
     return std::unique_ptr<CapstoneDisassembler>(p);
 }

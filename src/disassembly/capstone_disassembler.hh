@@ -20,7 +20,7 @@ private:
                      std::span<const std::byte> data,
                      std::function<void(std::unique_ptr<IInstruction>)> on_instruction) final;
 
-    CapstoneDisassembler(cs_arch arch);
+    CapstoneDisassembler(cs_arch arch, cs_mode mode);
     csh m_handle;
     cs_arch m_arch;
 };
