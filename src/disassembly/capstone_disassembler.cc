@@ -322,24 +322,21 @@ CapstoneDisassembler::Disassemble(const ISection& section,
                                   std::span<const std::byte> data,
                                   std::function<void(std::unique_ptr<IInstruction>)> on_instruction)
 {
-    cs_insn* insns = nullptr;
+    auto insn = cs_malloc(m_handle);
 
-    auto n = cs_disasm(m_handle,
-                       reinterpret_cast<const uint8_t*>(data.data()),
-                       data.size(),
-                       start_address,
-                       0,
-                       &insns);
+    auto code = reinterpret_cast<const uint8_t*>(data.data());
+    auto size = data.size();
+    auto address = start_address;
+    auto cur_address = address;
 
-    uint64_t offset = start_address - section.StartAddress();
-    for (auto i = 0; i < n; i++)
+    while (cs_disasm_iter(m_handle, &code, &size, &address, insn))
     {
-        auto p = &insns[i];
-        on_instruction(
-            std::make_unique<CapstoneInstruction>(m_handle, section, m_arch, offset, data, p));
-        offset += p->size;
-        data = data.subspan(p->size);
+        on_instruction(std::make_unique<CapstoneInstruction>(
+            m_handle, section, m_arch, cur_address, data, insn));
+        cur_address = address;
     }
+
+    cs_free(insn, 1);
 }
 
 
