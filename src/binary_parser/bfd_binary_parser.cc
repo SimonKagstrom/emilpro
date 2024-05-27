@@ -344,7 +344,7 @@ BfdBinaryParser::Parse()
 
     auto it_machine = std::find_if(
         kMachineMap.begin(), kMachineMap.end(), [arch](auto& p) { return p.first == arch; });
-    if (it_machine)
+    if (it_machine != kMachineMap.end())
     {
         m_machine = it_machine->second;
         if (m_machine == Machine::kArm && m_arm_in_thumb_mode)
