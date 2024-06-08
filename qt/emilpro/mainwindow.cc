@@ -311,23 +311,42 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
 void
 MainWindow::on_locationLineEdit_textChanged(const QString& text)
 {
-    // Hide all symbols which does not match the text
+    auto is_address = false;
+    auto address = text.toULongLong(&is_address, 16);
+
+    // Hide all symbols which does not match the text / address
     for (auto i = 0u; i < m_symbol_view_model->rowCount(); i++)
     {
-        if (auto item = m_symbol_view_model->item(i, 4); item)
+        QString to_compare;
+        const auto& sym = m_visible_symbols[i].get();
+
+        // Compare either addresses, or symbol names
+        if (is_address)
         {
-            auto name = item->text();
-            if (name.contains(text, Qt::CaseInsensitive))
-            {
-                m_ui->symbolTableView->showRow(i);
-            }
-            else
-            {
-                m_ui->symbolTableView->hideRow(i);
-            }
+            to_compare = QString::number(sym.Section().StartAddress() + sym.Offset(), 16);
+        }
+        else
+        {
+            to_compare = QString(sym.DemangledName().c_str());
+        }
+
+        // Ignore underscores, unless explicitly given in the search string
+        if (!text.contains("_"))
+        {
+            to_compare.remove("_");
+        }
+
+        if (to_compare.contains(text, Qt::CaseInsensitive))
+        {
+            m_ui->symbolTableView->showRow(i);
+        }
+        else
+        {
+            m_ui->symbolTableView->hideRow(i);
         }
     }
 }
+
 
 void
 MainWindow::on_locationLineEdit_returnPressed()
