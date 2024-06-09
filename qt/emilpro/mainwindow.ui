@@ -68,6 +68,9 @@
              <property name="enabled">
               <bool>true</bool>
              </property>
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
+             </property>
              <property name="currentIndex">
               <number>0</number>
              </property>
@@ -157,6 +160,9 @@
                  <kerning>true</kerning>
                 </font>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::ClickFocus</enum>
+               </property>
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
@@ -205,6 +211,9 @@
                <pointsize>10</pointsize>
               </font>
              </property>
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
+             </property>
              <property name="editTriggers">
               <set>QAbstractItemView::NoEditTriggers</set>
              </property>
@@ -236,6 +245,9 @@
              <pointsize>12</pointsize>
              <italic>false</italic>
             </font>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::TabFocus</enum>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::NoEditTriggers</set>
@@ -310,6 +322,9 @@
              <italic>false</italic>
             </font>
            </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
           </widget>
          </item>
         </layout>
@@ -342,6 +357,9 @@
              <family>Courier New</family>
              <pointsize>10</pointsize>
             </font>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::ClickFocus</enum>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::NoEditTriggers</set>
@@ -483,6 +501,8 @@
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
   <tabstop>locationLineEdit</tabstop>
+  <tabstop>symbolTableView</tabstop>
+  <tabstop>instructionTableView</tabstop>
  </tabstops>
  <resources/>
  <connections/>
