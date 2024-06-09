@@ -382,10 +382,14 @@ MainWindow::on_locationLineEdit_textChanged(const QString& text)
             to_compare = QString(sym.DemangledName().c_str());
         }
 
-        // Ignore underscores, unless explicitly given in the search string
+        // Ignore underscores and colons, unless explicitly given in the search string
         if (!text.contains("_"))
         {
             to_compare.remove("_");
+        }
+        if (!text.contains(":"))
+        {
+            to_compare.remove(":");
         }
 
         if (to_compare.contains(text, Qt::CaseInsensitive))
