@@ -129,6 +129,8 @@ MainWindow::LoadFile(const std::string& filename)
         {
             SetRowColor(m_section_view_model, last_row, kSectionDataColor);
         }
+
+        m_ui->sectionTableView->setCurrentIndex(m_section_view_model->index(0, 0));
     }
 
     for (auto& sym_ref : m_database.Symbols())
@@ -176,6 +178,8 @@ MainWindow::LoadFile(const std::string& filename)
                 SetRowColor(m_symbol_view_model, last_row, kSymbolDataColor);
             }
         }
+
+        m_ui->symbolTableView->setCurrentIndex(m_symbol_view_model->index(0, 0));
     }
     m_visible_symbols = m_database.Symbols();
 }

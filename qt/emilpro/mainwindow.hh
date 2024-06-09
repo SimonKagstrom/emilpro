@@ -31,12 +31,11 @@ public:
 
 private slots:
     void on_symbolTableView_activated(const QModelIndex& index);
+    void on_symbolTableView_entered(const QModelIndex& index);
 
     void on_instructionTableView_activated(const QModelIndex& index);
 
     void on_referencesTableView_activated(const QModelIndex& index);
-
-    void on_symbolTableView_entered(const QModelIndex& index);
 
     void on_addressHistoryListView_activated(const QModelIndex& index);
 
