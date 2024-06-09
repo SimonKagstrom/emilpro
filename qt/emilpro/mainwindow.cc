@@ -7,8 +7,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QScrollBar>
-#include <QTextBlock>
 #include <QShortcut>
+#include <QTextBlock>
 #include <fmt/format.h>
 #include <qstandarditemmodel.h>
 #include <string>
@@ -212,7 +212,8 @@ MainWindow::on_action_Forward_triggered(bool activated)
 {
 }
 
-void MainWindow::on_action_FocusLocationBar_triggered(bool activated)
+void
+MainWindow::on_action_FocusLocationBar_triggered(bool activated)
 {
     m_ui->locationLineEdit->setFocus();
 }
@@ -324,6 +325,7 @@ MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelIndex& p
 void
 MainWindow::on_instructionTableView_activated(const QModelIndex& index)
 {
+    on_instructionTableView_doubleClicked(index);
 }
 
 void
@@ -535,6 +537,8 @@ MainWindow::SetupInstructionView()
             SLOT(on_insnCurrentChanged(QModelIndex, QModelIndex)));
 
     SetupInstructionLabels();
+
+    m_ui->instructionTableView->installEventFilter(this);
 }
 
 void
@@ -580,6 +584,9 @@ MainWindow::SetupSymbolView()
     m_ui->symbolTableView->setColumnWidth(1, 80);
     m_ui->symbolTableView->setColumnWidth(3, 160);
     m_ui->symbolTableView->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    // Install an event filter to have the Enter key behave like activate
+    m_ui->symbolTableView->installEventFilter(this);
 }
 
 
@@ -718,4 +725,30 @@ MainWindow::SetRowColor(QAbstractItemModel* model,
     {
         model->setData(model->index(row, j, parent), color, Qt::BackgroundRole);
     }
+}
+
+bool
+MainWindow::eventFilter(QObject* watched, QEvent* event)
+{
+    // (Thanks to copilot for much of this code!)
+    if (event->type() == QEvent::KeyPress)
+    {
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return)
+        {
+            auto p = watched == m_ui->symbolTableView ? m_ui->symbolTableView
+                                                      : m_ui->instructionTableView;
+
+            // Get the current index
+            QModelIndex currentIndex = p->currentIndex();
+            if (currentIndex.isValid())
+            {
+                // Emit the activated signal with the current index
+                emit p->activated(currentIndex);
+                return true; // Indicate that the event was handled
+            }
+        }
+    }
+
+    return QMainWindow::eventFilter(watched, event); // Pass the event on to the base class
 }

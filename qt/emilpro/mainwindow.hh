@@ -113,6 +113,8 @@ private:
                      const QBrush& color,
                      const QModelIndex& parent = QModelIndex());
 
+    bool eventFilter(QObject *watched, QEvent *event) final;
+
     Ui::MainWindow* m_ui {nullptr};
     QStandardItemModel* m_section_view_model {nullptr};
     QStandardItemModel* m_symbol_view_model {nullptr};
