@@ -73,7 +73,7 @@ Section::AddSymbol(std::unique_ptr<Symbol> symbol)
 void
 Section::AddRelocation(uint64_t offset, const Symbol& symbol)
 {
-    m_relocations.push_back(std::make_unique<Relocation>(Relocation{symbol, offset}));
+    m_relocations.push_back(std::make_unique<Relocation>(Relocation {symbol, offset}));
     m_sorted_relocations[offset] = m_relocations.back().get();
 }
 

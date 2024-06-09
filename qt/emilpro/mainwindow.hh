@@ -98,13 +98,19 @@ private:
 
     void restoreState();
 
-    void UpdateInstructionView(const emilpro::ISymbol &symbol, uint64_t offset);
+    void UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offset);
 
     void UpdateSymbolView(uint64_t address, const std::string& name = "");
 
     void UpdateHistoryView();
 
     const QString& LookupSourceFile(std::string_view);
+
+    // From https://forum.qt.io/topic/76265/set-background-of-specific-row-in-qtableview/2
+    void SetRowColor(QAbstractItemModel* model,
+                     int row,
+                     const QBrush& color,
+                     const QModelIndex& parent = QModelIndex());
 
     Ui::MainWindow* m_ui {nullptr};
     QStandardItemModel* m_section_view_model {nullptr};

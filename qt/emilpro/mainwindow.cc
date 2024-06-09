@@ -12,6 +12,20 @@
 #include <qstandarditemmodel.h>
 #include <string>
 
+namespace
+{
+
+auto kSectionUndefinedColor = QBrush(Qt::lightGray);
+auto kSectionCodeColor = QBrush("lightgreen");
+auto kSectionDataColor = QBrush("pink");
+
+auto kSymbolUndefinedColor = kSectionUndefinedColor;
+auto kSymbolDataColor = kSectionDataColor;
+auto kSymbolDynamicDataColor = QBrush("salmon");
+auto kSymbolDynamicColor = QBrush("lightgreen");
+
+} // namespace
+
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , m_ui(new Ui::MainWindow)
@@ -100,6 +114,20 @@ MainWindow::LoadFile(const std::string& filename)
         lst.append(new QStandardItem(name));
 
         m_section_view_model->appendRow(lst);
+        auto last_row = m_section_view_model->rowCount() - 1;
+
+        if (flags.contains("U"))
+        {
+            SetRowColor(m_section_view_model, last_row, kSectionUndefinedColor);
+        }
+        else if (flags.contains("C"))
+        {
+            SetRowColor(m_section_view_model, last_row, kSectionCodeColor);
+        }
+        else if (flags.contains("D"))
+        {
+            SetRowColor(m_section_view_model, last_row, kSectionDataColor);
+        }
     }
 
     for (auto& sym_ref : m_database.Symbols())
@@ -123,6 +151,30 @@ MainWindow::LoadFile(const std::string& filename)
         lst.append(new QStandardItem(name));
 
         m_symbol_view_model->appendRow(lst);
+        auto last_row = m_symbol_view_model->rowCount() - 1;
+
+        if (flags.contains("U"))
+        {
+            SetRowColor(m_symbol_view_model, last_row, kSymbolUndefinedColor);
+        }
+        else if (sym.Section().Flags().find("C") != std::string::npos)
+        {
+            if (flags.contains("D"))
+            {
+                SetRowColor(m_symbol_view_model, last_row, kSymbolDynamicColor);
+            }
+        }
+        else if (sym.Section().Flags().find("D") != std::string::npos)
+        {
+            if (flags.contains("D"))
+            {
+                SetRowColor(m_symbol_view_model, last_row, kSymbolDynamicDataColor);
+            }
+            else
+            {
+                SetRowColor(m_symbol_view_model, last_row, kSymbolDataColor);
+            }
+        }
     }
     m_visible_symbols = m_database.Symbols();
 }
@@ -635,4 +687,20 @@ MainWindow::LookupSourceFile(std::string_view path)
     }
 
     return m_source_file_map[sp];
+}
+
+void
+MainWindow::SetRowColor(QAbstractItemModel* model,
+                        int row,
+                        const QBrush& color,
+                        const QModelIndex& parent)
+{
+    assert(model);
+    assert(row >= 0 && row < model->rowCount(parent));
+
+    const int colCount = model->columnCount(parent);
+    for (int j = 0; j < colCount; ++j)
+    {
+        model->setData(model->index(row, j, parent), color, Qt::BackgroundRole);
+    }
 }
