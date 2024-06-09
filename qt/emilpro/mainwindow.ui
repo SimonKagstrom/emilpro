@@ -379,6 +379,7 @@
     </property>
     <addaction name="action_Forward"/>
     <addaction name="action_Backward"/>
+    <addaction name="action_FocusLocationBar"/>
     <addaction name="separator"/>
     <addaction name="action_Mangle_names"/>
     <addaction name="action_Toggle_data_instructions"/>
@@ -416,7 +417,7 @@
     <string>&amp;Forward</string>
    </property>
    <property name="shortcut">
-    <string>Alt+Right</string>
+    <string>Ctrl+Right</string>
    </property>
   </action>
   <action name="action_Backward">
@@ -424,7 +425,7 @@
     <string>&amp;Backward</string>
    </property>
    <property name="shortcut">
-    <string>Alt+Left</string>
+    <string>Ctrl+Left</string>
    </property>
   </action>
   <action name="action_Mangle_names">
@@ -468,6 +469,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="action_FocusLocationBar">
+   <property name="text">
+    <string>Focus &amp;Location bar</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
    </property>
   </action>
  </widget>

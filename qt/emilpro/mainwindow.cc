@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QScrollBar>
 #include <QTextBlock>
+#include <QShortcut>
 #include <fmt/format.h>
 #include <qstandarditemmodel.h>
 #include <string>
@@ -206,6 +207,12 @@ void
 MainWindow::on_action_Forward_triggered(bool activated)
 {
 }
+
+void MainWindow::on_action_FocusLocationBar_triggered(bool activated)
+{
+    m_ui->locationLineEdit->setFocus();
+}
+
 
 void
 MainWindow::on_action_Mangle_names_triggered(bool activated)

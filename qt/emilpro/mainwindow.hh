@@ -56,6 +56,8 @@ private slots:
 
     void on_action_Backward_triggered(bool activated);
 
+    void on_action_FocusLocationBar_triggered(bool activated);
+
     void on_action_Mangle_names_triggered(bool activated);
 
     void on_action_Toggle_data_instructions_triggered(bool activated);
