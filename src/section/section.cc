@@ -116,7 +116,6 @@ Section::Disassemble(IDisassembler& disassembler)
     for (auto& cur : m_sorted_symbols)
     {
         auto sym = cur.second.front();
-        ;
 
         if (static_cast<int64_t>(sym->Offset()) < 0)
         {
@@ -130,6 +129,7 @@ Section::Disassemble(IDisassembler& disassembler)
 
                 m_instruction_refs.push_back(*m_instructions.back());
             });
+
 
         if (size_before != m_instruction_refs.size())
         {

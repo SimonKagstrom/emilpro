@@ -35,7 +35,7 @@ public:
 
     virtual uint32_t Size() const = 0;
 
-    virtual uint32_t Offset() const = 0;
+    virtual uint64_t Offset() const = 0;
 
     virtual std::string_view AsString() const = 0;
 

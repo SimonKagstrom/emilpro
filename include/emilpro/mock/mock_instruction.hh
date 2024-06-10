@@ -14,7 +14,7 @@ public:
     MAKE_CONST_MOCK0(Data, (std::span<const std::byte>)(), final);
     MAKE_CONST_MOCK0(Size, uint32_t(), final);
     MAKE_CONST_MOCK0(Type, InstructionType(), final);
-    MAKE_CONST_MOCK0(Offset, uint32_t(), final);
+    MAKE_CONST_MOCK0(Offset, uint64_t(), final);
     MAKE_CONST_MOCK0(AsString, std::string_view(), final);
     MAKE_CONST_MOCK0(ReferredBy, std::span<const Referer>(), final);
     MAKE_CONST_MOCK0(RefersTo, std::optional<Referer>(), final);

@@ -616,7 +616,7 @@ MainWindow::UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offse
 
         QList<QStandardItem*> lst;
         lst.append(
-            new QStandardItem(fmt::format("{:08x}", section.StartAddress() + ri.Offset()).c_str()));
+            new QStandardItem(fmt::format("0x{:08x}", ri.Offset()).c_str()));
         lst.append(nullptr); // Backward branch
         lst.append(new QStandardItem(std::string(ri.AsString()).c_str()));
         lst.append(nullptr); // Forward branch

@@ -218,7 +218,7 @@ private:
         return m_data.size();
     }
 
-    uint32_t Offset() const final
+    uint64_t Offset() const final
     {
         return m_offset;
     }
@@ -285,7 +285,7 @@ private:
     std::optional<IInstruction::Referer> m_refers_to;
     std::vector<IInstruction::Referer> m_referred_by;
     const std::string m_encoding;
-    const uint32_t m_offset;
+    const uint64_t m_offset;
 
     std::optional<std::string> source_file_;
     std::optional<uint32_t> source_line_;
