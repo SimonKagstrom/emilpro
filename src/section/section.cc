@@ -20,10 +20,6 @@ Section::Section(std::string_view name,
     , m_name(name)
     , m_line_lookup(std::move(line_lookup))
 {
-    fmt::print("Section {} created with start address {:x} and size {:x}\n",
-               m_name,
-               start_address,
-               data.size());
 }
 
 std::span<const std::byte>

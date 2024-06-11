@@ -163,17 +163,21 @@ private:
 
     void ProcessX86(const cs_insn* insn)
     {
+        auto upper_section_address = m_section.StartAddress() & 0xffffffff00000000ull;
+
         if (insn->id == x86_insn::X86_INS_CALL)
         {
             m_refers_to = IInstruction::Referer {
-                nullptr, static_cast<uint64_t>(insn->detail->x86.operands[0].imm), nullptr};
+                nullptr,
+                upper_section_address + static_cast<uint64_t>(insn->detail->x86.operands[0].imm),
+                nullptr};
         }
         else if (IsJump(insn) && insn->detail->x86.op_count > 0 &&
                  insn->detail->x86.operands[0].type == X86_OP_IMM)
         {
             m_refers_to = IInstruction::Referer {
                 &m_section,
-                static_cast<uint64_t>(insn->detail->x86.operands[0].imm) - m_section.StartAddress(),
+                upper_section_address + static_cast<uint64_t>(insn->detail->x86.operands[0].imm),
                 nullptr};
         }
 
@@ -356,7 +360,6 @@ CapstoneDisassembler::Create(Machine machine)
     {
         mode |= CS_MODE_THUMB;
     }
-
 
 
     auto p = new CapstoneDisassembler(it->second, static_cast<cs_mode>(mode));
