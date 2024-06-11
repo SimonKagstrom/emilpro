@@ -59,6 +59,9 @@
              <italic>false</italic>
             </font>
            </property>
+           <property name="focusPolicy">
+            <enum>Qt::ClickFocus</enum>
+           </property>
           </widget>
          </item>
          <item>

@@ -60,6 +60,9 @@ MainWindow::Init(int argc, char* argv[])
     SetupInstructionEncoding();
     SetupDataView();
 
+    // Set focus on the location line edit by default
+    m_ui->locationLineEdit->setFocus();
+
     m_highlighter = new Highlighter(m_ui->sourceTextEdit->document());
     QTextEdit::ExtraSelection highlight;
     highlight.cursor = m_ui->sourceTextEdit->textCursor();
@@ -379,6 +382,8 @@ MainWindow::on_locationLineEdit_textChanged(const QString& text)
     auto is_address = false;
     auto address = text.toULongLong(&is_address, 16);
 
+    unsigned lowest_visible = m_symbol_view_model->rowCount() - 1;
+
     // Hide all symbols which does not match the text / address
     for (auto i = 0u; i < m_symbol_view_model->rowCount(); i++)
     {
@@ -408,12 +413,17 @@ MainWindow::on_locationLineEdit_textChanged(const QString& text)
         if (to_compare.contains(text, Qt::CaseInsensitive))
         {
             m_ui->symbolTableView->showRow(i);
+
+            lowest_visible = std::min(lowest_visible, i);
         }
         else
         {
             m_ui->symbolTableView->hideRow(i);
         }
     }
+
+    // ... and focus the first visible line
+        m_ui->symbolTableView->setCurrentIndex(m_symbol_view_model->index(lowest_visible, 0));
 }
 
 
