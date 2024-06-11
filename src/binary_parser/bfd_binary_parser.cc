@@ -131,6 +131,9 @@ BfdBinaryParser::LookupLine(bfd_section* section, bfd_symbol** symTbl, uint64_t 
     const char* function;
     unsigned int line_nr;
 
+    // Use the section offset to lookup
+    offset = offset - bfd_section_vma(section);
+
     if (bfd_find_nearest_line(m_bfd, section, symTbl, offset, &file_name, &function, &line_nr))
     {
         if (!file_name)
