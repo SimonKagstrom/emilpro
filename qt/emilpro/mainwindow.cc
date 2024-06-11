@@ -345,12 +345,8 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
     auto refers_to = insn.RefersTo();
     if (refers_to)
     {
-        uint64_t offset = 0;
-
         if (auto sym = refers_to->symbol; sym)
         {
-            auto& section = sym->Section();
-
             m_visible_instructions = sym->Instructions();
             UpdateInstructionView(*sym, sym->Offset());
         }
@@ -363,13 +359,13 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
                 auto& section = result.section;
 
                 m_visible_instructions = section.Instructions();
-                offset = result.offset;
 
                 if (auto sym_ref = result.symbol; sym_ref)
                 {
                     const auto& sym = sym_ref->get();
+
                     m_visible_instructions = sym.Instructions();
-                    UpdateInstructionView(sym, offset);
+                    UpdateInstructionView(sym, result.offset + section.StartAddress());
                 }
             }
         }
@@ -423,7 +419,7 @@ MainWindow::on_locationLineEdit_textChanged(const QString& text)
     }
 
     // ... and focus the first visible line
-        m_ui->symbolTableView->setCurrentIndex(m_symbol_view_model->index(lowest_visible, 0));
+    m_ui->symbolTableView->setCurrentIndex(m_symbol_view_model->index(lowest_visible, 0));
 }
 
 
@@ -512,7 +508,11 @@ MainWindow::SetupInstructionLabels()
 {
     QStringList labels;
 
-    labels << "Address" << "B" << "Instruction" << "F" << "Target";
+    labels << "Address"
+           << "B"
+           << "Instruction"
+           << "F"
+           << "Target";
 
     m_instruction_view_model->setHorizontalHeaderLabels(labels);
 }
@@ -625,8 +625,7 @@ MainWindow::UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offse
         auto refers_to = ri.RefersTo();
 
         QList<QStandardItem*> lst;
-        lst.append(
-            new QStandardItem(fmt::format("0x{:08x}", ri.Offset()).c_str()));
+        lst.append(new QStandardItem(fmt::format("0x{:08x}", ri.Offset()).c_str()));
         lst.append(nullptr); // Backward branch
         lst.append(new QStandardItem(std::string(ri.AsString()).c_str()));
         lst.append(nullptr); // Forward branch
