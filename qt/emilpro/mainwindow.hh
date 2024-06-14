@@ -101,7 +101,7 @@ private:
 
     void UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offset);
 
-    void UpdateSymbolView(uint64_t address, const std::string& name = "");
+    void UpdateSymbolView(const emilpro::ISymbol& symbol);
 
     void UpdateHistoryView();
 
@@ -113,7 +113,7 @@ private:
                      const QBrush& color,
                      const QModelIndex& parent = QModelIndex());
 
-    bool eventFilter(QObject *watched, QEvent *event) final;
+    bool eventFilter(QObject* watched, QEvent* event) final;
 
     Ui::MainWindow* m_ui {nullptr};
     QStandardItemModel* m_section_view_model {nullptr};
@@ -121,6 +121,8 @@ private:
     QStandardItemModel* m_instruction_view_model {nullptr};
     QStandardItemModel* m_references_view_model {nullptr};
     QStandardItemModel* m_address_history_view_model {nullptr};
+
+    const emilpro::ISymbol* m_current_symbol {nullptr};
 
     JumpLaneDelegate m_forward_item_delegate;
     JumpLaneDelegate m_backward_item_delegate;

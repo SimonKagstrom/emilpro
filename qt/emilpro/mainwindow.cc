@@ -279,6 +279,7 @@ MainWindow::on_addressHistoryListView_activated(const QModelIndex& index)
 
             m_visible_instructions = sym.Instructions();
             UpdateInstructionView(sym, sym.Offset());
+            UpdateSymbolView(sym);
         }
     }
 }
@@ -343,30 +344,34 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
     const auto& insn = m_visible_instructions[row].get();
 
     auto refers_to = insn.RefersTo();
-    if (refers_to)
+    if (!refers_to)
     {
-        if (auto sym = refers_to->symbol; sym)
-        {
-            m_visible_instructions = sym->Instructions();
-            UpdateInstructionView(*sym, sym->Offset());
-        }
-        else
-        {
-            auto lookup_result = m_database.LookupByAddress(&insn.Section(), refers_to->offset);
+        return;
+    }
 
-            for (const auto& result : lookup_result)
+    if (refers_to->symbol)
+    {
+        auto sym = refers_to->symbol;
+
+        m_visible_instructions = sym->Instructions();
+        UpdateInstructionView(*sym, sym->Offset());
+        UpdateSymbolView(*sym);
+    }
+    else
+    {
+        auto lookup_result = m_database.LookupByAddress(&insn.Section(), refers_to->offset);
+
+        for (const auto& result : lookup_result)
+        {
+            auto& section = result.section;
+
+            if (auto sym_ref = result.symbol; sym_ref)
             {
-                auto& section = result.section;
+                const auto& sym = sym_ref->get();
 
-                m_visible_instructions = section.Instructions();
-
-                if (auto sym_ref = result.symbol; sym_ref)
-                {
-                    const auto& sym = sym_ref->get();
-
-                    m_visible_instructions = sym.Instructions();
-                    UpdateInstructionView(sym, result.offset + section.StartAddress());
-                }
+                m_visible_instructions = sym.Instructions();
+                UpdateInstructionView(sym, result.offset + section.StartAddress());
+                UpdateSymbolView(sym);
             }
         }
     }
@@ -406,7 +411,7 @@ MainWindow::on_locationLineEdit_textChanged(const QString& text)
             to_compare.remove(":");
         }
 
-        if (to_compare.contains(text, Qt::CaseInsensitive))
+        if (to_compare.contains(text, Qt::CaseInsensitive) || m_current_symbol == &sym)
         {
             m_ui->symbolTableView->showRow(i);
 
@@ -601,8 +606,23 @@ MainWindow::SetupSymbolView()
 
 
 void
-MainWindow::UpdateSymbolView(uint64_t address, const std::string& name)
+MainWindow::UpdateSymbolView(const emilpro::ISymbol &symbol)
 {
+    unsigned row = 0;
+
+    const auto history_entries = m_address_history.Entries();
+
+    for (const auto &cur : m_visible_symbols)
+    {
+        if (&cur.get() == &symbol)
+        {
+            m_ui->symbolTableView->showRow(row);
+            m_ui->symbolTableView->selectRow(row);
+            m_ui->symbolTableView->scrollTo(m_symbol_view_model->index(row, 0));
+            return;
+        }
+        row++;
+    }
 }
 
 void
