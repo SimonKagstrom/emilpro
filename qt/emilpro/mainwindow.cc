@@ -541,7 +541,7 @@ MainWindow::SetupInstructionView()
     m_ui->instructionTableView->horizontalHeader()->setStretchLastSection(true);
     m_ui->instructionTableView->resizeColumnsToContents();
 
-    m_ui->instructionTableView->setColumnWidth(0, 100);
+    m_ui->instructionTableView->setColumnWidth(0, 120);
     m_ui->instructionTableView->setColumnWidth(1, 80);
     m_ui->instructionTableView->setColumnWidth(2, 300);
     m_ui->instructionTableView->setColumnWidth(3, 80);
@@ -577,7 +577,7 @@ MainWindow::SetupSectionView()
     m_ui->sectionTableView->setModel(m_section_view_model);
     m_ui->sectionTableView->horizontalHeader()->setStretchLastSection(true);
     m_ui->sectionTableView->resizeColumnsToContents();
-    m_ui->sectionTableView->setColumnWidth(0, 100);
+    m_ui->sectionTableView->setColumnWidth(0, 120);
     m_ui->sectionTableView->setColumnWidth(1, 80);
     m_ui->sectionTableView->setColumnWidth(2, 80);
     m_ui->sectionTableView->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -595,7 +595,7 @@ MainWindow::SetupSymbolView()
     m_ui->symbolTableView->setModel(m_symbol_view_model);
     m_ui->symbolTableView->horizontalHeader()->setStretchLastSection(true);
     m_ui->symbolTableView->resizeColumnsToContents();
-    m_ui->symbolTableView->setColumnWidth(0, 100);
+    m_ui->symbolTableView->setColumnWidth(0, 120);
     m_ui->symbolTableView->setColumnWidth(1, 80);
     m_ui->symbolTableView->setColumnWidth(3, 160);
     m_ui->symbolTableView->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -606,13 +606,11 @@ MainWindow::SetupSymbolView()
 
 
 void
-MainWindow::UpdateSymbolView(const emilpro::ISymbol &symbol)
+MainWindow::UpdateSymbolView(const emilpro::ISymbol& symbol)
 {
     unsigned row = 0;
 
-    const auto history_entries = m_address_history.Entries();
-
-    for (const auto &cur : m_visible_symbols)
+    for (const auto& cur : m_visible_symbols)
     {
         if (&cur.get() == &symbol)
         {
