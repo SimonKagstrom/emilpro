@@ -35,7 +35,7 @@ private slots:
 
     void on_instructionTableView_activated(const QModelIndex& index);
 
-    void on_referencesTableView_activated(const QModelIndex& index);
+    void on_refersToTableView_activated(const QModelIndex& index);
 
     void on_addressHistoryListView_activated(const QModelIndex& index);
 
@@ -101,7 +101,8 @@ private:
 
     void UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offset);
 
-    void UpdateSymbolReferencesView(const emilpro::ISymbol& symbol);
+    void UpdateRefersToView(const emilpro::ISymbol& symbol);
+    void UpdateRefersToView(const emilpro::IInstruction& insn);
 
     void UpdateSymbolView(const emilpro::ISymbol& symbol);
 
@@ -121,7 +122,7 @@ private:
     QStandardItemModel* m_section_view_model {nullptr};
     QStandardItemModel* m_symbol_view_model {nullptr};
     QStandardItemModel* m_instruction_view_model {nullptr};
-    QStandardItemModel* m_references_view_model {nullptr};
+    QStandardItemModel* m_refers_to_view_model {nullptr};
     QStandardItemModel* m_address_history_view_model {nullptr};
 
     const emilpro::ISymbol* m_current_symbol {nullptr};

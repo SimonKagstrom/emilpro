@@ -66,8 +66,11 @@
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetDefaultConstraint</enum>
+           </property>
            <item>
-            <widget class="QTabWidget" name="tabWidget">
+            <widget class="QTabWidget" name="sectionSymbolTabWidget">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -195,49 +198,56 @@
             </widget>
            </item>
            <item>
-            <widget class="QTableView" name="referencesTableView">
+            <widget class="QTabWidget" name="referencesTabWidget">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="minimumSize">
-              <size>
-               <width>262</width>
-               <height>0</height>
-              </size>
+             <property name="currentIndex">
+              <number>0</number>
              </property>
-             <property name="maximumSize">
-              <size>
-               <width>400</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <family>Courier New</family>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-             <property name="focusPolicy">
-              <enum>Qt::ClickFocus</enum>
-             </property>
-             <property name="editTriggers">
-              <set>QAbstractItemView::NoEditTriggers</set>
-             </property>
-             <property name="selectionBehavior">
-              <enum>QAbstractItemView::SelectRows</enum>
-             </property>
-             <property name="showGrid">
-              <bool>false</bool>
-             </property>
-             <attribute name="horizontalHeaderVisible">
-              <bool>false</bool>
-             </attribute>
-             <attribute name="verticalHeaderVisible">
-              <bool>false</bool>
-             </attribute>
+             <widget class="QWidget" name="tab_3">
+              <attribute name="title">
+               <string>Refers to</string>
+              </attribute>
+              <layout class="QHBoxLayout" name="horizontalLayout_4">
+               <item>
+                <widget class="QTableView" name="refersToTableView">
+                 <property name="font">
+                  <font>
+                   <family>Courier New</family>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::ClickFocus</enum>
+                 </property>
+                 <property name="editTriggers">
+                  <set>QAbstractItemView::NoEditTriggers</set>
+                 </property>
+                 <property name="selectionBehavior">
+                  <enum>QAbstractItemView::SelectRows</enum>
+                 </property>
+                 <property name="showGrid">
+                  <bool>false</bool>
+                 </property>
+                 <attribute name="horizontalHeaderVisible">
+                  <bool>false</bool>
+                 </attribute>
+                 <attribute name="verticalHeaderVisible">
+                  <bool>false</bool>
+                 </attribute>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tab_4">
+              <attribute name="title">
+               <string>Referenced by</string>
+              </attribute>
+             </widget>
             </widget>
            </item>
           </layout>

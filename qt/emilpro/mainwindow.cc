@@ -322,6 +322,8 @@ MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelIndex& p
         }
     }
 
+    UpdateRefersToView(insn);
+
     // Force a repaint with the new register colors
     emit m_instruction_view_model->layoutChanged();
 }
@@ -434,7 +436,7 @@ MainWindow::on_locationLineEdit_returnPressed()
 }
 
 void
-MainWindow::on_referencesTableView_activated(const QModelIndex& index)
+MainWindow::on_refersToTableView_activated(const QModelIndex& index)
 {
 }
 
@@ -460,9 +462,9 @@ MainWindow::on_symbolTableView_activated(const QModelIndex& index)
 }
 
 void
-MainWindow::UpdateSymbolReferencesView(const emilpro::ISymbol& symbol)
+MainWindow::UpdateRefersToView(const emilpro::ISymbol& symbol)
 {
-    m_references_view_model->removeRows(0, m_references_view_model->rowCount());
+    m_refers_to_view_model->removeRows(0, m_refers_to_view_model->rowCount());
 
     for (const auto& ref : symbol.RefersTo())
     {
@@ -481,7 +483,33 @@ MainWindow::UpdateSymbolReferencesView(const emilpro::ISymbol& symbol)
             lst.append(new QStandardItem(
                 QString::fromStdString(section->Name() + fmt::format("+0x{:x}", ref.offset))));
         }
-        m_references_view_model->appendRow(lst);
+        m_refers_to_view_model->appendRow(lst);
+    }
+}
+
+void
+MainWindow::UpdateRefersToView(const emilpro::IInstruction& insn)
+{
+    m_refers_to_view_model->removeRows(0, m_refers_to_view_model->rowCount());
+
+    if (auto ref = insn.RefersTo(); ref)
+    {
+        auto section = ref->section;
+
+        QList<QStandardItem*> lst;
+        lst.append(new QStandardItem(
+            fmt::format("0x{:08x}", ref->offset + section->StartAddress()).c_str()));
+
+        if (ref->symbol)
+        {
+            lst.append(new QStandardItem(QString::fromStdString(ref->symbol->DemangledName())));
+        }
+        else
+        {
+            lst.append(new QStandardItem(
+                QString::fromStdString(section->Name() + fmt::format("+0x{:x}", ref->offset))));
+        }
+        m_refers_to_view_model->appendRow(lst);
     }
 }
 
@@ -496,7 +524,7 @@ MainWindow::on_symbolTableView_entered(const QModelIndex& index)
         return;
     }
 
-    UpdateSymbolReferencesView(m_visible_symbols[row].get());
+    UpdateRefersToView(m_visible_symbols[row].get());
 }
 
 void
@@ -593,11 +621,11 @@ MainWindow::SetupInstructionView()
 void
 MainWindow::SetupReferencesView()
 {
-    m_references_view_model = new QStandardItemModel(0, 2, this);
+    m_refers_to_view_model = new QStandardItemModel(0, 2, this);
 
-    m_ui->referencesTableView->setModel(m_references_view_model);
-    m_ui->referencesTableView->setColumnWidth(0, 80);
-    m_ui->referencesTableView->horizontalHeader()->setStretchLastSection(true);
+    m_ui->refersToTableView->setModel(m_refers_to_view_model);
+    m_ui->refersToTableView->setColumnWidth(0, 80);
+    m_ui->refersToTableView->horizontalHeader()->setStretchLastSection(true);
 }
 
 void
@@ -638,7 +666,7 @@ MainWindow::SetupSymbolView()
     m_ui->symbolTableView->installEventFilter(this);
 
 
-   connect(m_ui->symbolTableView->selectionModel(),
+    connect(m_ui->symbolTableView->selectionModel(),
             SIGNAL(currentChanged(QModelIndex, QModelIndex)),
             this,
             SLOT(on_symbolTableView_entered(QModelIndex)));
