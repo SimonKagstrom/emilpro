@@ -30,7 +30,7 @@ public:
 
 
     void SetInstructions(std::span<const std::reference_wrapper<IInstruction>> instructions);
-    void AddReferredBy(const IInstruction::Referer& referer);
+    void AddReferredBy(std::span<const IInstruction::Referer> referers);
     void AddRefersTo(const IInstruction::Referer& referer);
 
     // Called when all referrers/referred by are done

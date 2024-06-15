@@ -199,3 +199,25 @@ Section::InstructionAt(uint64_t offset) const
 
     return nullptr;
 }
+
+void
+Section::FixupCrossReferences()
+{
+    for (const auto& sym : m_symbols)
+    {
+        for (auto& insn : sym->Instructions())
+        {
+            auto refers_to = insn.get().RefersTo();
+            auto referred_by = insn.get().ReferredBy();
+
+            if (refers_to)
+            {
+                sym.get()->AddRefersTo(*refers_to);
+            }
+
+            sym.get()->AddReferredBy(referred_by);
+        }
+
+        sym->Commit();
+    }
+}

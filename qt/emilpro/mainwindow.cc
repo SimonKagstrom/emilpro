@@ -454,15 +454,49 @@ MainWindow::on_symbolTableView_activated(const QModelIndex& index)
     }
 
     auto& sym = m_visible_symbols[row].get();
-    auto& section = sym.Section();
 
     m_visible_instructions = sym.Instructions();
     UpdateInstructionView(sym, sym.Offset());
 }
 
 void
+MainWindow::UpdateSymbolReferencesView(const emilpro::ISymbol& symbol)
+{
+    m_references_view_model->removeRows(0, m_references_view_model->rowCount());
+
+    for (const auto& ref : symbol.RefersTo())
+    {
+        auto section = ref.section;
+
+        QList<QStandardItem*> lst;
+        lst.append(new QStandardItem(
+            fmt::format("0x{:08x}", ref.offset + section->StartAddress()).c_str()));
+
+        if (ref.symbol)
+        {
+            lst.append(new QStandardItem(QString::fromStdString(ref.symbol->DemangledName())));
+        }
+        else
+        {
+            lst.append(new QStandardItem(
+                QString::fromStdString(section->Name() + fmt::format("+0x{:x}", ref.offset))));
+        }
+        m_references_view_model->appendRow(lst);
+    }
+}
+
+
+void
 MainWindow::on_symbolTableView_entered(const QModelIndex& index)
 {
+    auto row = index.row();
+
+    if (row < 0 || row >= m_visible_symbols.size())
+    {
+        return;
+    }
+
+    UpdateSymbolReferencesView(m_visible_symbols[row].get());
 }
 
 void
@@ -602,6 +636,12 @@ MainWindow::SetupSymbolView()
 
     // Install an event filter to have the Enter key behave like activate
     m_ui->symbolTableView->installEventFilter(this);
+
+
+   connect(m_ui->symbolTableView->selectionModel(),
+            SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+            this,
+            SLOT(on_symbolTableView_entered(QModelIndex)));
 }
 
 

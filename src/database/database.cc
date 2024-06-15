@@ -64,6 +64,12 @@ Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
         }
     }
 
+    // Disassemble all sections
+    for (const auto& section : m_sections)
+    {
+        section->FixupCrossReferences();
+    }
+
     m_parsers.push_back(std::move(parser));
 
     return true;

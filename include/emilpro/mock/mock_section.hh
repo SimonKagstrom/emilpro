@@ -20,6 +20,7 @@ public:
     MAKE_CONST_MOCK0(Symbols, (std::span<const std::reference_wrapper<ISymbol>>)(), final);
     MAKE_CONST_MOCK1(ContainsAddress, bool(uint64_t), final);
     MAKE_MOCK1(Disassemble, void(IDisassembler&), final);
+    MAKE_MOCK0(FixupCrossReferences, void(), final);
     MAKE_CONST_MOCK1(InstructionAt, IInstruction*(uint64_t), final);
 };
 

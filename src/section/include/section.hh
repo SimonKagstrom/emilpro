@@ -32,6 +32,8 @@ public:
     void AddRelocation(uint64_t offset, const Symbol& symbol);
     void FixupSymbolSizes();
 
+    void FixupCrossReferences() final;
+
 private:
     struct Relocation
     {

@@ -101,6 +101,8 @@ private:
 
     void UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offset);
 
+    void UpdateSymbolReferencesView(const emilpro::ISymbol& symbol);
+
     void UpdateSymbolView(const emilpro::ISymbol& symbol);
 
     void UpdateHistoryView();

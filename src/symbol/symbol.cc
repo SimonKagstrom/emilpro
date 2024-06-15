@@ -117,9 +117,12 @@ Symbol::RefersTo() const
 }
 
 void
-Symbol::AddReferredBy(const IInstruction::Referer& referer)
+Symbol::AddReferredBy(std::span<const IInstruction::Referer> referers)
 {
-    m_referred_by_store.emplace_back(referer);
+    for (auto &r : referers)
+    {
+        m_referred_by_store.emplace_back(r);
+    }
 }
 
 void
