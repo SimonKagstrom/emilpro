@@ -137,23 +137,23 @@ Section::Disassemble(IDisassembler& disassembler)
         // The other symbols for the same address use the same instructions
         for (auto it = std::next(cur.second.begin()); it != cur.second.end(); ++it)
         {
-            auto sym = *it;
-            sym->SetInstructions(
+            auto other_sym = *it;
+            other_sym->SetInstructions(
                 {m_instruction_refs.begin() + size_before, m_instruction_refs.end()});
         }
     }
 
-    ISymbol* current_symbol_ {nullptr};
+    Symbol* current_symbol_ {nullptr};
 
-    for (auto& insn : m_instructions)
+    for (const auto& insn : m_instructions)
     {
-        auto file_line = m_line_lookup(insn->Offset());
-        if (file_line)
+        if (auto file_line = m_line_lookup(insn->Offset()); file_line)
         {
             insn->SetSourceLocation(file_line->file, file_line->line);
         }
-        auto rel_it = m_sorted_relocations.lower_bound(insn->Offset());
-        if (rel_it != m_sorted_relocations.end())
+
+        if (auto rel_it = m_sorted_relocations.lower_bound(insn->Offset());
+            rel_it != m_sorted_relocations.end())
         {
             auto reloc_dst = rel_it->first;
 

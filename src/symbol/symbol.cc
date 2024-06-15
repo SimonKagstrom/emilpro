@@ -103,6 +103,39 @@ Symbol::Instructions() const
     return m_instructions;
 }
 
+std::span<const IInstruction::Referer>
+Symbol::ReferredBy() const
+{
+    return m_referred_by;
+}
+
+
+std::span<const IInstruction::Referer>
+Symbol::RefersTo() const
+{
+    return m_refers_to;
+}
+
+void
+Symbol::AddReferredBy(const IInstruction::Referer& referer)
+{
+    m_referred_by_store.emplace_back(referer);
+}
+
+void
+Symbol::AddRefersTo(const IInstruction::Referer& referer)
+{
+    m_refers_to_store.emplace_back(referer);
+}
+
+void
+Symbol::Commit()
+{
+    m_refers_to = m_refers_to_store;
+    m_referred_by = m_referred_by_store;
+}
+
+
 void
 Symbol::SetInstructions(std::span<const std::reference_wrapper<IInstruction>> instructions)
 {

@@ -46,7 +46,7 @@ Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
                 FixupCallRefersTo(insn, *refers_to);
             }
 
-            all_refers_to.push_back({insn, *refers_to});
+            all_refers_to.emplace_back(insn, *refers_to);
         }
     }
 

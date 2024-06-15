@@ -25,7 +25,16 @@ public:
     const std::string& Name() const final;
     const std::string& DemangledName() const final;
     std::span<const std::reference_wrapper<IInstruction>> Instructions() const final;
+    std::span<const IInstruction::Referer> ReferredBy() const final;
+    std::span<const IInstruction::Referer> RefersTo() const final;
+
+
     void SetInstructions(std::span<const std::reference_wrapper<IInstruction>> instructions);
+    void AddReferredBy(const IInstruction::Referer& referer);
+    void AddRefersTo(const IInstruction::Referer& referer);
+
+    // Called when all referrers/referred by are done
+    void Commit();
 
 private:
     const ISection& m_section;
@@ -38,6 +47,12 @@ private:
 
     std::vector<std::reference_wrapper<const ISection>> m_relocations;
     std::vector<std::reference_wrapper<IInstruction>> m_instructions;
+
+    std::span<const IInstruction::Referer> m_referred_by;
+    std::span<const IInstruction::Referer> m_refers_to;
+
+    std::vector<IInstruction::Referer> m_referred_by_store;
+    std::vector<IInstruction::Referer> m_refers_to_store;
 };
 
 } // namespace emilpro

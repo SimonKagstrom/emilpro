@@ -31,6 +31,10 @@ public:
 
     virtual const std::string& DemangledName() const = 0;
 
+    virtual std::span<const IInstruction::Referer> ReferredBy() const = 0;
+
+    virtual std::span<const IInstruction::Referer> RefersTo() const = 0;
+
     virtual std::span<const std::reference_wrapper<IInstruction>> Instructions() const = 0;
 };
 
