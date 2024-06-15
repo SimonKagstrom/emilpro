@@ -104,6 +104,9 @@ private:
     void UpdateRefersToView(const emilpro::ISymbol& symbol);
     void UpdateRefersToView(const emilpro::IInstruction& insn);
 
+    void UpdateReferredByView(const emilpro::ISymbol& symbol);
+    void UpdateReferredByView(const emilpro::IInstruction& insn);
+
     void UpdateSymbolView(const emilpro::ISymbol& symbol);
 
     void UpdateHistoryView();
@@ -123,6 +126,7 @@ private:
     QStandardItemModel* m_symbol_view_model {nullptr};
     QStandardItemModel* m_instruction_view_model {nullptr};
     QStandardItemModel* m_refers_to_view_model {nullptr};
+    QStandardItemModel* m_referred_by_view_model {nullptr};
     QStandardItemModel* m_address_history_view_model {nullptr};
 
     const emilpro::ISymbol* m_current_symbol {nullptr};
