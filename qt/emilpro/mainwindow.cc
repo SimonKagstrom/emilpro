@@ -543,6 +543,10 @@ MainWindow::UpdateRefersToView(const emilpro::IInstruction& insn)
     if (auto ref = insn.RefersTo(); ref)
     {
         auto section = ref->section;
+        if (!section)
+        {
+            return;
+        }
 
         QList<QStandardItem*> lst;
         lst.append(new QStandardItem(
