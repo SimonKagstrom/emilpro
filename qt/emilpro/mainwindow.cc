@@ -572,8 +572,7 @@ MainWindow::UpdateReferredByView(const emilpro::ISymbol& symbol)
         auto section = ref.section;
 
         QList<QStandardItem*> lst;
-        lst.append(new QStandardItem(
-            fmt::format("0x{:08x}", ref.offset + section->StartAddress()).c_str()));
+        lst.append(new QStandardItem(fmt::format("0x{:08x}", ref.offset).c_str()));
 
         if (ref.symbol)
         {
@@ -598,8 +597,7 @@ MainWindow::UpdateReferredByView(const emilpro::IInstruction& insn)
         auto section = ref.section;
 
         QList<QStandardItem*> lst;
-        lst.append(new QStandardItem(
-            fmt::format("0x{:08x}", ref.offset + section->StartAddress()).c_str()));
+        lst.append(new QStandardItem(fmt::format("0x{:08x}", ref.offset).c_str()));
 
         if (ref.symbol)
         {
