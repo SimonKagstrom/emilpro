@@ -55,7 +55,7 @@ Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
         const auto& insn = insn_ref.get();
         const auto& hint = insn.Section();
 
-        if (hint.ContainsAddress(hint.StartAddress() + ref.offset))
+        if (hint.ContainsAddress(ref.offset))
         {
             if (auto dst = hint.InstructionAt(ref.offset))
             {

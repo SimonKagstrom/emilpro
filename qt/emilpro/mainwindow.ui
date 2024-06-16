@@ -214,7 +214,7 @@
               </sizepolicy>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="refersToTab">
               <attribute name="title">
@@ -282,6 +282,18 @@
                </property>
                <item>
                 <widget class="QTableView" name="referredByTableView">
+                 <property name="font">
+                  <font>
+                   <family>Courier New</family>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::ClickFocus</enum>
+                 </property>
+                 <property name="showGrid">
+                  <bool>false</bool>
+                 </property>
                  <attribute name="horizontalHeaderVisible">
                   <bool>false</bool>
                  </attribute>

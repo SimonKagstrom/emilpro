@@ -523,6 +523,27 @@ MainWindow::UpdateRefersToView(const emilpro::IInstruction& insn)
 void
 MainWindow::UpdateReferredByView(const emilpro::ISymbol& symbol)
 {
+    m_referred_by_view_model->removeRows(0, m_referred_by_view_model->rowCount());
+
+    for (const auto& ref : symbol.ReferredBy())
+    {
+        auto section = ref.section;
+
+        QList<QStandardItem*> lst;
+        lst.append(new QStandardItem(
+            fmt::format("0x{:08x}", ref.offset + section->StartAddress()).c_str()));
+
+        if (ref.symbol)
+        {
+            lst.append(new QStandardItem(QString::fromStdString(ref.symbol->DemangledName())));
+        }
+        else
+        {
+            lst.append(new QStandardItem(
+                QString::fromStdString(section->Name() + fmt::format("+0x{:x}", ref.offset))));
+        }
+        m_referred_by_view_model->appendRow(lst);
+    }
 }
 
 void
@@ -562,7 +583,10 @@ MainWindow::on_symbolTableView_entered(const QModelIndex& index)
         return;
     }
 
-    UpdateRefersToView(m_visible_symbols[row].get());
+    const auto &sym = m_visible_symbols[row].get();
+
+    UpdateRefersToView(sym);
+    UpdateReferredByView(sym);
 }
 
 void
