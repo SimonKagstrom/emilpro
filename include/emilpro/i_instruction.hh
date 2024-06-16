@@ -55,6 +55,8 @@ public:
 
     virtual const ISection& Section() const = 0;
 
+    virtual const ISymbol* Symbol() const = 0;
+
     virtual void SetSourceLocation(std::string_view file, uint32_t line) = 0;
 };
 

@@ -25,12 +25,14 @@ class CapstoneInstruction : public IInstruction
 public:
     CapstoneInstruction(csh handle,
                         const ISection& section,
+                        const ISymbol* symbol,
                         cs_arch arch,
                         uint64_t offset,
                         std::span<const std::byte> data,
                         const cs_insn* insn)
         : m_handle(handle)
         , m_section(section)
+        , m_symbol(symbol)
         , m_data(data.subspan(0, insn->size))
         , m_type(DetermineType(insn))
         , m_encoding(fmt::format("{:8s} {}", insn->mnemonic, insn->op_str))
@@ -275,6 +277,11 @@ private:
         return m_section;
     }
 
+    const ISymbol* Symbol() const final
+    {
+        return m_symbol;
+    }
+
     void SetSourceLocation(std::string_view file, uint32_t line) final
     {
         source_file_ = file;
@@ -284,6 +291,7 @@ private:
 
     csh m_handle;
     const ISection& m_section;
+    const ISymbol* m_symbol;
     std::span<const std::byte> m_data;
     const IInstruction::InstructionType m_type;
     std::optional<IInstruction::Referer> m_refers_to;
@@ -322,6 +330,7 @@ CapstoneDisassembler::~CapstoneDisassembler()
 
 void
 CapstoneDisassembler::Disassemble(const ISection& section,
+                                  const ISymbol* symbol,
                                   uint64_t start_address,
                                   std::span<const std::byte> data,
                                   std::function<void(std::unique_ptr<IInstruction>)> on_instruction)
@@ -336,7 +345,7 @@ CapstoneDisassembler::Disassemble(const ISection& section,
     while (cs_disasm_iter(m_handle, &code, &size, &address, insn))
     {
         on_instruction(std::make_unique<CapstoneInstruction>(
-            m_handle, section, m_arch, cur_address, data, insn));
+            m_handle, section, symbol, m_arch, cur_address, data, insn));
         cur_address = address;
     }
 

@@ -120,7 +120,7 @@ Section::Disassemble(IDisassembler& disassembler)
 
         auto size_before = m_instruction_refs.size();
         disassembler.Disassemble(
-            *this, StartAddress() + sym->Offset(), sym->Data(), [this](auto insn) {
+            *this, sym, StartAddress() + sym->Offset(), sym->Data(), [this](auto insn) {
                 m_instructions.push_back(std::move(insn));
 
                 m_instruction_refs.push_back(*m_instructions.back());

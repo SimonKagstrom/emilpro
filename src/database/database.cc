@@ -33,7 +33,8 @@ Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
     }
 
     // Calculate referenced by
-    std::vector<std::pair<std::reference_wrapper<IInstruction>, IInstruction::Referer>>
+    std::vector<
+        std::tuple<std::reference_wrapper<IInstruction>, IInstruction::Referer, const ISymbol*>>
         all_refers_to;
     for (const auto& insn_ref : m_instruction_refs)
     {
@@ -46,11 +47,11 @@ Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
                 FixupCallRefersTo(insn, *refers_to);
             }
 
-            all_refers_to.emplace_back(insn, *refers_to);
+            all_refers_to.emplace_back(insn, *refers_to, insn.Symbol());
         }
     }
 
-    for (const auto& [insn_ref, ref] : all_refers_to)
+    for (const auto& [insn_ref, ref, sym] : all_refers_to)
     {
         const auto& insn = insn_ref.get();
         const auto& hint = insn.Section();
@@ -59,7 +60,7 @@ Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
         {
             if (auto dst = hint.InstructionAt(ref.offset))
             {
-                dst->AddReferredBy(hint, insn.Offset(), nullptr);
+                dst->AddReferredBy(hint, insn.Offset(), sym);
             }
         }
     }

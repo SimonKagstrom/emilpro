@@ -28,6 +28,7 @@ public:
                      (std::optional<std::pair<std::string_view, uint32_t>>)(),
                      final);
     MAKE_CONST_MOCK0(Section, (const ISection&)(), final);
+    MAKE_CONST_MOCK0(Symbol, (const ISymbol*)(), final);
     MAKE_MOCK2(SetSourceLocation, void(std::string_view, uint32_t), final);
 };
 
