@@ -206,13 +206,46 @@ MainWindow::on_action_About_triggered(bool activated)
 }
 
 void
-MainWindow::on_action_Backward_triggered(bool activated)
+MainWindow::OnHistoryIndexChanged()
 {
+    auto entries = m_address_history.Entries();
+    if (entries.empty())
+    {
+        // Nothing to do
+    }
+
+    const auto& entry = entries[m_address_history.CurrentIndex()];
+    auto lookup_result =
+        m_database.LookupByAddress(entry.section, entry.section->StartAddress() + entry.offset);
+    for (const auto& result : lookup_result)
+    {
+        if (auto sym_ref = result.symbol; sym_ref)
+        {
+            const auto& sym = sym_ref->get();
+
+            m_visible_instructions = sym.Instructions();
+            UpdateInstructionView(sym, sym.Offset());
+            UpdateSymbolView(sym);
+        }
+    }
+
+    UpdateHistoryView();
 }
 
 void
-MainWindow::on_action_Forward_triggered(bool activated)
+MainWindow::on_action_Backward_triggered(bool)
 {
+    m_address_history.Backward();
+
+    OnHistoryIndexChanged();
+}
+
+void
+MainWindow::on_action_Forward_triggered(bool)
+{
+    m_address_history.Forward();
+
+    OnHistoryIndexChanged();
 }
 
 void
@@ -357,8 +390,11 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
         auto sym = refers_to->symbol;
 
         m_visible_instructions = sym->Instructions();
+        m_address_history.PushEntry(sym->Section(), sym->Offset());
+
         UpdateInstructionView(*sym, sym->Offset());
         UpdateSymbolView(*sym);
+        UpdateHistoryView();
     }
     else
     {
@@ -373,8 +409,11 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
                 const auto& sym = sym_ref->get();
 
                 m_visible_instructions = sym.Instructions();
+                m_address_history.PushEntry(sym.Section(), sym.Offset());
+
                 UpdateInstructionView(sym, result.offset + section.StartAddress());
                 UpdateSymbolView(sym);
+                UpdateHistoryView();
             }
         }
     }
@@ -459,7 +498,10 @@ MainWindow::on_symbolTableView_activated(const QModelIndex& index)
     auto& sym = m_visible_symbols[row].get();
 
     m_visible_instructions = sym.Instructions();
+    m_address_history.PushEntry(sym.Section(), sym.Offset());
+
     UpdateInstructionView(sym, sym.Offset());
+    UpdateHistoryView();
 }
 
 void
@@ -583,7 +625,7 @@ MainWindow::on_symbolTableView_entered(const QModelIndex& index)
         return;
     }
 
-    const auto &sym = m_visible_symbols[row].get();
+    const auto& sym = m_visible_symbols[row].get();
 
     UpdateRefersToView(sym);
     UpdateReferredByView(sym);
@@ -761,9 +803,6 @@ MainWindow::UpdateSymbolView(const emilpro::ISymbol& symbol)
 void
 MainWindow::UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offset)
 {
-    m_address_history.PushEntry(symbol.Section(), offset);
-    UpdateHistoryView();
-
     m_instruction_view_model->removeRows(0, m_instruction_view_model->rowCount());
     auto selected_row = 0;
 

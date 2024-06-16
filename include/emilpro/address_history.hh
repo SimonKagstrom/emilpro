@@ -15,7 +15,7 @@ public:
         const ISection* section {nullptr};
         uint64_t offset;
 
-        auto operator==(const Entry& other)
+        auto operator==(const Entry& other) const
         {
             return section == other.section && offset == other.offset;
         }
@@ -25,7 +25,17 @@ public:
 
     void PushEntry(const ISection& section, uint64_t offset);
 
-    void SetIndex(unsigned index);
+    void SetIndex(int index);
+
+    void Forward()
+    {
+        SetIndex(m_index + 1);
+    }
+
+    void Backward()
+    {
+        SetIndex(m_index - 1);
+    }
 
     unsigned CurrentIndex() const;
 
@@ -36,7 +46,7 @@ public:
 
 private:
     std::vector<Entry> m_entries;
-    unsigned m_index {0};
+    int m_index {0};
 };
 
 } // namespace emilpro

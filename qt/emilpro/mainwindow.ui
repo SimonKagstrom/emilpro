@@ -476,10 +476,6 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
-    <addaction name="action_Forward"/>
-    <addaction name="action_Backward"/>
-    <addaction name="action_FocusLocationBar"/>
-    <addaction name="separator"/>
     <addaction name="action_Mangle_names"/>
     <addaction name="action_Toggle_data_instructions"/>
     <addaction name="actionAT_T_syntax_x86"/>
@@ -490,8 +486,17 @@
     </property>
     <addaction name="action_About"/>
    </widget>
+   <widget class="QMenu" name="menuGo">
+    <property name="title">
+     <string>Go</string>
+    </property>
+    <addaction name="action_Forward"/>
+    <addaction name="action_Backward"/>
+    <addaction name="action_FocusLocationBar"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
+   <addaction name="menuGo"/>
    <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -572,7 +577,7 @@
   </action>
   <action name="action_FocusLocationBar">
    <property name="text">
-    <string>Focus &amp;Location bar</string>
+    <string>Focus &amp;location filter bar</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>

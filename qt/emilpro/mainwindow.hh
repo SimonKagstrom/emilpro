@@ -99,6 +99,8 @@ private:
 
     void restoreState();
 
+    void OnHistoryIndexChanged();
+
     void UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offset);
 
     void UpdateRefersToView(const emilpro::ISymbol& symbol);

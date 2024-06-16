@@ -20,9 +20,12 @@ AddressHistory::PushEntry(const ISection& section, uint64_t offset)
 }
 
 void
-AddressHistory::SetIndex(unsigned index)
+AddressHistory::SetIndex(int index)
 {
-    m_index = std::min(static_cast<size_t>(index), m_entries.size());
+    if (index >= 0)
+    {
+        m_index = std::min(static_cast<size_t>(index), m_entries.size() - 1);
+    }
 }
 
 unsigned
