@@ -6,9 +6,9 @@
 #include <cmath>
 #include <cstdlib>
 #include <etl/vector.h>
+#include <fmt/format.h>
 #include <span>
 #include <vector>
-#include <fmt/format.h>
 
 namespace emilpro
 {
@@ -64,7 +64,7 @@ private:
     class Lane
     {
     public:
-        Lane(uint32_t start, uint32_t end, uint32_t max_distance)
+        Lane(uint64_t start, uint64_t end, uint32_t max_distance)
             : m_forward(start <= end)
             , m_first(m_forward ? start : end)
             , m_last(m_forward ? end : start)
@@ -73,17 +73,17 @@ private:
             assert(m_last >= m_first);
         }
 
-        bool Covers(uint32_t offset) const
+        bool Covers(uint64_t offset) const
         {
             return offset >= m_first && offset <= m_last;
         }
 
-        uint32_t StartsAt() const
+        uint64_t StartsAt() const
         {
             return m_first;
         }
 
-        uint32_t EndsAt() const
+        uint64_t EndsAt() const
         {
             return m_last;
         }
@@ -115,44 +115,17 @@ private:
             return m_first < other.m_first && m_last >= other.m_last;
         }
 
-        Type Calculate(uint32_t offset) const
-        {
-            auto is_long = Distance() > m_max_distance;
-
-            if (offset == m_first)
-            {
-                if (IsForward())
-                {
-                    return is_long ? Type::kLongStart : Type::kStart;
-                }
-                return is_long ? Type::kLongEnd : Type::kEnd;
-            }
-            else if (offset == m_last)
-            {
-                if (IsForward())
-                {
-                    return is_long ? Type::kLongEnd : Type::kEnd;
-                }
-
-                return is_long ? Type::kLongStart : Type::kStart;
-            }
-            else if (offset > m_first && offset < m_last && !is_long)
-            {
-                return Type::kTraffic;
-            }
-
-            return Type::kNone;
-        }
+        Type Calculate(uint64_t offset) const;
 
     private:
-        uint32_t Distance() const
+        uint64_t Distance() const
         {
             return m_last - m_first;
         }
 
         const bool m_forward;
-        const uint32_t m_first;
-        const uint32_t m_last;
+        const uint64_t m_first;
+        const uint64_t m_last;
         const uint32_t m_max_distance;
 
         unsigned m_lane {0}; // The inner lane
@@ -165,7 +138,6 @@ private:
     std::array<Type, kNumberOfLanes>
     Process(const IInstruction& insn,
             std::vector<Lane>& lanes,
-            std::vector<Lane>::iterator& it,
             etl::vector<const Lane*, JumpLanes::kNumberOfLanes>& current_lanes) const;
 
     std::vector<Lanes> m_lanes;

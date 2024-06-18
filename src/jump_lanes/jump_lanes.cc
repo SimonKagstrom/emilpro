@@ -78,12 +78,11 @@ JumpLanes::Calculate(unsigned max_distance,
 
     etl::vector<const Lane*, JumpLanes::kNumberOfLanes> current_lanes_forward;
     etl::vector<const Lane*, JumpLanes::kNumberOfLanes> current_lanes_backward;
-    auto it_forward = forward_lanes.begin();
-    auto it_backward = backward_lanes.begin();
+
     for (auto& insn_ref : instructions)
     {
-        auto fwd = Process(insn_ref.get(), forward_lanes, it_forward, current_lanes_forward);
-        auto rev = Process(insn_ref.get(), backward_lanes, it_backward, current_lanes_backward);
+        auto fwd = Process(insn_ref.get(), forward_lanes, current_lanes_forward);
+        auto rev = Process(insn_ref.get(), backward_lanes, current_lanes_backward);
 
         m_lanes.emplace_back(rev, fwd);
     }
@@ -122,7 +121,7 @@ JumpLanes::PushPredecessors(std::vector<Lane>& lanes) const
         return;
     }
 
-    const auto &lane = lanes.back();
+    const auto& lane = lanes.back();
     for (auto it = lanes.rbegin() + 1; it != lanes.rend(); ++it)
     {
         auto& last = *it;
@@ -137,20 +136,20 @@ JumpLanes::PushPredecessors(std::vector<Lane>& lanes) const
 std::array<JumpLanes::Type, JumpLanes::kNumberOfLanes>
 JumpLanes::Process(const IInstruction& insn,
                    std::vector<Lane>& lanes,
-                   std::vector<Lane>::iterator& it,
                    etl::vector<const Lane*, JumpLanes::kNumberOfLanes>& current_lanes) const
 {
     std::array<Type, kNumberOfLanes> cur {};
     etl::vector<const Lane*, JumpLanes::kNumberOfLanes> to_erase;
     auto offset = insn.Offset();
 
-    while (it != lanes.end() && it->Covers(offset))
+    for (auto& lane : lanes)
     {
-        if (!current_lanes.full())
+        if (lane.Covers(offset) &&
+            std::ranges::find(current_lanes, std::to_address(&lane)) == current_lanes.end())
         {
-            current_lanes.push_back(std::to_address(it));
+            if (!current_lanes.full())
+                current_lanes.push_back(std::to_address(&lane));
         }
-        ++it;
     }
 
     for (auto lane : current_lanes)
@@ -184,4 +183,35 @@ unsigned
 JumpLanes::Distance(const IInstruction& insn, const IInstruction::Referer& referer) const
 {
     return std::abs(static_cast<int32_t>(insn.Offset()) - static_cast<int32_t>(referer.offset));
+}
+
+
+JumpLanes::Type
+JumpLanes::Lane::Calculate(uint64_t offset) const
+{
+    auto is_long = Distance() > m_max_distance;
+
+    if (offset == m_first)
+    {
+        if (IsForward())
+        {
+            return is_long ? Type::kLongStart : Type::kStart;
+        }
+        return is_long ? Type::kLongEnd : Type::kEnd;
+    }
+    else if (offset == m_last)
+    {
+        if (IsForward())
+        {
+            return is_long ? Type::kLongEnd : Type::kEnd;
+        }
+
+        return is_long ? Type::kLongStart : Type::kStart;
+    }
+    else if (offset > m_first && offset < m_last && !is_long)
+    {
+        return Type::kTraffic;
+    }
+
+    return Type::kNone;
 }
