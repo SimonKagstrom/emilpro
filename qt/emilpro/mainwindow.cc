@@ -254,6 +254,33 @@ MainWindow::on_action_FocusLocationBar_triggered(bool activated)
     m_ui->locationLineEdit->setFocus();
 }
 
+void
+MainWindow::on_action_FocusAddressHistory_triggered(bool activated)
+{
+    m_ui->addressHistoryListView->setFocus();
+    m_ui->addressHistoryListView->setCurrentIndex(
+        m_address_history_view_model->index(m_address_history.CurrentIndex(), 0));
+}
+
+void
+MainWindow::on_action_FocusReferencedBy_triggered(bool activated)
+{
+    m_ui->referredByTableView->setFocus();
+    m_ui->referredByTableView->setCurrentIndex(m_referred_by_view_model->index(0, 0));
+
+    // Activate the referred by tab
+    m_ui->referencesTabWidget->setCurrentWidget(m_ui->referredByTableView);
+}
+
+void
+MainWindow::on_action_FocusReferencesTo_triggered(bool activated)
+{
+    m_ui->refersToTableView->setFocus();
+    m_ui->refersToTableView->setCurrentIndex(m_refers_to_view_model->index(0, 0));
+
+    m_ui->referencesTabWidget->setCurrentWidget(m_ui->refersToTableView);
+}
+
 
 void
 MainWindow::on_action_Mangle_names_triggered(bool activated)

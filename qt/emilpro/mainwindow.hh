@@ -57,6 +57,9 @@ private slots:
     void on_action_Backward_triggered(bool activated);
 
     void on_action_FocusLocationBar_triggered(bool activated);
+    void on_action_FocusAddressHistory_triggered(bool activated);
+    void on_action_FocusReferencedBy_triggered(bool activated);
+    void on_action_FocusReferencesTo_triggered(bool activated);
 
     void on_action_Mangle_names_triggered(bool activated);
 

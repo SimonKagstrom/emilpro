@@ -247,10 +247,16 @@
                  <property name="editTriggers">
                   <set>QAbstractItemView::NoEditTriggers</set>
                  </property>
+                 <property name="tabKeyNavigation">
+                  <bool>false</bool>
+                 </property>
                  <property name="selectionBehavior">
                   <enum>QAbstractItemView::SelectRows</enum>
                  </property>
                  <property name="showGrid">
+                  <bool>false</bool>
+                 </property>
+                 <property name="wordWrap">
                   <bool>false</bool>
                  </property>
                  <attribute name="horizontalHeaderVisible">
@@ -294,10 +300,16 @@
                  <property name="editTriggers">
                   <set>QAbstractItemView::NoEditTriggers</set>
                  </property>
+                 <property name="tabKeyNavigation">
+                  <bool>false</bool>
+                 </property>
                  <property name="selectionBehavior">
                   <enum>QAbstractItemView::SelectRows</enum>
                  </property>
                  <property name="showGrid">
+                  <bool>false</bool>
+                 </property>
+                 <property name="wordWrap">
                   <bool>false</bool>
                  </property>
                  <attribute name="horizontalHeaderVisible">
@@ -496,6 +508,9 @@
     <addaction name="action_Forward"/>
     <addaction name="action_Backward"/>
     <addaction name="action_FocusLocationBar"/>
+    <addaction name="action_FocusReferencedBy"/>
+    <addaction name="action_FocusReferencesTo"/>
+    <addaction name="action_FocusAddressHistory"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
@@ -584,6 +599,30 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="action_FocusReferencedBy">
+   <property name="text">
+    <string>Focus referenced &amp;by</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+B</string>
+   </property>
+  </action>
+  <action name="action_FocusReferencesTo">
+   <property name="text">
+    <string>Focus references &amp;to</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="action_FocusAddressHistory">
+   <property name="text">
+    <string>Focus &amp;address history</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
    </property>
   </action>
  </widget>
