@@ -473,6 +473,8 @@ MainWindow::on_locationLineEdit_textChanged(const QString& text)
 void
 MainWindow::on_locationLineEdit_returnPressed()
 {
+    on_symbolTableView_activated(m_ui->symbolTableView->currentIndex());
+    m_ui->instructionTableView->setFocus();
 }
 
 void
