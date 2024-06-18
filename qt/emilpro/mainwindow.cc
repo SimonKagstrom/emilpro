@@ -474,13 +474,47 @@ void
 MainWindow::on_locationLineEdit_returnPressed()
 {
     on_symbolTableView_activated(m_ui->symbolTableView->currentIndex());
-    m_ui->instructionTableView->setFocus();
 }
 
 void
 MainWindow::on_refersToTableView_activated(const QModelIndex& index)
 {
+    auto row = index.row();
+
+    if (row < 0 || row >= m_current_refers_to.size())
+    {
+        return;
+    }
+
+    const auto& ref = m_current_refers_to[row];
+    if (ref.symbol)
+    {
+        UpdateSymbolView(*ref.symbol);
+        UpdateInstructionView(*ref.symbol, ref.offset);
+        m_ui->instructionTableView->setFocus();
+    }
 }
+
+void
+MainWindow::on_referredByTableView_activated(const QModelIndex& index)
+{
+    auto row = index.row();
+
+    if (row < 0 || row >= m_current_referred_by.size())
+    {
+        return;
+    }
+
+    const auto& ref = m_current_referred_by[row];
+
+    if (ref.symbol)
+    {
+        UpdateSymbolView(*ref.symbol);
+        UpdateInstructionView(*ref.symbol, ref.offset);
+        m_ui->instructionTableView->setFocus();
+    }
+}
+
 
 void
 MainWindow::on_sourceTextEdit_cursorPositionChanged()
@@ -504,6 +538,7 @@ MainWindow::on_symbolTableView_activated(const QModelIndex& index)
 
     UpdateInstructionView(sym, sym.Offset());
     UpdateHistoryView();
+    m_ui->instructionTableView->setFocus();
 }
 
 void
@@ -511,7 +546,8 @@ MainWindow::UpdateRefersToView(const emilpro::ISymbol& symbol)
 {
     m_refers_to_view_model->removeRows(0, m_refers_to_view_model->rowCount());
 
-    for (const auto& ref : symbol.RefersTo())
+    auto symbol_refs = symbol.RefersTo();
+    for (const auto& ref : symbol_refs)
     {
         auto section = ref.section;
 
@@ -535,12 +571,15 @@ MainWindow::UpdateRefersToView(const emilpro::ISymbol& symbol)
         }
         m_refers_to_view_model->appendRow(lst);
     }
+
+    m_current_refers_to = symbol_refs;
 }
 
 void
 MainWindow::UpdateRefersToView(const emilpro::IInstruction& insn)
 {
     m_refers_to_view_model->removeRows(0, m_refers_to_view_model->rowCount());
+    m_current_refers_to = {};
 
     if (auto ref = insn.RefersTo(); ref)
     {
@@ -564,6 +603,10 @@ MainWindow::UpdateRefersToView(const emilpro::IInstruction& insn)
                 QString::fromStdString(section->Name() + fmt::format("+0x{:x}", ref->offset))));
         }
         m_refers_to_view_model->appendRow(lst);
+
+        // Store in a vector to keep the span valid, even though it's only one
+        m_current_instruction_refers_to = {*ref};
+        m_current_refers_to = m_current_instruction_refers_to;
     }
 }
 
@@ -573,7 +616,8 @@ MainWindow::UpdateReferredByView(const emilpro::ISymbol& symbol)
 {
     m_referred_by_view_model->removeRows(0, m_referred_by_view_model->rowCount());
 
-    for (const auto& ref : symbol.ReferredBy())
+    auto symbol_refs = symbol.ReferredBy();
+    for (const auto& ref : symbol_refs)
     {
         auto section = ref.section;
 
@@ -591,6 +635,8 @@ MainWindow::UpdateReferredByView(const emilpro::ISymbol& symbol)
         }
         m_referred_by_view_model->appendRow(lst);
     }
+
+    m_current_referred_by = symbol_refs;
 }
 
 void
@@ -598,7 +644,8 @@ MainWindow::UpdateReferredByView(const emilpro::IInstruction& insn)
 {
     m_referred_by_view_model->removeRows(0, m_referred_by_view_model->rowCount());
 
-    for (auto& ref : insn.ReferredBy())
+    auto insn_refs = insn.ReferredBy();
+    for (auto& ref : insn_refs)
     {
         auto section = ref.section;
 
@@ -616,6 +663,8 @@ MainWindow::UpdateReferredByView(const emilpro::IInstruction& insn)
         }
         m_refers_to_view_model->appendRow(lst);
     }
+
+    m_current_referred_by = insn_refs;
 }
 
 
@@ -853,6 +902,7 @@ MainWindow::UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offse
     }
 
     m_ui->instructionTableView->selectRow(selected_row);
+    m_ui->instructionTableView->scrollTo(m_instruction_view_model->index(selected_row, 0));
 }
 
 void

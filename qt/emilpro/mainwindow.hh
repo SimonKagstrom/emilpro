@@ -36,6 +36,7 @@ private slots:
     void on_instructionTableView_activated(const QModelIndex& index);
 
     void on_refersToTableView_activated(const QModelIndex& index);
+    void on_referredByTableView_activated(const QModelIndex& index);
 
     void on_addressHistoryListView_activated(const QModelIndex& index);
 
@@ -147,4 +148,8 @@ private:
 
     std::span<const std::reference_wrapper<emilpro::IInstruction>> m_visible_instructions;
     std::span<const std::reference_wrapper<emilpro::ISymbol>> m_visible_symbols;
+
+    std::vector<emilpro::IInstruction::Referer> m_current_instruction_refers_to;
+    std::span<const emilpro::IInstruction::Referer> m_current_referred_by;
+    std::span<const emilpro::IInstruction::Referer> m_current_refers_to;
 };
