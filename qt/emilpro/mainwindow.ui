@@ -590,10 +590,7 @@
   </action>
   <action name="action_Refresh">
    <property name="text">
-    <string>&amp;Refresh</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+R</string>
+    <string>&amp;Reload file</string>
    </property>
   </action>
   <action name="action_FocusLocationBar">
