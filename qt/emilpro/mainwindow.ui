@@ -213,6 +213,9 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
+             </property>
              <property name="currentIndex">
               <number>1</number>
              </property>
@@ -508,9 +511,9 @@
     <addaction name="action_Forward"/>
     <addaction name="action_Backward"/>
     <addaction name="action_FocusLocationBar"/>
-    <addaction name="action_FocusReferencedBy"/>
-    <addaction name="action_FocusReferencesTo"/>
     <addaction name="action_FocusAddressHistory"/>
+    <addaction name="action_ToggleReferenceTab"/>
+    <addaction name="action_ToggleSymbolsSections"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
@@ -601,12 +604,12 @@
     <string>Ctrl+L</string>
    </property>
   </action>
-  <action name="action_FocusReferencedBy">
+  <action name="action_ToggleReferenceTab">
    <property name="text">
-    <string>Focus referenced &amp;by</string>
+    <string>Toggle &amp;reference tab</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+B</string>
+    <string>Ctrl+K</string>
    </property>
   </action>
   <action name="action_FocusReferencesTo">
@@ -614,7 +617,7 @@
     <string>Focus references &amp;to</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+T</string>
+    <string>Ctrl+J</string>
    </property>
   </action>
   <action name="action_FocusAddressHistory">
@@ -623,6 +626,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="action_ToggleSymbolsSections">
+   <property name="text">
+    <string>&amp;Toggle symbols/sections</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
    </property>
   </action>
  </widget>

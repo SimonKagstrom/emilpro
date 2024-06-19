@@ -9,6 +9,7 @@
 #include <QScrollBar>
 #include <QShortcut>
 #include <QTextBlock>
+#include <QTimer>
 #include <fmt/format.h>
 #include <qstandarditemmodel.h>
 #include <string>
@@ -263,24 +264,27 @@ MainWindow::on_action_FocusAddressHistory_triggered(bool activated)
 }
 
 void
-MainWindow::on_action_FocusReferencedBy_triggered(bool activated)
+MainWindow::on_action_ToggleReferenceTab_triggered(bool)
 {
-    m_ui->referredByTableView->setFocus();
-    m_ui->referredByTableView->setCurrentIndex(m_referred_by_view_model->index(0, 0));
+    auto next = !m_ui->referencesTabWidget->currentIndex();
 
-    // Activate the referred by tab
-    m_ui->referencesTabWidget->setCurrentWidget(m_ui->referredByTableView);
+    m_ui->referencesTabWidget->setCurrentIndex(next);
+
+    if (next == 0)
+    {
+        m_ui->refersToTableView->setFocus();
+    }
+    else
+    {
+        m_ui->referredByTableView->setFocus();
+    }
 }
 
 void
-MainWindow::on_action_FocusReferencesTo_triggered(bool activated)
+MainWindow::on_action_ToggleSymbolsSections_triggered(bool activated)
 {
-    m_ui->refersToTableView->setFocus();
-    m_ui->refersToTableView->setCurrentIndex(m_refers_to_view_model->index(0, 0));
-
-    m_ui->referencesTabWidget->setCurrentWidget(m_ui->refersToTableView);
+    m_ui->sectionSymbolTabWidget->setCurrentIndex(!m_ui->sectionSymbolTabWidget->currentIndex());
 }
-
 
 void
 MainWindow::on_action_Mangle_names_triggered(bool activated)
