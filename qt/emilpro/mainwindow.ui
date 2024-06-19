@@ -510,8 +510,10 @@
     </property>
     <addaction name="action_Forward"/>
     <addaction name="action_Backward"/>
+    <addaction name="separator"/>
     <addaction name="action_FocusLocationBar"/>
     <addaction name="action_FocusAddressHistory"/>
+    <addaction name="separator"/>
     <addaction name="action_ToggleReferenceTab"/>
     <addaction name="action_ToggleSymbolsSections"/>
    </widget>
