@@ -3,6 +3,7 @@
 #include "section.hh"
 #include "symbol.hh"
 
+#include <algorithm>
 #include <array>
 #include <bfd.h>
 #include <cassert>
