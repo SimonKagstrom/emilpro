@@ -206,7 +206,6 @@ TEST_CASE_FIXTURE(Fixture, "dual lanes are used for enclosing jumps")
 TEST_CASE_FIXTURE(Fixture, "backward lanes are also handled")
 {
     lanes.Calculate(16, instruction_refs);
-    PrintLanes(lanes.GetLanes());
 
     auto l = lanes.GetLanes();
     REQUIRE(l[11].backward_lanes[0] == T::kEnd);

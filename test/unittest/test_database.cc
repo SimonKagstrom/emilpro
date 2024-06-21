@@ -52,6 +52,8 @@ public:
             expectations.push_back(NAMED_ALLOW_CALL(*insn_up, Section()).LR_RETURN(section));
             expectations.push_back(NAMED_ALLOW_CALL(*insn_up, RefersTo()).RETURN(std::nullopt));
             expectations.push_back(NAMED_ALLOW_CALL(*insn_up, Offset()).RETURN(i));
+            expectations.push_back(
+                NAMED_ALLOW_CALL(*insn_up, Type()).RETURN(IInstruction::InstructionType::kOther));
 
             expectations.push_back(NAMED_ALLOW_CALL(section, InstructionAt(i)).RETURN(insn));
 
