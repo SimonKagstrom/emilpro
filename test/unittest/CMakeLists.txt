@@ -13,3 +13,5 @@ target_link_libraries(ut
     jump_lanes
     fmt::fmt
 )
+
+add_test(NAME unittest COMMAND ut)

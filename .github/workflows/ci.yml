@@ -1,0 +1,42 @@
+name: EmilPRO CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+          sudo apt-get install -y g++ cmake ninja-build python3-pip binutils-multiarch-dev qt6-base-dev libglx-dev libgl1-mesa-dev
+          pip3 install conan
+        else
+          brew install cmake ninja conan binutils qt6
+        fi
+        conan profile detect -f
+
+    - name: Install conan deps
+      run: conan install -of ${{github.workspace}}/build --build=missing -s build_type=Debug ${{github.workspace}}/conanfile.txt
+
+    - name: Configure CMake
+      run: |
+        if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+          cmake -B ${{github.workspace}}/build -GNinja -DCMAKE_PREFIX_PATH="${{github.workspace}}/build/build/Debug/generators/" -DCMAKE_BUILD_TYPE=Debug 
+        else
+          cmake -B ${{github.workspace}}/build -GNinja -DCMAKE_PREFIX_PATH="${{github.workspace}}/build/build/Debug/generators/;`brew --prefix binutils`" -DCMAKE_BUILD_TYPE=Debug 
+        fi
+
+    - name: Build
+      run: ninja -C ${{github.workspace}}/build
+
+    - name: Test
+      run: ctest --test-dir ${{github.workspace}}/build

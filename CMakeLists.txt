@@ -30,6 +30,7 @@ add_subdirectory(tools)
 
 # Unit tests are only built in debug mode
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    enable_testing()
     add_subdirectory(test)
 endif()
 
