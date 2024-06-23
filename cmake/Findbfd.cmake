@@ -15,6 +15,7 @@ set_property(TARGET p::bfd PROPERTY INTERFACE_INCLUDE_DIRECTORIES
     ${BFD_INCLUDE_DIR}
 )
 
+if (APPLE)
 set_property(TARGET p::bfd PROPERTY INTERFACE_LINK_LIBRARIES
     ${BFD_LIBRARY}
     # On MacOS, these are not linked automatically
@@ -23,3 +24,8 @@ set_property(TARGET p::bfd PROPERTY INTERFACE_LINK_LIBRARIES
     ${ZSTD_LIBRARY}
     z
 )
+else()
+set_property(TARGET p::bfd PROPERTY INTERFACE_LINK_LIBRARIES
+    ${BFD_LIBRARY}
+)
+endif()
