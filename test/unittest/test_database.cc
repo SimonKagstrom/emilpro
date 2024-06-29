@@ -32,30 +32,33 @@ public:
 
         expectations.push_back(NAMED_ALLOW_CALL(*section_up, StartAddress()).RETURN(start_address));
         expectations.push_back(NAMED_ALLOW_CALL(*section_up, Size()).RETURN(size));
+        expectations.push_back(NAMED_ALLOW_CALL(*section_up, FixupCrossReferences()));
         expectations.push_back(NAMED_ALLOW_CALL(*section_up, ContainsAddress(_))
                                    .RETURN(_1 >= start_address && _1 < start_address + size));
 
         return std::pair {std::move(section_up), section};
     }
 
-    auto CreateInstructions(auto& section, auto count)
+    auto CreateInstructions(auto& section, auto symbol, auto count)
     {
         std::vector<std::unique_ptr<mock::MockInstruction>> insns;
         std::vector<std::reference_wrapper<IInstruction>> insn_refs;
 
-        for (auto i = 0; i < count; ++i)
+        for (auto i = 0u; i < count; ++i)
         {
             auto insn_up = std::make_unique<mock::MockInstruction>();
             auto insn = insn_up.get();
+            auto address = section.StartAddress() + i;
 
             // Some defaults (assume it doesn't reference anything)
             expectations.push_back(NAMED_ALLOW_CALL(*insn_up, Section()).LR_RETURN(section));
+            expectations.push_back(NAMED_ALLOW_CALL(*insn_up, Symbol()).LR_RETURN(symbol));
             expectations.push_back(NAMED_ALLOW_CALL(*insn_up, RefersTo()).RETURN(std::nullopt));
-            expectations.push_back(NAMED_ALLOW_CALL(*insn_up, Offset()).RETURN(i));
+            expectations.push_back(NAMED_ALLOW_CALL(*insn_up, Offset()).RETURN(address));
             expectations.push_back(
                 NAMED_ALLOW_CALL(*insn_up, Type()).RETURN(IInstruction::InstructionType::kOther));
 
-            expectations.push_back(NAMED_ALLOW_CALL(section, InstructionAt(i)).RETURN(insn));
+            expectations.push_back(NAMED_ALLOW_CALL(section, InstructionAt(address)).RETURN(insn));
 
             insn_refs.push_back(*insn_up);
             insns.push_back(std::move(insn_up));
@@ -88,7 +91,7 @@ TEST_CASE_FIXTURE(Fixture, "the database can resolve references")
         auto symbol = mock::MockSymbol();
         auto sym_refs = std::vector<std::reference_wrapper<ISymbol>> {symbol};
 
-        auto insn_pair = CreateInstructions(*text, 5);
+        auto insn_pair = CreateInstructions(*text, &symbol, 5);
         auto insns = std::move(insn_pair.first);
         auto insn_refs = std::move(insn_pair.second);
 
@@ -100,16 +103,16 @@ TEST_CASE_FIXTURE(Fixture, "the database can resolve references")
          * 4       jmp 0         // Backward branch, and has two references
          */
         using R = IInstruction::Referer;
-        REQUIRE_CALL(*insns[1], RefersTo()).RETURN(R {text, 3, nullptr});
-        REQUIRE_CALL(*insns[2], RefersTo()).RETURN(R {text, 3, nullptr});
-        REQUIRE_CALL(*insns[4], RefersTo()).LR_RETURN(R {text, 0, &symbol});
+        REQUIRE_CALL(*insns[1], RefersTo()).RETURN(R {text, 0x1000 + 3, nullptr});
+        REQUIRE_CALL(*insns[2], RefersTo()).RETURN(R {text, 0x1000 + 3, nullptr});
+        REQUIRE_CALL(*insns[4], RefersTo()).LR_RETURN(R {text, 0x1000 + 0, &symbol});
 
-        auto r_referred0 =
-            NAMED_REQUIRE_CALL(*insns[0], AddReferredBy(_, 4, nullptr)).LR_WITH(&_1 == text);
-        auto r_referred1 =
-            NAMED_REQUIRE_CALL(*insns[3], AddReferredBy(_, 1, nullptr)).LR_WITH(&_1 == text);
-        auto r_referred2 =
-            NAMED_REQUIRE_CALL(*insns[3], AddReferredBy(_, 2, nullptr)).LR_WITH(&_1 == text);
+        auto r_referred0 = NAMED_REQUIRE_CALL(*insns[0], AddReferredBy(_, 0x1000 + 4, nullptr))
+                               .LR_WITH(&_1 == text);
+        auto r_referred1 = NAMED_REQUIRE_CALL(*insns[3], AddReferredBy(_, 0x1000 + 1, nullptr))
+                               .LR_WITH(&_1 == text);
+        auto r_referred2 = NAMED_REQUIRE_CALL(*insns[3], AddReferredBy(_, 0x1000 + 2, nullptr))
+                               .LR_WITH(&_1 == text);
 
         REQUIRE_CALL(*binary_parser, ForAllSections(_)).LR_SIDE_EFFECT(_1(std::move(text_up)));
         auto r_disassembly = NAMED_REQUIRE_CALL(*text, Disassemble(_));
