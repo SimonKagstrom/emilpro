@@ -39,4 +39,4 @@ jobs:
       run: ninja -C ${{github.workspace}}/build
 
     - name: Test
-      run: ctest --test-dir ${{github.workspace}}/build
+      run: ctest --verbose --test-dir ${{github.workspace}}/build
