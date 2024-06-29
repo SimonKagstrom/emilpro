@@ -143,7 +143,7 @@ Section::Disassemble(IDisassembler& disassembler)
         }
     }
 
-    Symbol* current_symbol_ {nullptr};
+    const Symbol* current_symbol_ {nullptr};
 
     for (const auto& insn : m_instructions)
     {
