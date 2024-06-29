@@ -73,8 +73,6 @@ public:
     mock::MockBinaryParser* binary_parser;
     mock::MockDisassembler* disassembler;
 
-    Database database;
-
 private:
     std::vector<std::unique_ptr<trompeloeil::expectation>> expectations;
 };
@@ -94,6 +92,8 @@ TEST_CASE_FIXTURE(Fixture, "the database can resolve references")
         auto insn_pair = CreateInstructions(*text, &symbol, 5);
         auto insns = std::move(insn_pair.first);
         auto insn_refs = std::move(insn_pair.second);
+
+        Database database;
 
         /*
          * 0  sym: add $1, %eax
