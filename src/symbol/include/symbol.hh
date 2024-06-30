@@ -2,6 +2,7 @@
 #include "emilpro/i_symbol.hh"
 
 #include <vector>
+#include <mutex>
 
 #pragma once
 
@@ -46,13 +47,16 @@ private:
     std::span<const std::byte> m_data;
 
     std::vector<std::reference_wrapper<const ISection>> m_relocations;
-    std::vector<std::reference_wrapper<IInstruction>> m_instructions;
+    std::vector<std::reference_wrapper<IInstruction>> m_instructions_store;
+    std::span<const std::reference_wrapper<IInstruction>> m_instructions;
 
     std::span<const IInstruction::Referer> m_referred_by;
     std::span<const IInstruction::Referer> m_refers_to;
 
     std::vector<IInstruction::Referer> m_referred_by_store;
     std::vector<IInstruction::Referer> m_refers_to_store;
+
+    mutable std::mutex m_mutex;
 };
 
 } // namespace emilpro

@@ -143,8 +143,6 @@ Section::Disassemble(IDisassembler& disassembler)
         }
     }
 
-    const Symbol* current_symbol_ {nullptr};
-
     for (const auto& insn : m_instructions)
     {
         if (auto file_line = m_line_lookup(insn->Offset()); file_line)

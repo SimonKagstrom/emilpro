@@ -100,12 +100,16 @@ Symbol::AddRelocation(const ISection& src_section, uint64_t offset)
 std::span<const std::reference_wrapper<IInstruction>>
 Symbol::Instructions() const
 {
+    std::scoped_lock lock(m_mutex);
+
     return m_instructions;
 }
 
 std::span<const IInstruction::Referer>
 Symbol::ReferredBy() const
 {
+    std::scoped_lock lock(m_mutex);
+
     return m_referred_by;
 }
 
@@ -113,13 +117,15 @@ Symbol::ReferredBy() const
 std::span<const IInstruction::Referer>
 Symbol::RefersTo() const
 {
+    std::scoped_lock lock(m_mutex);
+
     return m_refers_to;
 }
 
 void
 Symbol::AddReferredBy(std::span<const IInstruction::Referer> referers)
 {
-    for (auto &r : referers)
+    for (auto& r : referers)
     {
         m_referred_by_store.emplace_back(r);
     }
@@ -134,6 +140,9 @@ Symbol::AddRefersTo(const IInstruction::Referer& referer)
 void
 Symbol::Commit()
 {
+    std::scoped_lock lock(m_mutex);
+
+    m_instructions = m_instructions_store;
     m_refers_to = m_refers_to_store;
     m_referred_by = m_referred_by_store;
 }
@@ -142,5 +151,5 @@ Symbol::Commit()
 void
 Symbol::SetInstructions(std::span<const std::reference_wrapper<IInstruction>> instructions)
 {
-    std::ranges::copy(instructions, std::back_inserter(m_instructions));
+    std::ranges::copy(instructions, std::back_inserter(m_instructions_store));
 }
