@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <thread>
 
 namespace emilpro
 {
@@ -14,6 +15,8 @@ namespace emilpro
 class Database
 {
 public:
+    ~Database();
+
     struct LookupResult
     {
         const ISection& section;
@@ -34,6 +37,8 @@ public:
     std::vector<LookupResult> LookupByName(std::string_view name);
 
 private:
+    void ParseThread();
+
     void FixupCallRefersTo(IInstruction& instruction, const IInstruction::Referer& referer);
 
     std::optional<std::reference_wrapper<const ISymbol>>
@@ -48,6 +53,8 @@ private:
     std::vector<std::reference_wrapper<ISymbol>> m_symbol_refs;
 
     std::vector<std::reference_wrapper<IInstruction>> m_instruction_refs;
+
+    std::thread m_parse_thread;
 };
 
 } // namespace emilpro

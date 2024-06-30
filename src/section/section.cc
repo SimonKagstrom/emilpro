@@ -85,8 +85,7 @@ Section::FixupSymbolSizes()
         auto adjust = last_offset;
         for (auto* symbol : symbols)
         {
-            int64_t size = adjust - symbol->Offset();
-            if (size >= 0)
+            if (int64_t size = adjust - symbol->Offset(); size >= 0)
             {
                 symbol->SetSize(size);
             }
@@ -203,7 +202,7 @@ Section::FixupCrossReferences()
 {
     for (const auto& sym : m_symbols)
     {
-        for (auto& insn : sym->InstructionsStore())
+        for (const auto& insn : sym->InstructionsStore())
         {
             auto refers_to = insn.get().RefersTo();
             auto referred_by = insn.get().ReferredBy();

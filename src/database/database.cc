@@ -19,16 +19,32 @@ Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
     m_disassembler = std::move(disassembler);
 
     parser->ForAllSections([this](auto section) {
+        std::ranges::copy(section->Symbols(), std::back_inserter(m_symbol_refs));
+
         m_sections.push_back(std::move(section));
         m_section_refs.push_back(*m_sections.back());
     });
+    m_parsers.push_back(std::move(parser));
 
+    m_parse_thread = std::thread([this] { ParseThread(); });
+
+    return true;
+}
+
+Database::~Database()
+{
+    m_parse_thread.join();
+}
+
+// Context: A separate thread
+void
+Database::ParseThread()
+{
     // Disassemble all sections
     for (const auto& section : m_sections)
     {
         section->Disassemble(*m_disassembler);
 
-        std::ranges::copy(section->Symbols(), std::back_inserter(m_symbol_refs));
         std::ranges::copy(section->Instructions(), std::back_inserter(m_instruction_refs));
     }
 
@@ -70,10 +86,6 @@ Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
     {
         section->FixupCrossReferences();
     }
-
-    m_parsers.push_back(std::move(parser));
-
-    return true;
 }
 
 std::span<const std::reference_wrapper<ISection>>
