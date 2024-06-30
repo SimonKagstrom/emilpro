@@ -48,6 +48,10 @@ public:
 
     /// Called after instructions cross-references have been calculated
     virtual void FixupCrossReferences() = 0;
+
+
+    /// Hint to the disassembler that this symbol is needed urgently
+    virtual void DisassemblyHint(ISymbol &sym) const = 0;
 };
 
 } // namespace emilpro

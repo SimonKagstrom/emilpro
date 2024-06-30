@@ -564,6 +564,8 @@ MainWindow::on_symbolTableView_activated(const QModelIndex& index)
 
     auto& sym = m_visible_symbols[row].get();
 
+    sym.WaitForCommit();
+
     m_visible_instructions = sym.Instructions();
     m_address_history.PushEntry(sym.Section(), sym.Offset());
 

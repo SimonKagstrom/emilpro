@@ -1,8 +1,9 @@
 #include "emilpro/i_section.hh"
 #include "emilpro/i_symbol.hh"
 
-#include <vector>
 #include <mutex>
+#include <semaphore>
+#include <vector>
 
 #pragma once
 
@@ -29,8 +30,10 @@ public:
     std::span<const IInstruction::Referer> ReferredBy() const final;
     std::span<const IInstruction::Referer> RefersTo() const final;
 
+    void WaitForCommit() final;
+
     // Currently processed instructions (before commit)
-    std::vector<std::reference_wrapper<IInstruction>> &InstructionsStore();
+    std::vector<std::reference_wrapper<IInstruction>>& InstructionsStore();
 
     void SetInstructions(std::span<const std::reference_wrapper<IInstruction>> instructions);
     void AddReferredBy(std::span<const IInstruction::Referer> referers);
@@ -59,6 +62,9 @@ private:
     std::vector<IInstruction::Referer> m_refers_to_store;
 
     mutable std::mutex m_mutex;
+
+    std::atomic_bool m_committed {false};
+    std::binary_semaphore m_commit_semaphore {0};
 };
 
 } // namespace emilpro

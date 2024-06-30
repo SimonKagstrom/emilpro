@@ -36,6 +36,9 @@ public:
     virtual std::span<const IInstruction::Referer> RefersTo() const = 0;
 
     virtual std::span<const std::reference_wrapper<IInstruction>> Instructions() const = 0;
+
+
+    virtual void WaitForCommit() = 0;
 };
 
 } // namespace emilpro

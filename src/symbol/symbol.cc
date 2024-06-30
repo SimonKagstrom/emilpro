@@ -122,7 +122,7 @@ Symbol::RefersTo() const
     return m_refers_to;
 }
 
-std::vector<std::reference_wrapper<IInstruction>> &
+std::vector<std::reference_wrapper<IInstruction>>&
 Symbol::InstructionsStore()
 {
     return m_instructions_store;
@@ -144,18 +144,38 @@ Symbol::AddRefersTo(const IInstruction::Referer& referer)
 }
 
 void
+Symbol::SetInstructions(std::span<const std::reference_wrapper<IInstruction>> instructions)
+{
+    std::ranges::copy(instructions, std::back_inserter(m_instructions_store));
+}
+
+void
 Symbol::Commit()
 {
     std::scoped_lock lock(m_mutex);
 
     m_instructions = m_instructions_store;
-    m_refers_to = m_refers_to_store;
-    m_referred_by = m_referred_by_store;
+    if (!m_refers_to_store.empty())
+    {
+        // Don't set unless it was actually changed
+        m_refers_to = m_refers_to_store;
+    }
+    if (!m_referred_by_store.empty())
+    {
+        m_referred_by = m_referred_by_store;
+    }
+
+    m_committed = true;
+    m_commit_semaphore.release();
 }
 
 
 void
-Symbol::SetInstructions(std::span<const std::reference_wrapper<IInstruction>> instructions)
+Symbol::WaitForCommit()
 {
-    std::ranges::copy(instructions, std::back_inserter(m_instructions_store));
+    if (!m_committed)
+    {
+        m_section.DisassemblyHint(*this);
+        m_commit_semaphore.acquire();
+    }
 }

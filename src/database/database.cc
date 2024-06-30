@@ -125,12 +125,6 @@ Database::LookupByAddress(const ISection* hint, uint64_t address)
     return {};
 }
 
-std::vector<Database::LookupResult>
-Database::LookupByName(std::string_view name)
-{
-    return {};
-}
-
 
 std::optional<std::reference_wrapper<const ISymbol>>
 Database::SymbolBySectionOffset(const ISection& section, uint64_t offset)

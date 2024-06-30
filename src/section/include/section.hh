@@ -8,6 +8,7 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <etl/queue_spsc_atomic.h>
 
 namespace emilpro
 {
@@ -33,6 +34,7 @@ public:
     void FixupSymbolSizes();
 
     void FixupCrossReferences() final;
+    void DisassemblyHint(ISymbol& sym) const final;
 
 private:
     struct Relocation
@@ -64,6 +66,8 @@ private:
     IInstruction* InstructionAt(uint64_t) const final;
 
 
+    void DisassembleSymbol(std::vector<Symbol*> symbols_at_address, IDisassembler& disassembler);
+
     const std::vector<std::byte> m_data;
     const uint64_t m_start_address;
     const Type m_type;
@@ -81,6 +85,8 @@ private:
     std::vector<std::unique_ptr<IInstruction>> m_instructions;
     std::vector<std::reference_wrapper<IInstruction>> m_instruction_refs;
     std::map<uint64_t, IInstruction*> m_sorted_instructions;
+
+    mutable etl::queue_spsc_atomic<uint64_t, 2> m_disassembly_hint_queue;
 };
 
 } // namespace emilpro

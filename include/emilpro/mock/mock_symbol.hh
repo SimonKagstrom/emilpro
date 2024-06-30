@@ -20,6 +20,8 @@ public:
                      final);
     MAKE_CONST_MOCK0(ReferredBy, std::span<const IInstruction::Referer>(), final);
     MAKE_CONST_MOCK0(RefersTo, std::span<const IInstruction::Referer>(), final);
+
+    MAKE_MOCK0(WaitForCommit, void());
 };
 
 } // namespace emilpro::mock

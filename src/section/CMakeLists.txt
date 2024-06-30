@@ -6,6 +6,7 @@ target_link_libraries(section
 PUBLIC
     emilpro_interface
     symbol
+    etl::etl
 PRIVATE
     fmt::fmt
 )

@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <mutex>
 
 namespace emilpro
 {
@@ -33,8 +34,6 @@ public:
     std::span<const std::reference_wrapper<ISymbol>> Symbols() const;
 
     std::vector<LookupResult> LookupByAddress(const ISection* hint, uint64_t address);
-
-    std::vector<LookupResult> LookupByName(std::string_view name);
 
 private:
     void ParseThread();

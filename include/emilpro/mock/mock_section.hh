@@ -22,6 +22,8 @@ public:
     MAKE_MOCK1(Disassemble, void(IDisassembler&), final);
     MAKE_MOCK0(FixupCrossReferences, void(), final);
     MAKE_CONST_MOCK1(InstructionAt, IInstruction*(uint64_t), final);
+
+    MAKE_CONST_MOCK1(DisassemblyHint, void(ISymbol& sym));
 };
 
 } // namespace emilpro::mock

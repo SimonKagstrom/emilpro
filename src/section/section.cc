@@ -3,6 +3,7 @@
 #include "emilpro/i_disassembler.hh"
 
 #include <fmt/format.h>
+#include <unordered_set>
 #include <vector>
 
 using namespace emilpro;
@@ -108,37 +109,25 @@ Section::Disassemble(IDisassembler& disassembler)
     m_instruction_refs.clear();
     m_instructions.clear();
 
-    for (auto& cur : m_sorted_symbols)
+    std::unordered_set<uint64_t> finished_offsets;
+
+    for (const auto& cur : m_sorted_symbols)
     {
-        auto sym = cur.second.front();
-
-        if (static_cast<int64_t>(sym->Offset()) < 0)
+        uint64_t hint = 0;
+        if (m_disassembly_hint_queue.pop(hint))
         {
-            continue;
+            if (m_sorted_symbols.contains(hint))
+            {
+                DisassembleSymbol(m_sorted_symbols.find(hint)->second, disassembler);
+                finished_offsets.insert(hint);
+            }
         }
 
-        auto size_before = m_instruction_refs.size();
-        disassembler.Disassemble(
-            *this, sym, StartAddress() + sym->Offset(), sym->Data(), [this](auto insn) {
-                m_instructions.push_back(std::move(insn));
-
-                m_instruction_refs.push_back(*m_instructions.back());
-            });
-
-
-        if (size_before != m_instruction_refs.size())
+        // Can be true if it was in the hint
+        if (!finished_offsets.contains(cur.first))
         {
-            sym->SetInstructions(
-                {m_instruction_refs.begin() + size_before, m_instruction_refs.end()});
-        }
-
-
-        // The other symbols for the same address use the same instructions
-        for (auto it = std::next(cur.second.begin()); it != cur.second.end(); ++it)
-        {
-            auto other_sym = *it;
-            other_sym->SetInstructions(
-                {m_instruction_refs.begin() + size_before, m_instruction_refs.end()});
+            DisassembleSymbol(cur.second, disassembler);
+            finished_offsets.insert(cur.first);
         }
     }
 
@@ -164,6 +153,42 @@ Section::Disassemble(IDisassembler& disassembler)
         }
         m_sorted_instructions[insn->Offset()] = insn.get();
     }
+}
+
+void
+Section::DisassembleSymbol(std::vector<Symbol*> symbols_at_address, IDisassembler& disassembler)
+{
+    if (static_cast<int64_t>(symbols_at_address.front()->Offset()) < 0)
+    {
+        return;
+    }
+
+    auto sym = symbols_at_address.front();
+
+    auto size_before = m_instruction_refs.size();
+    disassembler.Disassemble(
+        *this, sym, StartAddress() + sym->Offset(), sym->Data(), [this](auto insn) {
+            m_instructions.push_back(std::move(insn));
+
+            m_instruction_refs.push_back(*m_instructions.back());
+        });
+
+    if (size_before != m_instruction_refs.size())
+    {
+        sym->SetInstructions({m_instruction_refs.begin() + size_before, m_instruction_refs.end()});
+    }
+
+
+    // The other symbols for the same address use the same instructions
+    for (auto it = std::next(symbols_at_address.begin()); it != symbols_at_address.end(); ++it)
+    {
+        auto other_sym = *it;
+        other_sym->SetInstructions(
+            {m_instruction_refs.begin() + size_before, m_instruction_refs.end()});
+
+        other_sym->Commit();
+    }
+    sym->Commit();
 }
 
 std::span<const std::reference_wrapper<IInstruction>>
@@ -219,4 +244,11 @@ Section::FixupCrossReferences()
 
         sym->Commit();
     }
+}
+
+// Context: The UI thread
+void
+Section::DisassemblyHint(ISymbol& sym) const
+{
+    m_disassembly_hint_queue.push(sym.Offset());
 }
