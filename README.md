@@ -10,6 +10,7 @@ Features:
 * Navigation via jumps and calls
 * History of visited addresses/symbols, with back/forward navigation
 * High-level source code display (if available)
+* Highlight used registers
 
 ## Preparations for build
 
@@ -58,3 +59,6 @@ conan install -of build --build=missing -s build_type=Release conanfile.txt
 cmake -B build -GNinja -DCMAKE_PREFIX_PATH="`pwd`/build/Release/generators/;`brew --prefix binutils`" -DCMAKE_BUILD_TYPE=Release
 ninja -C build
 ```
+
+## More information
+Simon Kagstrom <simon.kagstrom@gmail.com>
