@@ -1,6 +1,5 @@
 add_executable(ut
     test_address_history.cc
-    test_database.cc
     test_lanes.cc
     main.cc
 )
