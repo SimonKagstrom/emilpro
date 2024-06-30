@@ -18,18 +18,19 @@ public:
     MAKE_CONST_MOCK0(AsString, std::string_view(), final);
     MAKE_CONST_MOCK0(ReferredBy, std::span<const Referer>(), final);
     MAKE_CONST_MOCK0(RefersTo, std::optional<Referer>(), final);
-    MAKE_MOCK3(SetRefersTo, void(const ISection&, uint64_t, const ISymbol*), final);
-    MAKE_MOCK3(AddReferredBy,
-               void(const ISection& section, uint64_t offset, const ISymbol* symbol),
-               final);
-
     MAKE_CONST_MOCK0(UsedRegisters, std::span<const std::string>(), final);
     MAKE_CONST_MOCK0(GetSourceLocation,
                      (std::optional<std::pair<std::string_view, uint32_t>>)(),
                      final);
     MAKE_CONST_MOCK0(Section, (const ISection&)(), final);
     MAKE_CONST_MOCK0(Symbol, (const ISymbol*)(), final);
+
+    MAKE_MOCK3(SetRefersTo, void(const ISection&, uint64_t, const ISymbol*), final);
+    MAKE_MOCK3(AddReferredBy,
+               void(const ISection& section, uint64_t offset, const ISymbol* symbol),
+               final);
     MAKE_MOCK2(SetSourceLocation, void(std::string_view, uint32_t), final);
+    MAKE_MOCK0(Commit, void(), final);
 };
 
 } // namespace emilpro::mock

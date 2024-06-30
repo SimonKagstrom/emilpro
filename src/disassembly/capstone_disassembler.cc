@@ -4,6 +4,7 @@
 #include <cassert>
 #include <etl/vector.h>
 #include <fmt/format.h>
+#include <mutex>
 #include <ranges>
 
 using namespace emilpro;
@@ -236,24 +237,37 @@ private:
 
     std::span<const Referer> ReferredBy() const final
     {
+        std::scoped_lock lock(m_mutex);
+
         return m_referred_by;
     }
 
     std::optional<Referer> RefersTo() const final
     {
+        std::scoped_lock lock(m_mutex);
+
         return m_refers_to;
     }
 
     void SetRefersTo(const ISection& section, uint64_t offset, const ISymbol* symbol) final
     {
-        m_refers_to = IInstruction::Referer {&section, offset, symbol};
+        m_refers_to_store = IInstruction::Referer {&section, offset, symbol};
     }
 
     void AddReferredBy(const ISection& section, uint64_t offset, const ISymbol* symbol) final
     {
-        m_referred_by.push_back({&section, offset, symbol});
+        m_referred_by_store.push_back({&section, offset, symbol});
     }
 
+    void Commit() final
+    {
+        std::scoped_lock lock(m_mutex);
+
+        m_referred_by = m_referred_by_store;
+        m_refers_to = m_refers_to_store;
+        m_source_file = m_source_file_store;
+        m_source_line = m_source_line_store;
+    }
 
     std::span<const std::string> UsedRegisters() const final
     {
@@ -262,11 +276,13 @@ private:
 
     std::optional<std::pair<std::string_view, uint32_t>> GetSourceLocation() const final
     {
+        std::scoped_lock lock(m_mutex);
+
         std::optional<std::pair<std::string_view, uint32_t>> out = std::nullopt;
 
-        if (source_file_ && source_line_)
+        if (m_source_file && m_source_line)
         {
-            out = {*source_file_, *source_line_};
+            out = {*m_source_file, *m_source_line};
         }
 
         return out;
@@ -284,8 +300,8 @@ private:
 
     void SetSourceLocation(std::string_view file, uint32_t line) final
     {
-        source_file_ = file;
-        source_line_ = line;
+        m_source_file_store = file;
+        m_source_line_store = line;
     }
 
 
@@ -295,14 +311,21 @@ private:
     std::span<const std::byte> m_data;
     const IInstruction::InstructionType m_type;
     std::optional<IInstruction::Referer> m_refers_to;
-    std::vector<IInstruction::Referer> m_referred_by;
+    std::span<const IInstruction::Referer> m_referred_by;
+
+    std::optional<IInstruction::Referer> m_refers_to_store;
+    std::vector<IInstruction::Referer> m_referred_by_store;
     const std::string m_encoding;
     const uint64_t m_offset;
 
-    std::optional<std::string> source_file_;
-    std::optional<uint32_t> source_line_;
+    std::optional<std::string> m_source_file;
+    std::optional<uint32_t> m_source_line;
+    std::optional<std::string> m_source_file_store;
+    std::optional<uint32_t> m_source_line_store;
 
     std::vector<std::string> m_used_registers;
+
+    mutable std::mutex m_mutex;
 };
 
 } // namespace

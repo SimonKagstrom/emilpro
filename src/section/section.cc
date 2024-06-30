@@ -203,7 +203,7 @@ Section::FixupCrossReferences()
 {
     for (const auto& sym : m_symbols)
     {
-        for (auto& insn : sym->Instructions())
+        for (auto& insn : sym->InstructionsStore())
         {
             auto refers_to = insn.get().RefersTo();
             auto referred_by = insn.get().ReferredBy();
@@ -214,6 +214,8 @@ Section::FixupCrossReferences()
             }
 
             sym.get()->AddReferredBy(referred_by);
+
+            insn.get().Commit();
         }
 
         sym->Commit();

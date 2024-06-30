@@ -43,12 +43,6 @@ public:
 
     virtual std::optional<Referer> RefersTo() const = 0;
 
-    /// From relocations
-    virtual void SetRefersTo(const ISection& section, uint64_t offset, const ISymbol* symbol) = 0;
-
-    /// From instructions
-    virtual void AddReferredBy(const ISection& section, uint64_t offset, const ISymbol* symbol) = 0;
-
     virtual std::span<const std::string> UsedRegisters() const = 0;
 
     virtual std::optional<std::pair<std::string_view, uint32_t>> GetSourceLocation() const = 0;
@@ -57,7 +51,40 @@ public:
 
     virtual const ISymbol* Symbol() const = 0;
 
+    // Modifying methods (used when parsing the binary)
+
+    /**
+     * @brief Set the high-level source file for this instruction
+     *
+     * @param file the file
+     * @param line the line
+     */
     virtual void SetSourceLocation(std::string_view file, uint32_t line) = 0;
+
+    /**
+     * @brief Set the symbols/offsets this instruction refers to
+     *
+     * @param section the section of the destination
+     * @param offset the offset of the destination instruction
+     * @param symbol the symbol (if resolved) of the destination
+     */
+    virtual void SetRefersTo(const ISection& section, uint64_t offset, const ISymbol* symbol) = 0;
+
+    /**
+     * @brief Set the incoming references for this instruction
+     *
+     * @param section the source section of the reference
+     * @param offset the source offset of the reference
+     * @param symbol the source symbol of the reference
+     */
+    virtual void AddReferredBy(const ISection& section, uint64_t offset, const ISymbol* symbol) = 0;
+
+    /**
+     * @brief Commit the modifiable data for this instruction
+     *
+     * Until then, @a RefersTo etc will return empty values
+     */
+    virtual void Commit() = 0;
 };
 
 } // namespace emilpro

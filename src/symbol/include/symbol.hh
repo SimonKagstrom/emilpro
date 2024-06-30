@@ -29,6 +29,8 @@ public:
     std::span<const IInstruction::Referer> ReferredBy() const final;
     std::span<const IInstruction::Referer> RefersTo() const final;
 
+    // Currently processed instructions (before commit)
+    std::vector<std::reference_wrapper<IInstruction>> &InstructionsStore();
 
     void SetInstructions(std::span<const std::reference_wrapper<IInstruction>> instructions);
     void AddReferredBy(std::span<const IInstruction::Referer> referers);

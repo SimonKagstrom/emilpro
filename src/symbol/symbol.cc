@@ -122,6 +122,12 @@ Symbol::RefersTo() const
     return m_refers_to;
 }
 
+std::vector<std::reference_wrapper<IInstruction>> &
+Symbol::InstructionsStore()
+{
+    return m_instructions_store;
+}
+
 void
 Symbol::AddReferredBy(std::span<const IInstruction::Referer> referers)
 {

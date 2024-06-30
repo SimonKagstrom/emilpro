@@ -65,7 +65,7 @@ Database::ParseFile(std::unique_ptr<IBinaryParser> parser,
         }
     }
 
-    // Disassemble all sections
+    // Setup cross-references for all symbols
     for (const auto& section : m_sections)
     {
         section->FixupCrossReferences();
