@@ -1,6 +1,7 @@
 #include "emilpro/i_section.hh"
 #include "emilpro/i_symbol.hh"
 
+#include <atomic>
 #include <mutex>
 #include <semaphore>
 #include <vector>
