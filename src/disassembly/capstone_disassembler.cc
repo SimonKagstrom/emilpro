@@ -76,7 +76,7 @@ public:
     }
 
 private:
-    IInstruction::InstructionType DetermineType(const cs_insn* insn)
+    IInstruction::InstructionType DetermineType(const cs_insn* insn) const
     {
         for (auto i = 0u; i < insn->detail->groups_count; i++)
         {
@@ -136,11 +136,18 @@ private:
             m_refers_to = IInstruction::Referer {
                 nullptr, static_cast<uint64_t>(insn->detail->arm64.operands[0].imm), nullptr};
         }
-        else if (IsJump(insn) && insn->detail->arm.op_count > 0 &&
-                 insn->detail->arm64.operands[0].type == ARM64_OP_IMM)
+        else if (IsJump(insn))
         {
-            m_refers_to = IInstruction::Referer {
-                &m_section, static_cast<uint64_t>(insn->detail->arm64.operands[0].imm), nullptr};
+            for (auto i = 0u; i < insn->detail->arm64.op_count; i++)
+            {
+                const auto& op = insn->detail->arm64.operands[i];
+                if (op.type == ARM64_OP_IMM)
+                {
+                    // Only consider the last immediate as an address (e.g., "tbnz     w8, #0, #0xbe4")
+                    m_refers_to =
+                        IInstruction::Referer {&m_section, static_cast<uint64_t>(op.imm), nullptr};
+                }
+            }
         }
 
         for (auto i = 0u; i < insn->detail->arm64.op_count; i++)
@@ -263,8 +270,14 @@ private:
     {
         std::scoped_lock lock(m_mutex);
 
-        m_referred_by = m_referred_by_store;
-        m_refers_to = m_refers_to_store;
+        if (!m_referred_by_store.empty())
+        {
+            m_referred_by = m_referred_by_store;
+        }
+        if (m_refers_to_store)
+        {
+            m_refers_to = m_refers_to_store;
+        }
         m_source_file = m_source_file_store;
         m_source_line = m_source_line_store;
     }
