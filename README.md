@@ -1,9 +1,10 @@
 # EmilPRO
+
 A graphical disassembler for multiple architectures. Meant mainly as a debugging tool.
 
 ![The application on MacOS](doc/emilpro.png)
 
-Features:
+Features 🚀
 
 * Easy filtering of symbol names/addresses
 * Cross-references for both symbols and instructions
@@ -12,9 +13,9 @@ Features:
 * High-level source code display (if available)
 * Highlight used registers
 
-## Preparations for build
+## Requirements
 
-### Debian/Ubuntu
+### Debian and Ubuntu
 
 ```
 sudo apt install g++ cmake ninja-build python3-pip binutils-multiarch-dev qt6-base-dev libglx-dev libgl1-mesa-dev
@@ -31,7 +32,8 @@ Still TODO, but more or less like Ubuntu.
 brew install binutils qt6 conan cmake ninja
 ```
 
-## Build
+## Installation
+
 The instructions below are for release builds. For debug builds, replace `Release` with `Debug`, and then
 also unit tests will be built.
 
@@ -42,6 +44,7 @@ conan install -of build --build=missing -s build_type=Release conanfile.txt
 ```
 
 ### Linux
+
 ```
 cmake -B build -GNinja -DCMAKE_PREFIX_PATH="`pwd`/build/build/Release/generators/" -DCMAKE_BUILD_TYPE=Release
 ninja -C build
@@ -60,5 +63,14 @@ cmake -B build -GNinja -DCMAKE_PREFIX_PATH="`pwd`build/build/Release/generators/
 ninja -C build
 ```
 
-## More information
-Simon Kagstrom <simon.kagstrom@gmail.com>
+## Configuration
+
+_Do we need it?_
+
+## Usage
+
+_How to launch EmilPRO?_
+
+## Support
+
+Simon Kagstrom \<simon.kagstrom@gmail.com\>
