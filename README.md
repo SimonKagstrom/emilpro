@@ -6,6 +6,7 @@ A graphical disassembler for multiple architectures. Meant mainly as a debugging
 
 Features 🚀
 
+* Disassembly support for ARM, AArch64, x86, (untested) MIPS, (untested) PowerPC
 * Easy filtering of symbol names/addresses
 * Cross-references for both symbols and instructions
 * Navigation via jumps and calls
@@ -66,7 +67,7 @@ ninja -C build
 ## Installation
 
 ```
-sudo cp qt/emilpro/emilpro to /usr/local/bin/
+sudo cp qt/emilpro/emilpro /usr/local/bin/
 ```
 
 ## Support
