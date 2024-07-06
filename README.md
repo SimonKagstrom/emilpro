@@ -32,7 +32,7 @@ Still TODO, but more or less like Ubuntu.
 brew install binutils qt6 conan cmake ninja
 ```
 
-## Installation
+## Build
 
 The instructions below are for release builds. For debug builds, replace `Release` with `Debug`, and then
 also unit tests will be built.
@@ -63,13 +63,11 @@ cmake -B build -GNinja -DCMAKE_PREFIX_PATH="`pwd`build/build/Release/generators/
 ninja -C build
 ```
 
-## Configuration
+## Installation
 
-_Do we need it?_
-
-## Usage
-
-_How to launch EmilPRO?_
+```
+sudo cp qt/emilpro/emilpro to /usr/local/bin/
+```
 
 ## Support
 
