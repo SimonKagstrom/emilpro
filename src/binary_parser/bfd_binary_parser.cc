@@ -87,12 +87,6 @@ mem_bfd_iovec_stat(struct bfd* abfd, void* stream, struct stat* sb)
 
 BfdBinaryParser::BfdBinaryParser(std::string_view path)
     : m_path(path)
-    , m_rawData(NULL)
-    , m_rawDataSize(0)
-    , m_bfd(NULL)
-    , m_bfd_syms(NULL)
-    , m_dynamic_bfd_syms(NULL)
-    , m_synthetic_bfd_syms(NULL)
 {
 }
 
@@ -148,32 +142,6 @@ BfdBinaryParser::LookupLine(bfd_section* section, bfd_symbol** symTbl, uint64_t 
     return std::nullopt;
 }
 
-// From ILineProvider
-bool
-BfdBinaryParser::getLineByAddress(uint64_t addr)
-{
-    //ILineProvider::FileLine out;
-    bool out = false;
-
-    BfdSectionByAddress_t::iterator it = m_sectionByAddress.lower_bound(addr);
-    if (it == m_sectionByAddress.end())
-    {
-        return out;
-    }
-
-    bfd_section* section = it->second;
-
-    if (!section)
-        return out;
-
-    //        if (lookupLine(&out, section, m_bfdSyms, addr))
-    //            return out;
-    //
-    //        if (lookupLine(&out, section, m_dynamic_bfd_syms, addr))
-    //            return out;
-
-    return out;
-}
 
 bool
 BfdBinaryParser::Parse()
@@ -181,7 +149,6 @@ BfdBinaryParser::Parse()
     char** matching;
     unsigned int sz;
     struct target_buffer* buffer = (struct target_buffer*)malloc(sizeof(struct target_buffer));
-    bool isElf;
 
     // Mmap file
     struct stat filestat;
@@ -193,7 +160,7 @@ BfdBinaryParser::Parse()
         perror("stat failed");
         exit(1);
     }
-    auto data = mmap(NULL, filestat.st_size, PROT_READ, MAP_SHARED, fd, 0);
+    auto data = mmap(nullptr, filestat.st_size, PROT_READ, MAP_SHARED, fd, 0);
     if (data == MAP_FAILED)
     {
         perror("mmap failed");
@@ -205,7 +172,7 @@ BfdBinaryParser::Parse()
     m_rawData = (uint8_t*)data;
     m_rawDataSize = filestat.st_size;
     m_bfd = bfd_openr_iovec("",
-                            NULL,
+                            nullptr,
                             mem_bfd_iovec_open,
                             buffer,
                             mem_bfd_iovec_pread,
@@ -214,13 +181,12 @@ BfdBinaryParser::Parse()
 
     if (!m_bfd)
     {
-        //            error("bfd_openr failed");
         return false;
     }
     if (!bfd_check_format_matches(m_bfd, bfd_object, &matching))
     {
         bfd_close(m_bfd);
-        m_bfd = NULL;
+        m_bfd = nullptr;
         return false;
     }
 
@@ -235,11 +201,11 @@ BfdBinaryParser::Parse()
 
 
     // Create sections
-    for (auto section = m_bfd->sections; section != NULL; section = section->next)
+    for (auto section = m_bfd->sections; section != nullptr; section = section->next)
     {
         auto size = bfd_section_size(section);
         auto name = bfd_section_name(section);
-        auto p = new bfd_byte[size];
+        auto p = std::make_unique<bfd_byte[]>(size);
 
         auto type = ISection::Type::kOther;
 
@@ -280,16 +246,16 @@ BfdBinaryParser::Parse()
 
 
         std::unique_ptr<Section> sec;
-        if (bfd_get_section_contents(m_bfd, section, p, 0, size))
+        if (bfd_get_section_contents(m_bfd, section, p.get(), 0, size))
         {
-            if ((section->flags & SEC_CODE))
+            if (section->flags & SEC_CODE)
             {
                 type = ISection::Type::kInstructions;
             }
 
             sec = std::make_unique<Section>(
                 name,
-                std::span<const std::byte>(reinterpret_cast<const std::byte*>(p), size),
+                std::span<const std::byte>(reinterpret_cast<const std::byte*>(p.get()), size),
                 bfd_section_vma(section),
                 type,
                 flags,
@@ -302,11 +268,10 @@ BfdBinaryParser::Parse()
                                             bfd_section_vma(section),
                                             type,
                                             flags,
-                                            [](auto offset) { return std::nullopt; });
+                                            [](auto) { return std::nullopt; });
         }
 
         m_pending_sections[section] = std::move(sec);
-        delete[] p;
     }
 
     if (auto undef_section = bfd_und_section_ptr)
@@ -321,14 +286,14 @@ BfdBinaryParser::Parse()
     }
 
 
-    handleSymbols(symcount, m_bfd_syms, false);
-    handleSymbols(dynsymcount, m_dynamic_bfd_syms, true);
+    HandleSymbols(symcount, m_bfd_syms, false);
+    HandleSymbols(dynsymcount, m_dynamic_bfd_syms, true);
     if (syntheticSyms)
     {
         m_synthetic_bfd_syms = (bfd_symbol**)malloc(syntsymcount * sizeof(bfd_symbol*));
         for (long i = 0; i < syntsymcount; i++)
             m_synthetic_bfd_syms[i] = &syntheticSyms[i];
-        handleSymbols(syntsymcount, m_synthetic_bfd_syms, false);
+        HandleSymbols(syntsymcount, m_synthetic_bfd_syms, false);
     }
 
     for (auto& [section, sec] : m_pending_sections)
@@ -357,26 +322,11 @@ BfdBinaryParser::Parse()
         }
     }
 
-    // Add the file symbol
-    //        ISymbol& sym = SymbolFactory::instance().createSymbol(ISymbol::LINK_NORMAL,
-    //                                                              ISymbol::SYM_FILE,
-    //                                                              "file",
-    //                                                              data,
-    //                                                              0,
-    //                                                              dataSize,
-    //                                                              0,
-    //                                                              false,
-    //                                                              false,
-    //                                                              false,
-    //                                                              0);
-    //
-    //        m_listener->onSymbol(sym);
-
     return true;
 }
 
 void
-BfdBinaryParser::handleSymbols(long symcount, bfd_symbol** syms, bool dynamic)
+BfdBinaryParser::HandleSymbols(long symcount, bfd_symbol** syms, bool dynamic)
 {
     for (long i = 0; i < symcount; i++)
     {
@@ -455,7 +405,6 @@ BfdBinaryParser::handleSymbols(long symcount, bfd_symbol** syms, bool dynamic)
 void
 BfdBinaryParser::HandleRelocations(asection* section, bfd_symbol** syms)
 {
-
     if (bfd_is_abs_section(section) || bfd_is_und_section(section) || bfd_is_com_section(section) ||
         ((section->flags & SEC_RELOC) == 0))
     {

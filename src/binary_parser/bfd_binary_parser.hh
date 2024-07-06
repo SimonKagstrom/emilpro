@@ -32,8 +32,7 @@ private:
 
     std::optional<Section::FileLine>
     LookupLine(bfd_section* section, bfd_symbol** symTbl, uint64_t offset);
-    bool getLineByAddress(uint64_t addr);
-    void handleSymbols(long symcount, bfd_symbol** syms, bool dynamic);
+    void HandleSymbols(long symcount, bfd_symbol** syms, bool dynamic);
     void HandleRelocations(asection* section, bfd_symbol** syms);
 
 private:
@@ -42,13 +41,13 @@ private:
     Machine m_machine {Machine::kUnknown};
     std::string_view m_path;
 
-    uint8_t* m_rawData;
-    size_t m_rawDataSize;
-    struct bfd* m_bfd;
-    bfd_symbol** m_bfd_syms;
-    bfd_symbol** m_dynamic_bfd_syms;
-    bfd_symbol** m_synthetic_bfd_syms;
-    bfd_symbol* m_rawSynthetic_bfd_syms;
+    uint8_t* m_rawData {nullptr};
+    size_t m_rawDataSize {0};
+    struct bfd* m_bfd {nullptr};
+    bfd_symbol** m_bfd_syms {nullptr};
+    bfd_symbol** m_dynamic_bfd_syms {nullptr};
+    bfd_symbol** m_synthetic_bfd_syms {nullptr};
+    bfd_symbol* m_rawSynthetic_bfd_syms {nullptr};
 
     std::unordered_map<bfd_section*, std::unique_ptr<Section>> m_pending_sections;
     std::unordered_map<bfd_symbol*, Symbol*> m_symbol_map;
