@@ -34,7 +34,7 @@ public:
         : m_handle(handle)
         , m_section(section)
         , m_symbol(symbol)
-        , m_data(data.subspan(0, insn->size))
+        , m_data(data.subspan(0, std::min(static_cast<size_t>(insn->size), data.size())))
         , m_type(DetermineType(insn))
         , m_encoding(fmt::format("{:8s} {}", insn->mnemonic, insn->op_str))
         , m_offset(offset)
@@ -378,11 +378,13 @@ CapstoneDisassembler::Disassemble(const ISection& section,
     auto address = start_address;
     auto cur_address = address;
 
+    auto offset = 0;
     while (cs_disasm_iter(m_handle, &code, &size, &address, insn))
     {
         on_instruction(std::make_unique<CapstoneInstruction>(
-            m_handle, section, symbol, m_arch, cur_address, data, insn));
+            m_handle, section, symbol, m_arch, cur_address, data.subspan(offset), insn));
         cur_address = address;
+        offset += insn->size;
     }
 
     cs_free(insn, 1);

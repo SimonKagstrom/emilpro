@@ -359,13 +359,6 @@ MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelIndex& p
 
     const auto& insn = m_visible_instructions[row].get();
 
-    // Workaround an UBSAN issue with fmt::format, when fmt::join is used
-    std::string encoding;
-    for (auto x : insn.Data())
-    {
-        encoding += fmt::format("{:02x} ", x);
-    }
-
     m_instruction_item_delegate.HighlightStrings(insn.UsedRegisters());
 
     if (auto fl = insn.GetSourceLocation(); fl)
@@ -799,6 +792,7 @@ MainWindow::SetupInstructionLabels()
            << "B"
            << "Instruction"
            << "F"
+           << "Raw"
            << "Target";
 
     m_instruction_view_model->setHorizontalHeaderLabels(labels);
@@ -813,7 +807,8 @@ MainWindow::SetupInstructionView()
     m_instruction_view_model->setHorizontalHeaderItem(1, new QStandardItem(QString("B")));
     m_instruction_view_model->setHorizontalHeaderItem(2, new QStandardItem(QString("Instruction")));
     m_instruction_view_model->setHorizontalHeaderItem(3, new QStandardItem(QString("F")));
-    m_instruction_view_model->setHorizontalHeaderItem(4, new QStandardItem(QString("Target")));
+    m_instruction_view_model->setHorizontalHeaderItem(4, new QStandardItem(QString("Raw")));
+    m_instruction_view_model->setHorizontalHeaderItem(5, new QStandardItem(QString("Target")));
 
     m_ui->instructionTableView->setItemDelegateForColumn(1, &m_backward_item_delegate);
     m_ui->instructionTableView->setItemDelegateForColumn(2, &m_instruction_item_delegate);
@@ -827,6 +822,7 @@ MainWindow::SetupInstructionView()
     m_ui->instructionTableView->setColumnWidth(1, 80);
     m_ui->instructionTableView->setColumnWidth(2, 300);
     m_ui->instructionTableView->setColumnWidth(3, 80);
+    m_ui->instructionTableView->setColumnWidth(4, 200);
 
     connect(m_ui->instructionTableView->selectionModel(),
             SIGNAL(currentChanged(QModelIndex, QModelIndex)),
@@ -932,11 +928,21 @@ MainWindow::UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offse
 
         auto refers_to = ri.RefersTo();
 
+
+        // Workaround an UBSAN issue with fmt::format, when fmt::join is used
+        std::string encoding;
+
+        for (auto x : ri.Data())
+        {
+            encoding += fmt::format("{:02x} ", x);
+        }
+
         QList<QStandardItem*> lst;
         lst.append(new QStandardItem(fmt::format("0x{:08x}", ri.Offset()).c_str()));
         lst.append(nullptr); // Backward branch
         lst.append(new QStandardItem(std::string(ri.AsString()).c_str()));
-        lst.append(nullptr); // Forward branch
+        lst.append(nullptr);                             // Forward branch
+        lst.append(new QStandardItem(encoding.c_str())); // Encoding
         if (refers_to)
         {
             if (refers_to->symbol)
