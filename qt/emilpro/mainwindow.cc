@@ -727,13 +727,26 @@ MainWindow::RestoreSettings()
     QSettings settings("ska", "emilpro");
 
     settings.beginGroup("MainWindow");
-
     if (const auto geometry = settings.value("geometry", QByteArray()).toByteArray();
         !geometry.isEmpty())
     {
         restoreGeometry(geometry);
     }
+    settings.endGroup();
 
+    settings.beginGroup("Splitters");
+    if (const auto state =
+            settings.value("symbol_instruction_splitter_size", QByteArray()).toByteArray();
+        !state.isEmpty())
+    {
+        m_ui->symbolInstructionSplitter->restoreState(state);
+    }
+    if (const auto state =
+            settings.value("instruction_source_splitter_size", QByteArray()).toByteArray();
+        !state.isEmpty())
+    {
+        m_ui->instructionSourceSplitter->restoreState(state);
+    }
     settings.endGroup();
 }
 
@@ -744,6 +757,13 @@ MainWindow::SaveSettings()
 
     settings.beginGroup("MainWindow");
     settings.setValue("geometry", saveGeometry());
+    settings.endGroup();
+
+    settings.beginGroup("Splitters");
+    settings.setValue("symbol_instruction_splitter_size",
+                      m_ui->symbolInstructionSplitter->saveState());
+    settings.setValue("instruction_source_splitter_size",
+                      m_ui->instructionSourceSplitter->saveState());
     settings.endGroup();
 }
 

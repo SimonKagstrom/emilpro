@@ -44,7 +44,7 @@
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
-      <widget class="QSplitter" name="splitter">
+      <widget class="QSplitter" name="symbolInstructionSplitter">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -401,7 +401,7 @@
         </layout>
        </widget>
       </widget>
-      <widget class="QSplitter" name="splitter_2">
+      <widget class="QSplitter" name="instructionSourceSplitter">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
