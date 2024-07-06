@@ -43,7 +43,7 @@ conan install -of build --build=missing -s build_type=Release conanfile.txt
 
 ### Linux
 ```
-cmake -B build -GNinja -DCMAKE_PREFIX_PATH="build/build/Release/generators/" -DCMAKE_BUILD_TYPE=Release
+cmake -B build -GNinja -DCMAKE_PREFIX_PATH="`pwd`/build/build/Release/generators/" -DCMAKE_BUILD_TYPE=Release
 ninja -C build
 ```
 
@@ -56,7 +56,7 @@ conan install -of build --build=missing -s build_type=Release conanfile.txt
 ```
 
 ```
-cmake -B build -GNinja -DCMAKE_PREFIX_PATH="`pwd`/build/Release/generators/;`brew --prefix binutils`" -DCMAKE_BUILD_TYPE=Release
+cmake -B build -GNinja -DCMAKE_PREFIX_PATH="`pwd`build/build/Release/generators/;`brew --prefix binutils`" -DCMAKE_BUILD_TYPE=Release
 ninja -C build
 ```
 
