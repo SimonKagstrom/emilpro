@@ -50,6 +50,9 @@ public:
         case cs_arch::CS_ARCH_ARM64:
             ProcessArm64(insn);
             break;
+        case cs_arch::CS_ARCH_MIPS:
+            ProcessMips(insn);
+            break;
         default:
             break;
         }
@@ -211,6 +214,38 @@ private:
             }
         }
     }
+
+    void ProcessMips(const cs_insn* insn)
+    {
+        if (insn->id == mips_insn::MIPS_INS_JAL || insn->id == mips_insn::MIPS_INS_BAL)
+        {
+            m_refers_to = IInstruction::Referer {
+                nullptr, static_cast<uint64_t>(insn->detail->mips.operands[0].imm), nullptr};
+        }
+        else if (IsJump(insn) && insn->detail->mips.op_count > 0 &&
+                 insn->detail->mips.operands[0].type == MIPS_OP_IMM)
+        {
+            m_refers_to = IInstruction::Referer {
+                &m_section, static_cast<uint64_t>(insn->detail->mips.operands[0].imm), nullptr};
+        }
+
+        for (auto i = 0u; i < insn->detail->mips.op_count; i++)
+        {
+            const auto& op = insn->detail->mips.operands[i];
+            if (op.type == MIPS_OP_REG)
+            {
+                m_used_registers.emplace_back(cs_reg_name(m_handle, op.reg));
+            }
+            if (op.type == MIPS_OP_MEM)
+            {
+                if (op.mem.base != MIPS_REG_INVALID)
+                {
+                    m_used_registers.emplace_back(cs_reg_name(m_handle, op.mem.base));
+                }
+            }
+        }
+    }
+
 
     bool IsJump(const cs_insn* insn) const
     {
