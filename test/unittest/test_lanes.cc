@@ -42,11 +42,11 @@ public:
         {
             auto& cur = instructions[i];
 
-            expecations.push_back(
+            expectations.push_back(
                 NAMED_ALLOW_CALL(cur, Type()).RETURN(IInstruction::InstructionType::kOther));
-            expecations.push_back(NAMED_ALLOW_CALL(cur, RefersTo()).RETURN(std::nullopt));
-            expecations.push_back(NAMED_ALLOW_CALL(cur, ReferredBy()).RETURN(no_referers));
-            expecations.push_back(NAMED_ALLOW_CALL(cur, Offset()).RETURN(i));
+            expectations.push_back(NAMED_ALLOW_CALL(cur, RefersTo()).RETURN(std::nullopt));
+            expectations.push_back(NAMED_ALLOW_CALL(cur, ReferredBy()).RETURN(no_referers));
+            expectations.push_back(NAMED_ALLOW_CALL(cur, Offset()).RETURN(i));
         }
 
         CreateReference(0, 2);
@@ -68,12 +68,12 @@ public:
         const auto& from = instructions[from_index];
         const auto& to = instructions[to_index];
 
-        expecations.push_back(NAMED_ALLOW_CALL(from, RefersTo())
-                                  .RETURN(IInstruction::Referer {nullptr, to_index, nullptr}));
-        expecations.push_back(NAMED_ALLOW_CALL(to, ReferredBy())
-                                  .RETURN(std::vector<IInstruction::Referer> {
-                                      IInstruction::Referer {nullptr, from_index, nullptr}}));
-        expecations.push_back(
+        expectations.push_back(NAMED_ALLOW_CALL(from, RefersTo())
+                                   .RETURN(IInstruction::Referer {nullptr, to_index, nullptr}));
+        expectations.push_back(NAMED_ALLOW_CALL(to, ReferredBy())
+                                   .RETURN(std::vector<IInstruction::Referer> {
+                                       IInstruction::Referer {nullptr, from_index, nullptr}}));
+        expectations.push_back(
             NAMED_ALLOW_CALL(from, Type()).RETURN(IInstruction::InstructionType::kBranch));
     }
 
@@ -126,7 +126,7 @@ public:
 
 private:
     std::vector<IInstruction::Referer> no_referers;
-    std::vector<std::unique_ptr<trompeloeil::expectation>> expecations;
+    std::vector<std::unique_ptr<trompeloeil::expectation>> expectations;
 };
 
 } // namespace
