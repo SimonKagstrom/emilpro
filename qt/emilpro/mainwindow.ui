@@ -45,6 +45,12 @@
        <enum>Qt::Vertical</enum>
       </property>
       <widget class="QSplitter" name="splitter">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>1</verstretch>
+        </sizepolicy>
+       </property>
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
@@ -144,6 +150,12 @@
               </layout>
              </widget>
              <widget class="QWidget" name="sectionTab">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <attribute name="title">
                <string>Sections</string>
               </attribute>
@@ -220,6 +232,12 @@
               <number>1</number>
              </property>
              <widget class="QWidget" name="refersToTab">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <attribute name="title">
                <string>Refers to</string>
               </attribute>
@@ -238,6 +256,12 @@
                </property>
                <item>
                 <widget class="QTableView" name="refersToTableView">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="font">
                   <font>
                    <family>Courier New</family>
@@ -273,6 +297,12 @@
               </layout>
              </widget>
              <widget class="QWidget" name="referredByTab">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <attribute name="title">
                <string>Referenced by</string>
               </attribute>
@@ -366,19 +396,6 @@
            <attribute name="verticalHeaderVisible">
             <bool>false</bool>
            </attribute>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="instructionEncodingLine">
-           <property name="font">
-            <font>
-             <family>Courier New</family>
-             <pointsize>12</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
           </widget>
          </item>
         </layout>

@@ -9,6 +9,7 @@
 #include "jump_lane_delegate.hh"
 
 #include <QMainWindow>
+#include <QSettings>
 #include <qstandarditemmodel.h>
 
 namespace Ui
@@ -92,15 +93,11 @@ private:
 
     void SetupInfoBox();
 
-    void addHistoryEntry(uint64_t addr);
-
-    void refresh();
-
     void LoadFile(const std::string& filename);
 
-    void saveState();
+    void SaveSettings();
 
-    void restoreState();
+    void RestoreSettings();
 
     void OnHistoryIndexChanged();
 

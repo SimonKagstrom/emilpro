@@ -6,6 +6,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QMetaType>
 #include <QScrollBar>
 #include <QShortcut>
 #include <QTextBlock>
@@ -38,20 +39,19 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
+    SaveSettings();
+
     delete m_instruction_view_model;
     delete m_symbol_view_model;
     delete m_ui;
-}
-
-void
-MainWindow::addHistoryEntry(uint64_t address)
-{
 }
 
 bool
 MainWindow::Init(int argc, char* argv[])
 {
     m_ui->setupUi(this);
+
+    RestoreSettings();
 
     SetupSectionView();
     SetupSymbolView();
@@ -365,7 +365,6 @@ MainWindow::on_insnCurrentChanged(const QModelIndex& index, const QModelIndex& p
     {
         encoding += fmt::format("{:02x} ", x);
     }
-    m_ui->instructionEncodingLine->setText(encoding.c_str());
 
     m_instruction_item_delegate.HighlightStrings(insn.UsedRegisters());
 
@@ -723,18 +722,29 @@ MainWindow::on_symbolTimerTriggered()
 }
 
 void
-MainWindow::refresh()
+MainWindow::RestoreSettings()
 {
+    QSettings settings("ska", "emilpro");
+
+    settings.beginGroup("MainWindow");
+
+    if (const auto geometry = settings.value("geometry", QByteArray()).toByteArray();
+        !geometry.isEmpty())
+    {
+        restoreGeometry(geometry);
+    }
+
+    settings.endGroup();
 }
 
 void
-MainWindow::restoreState()
+MainWindow::SaveSettings()
 {
-}
+    QSettings settings("ska", "emilpro");
 
-void
-MainWindow::saveState()
-{
+    settings.beginGroup("MainWindow");
+    settings.setValue("geometry", saveGeometry());
+    settings.endGroup();
 }
 
 void
