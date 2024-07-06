@@ -33,7 +33,7 @@ main(int argc, char* argv[])
 
     w.show();
 
-    int out = a.exec();
+    auto out = QApplication::exec();
     w.UpdatePreferences();
 
     return out;
