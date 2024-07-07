@@ -30,19 +30,11 @@ main(int argc, char* argv[])
 
     MainWindow w;
 
-    if (argc > 1)
-    {
-        if (auto err = w.LoadFile(argv[1]); err)
-        {
-            fmt::print("Error loading file: {}\n\n", MainWindow::LoadErrorToString(*err));
-            Usage(argv[0]);
-        }
-    }
-
     w.show();
 
-    auto out = QApplication::exec();
-    w.UpdatePreferences();
-
-    return out;
+    if (argc > 1)
+    {
+        w.TriggerOpenFile(argv[1]);
+    }
+    return QApplication::exec();
 }

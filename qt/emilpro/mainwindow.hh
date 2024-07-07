@@ -33,14 +33,7 @@ public:
     explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow() final;
 
-    /// Parse a file, and return nullptr if successful, otherwise an error code
-    std::optional<LoadError> LoadFile(const std::string& filename,
-                                      std::optional<emilpro::Machine> machine_hint = std::nullopt);
-
-    static const char* LoadErrorToString(LoadError error);
-
-    // On quit etc
-    void UpdatePreferences();
+    void TriggerOpenFile(const char *filename);
 
 private slots:
     void on_symbolTableView_activated(const QModelIndex& index);
@@ -86,7 +79,13 @@ private slots:
     void on_locationLineEdit_textChanged(const QString& text);
     void on_locationLineEdit_returnPressed();
 
+    void on_LoadFile(const QString &filename);
+
 private:
+    /// Parse a file, and return nullptr if successful, otherwise an error code
+    std::optional<LoadError> LoadFile(const std::string& filename,
+                                      std::optional<emilpro::Machine> machine_hint = std::nullopt);
+
     void SetupSectionView();
 
     void SetupSymbolView();

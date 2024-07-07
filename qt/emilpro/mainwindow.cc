@@ -28,20 +28,19 @@ auto kSymbolDataColor = kSectionDataColor;
 auto kSymbolDynamicDataColor = QBrush("salmon");
 auto kSymbolDynamicColor = QBrush("lightgreen");
 
-} // namespace
-
 const char*
-MainWindow::LoadErrorToString(LoadError error)
+LoadErrorToString(MainWindow::LoadError error)
 {
+    using LE = MainWindow::LoadError;
+
     constexpr auto kErrorStrings = std::array {
-        std::pair {LoadError::kFileNotFound, "File not found"},
-        std::pair {LoadError::kParseError, "Parse error"},
-        std::pair {LoadError::kUnknownArchitecture, "Unknown architecture"},
+        std::pair {LE::kFileNotFound, "File not found"},
+        std::pair {LE::kParseError, "Parse error"},
+        std::pair {LE::kUnknownArchitecture, "Unknown architecture"},
     };
 
-    if (auto it = std::find_if(kErrorStrings.begin(),
-                               kErrorStrings.end(),
-                               [error](auto& p) { return p.first == error; });
+    if (auto it =
+            std::ranges::find_if(kErrorStrings, [error](auto& p) { return p.first == error; });
         it != kErrorStrings.end())
     {
         return it->second;
@@ -52,6 +51,8 @@ MainWindow::LoadErrorToString(LoadError error)
 
     return "";
 }
+
+} // namespace
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -94,6 +95,12 @@ MainWindow::~MainWindow()
     delete m_instruction_view_model;
     delete m_symbol_view_model;
     delete m_ui;
+}
+
+void
+MainWindow::TriggerOpenFile(const char* filename)
+{
+    emit on_LoadFile(filename);
 }
 
 std::optional<MainWindow::LoadError>
@@ -319,6 +326,12 @@ MainWindow::on_action_Open_triggered(bool activated)
         return;
     }
 
+    on_LoadFile(filename);
+}
+
+void
+MainWindow::on_LoadFile(const QString& filename)
+{
     auto err = LoadFile(filename.toStdString());
     if (err)
     {
@@ -346,6 +359,7 @@ MainWindow::on_action_Open_triggered(bool activated)
                               fmt::format("Cannot load file: {}", LoadErrorToString(*err)).c_str());
     }
 }
+
 
 void
 MainWindow::on_action_Quit_triggered(bool activated)
@@ -1051,11 +1065,6 @@ MainWindow::UpdateHistoryView()
 
     auto idx = m_address_history_view_model->index(m_address_history.CurrentIndex(), 0);
     m_ui->addressHistoryListView->setCurrentIndex(idx);
-}
-
-void
-MainWindow::UpdatePreferences()
-{
 }
 
 const QString&
