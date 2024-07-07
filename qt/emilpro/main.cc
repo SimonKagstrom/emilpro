@@ -29,7 +29,15 @@ main(int argc, char* argv[])
     }
 
     MainWindow w;
-    w.Init(argc, argv);
+
+    if (argc > 1)
+    {
+        if (auto err = w.LoadFile(argv[1]); err)
+        {
+            fmt::print("Error loading file: {}\n\n", err);
+            Usage(argv[0]);
+        }
+    }
 
     w.show();
 

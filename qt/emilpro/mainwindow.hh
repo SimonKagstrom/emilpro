@@ -25,7 +25,8 @@ public:
     explicit MainWindow(QWidget* parent = 0);
     ~MainWindow();
 
-    bool Init(int argc, char* argv[]);
+    /// Parse a file, and return nullptr if successful, otherwise an error string
+    const char* LoadFile(const std::string& filename);
 
     // On quit etc
     void UpdatePreferences();
@@ -92,8 +93,6 @@ private:
     void SetupDataView();
 
     void SetupInfoBox();
-
-    void LoadFile(const std::string& filename);
 
     void SaveSettings();
 

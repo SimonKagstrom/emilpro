@@ -35,20 +35,6 @@ MainWindow::MainWindow(QWidget* parent)
     , m_forward_item_delegate(JumpLaneDelegate::Direction::kForward)
     , m_backward_item_delegate(JumpLaneDelegate::Direction::kBackward)
 {
-}
-
-MainWindow::~MainWindow()
-{
-    SaveSettings();
-
-    delete m_instruction_view_model;
-    delete m_symbol_view_model;
-    delete m_ui;
-}
-
-bool
-MainWindow::Init(int argc, char* argv[])
-{
     m_ui->setupUi(this);
 
     RestoreSettings();
@@ -75,29 +61,29 @@ MainWindow::Init(int argc, char* argv[])
     m_ui->sourceTextEdit->setExtraSelections(extras);
 
     m_ui->menuBar->setNativeMenuBar(false);
-
-    if (argc > 1)
-    {
-        LoadFile(argv[1]);
-    }
-
-    return true;
 }
 
-void
+MainWindow::~MainWindow()
+{
+    SaveSettings();
+
+    delete m_instruction_view_model;
+    delete m_symbol_view_model;
+    delete m_ui;
+}
+
+const char*
 MainWindow::LoadFile(const std::string& filename)
 {
     auto parser = emilpro::IBinaryParser::FromFile(filename);
     if (!parser)
     {
-        // for now
-        exit(1);
+        return "parse error";
     }
     auto disassembler = emilpro::IDisassembler::CreateFromArchitecture(parser->GetMachine());
     if (!disassembler)
     {
-        // for now
-        exit(1);
+        return "unsupported architecture";
     }
 
 
@@ -186,6 +172,8 @@ MainWindow::LoadFile(const std::string& filename)
         m_ui->symbolTableView->setCurrentIndex(m_symbol_view_model->index(0, 0));
     }
     m_visible_symbols = m_database.Symbols();
+
+    return nullptr;
 }
 
 void
@@ -296,7 +284,11 @@ MainWindow::on_action_Open_triggered(bool activated)
 {
     auto filename = QFileDialog::getOpenFileName(this, tr("Open binary"));
 
-    LoadFile(filename.toStdString());
+    if (auto err = LoadFile(filename.toStdString()); err)
+    {
+        QMessageBox::critical(
+            this, "?LOAD ERROR", fmt::format("Cannot load file: {}", err).c_str());
+    }
 }
 
 void
