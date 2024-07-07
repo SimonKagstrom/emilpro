@@ -85,8 +85,9 @@ mem_bfd_iovec_stat(struct bfd* abfd, void* stream, struct stat* sb)
 }
 
 
-BfdBinaryParser::BfdBinaryParser(std::string_view path)
+BfdBinaryParser::BfdBinaryParser(std::string_view path, std::optional<Machine> machine_hint)
     : m_path(path)
+    , m_machine_hint(machine_hint)
 {
 }
 
@@ -109,7 +110,7 @@ BfdBinaryParser::GetMachine() const
 }
 
 void
-BfdBinaryParser::ForAllSections(std::function<void(std::unique_ptr<ISection>)> on_section)
+BfdBinaryParser::ForAllSections(const std::function<void(std::unique_ptr<ISection>)>& on_section)
 {
     for (auto& [bfd_section, sec] : m_pending_sections)
     {
@@ -316,10 +317,15 @@ BfdBinaryParser::Parse()
     if (it_machine != kMachineMap.end())
     {
         m_machine = it_machine->second;
-        if (m_machine == Machine::kArm && m_arm_in_thumb_mode)
-        {
-            m_machine = Machine::kArmThumb;
-        }
+    }
+    else if (m_machine_hint)
+    {
+        m_machine = *m_machine_hint;
+    }
+
+    if (m_machine == Machine::kArm && m_arm_in_thumb_mode)
+    {
+        m_machine = Machine::kArmThumb;
     }
 
     return true;

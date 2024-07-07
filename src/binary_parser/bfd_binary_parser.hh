@@ -20,15 +20,15 @@ namespace emilpro
 class BfdBinaryParser : public IBinaryParser
 {
 public:
-    explicit BfdBinaryParser(std::string_view path);
+    explicit BfdBinaryParser(std::string_view path, std::optional<Machine> machine_hint);
 
-    virtual ~BfdBinaryParser() final;
+    ~BfdBinaryParser() final;
 
     bool Parse();
 
 private:
     Machine GetMachine() const final;
-    void ForAllSections(std::function<void(std::unique_ptr<ISection>)> on_section) final;
+    void ForAllSections(const std::function<void(std::unique_ptr<ISection>)>& on_section) final;
 
     std::optional<Section::FileLine>
     LookupLine(bfd_section* section, bfd_symbol** symTbl, uint64_t offset);
@@ -40,6 +40,7 @@ private:
 
     Machine m_machine {Machine::kUnknown};
     std::string_view m_path;
+    const std::optional<Machine> m_machine_hint;
 
     uint8_t* m_rawData {nullptr};
     size_t m_rawDataSize {0};

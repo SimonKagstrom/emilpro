@@ -5,6 +5,7 @@
 
 #include <QFile>
 #include <QFileDialog>
+#include <QInputDialog>
 #include <QMessageBox>
 #include <QMetaType>
 #include <QScrollBar>
@@ -28,6 +29,29 @@ auto kSymbolDynamicDataColor = QBrush("salmon");
 auto kSymbolDynamicColor = QBrush("lightgreen");
 
 } // namespace
+
+const char*
+MainWindow::LoadErrorToString(LoadError error)
+{
+    constexpr auto kErrorStrings = std::array {
+        std::pair {LoadError::kFileNotFound, "File not found"},
+        std::pair {LoadError::kParseError, "Parse error"},
+        std::pair {LoadError::kUnknownArchitecture, "Unknown architecture"},
+    };
+
+    if (auto it = std::find_if(kErrorStrings.begin(),
+                               kErrorStrings.end(),
+                               [error](auto& p) { return p.first == error; });
+        it != kErrorStrings.end())
+    {
+        return it->second;
+    }
+
+    // Programming error
+    assert(false);
+
+    return "";
+}
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -72,18 +96,23 @@ MainWindow::~MainWindow()
     delete m_ui;
 }
 
-const char*
-MainWindow::LoadFile(const std::string& filename)
+std::optional<MainWindow::LoadError>
+MainWindow::LoadFile(const std::string& filename, std::optional<emilpro::Machine> machine_hint)
 {
-    auto parser = emilpro::IBinaryParser::FromFile(filename);
+    auto parser = emilpro::IBinaryParser::FromFile(filename, machine_hint);
     if (!parser)
     {
-        return "parse error";
+        return LoadError::kParseError;
     }
+    if (parser->GetMachine() == emilpro::Machine::kUnknown)
+    {
+        return LoadError::kUnknownArchitecture;
+    }
+
     auto disassembler = emilpro::IDisassembler::CreateFromArchitecture(parser->GetMachine());
     if (!disassembler)
     {
-        return "unsupported architecture";
+        return LoadError::kUnknownArchitecture;
     }
 
 
@@ -173,7 +202,7 @@ MainWindow::LoadFile(const std::string& filename)
     }
     m_visible_symbols = m_database.Symbols();
 
-    return nullptr;
+    return std::nullopt;
 }
 
 void
@@ -284,10 +313,37 @@ MainWindow::on_action_Open_triggered(bool activated)
 {
     auto filename = QFileDialog::getOpenFileName(this, tr("Open binary"));
 
-    if (auto err = LoadFile(filename.toStdString()); err)
+    if (filename.isEmpty())
     {
-        QMessageBox::critical(
-            this, "?LOAD ERROR", fmt::format("Cannot load file: {}", err).c_str());
+        // Cancel
+        return;
+    }
+
+    auto err = LoadFile(filename.toStdString());
+    if (err)
+    {
+        if (err == LoadError::kUnknownArchitecture)
+        {
+            auto machine = SelectArchitecture();
+
+            if (machine)
+            {
+                err = LoadFile(filename.toStdString(), machine);
+            }
+            else
+            {
+                // Cancel, do nothing
+                return;
+            }
+        }
+    }
+
+    // Still not OK?
+    if (err)
+    {
+        QMessageBox::critical(this,
+                              "?LOAD ERROR",
+                              fmt::format("Cannot load file: {}", LoadErrorToString(*err)).c_str());
     }
 }
 
@@ -1041,6 +1097,29 @@ MainWindow::SetRowColor(QAbstractItemModel* model,
     {
         model->setData(model->index(row, j, parent), color, Qt::BackgroundRole);
     }
+}
+
+std::optional<emilpro::Machine>
+MainWindow::SelectArchitecture()
+{
+    QStringList architectures;
+
+    for (auto i = 0; i < static_cast<int>(emilpro::Machine::kUnknown); i++)
+    {
+        architectures << QString::fromStdString(MachineToString(static_cast<emilpro::Machine>(i)));
+    }
+
+    auto ok = false;
+    auto selected = QInputDialog::getItem(
+        this, "Select Architecture", "Architecture:", architectures, 0, false, &ok);
+
+    std::optional<emilpro::Machine> machine;
+    if (ok && !selected.isEmpty())
+    {
+        machine = emilpro::MachineFromString(selected.toStdString());
+    }
+
+    return machine;
 }
 
 bool

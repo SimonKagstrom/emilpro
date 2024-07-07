@@ -22,11 +22,22 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget* parent = 0);
-    ~MainWindow();
+    enum class LoadError
+    {
+        kFileNotFound,
+        kParseError,
+        kUnknownArchitecture,
+        kValueCount,
+    };
 
-    /// Parse a file, and return nullptr if successful, otherwise an error string
-    const char* LoadFile(const std::string& filename);
+    explicit MainWindow(QWidget* parent = nullptr);
+    ~MainWindow() final;
+
+    /// Parse a file, and return nullptr if successful, otherwise an error code
+    std::optional<LoadError> LoadFile(const std::string& filename,
+                                      std::optional<emilpro::Machine> machine_hint = std::nullopt);
+
+    static const char* LoadErrorToString(LoadError error);
 
     // On quit etc
     void UpdatePreferences();
@@ -111,6 +122,8 @@ private:
     void UpdateSymbolView(const emilpro::ISymbol& symbol);
 
     void UpdateHistoryView();
+
+    std::optional<emilpro::Machine> SelectArchitecture();
 
     const QString& LookupSourceFile(std::string_view);
 

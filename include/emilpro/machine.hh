@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include <optional>
+#include <string_view>
 
 namespace emilpro
 {
@@ -18,4 +20,7 @@ enum class Machine : uint8_t
     kUnknown,
 };
 
-}
+const char* MachineToString(Machine machine);
+std::optional<Machine> MachineFromString(std::string_view str);
+
+} // namespace emilpro

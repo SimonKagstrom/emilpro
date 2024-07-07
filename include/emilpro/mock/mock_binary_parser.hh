@@ -8,7 +8,7 @@ class MockBinaryParser : public IBinaryParser
 {
 public:
     MAKE_CONST_MOCK0(GetMachine, Machine(), final);
-    MAKE_MOCK1(ForAllSections, void(std::function<void(std::unique_ptr<ISection>)>), final);
+    MAKE_MOCK1(ForAllSections, void(const std::function<void(std::unique_ptr<ISection>)>&), final);
 };
 
 } // namespace emilpro::mock

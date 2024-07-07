@@ -34,7 +34,7 @@ main(int argc, char* argv[])
     {
         if (auto err = w.LoadFile(argv[1]); err)
         {
-            fmt::print("Error loading file: {}\n\n", err);
+            fmt::print("Error loading file: {}\n\n", MainWindow::LoadErrorToString(*err));
             Usage(argv[0]);
         }
     }
