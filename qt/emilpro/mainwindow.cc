@@ -157,7 +157,9 @@ MainWindow::LoadFile(const std::string& filename, std::optional<emilpro::Machine
         m_ui->sectionTableView->setCurrentIndex(m_section_view_model->index(0, 0));
     }
 
-    for (auto& sym_ref : m_database.Symbols())
+    m_visible_symbols = m_database.Symbols();
+    auto sym_index = 0;
+    for (auto& sym_ref : m_visible_symbols)
     {
         const auto& sym = sym_ref.get();
 
@@ -171,7 +173,12 @@ MainWindow::LoadFile(const std::string& filename, std::optional<emilpro::Machine
         QString name = QString::fromStdString(sym.DemangledName());
 
 
-        lst.append(new QStandardItem(addr));
+        // Store the symbol index in the address item (since they can be sorted arbitrarily)
+        auto addr_item = new QStandardItem(addr);
+        addr_item->setData(sym_index, Qt::UserRole + 1);
+        sym_index++;
+
+        lst.append(std::move(addr_item));
         lst.append(new QStandardItem(size));
         lst.append(new QStandardItem(flags));
         lst.append(new QStandardItem(section));
@@ -207,7 +214,7 @@ MainWindow::LoadFile(const std::string& filename, std::optional<emilpro::Machine
     }
 
     m_symbol_proxy_model->sort(0, Qt::AscendingOrder);
-    m_visible_symbols = m_database.Symbols();
+
 
     return std::nullopt;
 }
@@ -604,7 +611,9 @@ MainWindow::on_symbolTableView_activated(const QModelIndex& index)
         return;
     }
 
-    auto& sym = m_visible_symbols[row].get();
+    auto sym_index = index.model()->index(row, 0).data(Qt::UserRole + 1).toInt();
+
+    auto& sym = m_visible_symbols[sym_index].get();
 
     sym.WaitForCommit();
 
@@ -746,14 +755,19 @@ MainWindow::UpdateReferredByView(const emilpro::IInstruction& insn)
 void
 MainWindow::on_symbolTableView_entered(const QModelIndex& index)
 {
-    auto row = index.row();
+    int row = index.row();
 
     if (row < 0 || row >= m_visible_symbols.size())
     {
         return;
     }
 
-    const auto& sym = m_visible_symbols[row].get();
+
+    // Create a new QModelIndex for column 0 of the same row
+    auto sym_index = index.model()->index(row, 0).data(Qt::UserRole + 1).toInt();
+
+    // Assuming m_visible_symbols stores some kind of symbol objects and you need to retrieve it
+    const auto& sym = m_visible_symbols[sym_index].get();
 
     UpdateRefersToView(sym);
     UpdateReferredByView(sym);
