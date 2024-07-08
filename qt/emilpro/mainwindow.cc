@@ -1017,18 +1017,17 @@ MainWindow::SetupSymbolView()
 void
 MainWindow::UpdateSymbolView(const emilpro::ISymbol& symbol)
 {
-    unsigned row = 0;
-
-    for (const auto& cur : m_visible_symbols)
+    for (auto row = 0u; row < m_symbol_proxy_model->rowCount(); row++)
     {
-        if (&cur.get() == &symbol)
+        auto sym_index = m_symbol_proxy_model->index(row, 0).data(Qt::UserRole + 1).toInt();
+
+        if (&m_visible_symbols[sym_index].get() == &symbol)
         {
             m_ui->symbolTableView->showRow(row);
             m_ui->symbolTableView->selectRow(row);
-            m_ui->symbolTableView->scrollTo(m_symbol_view_model->index(row, 0));
+            m_ui->symbolTableView->scrollTo(m_symbol_proxy_model->index(row, 0));
             return;
         }
-        row++;
     }
 }
 
