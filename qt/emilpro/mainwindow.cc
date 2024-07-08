@@ -501,7 +501,7 @@ MainWindow::on_locationLineEdit_textChanged(const QString& text)
     auto is_address = false;
     auto address = text.toULongLong(&is_address, 16);
 
-    unsigned lowest_visible = m_symbol_view_model->rowCount() - 1;
+    auto lowest_visible = m_symbol_view_model->rowCount() - 1;
 
     // Hide all symbols which does not match the text / address
     for (auto i = 0u; i < m_symbol_view_model->rowCount(); i++)
@@ -537,7 +537,7 @@ MainWindow::on_locationLineEdit_textChanged(const QString& text)
         {
             m_ui->symbolTableView->showRow(proxy_index.row());
 
-            lowest_visible = std::min(lowest_visible, i);
+            lowest_visible = std::min(lowest_visible, proxy_index.row());
         }
         else
         {
@@ -850,7 +850,7 @@ MainWindow::SetupInstructionLabels()
 void
 MainWindow::SetupInstructionView()
 {
-    m_instruction_view_model = new QStandardItemModel(0, 5, this);
+    m_instruction_view_model = new QStandardItemModel(0, 6, this);
 
     m_instruction_view_model->setHorizontalHeaderItem(0, new QStandardItem(QString("Address")));
     m_instruction_view_model->setHorizontalHeaderItem(1, new QStandardItem(QString("B")));
@@ -902,17 +902,53 @@ void
 MainWindow::SetupSectionView()
 {
     m_section_view_model = new QStandardItemModel(0, 4, this);
+    m_section_proxy_model = std::make_unique<QSortFilterProxyModel>(this);
+    m_section_proxy_model->setSourceModel(m_section_view_model);
+    m_section_proxy_model->setSortCaseSensitivity(Qt::CaseInsensitive);
+
     m_section_view_model->setHorizontalHeaderItem(0, new QStandardItem(QString("Address")));
     m_section_view_model->setHorizontalHeaderItem(1, new QStandardItem(QString("Size")));
     m_section_view_model->setHorizontalHeaderItem(2, new QStandardItem(QString("Flags")));
     m_section_view_model->setHorizontalHeaderItem(3, new QStandardItem(QString("Name")));
-    m_ui->sectionTableView->setModel(m_section_view_model);
+
     m_ui->sectionTableView->horizontalHeader()->setStretchLastSection(true);
+    m_ui->sectionTableView->horizontalHeader()->setSortIndicatorShown(true);
+
     m_ui->sectionTableView->resizeColumnsToContents();
     m_ui->sectionTableView->setColumnWidth(0, 120);
     m_ui->sectionTableView->setColumnWidth(1, 80);
     m_ui->sectionTableView->setColumnWidth(2, 80);
     m_ui->sectionTableView->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    m_ui->sectionTableView->setModel(m_section_proxy_model.get());
+
+    connect(m_ui->sectionTableView->horizontalHeader(),
+            &QHeaderView::sectionClicked,
+            [this](int column) {
+                auto current_order = m_section_proxy_model->sortOrder();
+                int current_sort_column = m_section_proxy_model->sortColumn();
+
+                if (column == 2)
+                {
+                    // Don't allow sorting by flags
+                    return;
+                }
+
+                if (column == current_sort_column)
+                {
+                    // Toggle the sort order if the same column is clicked
+                    current_order = (current_order == Qt::AscendingOrder) ? Qt::DescendingOrder
+                                                                          : Qt::AscendingOrder;
+                }
+                else
+                {
+                    // Default to ascending order if a different column is clicked
+                    current_order = Qt::AscendingOrder;
+                }
+
+                // Apply the sorting
+                m_section_proxy_model->sort(column, current_order);
+            });
 }
 
 void
@@ -931,6 +967,8 @@ MainWindow::SetupSymbolView()
     m_symbol_view_model->setHorizontalHeaderItem(4, new QStandardItem(QString("Symbol name")));
 
     m_ui->symbolTableView->horizontalHeader()->setStretchLastSection(true);
+    m_ui->symbolTableView->horizontalHeader()->setSortIndicatorShown(true);
+
     m_ui->symbolTableView->resizeColumnsToContents();
     m_ui->symbolTableView->setColumnWidth(0, 120);
     m_ui->symbolTableView->setColumnWidth(1, 80);
@@ -944,8 +982,8 @@ MainWindow::SetupSymbolView()
     connect(m_ui->symbolTableView->horizontalHeader(),
             &QHeaderView::sectionClicked,
             [this](int column) {
-                Qt::SortOrder currentOrder = m_symbol_proxy_model->sortOrder();
-                int currentSortColumn = m_symbol_proxy_model->sortColumn();
+                Qt::SortOrder current_order = m_symbol_proxy_model->sortOrder();
+                int current_sort_column = m_symbol_proxy_model->sortColumn();
 
                 if (column == 2)
                 {
@@ -953,20 +991,20 @@ MainWindow::SetupSymbolView()
                     return;
                 }
 
-                if (column == currentSortColumn)
+                if (column == current_sort_column)
                 {
                     // Toggle the sort order if the same column is clicked
-                    currentOrder = (currentOrder == Qt::AscendingOrder) ? Qt::DescendingOrder
-                                                                        : Qt::AscendingOrder;
+                    current_order = (current_order == Qt::AscendingOrder) ? Qt::DescendingOrder
+                                                                          : Qt::AscendingOrder;
                 }
                 else
                 {
                     // Default to ascending order if a different column is clicked
-                    currentOrder = Qt::AscendingOrder;
+                    current_order = Qt::AscendingOrder;
                 }
 
                 // Apply the sorting
-                m_symbol_proxy_model->sort(column, currentOrder);
+                m_symbol_proxy_model->sort(column, current_order);
             });
 
     connect(m_ui->symbolTableView->selectionModel(),
