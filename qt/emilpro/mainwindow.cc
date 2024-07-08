@@ -154,7 +154,7 @@ MainWindow::LoadFile(const std::string& filename, std::optional<emilpro::Machine
             SetRowColor(m_section_view_model, last_row, kSectionDataColor);
         }
 
-        m_ui->sectionTableView->setCurrentIndex(m_section_view_model->index(0, 0));
+        m_ui->sectionTableView->setCurrentIndex(m_section_proxy_model->index(0, 0));
     }
 
     m_visible_symbols = m_database.Symbols();
