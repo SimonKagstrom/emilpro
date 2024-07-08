@@ -203,8 +203,10 @@ MainWindow::LoadFile(const std::string& filename, std::optional<emilpro::Machine
             }
         }
 
-        m_ui->symbolTableView->setCurrentIndex(m_symbol_view_model->index(0, 0));
+        m_ui->symbolTableView->setCurrentIndex(m_symbol_proxy_model->index(0, 0));
     }
+
+    m_symbol_proxy_model->sort(0, Qt::AscendingOrder);
     m_visible_symbols = m_database.Symbols();
 
     return std::nullopt;
@@ -497,6 +499,10 @@ MainWindow::on_locationLineEdit_textChanged(const QString& text)
     // Hide all symbols which does not match the text / address
     for (auto i = 0u; i < m_symbol_view_model->rowCount(); i++)
     {
+        // Lookup the index in the proxy (which is shown in the view)
+        auto model_index = m_symbol_view_model->index(i, 0);
+        auto proxy_index = m_symbol_proxy_model->mapFromSource(model_index);
+
         QString to_compare;
         const auto& sym = m_visible_symbols[i].get();
 
@@ -522,18 +528,18 @@ MainWindow::on_locationLineEdit_textChanged(const QString& text)
 
         if (to_compare.contains(text, Qt::CaseInsensitive) || m_current_symbol == &sym)
         {
-            m_ui->symbolTableView->showRow(i);
+            m_ui->symbolTableView->showRow(proxy_index.row());
 
             lowest_visible = std::min(lowest_visible, i);
         }
         else
         {
-            m_ui->symbolTableView->hideRow(i);
+            m_ui->symbolTableView->hideRow(proxy_index.row());
         }
     }
 
     // ... and focus the first visible line
-    m_ui->symbolTableView->setCurrentIndex(m_symbol_view_model->index(lowest_visible, 0));
+    m_ui->symbolTableView->setCurrentIndex(m_symbol_proxy_model->index(lowest_visible, 0));
 }
 
 
@@ -899,12 +905,17 @@ void
 MainWindow::SetupSymbolView()
 {
     m_symbol_view_model = new QStandardItemModel(0, 4, this);
+    m_symbol_proxy_model = std::make_unique<QSortFilterProxyModel>(this);
+    m_symbol_proxy_model->setSourceModel(m_symbol_view_model);
+    m_symbol_proxy_model->setSortCaseSensitivity(Qt::CaseInsensitive);
+
+
     m_symbol_view_model->setHorizontalHeaderItem(0, new QStandardItem(QString("Address")));
     m_symbol_view_model->setHorizontalHeaderItem(1, new QStandardItem(QString("Size")));
     m_symbol_view_model->setHorizontalHeaderItem(2, new QStandardItem(QString("Flags")));
     m_symbol_view_model->setHorizontalHeaderItem(3, new QStandardItem(QString("Section")));
     m_symbol_view_model->setHorizontalHeaderItem(4, new QStandardItem(QString("Symbol name")));
-    m_ui->symbolTableView->setModel(m_symbol_view_model);
+
     m_ui->symbolTableView->horizontalHeader()->setStretchLastSection(true);
     m_ui->symbolTableView->resizeColumnsToContents();
     m_ui->symbolTableView->setColumnWidth(0, 120);
@@ -914,7 +925,35 @@ MainWindow::SetupSymbolView()
 
     // Install an event filter to have the Enter key behave like activate
     m_ui->symbolTableView->installEventFilter(this);
+    m_ui->symbolTableView->setModel(m_symbol_proxy_model.get());
 
+    connect(m_ui->symbolTableView->horizontalHeader(),
+            &QHeaderView::sectionClicked,
+            [this](int column) {
+                Qt::SortOrder currentOrder = m_symbol_proxy_model->sortOrder();
+                int currentSortColumn = m_symbol_proxy_model->sortColumn();
+
+                if (column == 2)
+                {
+                    // Don't allow sorting by flags
+                    return;
+                }
+
+                if (column == currentSortColumn)
+                {
+                    // Toggle the sort order if the same column is clicked
+                    currentOrder = (currentOrder == Qt::AscendingOrder) ? Qt::DescendingOrder
+                                                                        : Qt::AscendingOrder;
+                }
+                else
+                {
+                    // Default to ascending order if a different column is clicked
+                    currentOrder = Qt::AscendingOrder;
+                }
+
+                // Apply the sorting
+                m_symbol_proxy_model->sort(column, currentOrder);
+            });
 
     connect(m_ui->symbolTableView->selectionModel(),
             SIGNAL(currentChanged(QModelIndex, QModelIndex)),

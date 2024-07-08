@@ -10,6 +10,7 @@
 
 #include <QMainWindow>
 #include <QSettings>
+#include <QSortFilterProxyModel>
 #include <qstandarditemmodel.h>
 
 namespace Ui
@@ -129,6 +130,9 @@ private:
     QStandardItemModel* m_refers_to_view_model {nullptr};
     QStandardItemModel* m_referred_by_view_model {nullptr};
     QStandardItemModel* m_address_history_view_model {nullptr};
+
+    std::unique_ptr<QSortFilterProxyModel> m_section_proxy_model;
+    std::unique_ptr<QSortFilterProxyModel> m_symbol_proxy_model;
 
     const emilpro::ISymbol* m_current_symbol {nullptr};
 
