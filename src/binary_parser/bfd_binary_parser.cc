@@ -226,7 +226,7 @@ BfdBinaryParser::Parse()
         }
         if (section->flags & SEC_READONLY)
         {
-            flags += "RO";
+            flags += "Ro";
         }
         if (section->flags & SEC_CODE)
         {
