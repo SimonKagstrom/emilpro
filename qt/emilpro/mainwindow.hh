@@ -33,7 +33,7 @@ public:
     explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow() final;
 
-    void TriggerOpenFile(const char *filename);
+    void TriggerOpenFile(const char* filename);
 
 private slots:
     void on_symbolTableView_activated(const QModelIndex& index);
@@ -66,12 +66,6 @@ private slots:
     void on_action_ToggleReferenceTab_triggered(bool activated);
     void on_action_ToggleSymbolsSections_triggered(bool activated);
 
-    void on_action_Mangle_names_triggered(bool activated);
-
-    void on_action_Toggle_data_instructions_triggered(bool activated);
-
-    void on_actionAT_T_syntax_x86_triggered(bool activated);
-
     void on_action_About_triggered(bool activated);
 
     void on_symbolTimerTriggered();
@@ -79,7 +73,7 @@ private slots:
     void on_locationLineEdit_textChanged(const QString& text);
     void on_locationLineEdit_returnPressed();
 
-    void on_LoadFile(const QString &filename);
+    void on_LoadFile(const QString& filename);
 
 private:
     /// Parse a file, and return nullptr if successful, otherwise an error code
@@ -97,12 +91,6 @@ private:
     void SetupAddressHistoryView();
 
     void SetupInstructionLabels();
-
-    void SetupInstructionEncoding();
-
-    void SetupDataView();
-
-    void SetupInfoBox();
 
     void SaveSettings();
 

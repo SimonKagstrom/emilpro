@@ -69,8 +69,6 @@ MainWindow::MainWindow(QWidget* parent)
     SetupInstructionView();
     SetupReferencesView();
     SetupAddressHistoryView();
-    SetupInstructionEncoding();
-    SetupDataView();
 
     // Set focus on the location line edit by default
     m_ui->locationLineEdit->setFocus();
@@ -311,11 +309,6 @@ MainWindow::on_action_ToggleSymbolsSections_triggered(bool activated)
 }
 
 void
-MainWindow::on_action_Mangle_names_triggered(bool activated)
-{
-}
-
-void
 MainWindow::on_action_Open_triggered(bool activated)
 {
     auto filename = QFileDialog::getOpenFileName(this, tr("Open binary"));
@@ -371,17 +364,6 @@ void
 MainWindow::on_action_Refresh_triggered(bool activated)
 {
     on_action_Open_triggered(true);
-}
-
-void
-MainWindow::on_action_Toggle_data_instructions_triggered(bool activated)
-{
-    //m_ui->tabWidget->setCurrentIndex(!m_ui->tabWidget->currentIndex());
-}
-
-void
-MainWindow::on_actionAT_T_syntax_x86_triggered(bool activated)
-{
 }
 
 void
@@ -828,21 +810,6 @@ MainWindow::SetupAddressHistoryView()
     m_address_history_view_model = new QStandardItemModel(0, 1, this);
 
     m_ui->addressHistoryListView->setModel(m_address_history_view_model);
-}
-
-void
-MainWindow::SetupDataView()
-{
-}
-
-void
-MainWindow::SetupInfoBox()
-{
-}
-
-void
-MainWindow::SetupInstructionEncoding()
-{
 }
 
 void
