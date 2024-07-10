@@ -630,7 +630,7 @@ MainWindow::UpdateRefersToView(const emilpro::ISymbol& symbol)
 {
     m_refers_to_view_model->removeRows(0, m_refers_to_view_model->rowCount());
 
-    auto symbol_refs = symbol.RefersTo();
+    auto symbol_refs = symbol.Alias()->RefersTo();
     for (const auto& ref : symbol_refs)
     {
         auto section = ref.section;
@@ -700,7 +700,7 @@ MainWindow::UpdateReferredByView(const emilpro::ISymbol& symbol)
 {
     m_referred_by_view_model->removeRows(0, m_referred_by_view_model->rowCount());
 
-    auto symbol_refs = symbol.ReferredBy();
+    auto symbol_refs = symbol.Alias()->ReferredBy();
     for (const auto& ref : symbol_refs)
     {
         auto section = ref.section;

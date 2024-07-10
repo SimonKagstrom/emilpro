@@ -83,8 +83,16 @@ Section::FixupSymbolSizes()
     {
         const auto& symbols = it->second;
 
+        if (symbols.empty())
+        {
+            continue;
+        }
+
         auto adjust = last_offset;
-        for (auto* symbol : symbols)
+
+        // Use the last symbol as alias for all symbols (including itself)
+        auto alias = symbols.back();
+        for (auto symbol : symbols)
         {
             if (int64_t size = adjust - symbol->Offset(); size >= 0)
             {
@@ -93,6 +101,7 @@ Section::FixupSymbolSizes()
 
             last_offset = symbol->Offset();
             m_symbol_refs.push_back(*symbol);
+            symbol->SetAlias(alias);
         }
     }
 }

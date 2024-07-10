@@ -30,6 +30,7 @@ public:
     std::span<const std::reference_wrapper<IInstruction>> Instructions() const final;
     std::span<const IInstruction::Referer> ReferredBy() const final;
     std::span<const IInstruction::Referer> RefersTo() const final;
+    const ISymbol* Alias() const final;
 
     void WaitForCommit() final;
 
@@ -39,6 +40,10 @@ public:
     void SetInstructions(std::span<const std::reference_wrapper<IInstruction>> instructions);
     void AddReferredBy(std::span<const IInstruction::Referer> referers);
     void AddRefersTo(const IInstruction::Referer& referer);
+
+    void SetAlias(Symbol* alias);
+
+    Symbol *DoGetAlias();
 
     // Called when all referrers/referred by are done
     void Commit();
@@ -61,6 +66,7 @@ private:
 
     std::vector<IInstruction::Referer> m_referred_by_store;
     std::vector<IInstruction::Referer> m_refers_to_store;
+    Symbol *m_alias;
 
     mutable std::mutex m_mutex;
 

@@ -37,6 +37,12 @@ public:
 
     virtual std::span<const std::reference_wrapper<IInstruction>> Instructions() const = 0;
 
+    /**
+     * @brief A pointer to an alias for this symbol (dynamic + static for example)
+     *
+     * @return the other symbol, or nullptr for none
+     */
+    virtual const ISymbol* Alias() const = 0;
 
     virtual void WaitForCommit() = 0;
 };

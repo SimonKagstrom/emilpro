@@ -21,6 +21,7 @@ Symbol::Symbol(const ISection& section,
     , m_flags(flags)
     , m_name(name)
     , m_data(section.Data().subspan(offset))
+    , m_alias(this)
 {
     // Use what c++filt uses...
     int demangle_flags = DMGL_PARAMS | DMGL_ANSI | DMGL_VERBOSE;
@@ -122,6 +123,12 @@ Symbol::RefersTo() const
     return m_refers_to;
 }
 
+const ISymbol*
+Symbol::Alias() const
+{
+    return m_alias;
+}
+
 std::vector<std::reference_wrapper<IInstruction>>&
 Symbol::InstructionsStore()
 {
@@ -141,6 +148,18 @@ void
 Symbol::AddRefersTo(const IInstruction::Referer& referer)
 {
     m_refers_to_store.emplace_back(referer);
+}
+
+void
+Symbol::SetAlias(Symbol* alias)
+{
+    m_alias = alias;
+}
+
+Symbol*
+Symbol::DoGetAlias()
+{
+    return m_alias;
 }
 
 void
