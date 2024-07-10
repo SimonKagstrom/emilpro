@@ -111,23 +111,19 @@ Section::Disassemble(IDisassembler& disassembler)
 
     std::unordered_set<uint64_t> finished_offsets;
 
-    for (const auto& cur : m_sorted_symbols)
+    for (const auto& [address, sym] : m_sorted_symbols)
     {
-        uint64_t hint = 0;
-        if (m_disassembly_hint_queue.pop(hint))
+        if (auto hint = 0ULL; m_disassembly_hint_queue.pop(hint) && m_sorted_symbols.contains(hint))
         {
-            if (m_sorted_symbols.contains(hint))
-            {
-                DisassembleSymbol(m_sorted_symbols.find(hint)->second, disassembler);
-                finished_offsets.insert(hint);
-            }
+            DisassembleSymbol(m_sorted_symbols.find(hint)->second, disassembler);
+            finished_offsets.insert(hint);
         }
 
         // Can be true if it was in the hint
-        if (!finished_offsets.contains(cur.first))
+        if (!finished_offsets.contains(address))
         {
-            DisassembleSymbol(cur.second, disassembler);
-            finished_offsets.insert(cur.first);
+            DisassembleSymbol(sym, disassembler);
+            finished_offsets.insert(address);
         }
     }
 
