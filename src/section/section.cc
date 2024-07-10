@@ -113,7 +113,9 @@ Section::Disassemble(IDisassembler& disassembler)
 
     for (const auto& [address, sym] : m_sorted_symbols)
     {
-        if (auto hint = 0ULL; m_disassembly_hint_queue.pop(hint) && m_sorted_symbols.contains(hint))
+        auto hint = 0ULL;
+
+        if (m_disassembly_hint_queue.pop(hint) && m_sorted_symbols.contains(hint))
         {
             DisassembleSymbol(m_sorted_symbols.find(hint)->second, disassembler);
             finished_offsets.insert(hint);
