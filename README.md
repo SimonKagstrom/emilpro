@@ -56,10 +56,6 @@ ninja -C build
 Remove binutils from the PATH (for the conan build)
 
 ```
-conan install -of build --build=missing -s build_type=Release conanfile.txt
-```
-
-```
 cmake -B build -GNinja -DCMAKE_PREFIX_PATH="`pwd`build/build/Release/generators/;`brew --prefix binutils`" -DCMAKE_BUILD_TYPE=Release
 ninja -C build
 ```
