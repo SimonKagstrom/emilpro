@@ -745,7 +745,7 @@ MainWindow::UpdateReferredByView(const emilpro::IInstruction& insn)
             lst.append(new QStandardItem(
                 QString::fromStdString(section->Name() + fmt::format("+0x{:x}", ref.offset))));
         }
-        m_refers_to_view_model->appendRow(lst);
+        m_referred_by_view_model->appendRow(lst);
     }
 
     m_current_referred_by = insn_refs;
