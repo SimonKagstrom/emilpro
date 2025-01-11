@@ -158,5 +158,6 @@ Database::FixupCallRefersTo(IInstruction& insn, const IInstruction::Referer& ref
         }
 
         insn.SetRefersTo(cur.section, cur.offset, sym);
+        insn.Commit();
     }
 }

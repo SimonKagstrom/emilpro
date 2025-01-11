@@ -156,6 +156,7 @@ Section::Disassemble(IDisassembler& disassembler)
                 insn->SetRefersTo(sym.Section(), sym.Offset(), &sym);
             }
         }
+        insn->Commit();
         m_sorted_instructions[insn->Offset()] = insn.get();
     }
 }
