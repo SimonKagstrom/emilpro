@@ -9,13 +9,13 @@ AddressHistory::AddressHistory()
 }
 
 void
-AddressHistory::PushEntry(const ISection& section, uint64_t offset)
+AddressHistory::PushEntry(const ISection& section, uint64_t offset, uint32_t row)
 {
     if (m_entries.empty() == false && m_index != m_entries.size() - 1)
     {
         m_entries.resize(m_index);
     }
-    m_entries.push_back({&section, offset});
+    m_entries.push_back({&section, offset, row});
     m_index = m_entries.size() - 1;
 }
 

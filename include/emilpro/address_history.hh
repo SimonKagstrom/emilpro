@@ -14,16 +14,14 @@ public:
     {
         const ISection* section {nullptr};
         uint64_t offset;
+        uint32_t row {0};
 
-        auto operator==(const Entry& other) const
-        {
-            return section == other.section && offset == other.offset;
-        }
+        bool operator==(const Entry& other) const = default;
     };
 
     AddressHistory();
 
-    void PushEntry(const ISection& section, uint64_t offset);
+    void PushEntry(const ISection& section, uint64_t offset, uint32_t row);
 
     void SetIndex(int index);
 

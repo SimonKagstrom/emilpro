@@ -256,7 +256,7 @@ MainWindow::OnHistoryIndexChanged()
             const auto& sym = sym_ref->get();
 
             m_visible_instructions = sym.Instructions();
-            UpdateInstructionView(sym, sym.Offset());
+            UpdateInstructionView(sym, sym.Offset(), entry.row);
             UpdateSymbolView(sym);
         }
     }
@@ -466,7 +466,13 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
         auto sym = refers_to->symbol;
 
         m_visible_instructions = sym->Instructions();
-        m_address_history.PushEntry(sym->Section(), sym->Offset());
+
+        if (insn.Symbol())
+        {
+            m_address_history.PushEntry(insn.Section(),
+                                        insn.Offset() - insn.Section().StartAddress(), row);
+        }
+        m_address_history.PushEntry(sym->Section(), sym->Offset(), 0);
 
         UpdateInstructionView(*sym, sym->Offset());
         UpdateSymbolView(*sym);
@@ -485,7 +491,7 @@ MainWindow::on_instructionTableView_doubleClicked(const QModelIndex& index)
                 const auto& sym = sym_ref->get();
 
                 m_visible_instructions = sym.Instructions();
-                m_address_history.PushEntry(sym.Section(), sym.Offset());
+                m_address_history.PushEntry(sym.Section(), result.offset, 0);
 
                 UpdateInstructionView(sym, result.offset + section.StartAddress());
                 UpdateSymbolView(sym);
@@ -618,7 +624,7 @@ MainWindow::on_symbolTableView_activated(const QModelIndex& index)
     sym.WaitForCommit();
 
     m_visible_instructions = sym.Instructions();
-    m_address_history.PushEntry(sym.Section(), sym.Offset());
+    m_address_history.PushEntry(sym.Section(), sym.Offset(), 0);
 
     UpdateInstructionView(sym, sym.Offset());
     UpdateHistoryView();
@@ -1032,7 +1038,7 @@ MainWindow::UpdateSymbolView(const emilpro::ISymbol& symbol)
 }
 
 void
-MainWindow::UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offset)
+MainWindow::UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offset, uint32_t row)
 {
     m_instruction_view_model->removeRows(0, m_instruction_view_model->rowCount());
     auto selected_row = 0;
@@ -1082,6 +1088,10 @@ MainWindow::UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offse
 
         auto cur_row = m_instruction_view_model->rowCount();
         if (ri.Offset() == offset)
+        {
+            selected_row = cur_row;
+        }
+        else if (cur_row == row)
         {
             selected_row = cur_row;
         }

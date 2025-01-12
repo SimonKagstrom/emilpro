@@ -99,7 +99,7 @@ private:
 
     void OnHistoryIndexChanged();
 
-    void UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offset);
+    void UpdateInstructionView(const emilpro::ISymbol& symbol, uint64_t offset, uint32_t row = 0);
 
     void UpdateRefersToView(const emilpro::ISymbol& symbol);
     void UpdateRefersToView(const emilpro::IInstruction& insn);
