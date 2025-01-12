@@ -77,6 +77,7 @@ Database::ParseThread()
             if (auto dst = hint.InstructionAt(ref.offset))
             {
                 dst->AddReferredBy(hint, insn.Offset(), sym);
+                dst->Commit();
             }
         }
     }
