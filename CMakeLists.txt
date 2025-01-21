@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.21)
 project (emilpro LANGUAGES CXX C ASM)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 # Qt setup
 set(CMAKE_AUTOMOC ON)
