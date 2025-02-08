@@ -8,15 +8,16 @@
 using namespace emilpro;
 
 constexpr auto kMachineTable = std::array {
-    std::pair {Machine::kX86, "Intel x86"},
-    std::pair {Machine::kAmd64, "AMD64"},
+    std::pair {Machine::k8086, "Intel 8086"},
+    std::pair {Machine::kI386, "Intel i386"},
+    std::pair {Machine::kX86_64, "Intel x86-64"},
     std::pair {Machine::kArm, "ARM"},
     std::pair {Machine::kArmThumb, "ARM (thumb mode)"},
     std::pair {Machine::kArm64, "ARM64"},
     std::pair {Machine::kMips, "MIPS"},
     std::pair {Machine::kPpc, "PowerPC"},
 };
-static_assert(kMachineTable.size() == static_cast<size_t>(Machine::kUnknown));
+static_assert(kMachineTable.size() == std::to_underlying(Machine::kUnknown));
 
 // Put them here for now, although not a good place
 const char*

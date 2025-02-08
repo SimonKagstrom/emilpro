@@ -10,13 +10,16 @@
 using namespace emilpro;
 
 constexpr auto kMachineMap = std::array {
-    std::pair {Machine::kX86, cs_arch::CS_ARCH_X86},
+    std::pair {Machine::k8086, cs_arch::CS_ARCH_X86},
+    std::pair {Machine::kI386, cs_arch::CS_ARCH_X86},
+    std::pair {Machine::kX86_64, cs_arch::CS_ARCH_X86},
     std::pair {Machine::kArm, cs_arch::CS_ARCH_ARM},
     std::pair {Machine::kArmThumb, cs_arch::CS_ARCH_ARM},
     std::pair {Machine::kArm64, cs_arch::CS_ARCH_ARM64},
     std::pair {Machine::kMips, cs_arch::CS_ARCH_MIPS},
     std::pair {Machine::kPpc, cs_arch::CS_ARCH_PPC},
 };
+static_assert(kMachineMap.size() == std::to_underlying(Machine::kUnknown));
 
 namespace
 {
@@ -438,11 +441,24 @@ CapstoneDisassembler::Create(Machine machine)
     }
     unsigned int mode = CS_MODE_LITTLE_ENDIAN;
 
-    if (it->first == Machine::kArmThumb)
+    switch (it->first)
     {
+    case Machine::k8086:
+        mode |= CS_MODE_16;
+        break;
+    case Machine::kI386:
+        mode |= CS_MODE_32;
+        break;
+    case Machine::kX86_64:
+        mode |= CS_MODE_64;
+        break;
+    case Machine::kArmThumb:
         mode |= CS_MODE_THUMB;
-    }
+        break;
 
+    default:
+        break;
+    }
 
     auto p = new CapstoneDisassembler(it->second, static_cast<cs_mode>(mode));
 

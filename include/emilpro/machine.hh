@@ -9,8 +9,9 @@ namespace emilpro
 
 enum class Machine : uint8_t
 {
-    kX86,
-    kAmd64,
+    k8086,
+    kI386,
+    kX86_64,
     kArm,
     kArmThumb, // ARM in thumb mode
     kArm64,
