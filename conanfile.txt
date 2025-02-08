@@ -1,9 +1,9 @@
 [requires]
 doctest/2.4.11
-trompeloeil/47
-fmt/10.2.1
+trompeloeil/48
+fmt/11.0.2
 capstone/5.0.1
-etl/20.38.10
+etl/20.39.4
 libiberty/9.1.0
 
 [generators]
