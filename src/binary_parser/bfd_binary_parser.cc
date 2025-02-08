@@ -63,11 +63,15 @@ mem_bfd_iovec_pread(struct bfd* abfd, void* stream, void* buf, file_ptr nbytes, 
 
     /* If this read will read all of the file, limit it to just the rest.  */
     if (offset + nbytes > (ssize_t)buffer->size)
+    {
         nbytes = buffer->size - offset;
+    }
 
     /* If there are no more bytes left, we've reached EOF.  */
-    if (nbytes == 0)
+    if (nbytes <= 0)
+    {
         return 0;
+    }
 
     memcpy(buf, buffer->base + offset, nbytes);
 
@@ -193,7 +197,7 @@ BfdBinaryParser::Parse()
 
 
     long symcount, dynsymcount, syntsymcount;
-    bfd_symbol* syntheticSyms;
+    bfd_symbol* syntheticSyms = nullptr;
 
     symcount = bfd_read_minisymbols(m_bfd, FALSE, (void**)&m_bfd_syms, &sz);
     dynsymcount = bfd_read_minisymbols(m_bfd, TRUE /* dynamic */, (void**)&m_dynamic_bfd_syms, &sz);
