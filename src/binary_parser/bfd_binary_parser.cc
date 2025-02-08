@@ -22,7 +22,6 @@ using namespace emilpro;
 
 // ELF machine to the Machine enum mapping
 constexpr auto kMachineMap = std::array {
-    std::pair {bfd_arch_i386, Machine::kX86},
     std::pair {bfd_arch_mips, Machine::kMips},
     std::pair {bfd_arch_powerpc, Machine::kPpc},
     std::pair {bfd_arch_arm, Machine::kArm},
@@ -204,6 +203,7 @@ BfdBinaryParser::Parse()
     syntsymcount = bfd_get_synthetic_symtab(
         m_bfd, symcount, m_bfd_syms, dynsymcount, m_dynamic_bfd_syms, &syntheticSyms);
 
+    auto no_symbols = symcount <= 0 && dynsymcount <= 0 && syntsymcount <= 0;
 
     // Create sections
     for (auto section = m_bfd->sections; section != nullptr; section = section->next)
@@ -257,14 +257,22 @@ BfdBinaryParser::Parse()
             {
                 type = ISection::Type::kInstructions;
             }
+            auto vma = bfd_section_vma(section);
 
             sec = std::make_unique<Section>(
                 name,
                 std::span<const std::byte>(reinterpret_cast<const std::byte*>(p.get()), size),
-                bfd_section_vma(section),
+                vma,
                 type,
                 flags,
                 [this, section](auto offset) { return LookupLine(section, m_bfd_syms, offset); });
+
+            if (no_symbols)
+            {
+                auto symbol =
+                    std::make_unique<Symbol>(*sec, vma, flags, fmt::format("Section {}", name));
+                sec->AddSymbol(std::move(symbol));
+            }
         }
         else
         {
@@ -315,16 +323,35 @@ BfdBinaryParser::Parse()
     }
 
     auto arch = bfd_get_arch(m_bfd);
+    auto machine = bfd_get_mach(m_bfd);
 
-    auto it_machine = std::find_if(
-        kMachineMap.begin(), kMachineMap.end(), [arch](auto& p) { return p.first == arch; });
-    if (it_machine != kMachineMap.end())
+    if (arch == bfd_arch_i386)
     {
-        m_machine = it_machine->second;
+        if (machine & bfd_mach_i386_i8086)
+        {
+            m_machine = Machine::k8086;
+        }
+        else if (machine & bfd_mach_i386_i386)
+        {
+            m_machine = Machine::kI386;
+        }
+        else if (machine & bfd_mach_x86_64)
+        {
+            m_machine = Machine::kX86_64;
+        }
     }
-    else if (m_machine_hint)
+    else
     {
-        m_machine = *m_machine_hint;
+        auto it_machine = std::find_if(
+            kMachineMap.begin(), kMachineMap.end(), [arch](auto& p) { return p.first == arch; });
+        if (it_machine != kMachineMap.end())
+        {
+            m_machine = it_machine->second;
+        }
+        else if (m_machine_hint)
+        {
+            m_machine = *m_machine_hint;
+        }
     }
 
     if (m_machine == Machine::kArm && m_arm_in_thumb_mode)
