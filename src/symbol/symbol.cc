@@ -28,14 +28,13 @@ Symbol::Symbol(const ISection& section,
 
     auto demangled = cplus_demangle(m_name.c_str(), demangle_flags);
 
-    if (demangled)
+    if (!demangled)
     {
-        m_demanged_name = demangled;
+        // Try the MacOS extra _ as well
+        demangled = cplus_demangle(m_name.substr(1).c_str(), demangle_flags);
     }
-    else
-    {
-        m_demanged_name = m_name;
-    }
+
+    m_demanged_name = demangled ? demangled : m_name;
 
     free(demangled);
 }
