@@ -16,6 +16,7 @@ constexpr auto kMachineTable = std::array {
     std::pair {Machine::kArm64, "ARM64"},
     std::pair {Machine::kMips, "MIPS"},
     std::pair {Machine::kPpc, "PowerPC"},
+    std::pair {Machine::kRiscV, "RiscV"},
 };
 static_assert(kMachineTable.size() == std::to_underlying(Machine::kUnknown));
 

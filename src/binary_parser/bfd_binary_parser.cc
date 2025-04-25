@@ -26,6 +26,7 @@ constexpr auto kMachineMap = std::array {
     std::pair {bfd_arch_powerpc, Machine::kPpc},
     std::pair {bfd_arch_arm, Machine::kArm},
     std::pair {bfd_arch_aarch64, Machine::kArm64},
+    std::pair {bfd_arch_riscv, Machine::kRiscV},
 };
 
 
@@ -401,7 +402,6 @@ BfdBinaryParser::HandleSymbols(long symcount, bfd_symbol** syms, bool dynamic)
         auto sect_it = m_pending_sections.find(section);
         if (sect_it == m_pending_sections.end())
         {
-            fmt::print("Dropping symbol {}, since it has no section\n", sym_name);
             continue;
         }
 

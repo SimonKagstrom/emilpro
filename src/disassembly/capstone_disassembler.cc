@@ -18,6 +18,7 @@ constexpr auto kMachineMap = std::array {
     std::pair {Machine::kArm64, cs_arch::CS_ARCH_ARM64},
     std::pair {Machine::kMips, cs_arch::CS_ARCH_MIPS},
     std::pair {Machine::kPpc, cs_arch::CS_ARCH_PPC},
+    std::pair {Machine::kRiscV, cs_arch::CS_ARCH_RISCV},
 };
 static_assert(kMachineMap.size() == std::to_underlying(Machine::kUnknown));
 
@@ -55,6 +56,9 @@ public:
             break;
         case cs_arch::CS_ARCH_MIPS:
             ProcessMips(insn);
+            break;
+        case cs_arch::CS_ARCH_RISCV:
+            ProcessRiscV(insn);
             break;
         default:
             break;
@@ -249,6 +253,39 @@ private:
         }
     }
 
+    void ProcessRiscV(const cs_insn* insn)
+    {
+        if (insn->id == riscv_insn::RISCV_INS_JAL)
+        {
+            m_refers_to = IInstruction::Referer {
+                nullptr,
+                m_section.StartAddress() +
+                    static_cast<uint64_t>(insn->detail->riscv.operands[0].imm),
+                nullptr};
+        }
+        else if (IsJump(insn) && insn->detail->riscv.op_count > 0 &&
+                 insn->detail->riscv.operands[0].type == RISCV_OP_IMM)
+        {
+            m_refers_to = IInstruction::Referer {
+                &m_section, static_cast<uint64_t>(insn->detail->riscv.operands[0].imm), nullptr};
+        }
+
+        for (auto i = 0u; i < insn->detail->riscv.op_count; i++)
+        {
+            const auto& op = insn->detail->riscv.operands[i];
+            if (op.type == RISCV_OP_REG)
+            {
+                m_used_registers.emplace_back(cs_reg_name(m_handle, op.reg));
+            }
+            if (op.type == RISCV_OP_MEM)
+            {
+                if (op.mem.base != RISCV_REG_INVALID)
+                {
+                    m_used_registers.emplace_back(cs_reg_name(m_handle, op.mem.base));
+                }
+            }
+        }
+    }
 
     bool IsJump(const cs_insn* insn) const
     {
@@ -454,6 +491,10 @@ CapstoneDisassembler::Create(Machine machine)
         break;
     case Machine::kArmThumb:
         mode |= CS_MODE_THUMB;
+        break;
+    case Machine::kRiscV:
+        // TODO: Now hardcodes 32-bit / compressed mode
+        mode |= CS_MODE_RISCV32 | CS_MODE_RISCVC;
         break;
 
     default:

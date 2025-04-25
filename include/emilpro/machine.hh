@@ -17,6 +17,7 @@ enum class Machine : uint8_t
     kArm64,
     kMips,
     kPpc,
+    kRiscV,
 
     kUnknown,
 };
